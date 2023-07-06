@@ -1,18 +1,11 @@
-import type { NextPage } from 'next';
-import Head from 'next/head';
+import type { GetServerSidePropsContext } from 'next';
+import { Paths } from '../utils/path';
 
-const Home: NextPage = () => {
-    return (
-        <div>
-            <Head>
-                <title>Taskany Crew</title>
-            </Head>
+export async function getServerSideProps(_context: GetServerSidePropsContext) {
+    return { redirect: { destination: Paths.TEAMS} };
+}
 
-            <main>
-                <h1>Welcome to Taskany Crew!</h1>
-            </main>
-        </div>
-    );
-};
+export default function HomePage() {
+    return null;
+}
 
-export default Home;

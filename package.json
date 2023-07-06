@@ -10,10 +10,15 @@
   },
   "dependencies": {
     "@sentry/nextjs": "7.56.0",
+    "@taskany/bricks": "1.21.0",
+    "@taskany/colors": "1.1.0",
+    "axios": "1.4.0",
     "next": "13.4.6",
+    "next-themes": "0.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "styled-components": "5.3.0"
+    "react-query": "3.39.3",
+    "styled-components": "5.3.11"
   },
   "devDependencies": {
     "@babel/core": "7.22.5",
