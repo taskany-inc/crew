@@ -8,6 +8,8 @@ import { PageHeader } from '../header/PageHeader';
 import { GlobalStyle } from './GlobalStyle';
 import { Footer } from '@taskany/bricks';
 import styled from 'styled-components';
+import { PageFooter } from '../footer/PageFooter';
+
 
 const StyledContent = styled.div`
     /* presses the footer to the bottom*/
@@ -42,7 +44,7 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, aboveContainer, chi
             {aboveContainer}
 
             <StyledContent>{children}</StyledContent>
-            <Footer />
+            <PageFooter />
         </>
     );
 };
