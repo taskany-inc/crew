@@ -18,6 +18,8 @@ import { LayoutMain } from '../components/layout/LayoutMain';
 import { useRouter } from 'next/router';
 import { gapS, gray10, gray6, gray9, textColor } from '@taskany/colors';
 
+import { tr } from './controllers.i18n';
+
 const StyledTitle = styled(Text)`
     margin-left: 50px;
 `;
@@ -67,7 +69,7 @@ export const UserPage = () => {
             <StyledCardInfo>
                 <StyledInfo>
                     <StyledTitle size="m" color={gray9} weight="bold">
-                        Contacts
+                        {tr('Contacts')}
                     </StyledTitle>
 
                     <StyledText size="s" color={gray9}>
@@ -100,16 +102,16 @@ export const UserPage = () => {
 
                 <StyledInfo>
                     <Text size="m" color={gray9} weight="bold">
-                        Quick summary
+                        {tr('Quick summary')}
                     </Text>
 
                     <Text size="m" color={gray9}>
-                        Supervisor: {user.supervisor?.fullName}
+                        {tr('Supervisor:')} {user.supervisor?.fullName}
                     </Text>
-                    <Text color={gray9}>Cordinator:</Text>
+                    <Text color={gray9}>{tr('Cordinator:')}</Text>
                     <StyledTeamsInfo>
                         <Text size="m" color={gray9} weight="bold">
-                            Teams with participation
+                            {tr(' Teams with participation')}
                         </Text>
                         <div>
                             <ProjectIcon size={15} />

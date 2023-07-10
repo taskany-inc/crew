@@ -1,9 +1,11 @@
 import { LayoutMain } from '../components/layout/LayoutMain';
 
+import { tr } from './controllers.i18n';
+
 export const ServicesPage = () => {
     return (
         <>
-            <LayoutMain pageTitle={'Services'}></LayoutMain>
+            <LayoutMain pageTitle={tr('Services')}></LayoutMain>
         </>
     );
 };

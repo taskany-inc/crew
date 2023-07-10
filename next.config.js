@@ -9,6 +9,10 @@ const nextConfig = {
     reactStrictMode: process.env.STRICT_MODE,
     swcMinify: true,
     output: 'standalone',
+    i18n: {
+        locales: ['en'],
+        defaultLocale: 'en',
+    },
     eslint: {
         ignoreDuringBuilds: true,
     },
