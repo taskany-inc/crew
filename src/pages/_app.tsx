@@ -4,10 +4,13 @@ import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { PageLoadProgress } from '@taskany/bricks';
 import { usePageLoad } from '../hooks/usePageLoad';
+import { TLocale, setSSRLocale } from '../utils/getLang';
 
 const queryClient = new QueryClient();
 
 const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
+    setSSRLocale(router.locale as TLocale);
+    
     const pageLoadRef = usePageLoad(router);
 
     return (

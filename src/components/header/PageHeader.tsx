@@ -5,7 +5,8 @@ import { Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink, SearchIcon
 
 import { PageHeaderLogo } from './PageHeaderLogo';
 import { useHeaderMenu } from './useHeaderMenu';
-import { User } from '../../api-client/user-types';
+
+import { tr } from './header.i18n';
 
 const StyledNav = styled(HeaderNav)`
     margin-left: ${gapL};
@@ -44,7 +45,7 @@ export const PageHeader: React.FC = () => {
                         </HeaderNavLink>
                         // </NextLink>
                     ))}
-                    <StyledText weight={'bold'}>Explore</StyledText>
+                    <StyledText weight={'bold'}>{tr('Explore')}</StyledText>
                     <HeaderSearch>
                         <SearchIcon size={15} color={gray9} />
                     </HeaderSearch>
