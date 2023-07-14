@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@sentry/nextjs": "7.56.0",
-    "@taskany/bricks": "1.22.0",
+    "@taskany/bricks": "1.23.3",
     "@taskany/colors": "1.1.0",
     "axios": "1.4.0",
     "easy-typed-intl": "1.0.3",
