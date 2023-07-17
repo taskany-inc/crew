@@ -19,6 +19,8 @@ import styled from 'styled-components';
 import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
 
+import { tr } from './users.i18n';
+
 const StyledUser = styled.div`
     display: grid;
     grid-template-columns: 12rem 1fr 5vw;
@@ -104,7 +106,7 @@ export const UserProfile = () => {
                 <UserPic size={150} src={user.avatar} />{' '}
                 <StyledCard>
                     <Text size="s" color={gray6}>
-                        {user.source}: Role
+                        {user.source}:
                     </Text>
                     <Text size="l" color={gray10}>
                         Teams
@@ -120,7 +122,7 @@ export const UserProfile = () => {
                 <StyledDetailedUserInfo>
                     <StyledUserInfo>
                         <Text size="m" color={gray9} weight="bold">
-                            Contacts{' '}
+                            {tr('Contacts')}{' '}
                         </Text>
                         <StyledContactsLine />
                     </StyledUserInfo>
@@ -153,7 +155,7 @@ export const UserProfile = () => {
                             <CircleIconInner as={AddSmallIcon} size="m" color={gray2} />
                         </Circle>
                         <Text as="span" color={gray8}>
-                            Add link
+                            {tr('Add link')}
                         </Text>
                     </StyledAddLink>
                 </StyledDetailedUserInfo>
@@ -165,15 +167,14 @@ export const UserProfile = () => {
                     </Circle>
                     <div>
                         <Text as="span" size="m" color={gray9} weight="bold">
-                            Quick summary
+                            {tr('Quick summary')}
                         </Text>
                         <div>
                             {user.supervisor?.fullName && (
                                 <Text size="m" color={gray9}>
-                                    Supervisor: <Text as="span">{user.supervisor?.fullName}</Text>
+                                    {tr('Supervisor:')} <Text as="span">{user.supervisor?.fullName}</Text>
                                 </Text>
                             )}
-                            <Text color={gray9}>Coordinator:</Text>
                         </div>
                     </div>
 
@@ -183,7 +184,7 @@ export const UserProfile = () => {
 
                     <div style={{ marginTop: 20 }}>
                         <Text size="m" color={gray9} weight="bold">
-                            Teams with participation
+                            {tr('Teams with participation')}
                         </Text>
                         {membershipGroupName.map((group) => (
                             <StyledGroups>
