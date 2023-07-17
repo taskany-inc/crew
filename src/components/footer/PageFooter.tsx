@@ -1,8 +1,10 @@
 import { FC } from 'react';
 
-import { Footer } from '@taskany/bricks';
+import { Footer, Link } from '@taskany/bricks';
 
 import { tr } from './footer.i18n';
+import { FooterItem } from '@taskany/bricks/components/Footer';
+import { gray9 } from '@taskany/colors';
 
 export const PageFooter: FC = () => {
     const menuItems = [
@@ -12,5 +14,13 @@ export const PageFooter: FC = () => {
         { title: tr('API'), url: '/api' },
         { title: tr('About'), url: '/about' },
     ];
-    return <Footer menuItems={menuItems} />;
+    return (
+        <Footer>
+            {menuItems.map(({ title, url }) => (
+                <Link key={url} href={url} inline>
+                    <FooterItem color={gray9}>{title}</FooterItem>
+                </Link>
+            ))}
+        </Footer>
+    );
 };
