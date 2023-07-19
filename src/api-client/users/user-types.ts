@@ -55,6 +55,7 @@ declare type GroupMembership = {
     isAdmin: boolean;
     groupName: string;
     roles: Role[];
+    isOrgGroup: boolean;
 };
 
 export declare type Supervisor = {
