@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useUser } from '../../api-client/user-api-hook';
+import { useUser } from '../../api-client/users/user-api-hook';
 import {
     EnvelopeIcon,
     GitHubIcon,
@@ -20,6 +20,7 @@ import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
 
 import { tr } from './users.i18n';
+import { Role } from '../../api-client/users/user-types';
 
 const StyledUser = styled.div`
     display: grid;
@@ -98,7 +99,11 @@ export const UserProfile = () => {
     const userQuery = useUser(String(userId));
     const user = userQuery.data;
     if (!user) return null;
-    const membershipGroupName = user?.groupMemberships.map((item) => item.groupName) || [];
+    const groupMemberships = user?.groupMemberships;
+
+    const orgStructureGroup = groupMemberships.filter(({ isOrgGroup }) => isOrgGroup)[0] || [];
+
+    const teams = groupMemberships.filter(({ isOrgGroup }) => !isOrgGroup);
 
     return (
         <>
@@ -106,10 +111,10 @@ export const UserProfile = () => {
                 <UserPic size={150} src={user.avatar} />{' '}
                 <StyledCard>
                     <Text size="s" color={gray6}>
-                        {user.source}:
+                        {user.source}: {orgStructureGroup.roles.map((role) => role.title)}
                     </Text>
                     <Text size="l" color={gray10}>
-                        Teams
+                        {orgStructureGroup.groupName}
                     </Text>
                     <Text size="xxl">{user.fullName}</Text>
                 </StyledCard>
@@ -170,27 +175,25 @@ export const UserProfile = () => {
                             {tr('Quick summary')}
                         </Text>
                         <div>
-                            {user.supervisor?.fullName && (
-                                <Text size="m" color={gray9}>
-                                    {tr('Supervisor:')} <Text as="span">{user.supervisor?.fullName}</Text>
-                                </Text>
-                            )}
+                            <Text size="m" color={gray9}>
+                                {tr('Supervisor:')} <Text as="span">{user.supervisor?.fullName}</Text>
+                            </Text>
                         </div>
                     </div>
 
                     <Circle size={32}>
                         <CircleIconInner as={ProjectIcon} size="s" color={backgroundColor} />
                     </Circle>
-
                     <div style={{ marginTop: 20 }}>
                         <Text size="m" color={gray9} weight="bold">
                             {tr('Teams with participation')}
                         </Text>
-                        {membershipGroupName.map((group) => (
+                        {teams.map((team) => (
                             <StyledGroups>
                                 <ProjectIcon size={15} color={gray9} />
-                                <StyledText as="span" key={group}>
-                                    {group}
+
+                                <StyledText as="span" key={team.groupName}>
+                                    {team.groupName}
                                 </StyledText>
                             </StyledGroups>
                         ))}
