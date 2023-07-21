@@ -101,7 +101,7 @@ export const UserProfile = () => {
     if (!user) return null;
     const groupMemberships = user?.groupMemberships;
 
-    const orgStructureGroup = groupMemberships.filter(({ isOrgGroup }) => isOrgGroup)[0] || [];
+    const orgStructureGroup = groupMemberships.filter(({ isOrgGroup }) => isOrgGroup)[0];
 
     const teams = groupMemberships.filter(({ isOrgGroup }) => !isOrgGroup);
 
@@ -111,11 +111,14 @@ export const UserProfile = () => {
                 <UserPic size={150} src={user.avatar} />{' '}
                 <StyledCard>
                     <Text size="s" color={gray6}>
-                        {user.source}: {orgStructureGroup.roles.map((role) => role.title)}
+                        {user.source}: {orgStructureGroup && orgStructureGroup.roles.map((role) => role.title)}
                     </Text>
-                    <Text size="l" color={gray10}>
-                        {orgStructureGroup.groupName}
-                    </Text>
+
+                    {orgStructureGroup && (
+                        <Text size="l" color={gray10}>
+                            {orgStructureGroup.groupName}
+                        </Text>
+                    )}
                     <Text size="xxl">{user.fullName}</Text>
                 </StyledCard>
                 <StyledButton>
