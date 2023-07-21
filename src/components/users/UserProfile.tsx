@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import { useUser } from '../../api-client/users/user-api-hook';
 import {
     EnvelopeIcon,
     GitHubIcon,
@@ -13,14 +12,15 @@ import {
     AddSmallIcon,
     PinAltIcon,
 } from '@taskany/bricks';
-import { PageSep } from '../PageSep';
 import { backgroundColor, gapS, gapXs, gray10, gray2, gray6, gray7, gray8, gray9, textColor } from '@taskany/colors';
 import styled from 'styled-components';
+
+import { useUser } from '../../api-client/users/user-api-hook';
+import { PageSep } from '../PageSep';
 import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
 
 import { tr } from './users.i18n';
-import { Role } from '../../api-client/users/user-types';
 
 const StyledUser = styled.div`
     display: grid;
@@ -189,7 +189,7 @@ export const UserProfile = () => {
                             {tr('Teams with participation')}
                         </Text>
                         {teams.map((team) => (
-                            <StyledGroups>
+                            <StyledGroups key={team.uid}>
                                 <ProjectIcon size={15} color={gray9} />
 
                                 <StyledText as="span" key={team.groupName}>
