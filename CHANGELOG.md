@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.2.4](https://github.com/taskany-inc/crew/compare/v0.2.3...v0.2.4) (2023-07-21)
+
+
+### Bug Fixes
+
+* inherit secrets in workflow ([f9707ea](https://github.com/taskany-inc/crew/commit/f9707eaadf38b1b3dd2dcf145e20d0164c7e85b7))
+
 ## [0.2.3](https://github.com/taskany-inc/crew/compare/v0.2.2...v0.2.3) (2023-07-21)
 
 
