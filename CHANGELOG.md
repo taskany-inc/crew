@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.2.2](https://github.com/taskany-inc/crew/compare/v0.2.1...v0.2.2) (2023-07-21)
+
+
+### Bug Fixes
+
+* remove header provider from next config ([82a6954](https://github.com/taskany-inc/crew/commit/82a69543c3017ad238d4e3c6ba16dabcb1d430fc))
+
 ## [0.2.1](https://github.com/taskany-inc/crew/compare/v0.2.0...v0.2.1) (2023-07-21)
 
 
