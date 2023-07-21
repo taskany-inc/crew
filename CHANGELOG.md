@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.2.1](https://github.com/taskany-inc/crew/compare/v0.2.0...v0.2.1) (2023-07-21)
+
+
+### Bug Fixes
+
+* consistent formatting ([8a8e1d0](https://github.com/taskany-inc/crew/commit/8a8e1d0661504613e49d2b1d07d26fb61817bc35))
+
 ## 0.2.0 (2023-07-21)
 
 
