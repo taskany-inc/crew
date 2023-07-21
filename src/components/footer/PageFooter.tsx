@@ -1,10 +1,9 @@
 import { FC } from 'react';
-
 import { Footer, Link } from '@taskany/bricks';
-
-import { tr } from './footer.i18n';
 import { FooterItem } from '@taskany/bricks/components/Footer';
 import { gray9 } from '@taskany/colors';
+
+import { tr } from './footer.i18n';
 
 export const PageFooter: FC = () => {
     const menuItems = [
