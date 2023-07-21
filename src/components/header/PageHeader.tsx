@@ -1,11 +1,18 @@
 import styled from 'styled-components';
 import { gapM, gapL, gray9 } from '@taskany/colors';
-import { Text, UserMenu } from '@taskany/bricks';
-import { Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink, SearchIcon } from '@taskany/bricks';
+import {
+    Text,
+    UserMenu,
+    Header,
+    HeaderContent,
+    HeaderLogo,
+    HeaderNav,
+    HeaderNavLink,
+    SearchIcon,
+} from '@taskany/bricks';
 
 import { PageHeaderLogo } from './PageHeaderLogo';
 import { useHeaderMenu } from './useHeaderMenu';
-
 import { tr } from './header.i18n';
 
 const StyledNav = styled(HeaderNav)`

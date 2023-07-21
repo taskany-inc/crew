@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
+
 import { User } from './user-types';
 
 export const userCacheKey = 'user';
