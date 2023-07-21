@@ -1,5 +1,7 @@
 FROM node:18.12.0-alpine as build
 
+ARG PROXY_BACKEND_AUTH_HEADER
+
 WORKDIR /app
 COPY . .
 RUN npm ci
