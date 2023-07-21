@@ -64,19 +64,6 @@ const nextConfig = {
             ],
         };
     },
-    async headers() {
-        return [
-            {
-                source: '/:api*',
-                headers: [
-                    {
-                        key: 'Authorization',
-                        value: process.env.PROXY_BACKEND_AUTH_HEADER,
-                    },
-                ],
-            },
-        ];
-    },
 };
 
 module.exports =
