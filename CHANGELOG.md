@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.2.3](https://github.com/taskany-inc/crew/compare/v0.2.2...v0.2.3) (2023-07-21)
+
+
+### Bug Fixes
+
+* add backend url env in docker ([d7d7a67](https://github.com/taskany-inc/crew/commit/d7d7a670c732c30f3d6275e8d74e4700d97da1ba))
+
 ## [0.2.2](https://github.com/taskany-inc/crew/compare/v0.2.1...v0.2.2) (2023-07-21)
 
 
