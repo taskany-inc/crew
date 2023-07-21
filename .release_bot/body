@@ -1,0 +1,23 @@
+## Summary
+
+Release type: __minor__. There are 0 BREAKING CHANGES and 7 features.
+
+## 0.2.0 (2023-07-21)
+
+
+### Features
+
+* add Footer ([a572c94](https://github.com/taskany-inc/crew/commit/a572c94a601b7bda8b56f1e449b20eb911388944))
+* add user data ([#27](https://github.com/taskany-inc/crew/issues/27)) ([9a555c3](https://github.com/taskany-inc/crew/commit/9a555c37b0217fc42b3a8b15b858972abe87a3f5))
+* add User page ([e65ddf6](https://github.com/taskany-inc/crew/commit/e65ddf6d82c33cd7f917863d13fe06becdabcff8))
+* backend proxy mode ([b059417](https://github.com/taskany-inc/crew/commit/b05941710905a571f9f00b94074f8585c694843f))
+* basic repo setup ([2eddd4c](https://github.com/taskany-inc/crew/commit/2eddd4caacae81de8308b0486cbdf7a2070c4a14))
+* Support i18n ([89c4274](https://github.com/taskany-inc/crew/commit/89c4274aa33448958f48928cd8e345a7475cb1ce))
+* Support i18n ru ([#23](https://github.com/taskany-inc/crew/issues/23)) ([357caf1](https://github.com/taskany-inc/crew/commit/357caf1a4f137257f4ff597811addc62845d70b8))
+
+
+### Bug Fixes
+
+* add User Page ([#16](https://github.com/taskany-inc/crew/issues/16)) ([af308d6](https://github.com/taskany-inc/crew/commit/af308d6e694183e9ff7532d64e69dd8d58faf96c))
+* Fix footer ([#25](https://github.com/taskany-inc/crew/issues/25)) ([63ba625](https://github.com/taskany-inc/crew/commit/63ba625a2e5f792cb0f33ded51140627924a88a8))
+
