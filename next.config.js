@@ -54,16 +54,6 @@ const nextConfig = {
 
         return config;
     },
-    async rewrites() {
-        return {
-            fallback: [
-                {
-                    source: '/:api*',
-                    destination: process.env.PROXY_BACKEND_URL,
-                },
-            ],
-        };
-    },
 };
 
 module.exports =
