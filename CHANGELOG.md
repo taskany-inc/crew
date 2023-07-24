@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.2.7](https://github.com/taskany-inc/crew/compare/v0.2.6...v0.2.7) (2023-07-24)
+
+
+### Bug Fixes
+
+* rewrite user fetch to next api route ([ebf7ae9](https://github.com/taskany-inc/crew/commit/ebf7ae93ff475be046b3fb06d2962e2a044f7b1b))
+
 ## [0.2.6](https://github.com/taskany-inc/crew/compare/v0.2.5...v0.2.6) (2023-07-24)
 
 
