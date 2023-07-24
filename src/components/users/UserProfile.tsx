@@ -21,6 +21,7 @@ import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
 
 import { tr } from './users.i18n';
+import { pageHrefs } from '../../utils/path';
 
 const StyledUser = styled.div`
     display: grid;
@@ -140,24 +141,34 @@ export const UserProfile = () => {
                             {user.email}
                         </StyledLink>
                     </div>
-                    <div>
-                        <GitLabIcon size={15} color={textColor} />
-                        <StyledLink inline target="_blank" href={user.gitlab?.web_url}>
-                            {user.gitlab?.username}
-                        </StyledLink>
-                    </div>
-                    <div>
-                        <GitHubIcon size={15} color={textColor} />
-                        <StyledLink inline target="_blank" href={`https://github.com/${user.github}`}>
-                            {user.github}
-                        </StyledLink>
-                    </div>
-                    <div>
-                        <TelegramIcon size={15} color={textColor} />
-                        <StyledLink inline target="_blank" href={`https://t.me/${user.telegram}`}>
-                            {user.telegram}
-                        </StyledLink>
-                    </div>
+                    {user.gitlab && (
+                        <div>
+                            <GitLabIcon size={15} color={textColor} />
+                            <StyledLink inline target="_blank" href={user.gitlab?.web_url}>
+                                {user.gitlab?.username}
+                            </StyledLink>
+                        </div>
+                    )}
+                    {user.github && (
+                        <div>
+                            <>
+                                <GitHubIcon size={15} color={textColor} />
+                                <StyledLink inline target="_blank" href={`https://github.com/${user.github}`}>
+                                    {user.github}
+                                </StyledLink>
+                            </>
+                        </div>
+                    )}
+                    {user.telegram && (
+                        <div>
+                            <>
+                                <TelegramIcon size={15} color={textColor} />
+                                <StyledLink inline target="_blank" href={`https://t.me/${user.telegram}`}>
+                                    {user.telegram}
+                                </StyledLink>
+                            </>
+                        </div>
+                    )}
                     <StyledAddLink>
                         <Circle size={14}>
                             <CircleIconInner as={AddSmallIcon} size="m" color={gray2} />
@@ -177,11 +188,17 @@ export const UserProfile = () => {
                         <Text as="span" size="m" color={gray9} weight="bold">
                             {tr('Quick summary')}
                         </Text>
-                        <div>
-                            <Text size="m" color={gray9}>
-                                {tr('Supervisor:')} <Text as="span">{user.supervisor?.fullName}</Text>
-                            </Text>
-                        </div>
+
+                        {user.supervisor && (
+                            <div>
+                                <Text size="m" color={gray9}>
+                                    {tr('Supervisor:')}{' '}
+                                    <Link inline target="_blank" href={pageHrefs.user(user.supervisor?.userId)}>
+                                        {user.supervisor?.fullName}
+                                    </Link>
+                                </Text>
+                            </div>
+                        )}
                     </div>
 
                     <Circle size={32}>
