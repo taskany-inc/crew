@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.2.5](https://github.com/taskany-inc/crew/compare/v0.2.4...v0.2.5) (2023-07-24)
+
+
+### Bug Fixes
+
+* Add user data ([4090bce](https://github.com/taskany-inc/crew/commit/4090bcefa2a3fa51ce1bb364109789f0aca5086a))
+* pass env secrets to build ([a18be66](https://github.com/taskany-inc/crew/commit/a18be6657473cf8d1ac2dfce4a6f3094a04970e7))
+
 ## [0.2.4](https://github.com/taskany-inc/crew/compare/v0.2.3...v0.2.4) (2023-07-21)
 
 
