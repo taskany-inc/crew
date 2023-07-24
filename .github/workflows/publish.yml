@@ -35,8 +35,8 @@ jobs:
           push: true
           tags: taskany/crew:latest,taskany/crew:${{ steps.version.outputs.version }}
           secrets: |
-            PROXY_BACKEND_AUTH_HEADER: ${{ secrets.PROXY_BACKEND_AUTH_HEADER }}
-            PROXY_BACKEND_URL: ${{ secrets.PROXY_BACKEND_URL }}
+            "PROXY_BACKEND_AUTH_HEADER=${{ secrets.PROXY_BACKEND_AUTH_HEADER }}"
+            "PROXY_BACKEND_URL=${{ secrets.PROXY_BACKEND_URL }}"
       - name: Build and Push — Enterprise
         uses: docker/build-push-action@v4
         with:
