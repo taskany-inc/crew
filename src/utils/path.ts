@@ -13,10 +13,11 @@ type ExtractPathVars<T extends string> = T extends `/{${infer Id}}/${infer Rest}
     ? Id | ExtractPathVars<`/${Rest}`>
     : T extends `/{${infer Id}}`
     ? Id
-    : T extends `/${infer _Start}/${infer Rest}`
+    : T extends `/${infer _Start}/${infer Rest}` // eslint-disable-line @typescript-eslint/no-unused-vars
     ? ExtractPathVars<`/${Rest}`>
     : never;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type DetectVarType<T extends string> = T extends `${infer _Start}Id` ? string : string;
 
 type PathVars<Path extends string, Vars extends string = ExtractPathVars<Path>> = {

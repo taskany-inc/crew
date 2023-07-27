@@ -42,7 +42,7 @@ export const PageHeader: React.FC = () => {
                     <PageHeaderLogo />
                 </HeaderLogo>
             }
-            menu={<UserMenu onClick={() => {}} avatar={''} />}
+            menu={<UserMenu onClick={() => {}} avatar="" />}
             nav={
                 <StyledNav>
                     {entityListMenuItems.map((item, index) => (
@@ -52,14 +52,14 @@ export const PageHeader: React.FC = () => {
                         </HeaderNavLink>
                         // </NextLink>
                     ))}
-                    <StyledText weight={'bold'}>{tr('Explore')}</StyledText>
+                    <StyledText weight="bold">{tr('Explore')}</StyledText>
                     <HeaderSearch>
                         <SearchIcon size={15} color={gray9} />
                     </HeaderSearch>
                 </StyledNav>
             }
         >
-            <HeaderContent></HeaderContent>
+            <HeaderContent />
         </Header>
     );
 };
