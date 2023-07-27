@@ -17,9 +17,6 @@ const StyledContent = styled.div`
 type LayoutMainProps = {
     pageTitle: string;
     aboveContainer?: JSX.Element;
-    headerGutter?: string;
-    backlink?: string;
-    hidePageHeader?: boolean;
     children?: ReactNode;
 };
 

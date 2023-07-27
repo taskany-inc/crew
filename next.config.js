@@ -41,6 +41,7 @@ const nextConfig = {
                 if (entries['main.js'] && !entries['main.js'].includes(wdrPath)) {
                     entries['main.js'].push(wdrPath);
                 }
+
                 return entries;
             };
         }

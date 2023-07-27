@@ -11,6 +11,7 @@ const getUser = async (userId: string): Promise<User> => {
 export const useUser = (userId: string) => {
     return useQuery([userCacheKey, userId], async () => getUser(userId), {
         onError: (error) => {
+            // eslint-disable-next-line no-console
             console.log(error);
         },
     });

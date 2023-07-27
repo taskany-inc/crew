@@ -19,9 +19,9 @@ import { useUser } from '../../api-client/users/user-api-hook';
 import { PageSep } from '../PageSep';
 import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
+import { pageHrefs } from '../../utils/path';
 
 import { tr } from './users.i18n';
-import { pageHrefs } from '../../utils/path';
 
 const StyledUser = styled.div`
     display: grid;
@@ -99,7 +99,9 @@ export const UserProfile = () => {
     const { userId } = router.query;
     const userQuery = useUser(String(userId));
     const user = userQuery.data;
+
     if (!user) return null;
+
     const groupMemberships = user?.groupMemberships;
 
     const orgStructureGroup = groupMemberships.filter(({ isOrgGroup }) => isOrgGroup)[0];
@@ -112,10 +114,10 @@ export const UserProfile = () => {
                 <UserPic size={150} src={user.avatar} />{' '}
                 <StyledCard>
                     <Text size="s" color={gray6}>
-                        {user.source}: {orgStructureGroup && orgStructureGroup.roles.map((role) => role.title)}
+                        {user.source}: {!!orgStructureGroup && orgStructureGroup.roles.map((role) => role.title)}
                     </Text>
 
-                    {orgStructureGroup && (
+                    {!!orgStructureGroup && (
                         <Text size="l" color={gray10}>
                             {orgStructureGroup.groupName}
                         </Text>

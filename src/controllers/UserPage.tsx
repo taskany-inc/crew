@@ -3,7 +3,7 @@ import { UserProfile } from '../components/users/UserProfile';
 
 export const UserPage = () => {
     return (
-        <LayoutMain pageTitle={''}>
+        <LayoutMain pageTitle="">
             <UserProfile />
         </LayoutMain>
     );

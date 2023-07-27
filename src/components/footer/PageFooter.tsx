@@ -13,6 +13,7 @@ export const PageFooter: FC = () => {
         { title: tr('API'), url: '/api' },
         { title: tr('About'), url: '/about' },
     ];
+
     return (
         <Footer>
             {menuItems.map(({ title, url }) => (

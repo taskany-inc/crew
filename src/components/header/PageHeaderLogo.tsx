@@ -5,7 +5,7 @@ export const PageHeaderLogo: React.FC = () => {
     // TODO: resolve custom logo from settings in db
 
     return (
-        <NextLink href={''} passHref>
+        <NextLink href="" passHref>
             <TaskanyLogo />
         </NextLink>
     );
