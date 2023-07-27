@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.3.0](https://github.com/taskany-inc/crew/compare/v0.2.7...v0.3.0) (2023-07-27)
+
+
+### Features
+
+* Link to the manager's page ([4fa8c7a](https://github.com/taskany-inc/crew/commit/4fa8c7ad2277c5df3a65830aab05a6c9c39adff2))
+
 ## [0.2.7](https://github.com/taskany-inc/crew/compare/v0.2.6...v0.2.7) (2023-07-24)
 
 
