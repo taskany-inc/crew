@@ -3,6 +3,7 @@ import { ThemeProvider } from 'next-themes';
 import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { PageLoadProgress } from '@taskany/bricks';
+import { SessionProvider } from 'next-auth/react';
 
 import { usePageLoad } from '../hooks/usePageLoad';
 import { TLocale, setSSRLocale } from '../utils/getLang';
@@ -19,12 +20,14 @@ const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
             <Head>
                 <link rel="icon" href="/favicon.png" />
             </Head>
-            <ThemeProvider themes={['light', 'dark']}>
-                <PageLoadProgress height={2} ref={pageLoadRef} />
-                <QueryClientProvider client={queryClient}>
-                    <Component {...pageProps} />
-                </QueryClientProvider>
-            </ThemeProvider>
+            <SessionProvider session={pageProps.session} refetchOnWindowFocus={true}>
+                <ThemeProvider themes={['light', 'dark']}>
+                    <PageLoadProgress height={2} ref={pageLoadRef} />
+                    <QueryClientProvider client={queryClient}>
+                        <Component {...pageProps} />
+                    </QueryClientProvider>
+                </ThemeProvider>
+            </SessionProvider>
         </>
     );
 };
