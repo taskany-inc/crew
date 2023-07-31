@@ -7,6 +7,7 @@ import { SessionProvider } from 'next-auth/react';
 
 import { usePageLoad } from '../hooks/usePageLoad';
 import { TLocale, setSSRLocale } from '../utils/getLang';
+import { trpc } from '../trpc/trpcClient';
 
 const queryClient = new QueryClient();
 
@@ -32,4 +33,4 @@ const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
     );
 };
 
-export default TaskanyCrewApp;
+export default trpc.withTRPC(TaskanyCrewApp);
