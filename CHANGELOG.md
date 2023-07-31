@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.4.0](https://github.com/taskany-inc/crew/compare/v0.3.0...v0.4.0) (2023-07-31)
+
+
+### Features
+
+* **auth:** login with password or keycloak ([f2b6019](https://github.com/taskany-inc/crew/commit/f2b6019d23d4db31ce273503f10b5a467b29acc9))
+
 ## [0.3.0](https://github.com/taskany-inc/crew/compare/v0.2.7...v0.3.0) (2023-07-27)
 
 
