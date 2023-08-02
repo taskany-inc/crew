@@ -17,6 +17,8 @@ import {
     gapL,
     gapM,
     gapS,
+    gapSm,
+    gapXl,
     gapXs,
     gray10,
     gray2,
@@ -60,7 +62,7 @@ const StyledContactsLine = styled(PageSep)`
 const StyledVerticalLine = styled.div`
     border-left: 1px solid ${gray7};
     display: inline-block;
-    margin-left: 70px;
+    margin-left: ${gapXl};
 `;
 
 const StyledDetailedUserInfo = styled.div`
@@ -70,7 +72,7 @@ const StyledDetailedUserInfo = styled.div`
 
 const StyledWrapper = styled.div`
     display: flex;
-    margin-left: 40px;
+    margin-left: ${gapL};
 `;
 
 const StyledUserInfo = styled.div`
@@ -92,7 +94,7 @@ const StyledAddLink = styled.div`
 const StyledGroups = styled.div`
     display: flex;
     flex-direction: row;
-    margin-top: ${gapS};
+    margin-top: ${gapSm};
 `;
 
 const StyledText = styled(Text)`
@@ -101,10 +103,14 @@ const StyledText = styled(Text)`
 
 const StyledActivityFeedItem = styled(ActivityFeedItem)`
     align-items: flex-start;
-    grid-template-columns: 70px 1fr;
+    grid-template-columns: ${gapXl} 1fr;
     justify-content: flex-start;
     position: relative;
     margin-left: -17px;
+`;
+
+const StyledCircle = styled(Circle)`
+    margin-top: ${gapXl};
 `;
 
 export const UserProfile = () => {
@@ -206,7 +212,7 @@ export const UserProfile = () => {
 
                         {user.supervisor && (
                             <div>
-                                <Text size="m" color={gray9}>
+                                <Text size="m" color={gray9} style={{ marginTop: gapSm }}>
                                     {tr('Supervisor:')}{' '}
                                     <Link inline target="_blank" href={pageHrefs.user(user.supervisor?.userId)}>
                                         {user.supervisor?.fullName}
@@ -216,10 +222,10 @@ export const UserProfile = () => {
                         )}
                     </div>
 
-                    <Circle size={32}>
+                    <StyledCircle size={32}>
                         <CircleIconInner as={ProjectIcon} size="s" color={backgroundColor} />
-                    </Circle>
-                    <div style={{ marginTop: 20 }}>
+                    </StyledCircle>
+                    <div style={{ marginTop: gapXl }}>
                         <Text size="m" color={gray9} weight="bold">
                             {tr('Teams with participation')}
                         </Text>
