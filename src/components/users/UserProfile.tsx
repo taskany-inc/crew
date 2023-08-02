@@ -12,7 +12,20 @@ import {
     AddSmallIcon,
     PinAltIcon,
 } from '@taskany/bricks';
-import { backgroundColor, gapS, gapXs, gray10, gray2, gray6, gray7, gray8, gray9, textColor } from '@taskany/colors';
+import {
+    backgroundColor,
+    gapL,
+    gapM,
+    gapS,
+    gapXs,
+    gray10,
+    gray2,
+    gray6,
+    gray7,
+    gray8,
+    gray9,
+    textColor,
+} from '@taskany/colors';
 import styled from 'styled-components';
 
 import { useUser } from '../../api-client/users/user-api-hook';
@@ -26,7 +39,7 @@ import { tr } from './users.i18n';
 const StyledUser = styled.div`
     display: grid;
     grid-template-columns: 12rem 1fr 5vw;
-    padding: 0 30px;
+    padding: ${gapM} ${gapL};
 `;
 
 const StyledCard = styled.div`
