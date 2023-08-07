@@ -1,12 +1,17 @@
 export enum Paths {
     HOME = '/',
 
-    TEAMS = '/teams',
+    TEAMS = '/groups',
+    TEAM = '/groups/{groupId}',
 
     USERS = '/users',
     USER = '/users/{userId}',
 
+    PEOPLE = '/people',
     SERVICES = '/services',
+    PROJECTS = '/projects',
+    GOALS = '/goals',
+    SETTINGS = '/settings',
 }
 
 type ExtractPathVars<T extends string> = T extends `/{${infer Id}}/${infer Rest}`
@@ -29,4 +34,5 @@ export const generatePath = <T extends Paths>(path: T, vars: PathVars<T>): strin
 
 export const pageHrefs = {
     user: (userId: string): string => generatePath(Paths.USER, { userId }),
+    group: (groupId: string): string => generatePath(Paths.TEAM, { groupId }),
 };
