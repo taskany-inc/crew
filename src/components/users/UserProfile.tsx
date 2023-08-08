@@ -97,10 +97,6 @@ const StyledGroups = styled.div`
     margin-top: ${gapSm};
 `;
 
-const StyledText = styled(Text)`
-    margin-left: ${gapS};
-`;
-
 const StyledActivityFeedItem = styled(ActivityFeedItem)`
     align-items: flex-start;
     grid-template-columns: ${gapXl} 1fr;
@@ -148,6 +144,13 @@ export const UserProfile = () => {
                 </StyledButton>
             </StyledUser>
             <PageSep />
+            <StyledUserInfo>
+                <Text size="m" color={gray9} weight="bold">
+                    {tr('Contacts')}{' '}
+                </Text>
+                <StyledContactsLine />
+            </StyledUserInfo>
+
             <StyledWrapper>
                 <StyledDetailedUserInfo>
                     <StyledUserInfo>
@@ -233,9 +236,14 @@ export const UserProfile = () => {
                             <StyledGroups key={team.uid}>
                                 <ProjectIcon size={15} color={gray9} />
 
-                                <StyledText as="span" key={team.groupName}>
+                                <StyledLink
+                                    inline
+                                    target="_blank"
+                                    key={team.groupName}
+                                    href={pageHrefs.group(team.uid)}
+                                >
                                     {team.groupName}
-                                </StyledText>
+                                </StyledLink>
                             </StyledGroups>
                         ))}
                     </div>
