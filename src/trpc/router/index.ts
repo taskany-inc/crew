@@ -1,5 +1,9 @@
 import { router } from '../trpcBackend';
 
-export const trpcRouter = router({});
+import { usersOfGroupIdRouter } from './users-of-group-router';
+
+export const trpcRouter = router({
+    usersOfGroup: usersOfGroupIdRouter,
+});
 
 export type TrpcRouter = typeof trpcRouter;
