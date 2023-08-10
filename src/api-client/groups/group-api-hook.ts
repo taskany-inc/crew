@@ -4,7 +4,7 @@ import { Group } from './group-types';
 
 export const groupCacheKey = 'group';
 
-const getGroup = async (groupId: string): Promise<Group> => {
+export const getGroup = async (groupId: string): Promise<Group> => {
     return fetch(`/api/group/${groupId}`, { method: 'GET' }).then((res) => res.json());
 };
 

@@ -8,6 +8,7 @@ import { useGroup } from '../../api-client/groups/group-api-hook';
 import { CommonHeader } from '../CommonHeader';
 import { FiltersPanel } from '../FiltersPanel';
 import { Paths } from '../../utils/path';
+import { useUsersOfGroup } from '../../hooks/users-of-group-hooks';
 
 const StyledTabsMenu = styled(TabsMenu)`
     margin-left: ${gapL};
@@ -24,6 +25,12 @@ export const TeamProfile = () => {
     const parentQuery = useGroup(String(parentId));
     const parentGroup = parentQuery.data;
 
+    const usersOfGroupQuery = useUsersOfGroup(String(parentId));
+    const users = usersOfGroupQuery.data;
+
+    // console.log(typeof users);
+    // console.log(useUsersOfGroup);
+    if (!users) null;
     if (!parentGroup) return null;
     if (!group) return null;
 

@@ -68,7 +68,7 @@ declare type ApiBot = {
     tokenHash: string;
 };
 
-export interface User {
+export interface User extends Document {
     groupMemberships: GroupMembership[];
     _id: string;
     fullName: string;
@@ -89,3 +89,16 @@ export interface User {
     gitlab?: GitlabInfo;
     mattermost?: MattermostUser;
 }
+
+export type UsersPage = {
+    items: User[];
+    total: number;
+};
+
+export type GroupUsersFetchParams = {
+    groupId: string;
+    roles?: string[];
+    offset?: number;
+    limit?: number;
+    source?: string;
+};

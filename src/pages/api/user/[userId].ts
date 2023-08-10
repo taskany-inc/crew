@@ -7,6 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         method: 'GET',
         headers: { Authorization: process.env.PROXY_BACKEND_AUTH_HEADER as string },
     });
+
     const user = await userResponse.json();
     res.status(200).json(user);
 }
