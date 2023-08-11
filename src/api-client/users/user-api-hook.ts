@@ -1,23 +1,20 @@
-import { useQuery } from 'react-query';
-
-import { GroupUsersFetchParams, User, UsersPage } from './user-types';
+import { User, UsersPage } from './user-types';
 
 export const userCacheKey = 'user';
 export const usersCacheKey = 'users';
 
-const getUser = async (userId: string): Promise<User> => {
-    return fetch(`/api/user/${userId}`, { method: 'GET' }).then((res) => res.json());
-};
-
-export const useUser = (userId: string) => {
-    return useQuery([userCacheKey, userId], async () => getUser(userId), {
-        onError: (error) => {
-            // eslint-disable-next-line no-console
-            console.log(error);
-        },
+export const getUser = async (userId: string): Promise<User> => {
+    const res = await fetch(`${process.env.PROXY_BACKEND_URL}/api/v1/users?userId=${userId}`, {
+        method: 'GET',
+        headers: { Authorization: process.env.PROXY_BACKEND_AUTH_HEADER as string },
     });
+    return res.json();
 };
 
 export const getUsersOfGroup = async (groupId: string): Promise<UsersPage> => {
-    return fetch(`/api/user/group/${groupId}`, { method: 'POST' }).then((res) => res.json());
+    const res = await fetch(`${process.env.PROXY_BACKEND_URL}/api/v1/private/users/group/${groupId}`, {
+        method: 'POST',
+        headers: { Authorization: process.env.PROXY_BACKEND_AUTH_HEADER as string },
+    });
+    return res.json();
 };
