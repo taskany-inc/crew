@@ -30,11 +30,11 @@ import {
 } from '@taskany/colors';
 import styled from 'styled-components';
 
-import { useUser } from '../../api-client/users/user-api-hook';
 import { PageSep } from '../PageSep';
 import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
 import { pageHrefs } from '../../utils/path';
+import { useUser } from '../../hooks/user-hooks';
 
 import { tr } from './users.i18n';
 

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { gapM, gapS, gray10, gray6 } from '@taskany/colors';
-import { Text, nullable } from '@taskany/bricks';
+import { MoreHorizontalIcon, Text, nullable } from '@taskany/bricks';
 
 interface CommonHeaderProps {
     title: React.ReactNode;
@@ -36,9 +36,12 @@ const StyledCommonHeaderTitle = styled(Text)`
 `;
 
 const StyledCommonHeaderSubitle = styled(Text)`
+    display: grid;
+    grid-template-columns: 8fr;
     padding-top: ${gapM};
     transition: color 200ms ease-in-out;
 `;
+
 export const CommonHeader: React.FC<CommonHeaderProps> = ({
     preTitle,
     title,
@@ -55,7 +58,9 @@ export const CommonHeader: React.FC<CommonHeaderProps> = ({
                         {pT}
                     </Text>
                 ))}
+
                 <StyledCommonHeaderSubitle as="span" size="l" weight="bold" color={gray10} onClick={onClick}>
+                    <MoreHorizontalIcon size={15} />
                     {subtitle}
                 </StyledCommonHeaderSubitle>
                 <StyledCommonHeaderTitle size="xxl" weight="bolder">

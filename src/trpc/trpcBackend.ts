@@ -21,6 +21,7 @@ const sessionCheck = t.middleware(({ next, ctx }) => {
     });
 });
 
+export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(sessionCheck);
 
 export const { router, procedure } = t;
