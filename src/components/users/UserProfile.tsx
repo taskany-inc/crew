@@ -144,12 +144,6 @@ export const UserProfile = () => {
                 </StyledButton>
             </StyledUser>
             <PageSep />
-            <StyledUserInfo>
-                <Text size="m" color={gray9} weight="bold">
-                    {tr('Contacts')}{' '}
-                </Text>
-                <StyledContactsLine />
-            </StyledUserInfo>
 
             <StyledWrapper>
                 <StyledDetailedUserInfo>
