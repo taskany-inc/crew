@@ -1,4 +1,4 @@
-import { gray10, gray7, gray9 } from '@taskany/colors';
+import { gray10, gray2, gray9, warn1 } from '@taskany/colors';
 import styled, { css } from 'styled-components';
 
 interface CircleProps {
@@ -9,6 +9,7 @@ export const Circle = styled.span<CircleProps>`
     display: flex;
     border-radius: 50%;
     overflow: hidden;
+    background-color: ${gray2};
 
     ${({ size }) => css`
         width: ${size}px;
@@ -23,7 +24,7 @@ export const CircledIcon = styled.span`
     box-sizing: border-box;
 
     text-align: center;
-    background-color: ${gray7};
+    background-color: ${warn1};
 
     width: 100%;
     height: 100%;
