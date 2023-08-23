@@ -29,7 +29,7 @@ const StyledInlineTrigger = styled(Text)`
 
 const StyledInlineTriggerText = styled.span`
     display: inline-block;
-    padding-left: 0.7rem;
+    padding-left: 0.5rem;
 `;
 
 export const InlineTrigger = forwardRef<HTMLDivElement, InlineTriggerProps>(

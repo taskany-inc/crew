@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import { ModalPreview, TabsMenu, TabsMenuItem, Text } from '@taskany/bricks';
 import styled from 'styled-components';
-import { gapL, gapM, gray10 } from '@taskany/colors';
+import { gapL, gray10 } from '@taskany/colors';
 import { useState } from 'react';
 
 import { CommonHeader } from '../CommonHeader';
@@ -12,15 +12,25 @@ import { useUsersOfGroup } from '../../hooks/users-of-group-hooks';
 import { UserProfileRreview } from '../users/UserProfilePreview';
 import { User } from '../../api-client/users/user-types';
 import { useGroup } from '../../hooks/group-hooks';
+import { Group } from '../../api-client/groups/group-types';
+import { useGroupChildren } from '../../hooks/children-hooks';
+
+import { TeamProfilePreview } from './TeamProfilePreview';
 
 const StyledTabsMenu = styled(TabsMenu)`
     margin-left: ${gapL};
 `;
 
+const StyledModalPreview = styled(ModalPreview)`
+    overflow: visible;
+    height: 100%;
+`;
+
 export const TeamProfile = () => {
     const router = useRouter();
     const [userPreview, setUserPreview] = useState<User | undefined>(undefined);
-    const [open, setOpen] = useState(false);
+    const [groupPreview, setGroupPreview] = useState<Group | undefined>(undefined);
+
     const { groupId } = router.query;
     const userQuery = useGroup(String(groupId));
     const group = userQuery.data;
@@ -32,9 +42,13 @@ export const TeamProfile = () => {
     const usersOfGroupQuery = useUsersOfGroup(String(groupId));
     const users = usersOfGroupQuery.data;
 
+    const groupChildrenQuery = useGroupChildren(String(groupId));
+    const groupChildren = groupChildrenQuery.data;
+
     if (!users) return null;
     if (!parentGroup) return null;
     if (!group) return null;
+    if (!groupChildren) return null;
 
     const tabsMenuOptions: Array<[string, string]> = [
         ['People', Paths.PEOPLE],
@@ -44,9 +58,14 @@ export const TeamProfile = () => {
         ['Settings', Paths.SETTINGS],
     ];
 
-    const onClickUserPreview = (user: User) => {
+    const onClickUserPreview = (user: User | undefined) => {
         setUserPreview(user);
-        setOpen(true);
+        setGroupPreview(undefined);
+    };
+
+    const onClickGroupPreview = (groupData: Group | undefined) => {
+        setGroupPreview(groupData);
+        setUserPreview(undefined);
     };
 
     return (
@@ -67,7 +86,7 @@ export const TeamProfile = () => {
             <FiltersPanel />
 
             <div style={{ marginLeft: gapL }}>
-                <Text>{group.name}</Text>
+                <Text onClick={() => onClickGroupPreview(group)}>{group.name}</Text>
                 {users &&
                     users.items.map((user) => (
                         <Text color={gray10} key={user._id} onClick={() => onClickUserPreview(user)}>
@@ -75,9 +94,13 @@ export const TeamProfile = () => {
                         </Text>
                     ))}
 
-                <ModalPreview visible={open} onClose={() => setOpen(false)}>
+                <StyledModalPreview visible={!!userPreview} onClose={() => onClickUserPreview(undefined)}>
                     <UserProfileRreview user={userPreview} />
-                </ModalPreview>
+                </StyledModalPreview>
+
+                <StyledModalPreview visible={!!groupPreview} onClose={() => onClickGroupPreview(undefined)}>
+                    <TeamProfilePreview group={groupPreview} users={users} groupChildren={groupChildren} />
+                </StyledModalPreview>
             </div>
         </>
     );

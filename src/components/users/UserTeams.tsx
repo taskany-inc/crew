@@ -1,4 +1,4 @@
-import { backgroundColor, gapL, gapM, gapS, gapXs, gray10, gray9 } from '@taskany/colors';
+import { gapL, gapM, gapS, gapXs, gray10, gray9, textColor } from '@taskany/colors';
 import styled from 'styled-components';
 import { Link, PlusIcon, ProjectIcon, Text } from '@taskany/bricks';
 
@@ -29,6 +29,8 @@ const StyledRoles = styled.div`
 const StyledLink = styled(Link)`
     color: ${gray10};
     margin-left: ${gapS};
+    color: ${textColor};
+    font-weight: bold;
 `;
 
 type UserTeamsProps = {
@@ -46,32 +48,33 @@ export const UserTeams = ({ user }: UserTeamsProps) => {
                     Teams
                     <StyledPageSep />
                 </Text>
-                {teams?.map((team) => (
-                    <div key={team.uid}>
-                        <ProjectIcon size={15} color={gray9} />
 
-                        <StyledLink
-                            inline
-                            target="_blank"
-                            color={backgroundColor}
-                            key={team.groupName}
-                            href={pageHrefs.group(team.uid)}
-                        >
-                            {team.groupName}
-                        </StyledLink>
-                        <StyledRoles>
-                            <Text size="s" as="span" color={gray9}>
-                                Role:
-                            </Text>
+                {teams &&
+                    teams?.map((team) => (
+                        <div key={team.uid}>
+                            <ProjectIcon size={15} color={gray9} />
 
-                            {team.roles.map((role) => (
-                                <Text size="s" key={role.title} color={gray10}>
-                                    {role.title},
-                                </Text>
-                            ))}
-                        </StyledRoles>
-                    </div>
-                ))}
+                            <StyledLink
+                                inline
+                                target="_blank"
+                                color={textColor}
+                                key={team.groupName}
+                                href={pageHrefs.group(team.uid)}
+                            >
+                                {team.groupName}
+                            </StyledLink>
+                            <StyledRoles>
+                                {team.roles.length > 0 && (
+                                    <Text size="s" color={gray10}>
+                                        <Text size="s" as="span" color={gray9}>
+                                            Role:
+                                        </Text>{' '}
+                                        {team.roles.map((role) => role.title).join(', ')}
+                                    </Text>
+                                )}
+                            </StyledRoles>
+                        </div>
+                    ))}
 
                 {/* TODO: Link to add to the teams */}
                 <InlineTrigger icon={<PlusIcon noWrap size="xs" />} text={'Add teams'} onClick={() => {}} />

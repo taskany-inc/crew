@@ -1,8 +1,5 @@
 import { User, UsersPage } from './user-types';
 
-export const userCacheKey = 'user';
-export const usersCacheKey = 'users';
-
 export const getUser = async (userId: string): Promise<User> => {
     const res = await fetch(`${process.env.PROXY_BACKEND_URL}/api/v1/users?userId=${userId}`, {
         method: 'GET',
