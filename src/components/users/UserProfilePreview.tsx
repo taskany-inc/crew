@@ -1,8 +1,9 @@
-import { ModalContent, ModalHeader, UserPic, Text } from '@taskany/bricks';
+import { ModalContent, ModalHeader } from '@taskany/bricks';
 import styled from 'styled-components';
-import { gapM, gapS, gapXl } from '@taskany/colors';
+import { gapM } from '@taskany/colors';
 
 import { User } from '../../api-client/users/user-types';
+import { CommonHeaderPreview } from '../CommonHeaderPreview';
 
 import { UserContacts } from './UserContacts';
 import { UserTeams } from './UserTeams';
@@ -15,20 +16,10 @@ const StyledModalHeader = styled(ModalHeader)`
     box-shadow: 0 2px 5px 2px rgb(0 0 0 / 10%);
 `;
 
-const StyledFullName = styled(Text)`
-    align-self: end;
-`;
-
-const StyledCard = styled.div`
-    display: grid;
-    grid-template-columns: 6rem 1fr;
-
-    gap: ${gapS};
-    margin-left: ${gapM};
-`;
-
 const StyledModalContent = styled(ModalContent)`
-    gap: ${gapXl};
+    padding-top: ${gapM};
+    overflow: scroll;
+    height: 100%;
 `;
 
 type UserProps = {
@@ -36,15 +27,19 @@ type UserProps = {
 };
 
 export const UserProfileRreview = ({ user }: UserProps): JSX.Element => {
+    const groupMemberships = user?.groupMemberships;
+
+    const orgStructureGroup = groupMemberships?.filter(({ isOrgGroup }) => isOrgGroup)[0];
+    const roles = orgStructureGroup?.roles.map((role) => role.title).join(', ');
     return (
         <>
             <StyledModalHeader>
-                <StyledCard>
-                    <UserPic size={90} src={user?.avatar} />
-                    <StyledFullName as="span" size="xl">
-                        {user?.fullName}
-                    </StyledFullName>
-                </StyledCard>
+                <CommonHeaderPreview
+                    preTitle={orgStructureGroup?.groupName}
+                    avatar={user?.avatar}
+                    subtitle={!!orgStructureGroup && roles}
+                    title={user?.fullName}
+                />
             </StyledModalHeader>
             <StyledModalContent>
                 <QuickSummary user={user} />

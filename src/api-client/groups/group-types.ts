@@ -19,4 +19,9 @@ export interface GroupDto {
     isOrgGroup?: boolean;
 }
 
+export type GroupsPage = {
+    items: Group[];
+    total: number;
+};
+
 export interface AbcGroup extends GroupDto, Document {}

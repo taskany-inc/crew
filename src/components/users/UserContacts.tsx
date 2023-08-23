@@ -1,4 +1,4 @@
-import { gapL, gapM, gapS, gray10, gray9, textColor } from '@taskany/colors';
+import { gapL, gapM, gapS, gapXs, gray10, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
 import { EnvelopeIcon, GitHubIcon, GitLabIcon, Link, TelegramIcon, Text } from '@taskany/bricks';
 
@@ -12,15 +12,20 @@ const StyledUserInfo = styled.div`
     margin: ${gapS} 0 ${gapL} ${gapM};
 `;
 
-const StyledPageSep = styled(PageSep)`
+const StyledContactsLine = styled(PageSep)`
     white-space: nowrap;
-    margin: 5px 0px;
+    margin: ${gapXs} 0px;
     width: 300px;
 `;
 
 const StyledLink = styled(Link)`
     color: ${gray10};
     margin-left: ${gapS};
+    font-size: 14px;
+`;
+
+const StyledCard = styled.div`
+    height: 100%;
 `;
 
 type UserContactsProps = {
@@ -30,48 +35,44 @@ type UserContactsProps = {
 export const UserContacts = ({ user }: UserContactsProps) => {
     return (
         <>
-            <StyledUserInfo>
-                <div>
+            <StyledCard>
+                <StyledUserInfo>
                     <Text size="m" color={gray9} weight="bold">
                         Contacts
+                        <StyledContactsLine />
                     </Text>
-                    <StyledPageSep />
-                </div>
-                <div>
-                    <EnvelopeIcon size={15} color={textColor} />
-                    <StyledLink inline target="_blank" href={`mailto:${user?.email}`}>
-                        {user?.email}
-                    </StyledLink>
-                </div>
-                {user?.gitlab && (
                     <div>
-                        <GitLabIcon size={15} color={textColor} />
-                        <StyledLink inline target="_blank" href={user?.gitlab?.web_url}>
-                            {user.gitlab?.username}
+                        <EnvelopeIcon size={15} color={gray10} />
+                        <StyledLink inline target="_blank" href={`mailto:${user?.email}`}>
+                            {user?.email}
                         </StyledLink>
                     </div>
-                )}
-                {user?.github && (
-                    <div>
-                        <>
-                            <GitHubIcon size={15} color={textColor} />
-                            <StyledLink inline target="_blank" href={`https://github.com/${user.github}`}>
-                                {user.github}
-                            </StyledLink>
-                        </>
-                    </div>
-                )}
-                {user?.telegram && (
-                    <div>
-                        <>
-                            <TelegramIcon size={15} color={textColor} />
+                    {user?.telegram && (
+                        <div>
+                            <TelegramIcon size={15} color={gray10} />
                             <StyledLink inline target="_blank" href={`https://t.me/${user.telegram}`}>
                                 {user.telegram}
                             </StyledLink>
-                        </>
-                    </div>
-                )}
-            </StyledUserInfo>
+                        </div>
+                    )}
+                    {user?.gitlab && (
+                        <div>
+                            <GitLabIcon size={15} color={gray10} />
+                            <StyledLink inline target="_blank" href={user?.gitlab?.web_url}>
+                                {user.gitlab?.username}
+                            </StyledLink>
+                        </div>
+                    )}
+                    {user?.github && (
+                        <div>
+                            <GitHubIcon size={15} color={gray10} />
+                            <StyledLink inline target="_blank" href={`https://github.com/${user.github}`}>
+                                {user.github}
+                            </StyledLink>
+                        </div>
+                    )}
+                </StyledUserInfo>
+            </StyledCard>
         </>
     );
 };

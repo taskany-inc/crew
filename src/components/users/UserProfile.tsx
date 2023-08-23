@@ -15,7 +15,6 @@ import {
 import {
     backgroundColor,
     gapL,
-    gapM,
     gapS,
     gapSm,
     gapXl,
@@ -48,6 +47,12 @@ const StyledCard = styled.div`
     flex-direction: column;
     align-self: end;
     gap: ${gapS};
+`;
+
+const StyledGroupLink = styled(Link)`
+    font-size: 21px;
+    color: ${gray10};
+    font-weight: 700;
 `;
 
 const StyledButton = styled.div`
@@ -85,8 +90,7 @@ const StyledLink = styled(Link)`
 const StyledAddLink = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${gapS};
-    margin-top: ${gapXs};
+    margin-top: ${gapS};
 `;
 
 const StyledGroups = styled.div`
@@ -126,16 +130,18 @@ export const UserProfile = () => {
             <StyledUser>
                 <UserPic size={150} src={user.avatar} />{' '}
                 <StyledCard>
-                    <Text size="s" color={gray6}>
-                        {user.source}: {!!orgStructureGroup && orgStructureGroup.roles.map((role) => role.title)}
+                    <Text size="s" color={gray6} weight="bold">
+                        {!!orgStructureGroup && orgStructureGroup.roles.map((role) => role.title).join(', ')}
                     </Text>
 
                     {!!orgStructureGroup && (
-                        <Text size="l" color={gray10}>
+                        <StyledGroupLink inline target="_blank" href={pageHrefs.group(orgStructureGroup.uid)}>
                             {orgStructureGroup.groupName}
-                        </Text>
+                        </StyledGroupLink>
                     )}
-                    <Text size="xxl">{user.fullName}</Text>
+                    <Text size="xxl" weight="bold">
+                        {user.fullName}
+                    </Text>
                 </StyledCard>
                 <StyledButton>
                     <Button onClick={() => {}} text="Edit" color={textColor} size="s" />

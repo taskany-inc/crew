@@ -3,9 +3,11 @@ import { gapM, gapS, gray10, gray6 } from '@taskany/colors';
 import { MoreHorizontalIcon, Text, nullable } from '@taskany/bricks';
 
 interface CommonHeaderProps {
-    title: React.ReactNode;
+    title?: React.ReactNode;
     subtitle?: React.ReactNode;
     preTitle?: React.ReactNode;
+    titlePreview?: React.ReactNode;
+    subtitlePreview?: React.ReactNode;
     description?: React.ReactNode;
     children?: React.ReactNode;
     onClick?: () => void;
@@ -49,6 +51,8 @@ export const CommonHeader: React.FC<CommonHeaderProps> = ({
     description,
     children,
     onClick,
+    titlePreview,
+    subtitlePreview,
 }) => {
     return (
         <StyledCommonHeader>
@@ -65,6 +69,12 @@ export const CommonHeader: React.FC<CommonHeaderProps> = ({
                 </StyledCommonHeaderSubitle>
                 <StyledCommonHeaderTitle size="xxl" weight="bolder">
                     {title}
+                </StyledCommonHeaderTitle>
+                <StyledCommonHeaderSubitle as="span" size="l" weight="bold" color={gray10} onClick={onClick}>
+                    {subtitlePreview}
+                </StyledCommonHeaderSubitle>
+                <StyledCommonHeaderTitle size="xl" weight="bolder">
+                    {titlePreview}
                 </StyledCommonHeaderTitle>
 
                 {nullable(description, (d) => (
