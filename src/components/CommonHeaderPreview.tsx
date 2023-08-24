@@ -31,7 +31,7 @@ const StyledCommonHeaderPreviewInfo = styled.div<{ align: 'left' | 'right' }>`
         `}
 `;
 
-const StyledCommonHeaderTitle = styled(Text)`
+const StyledCommonHeaderPreviewTitle = styled(Text)`
     width: 850px;
 `;
 
@@ -66,9 +66,9 @@ export const CommonHeaderPreview: React.FC<CommonHeaderPreviewProps> = ({
                 <StyledCommonHeaderPreviewSubitle as="span" size="m" weight="bold" color={gray10} onClick={onClick}>
                     {subtitle}
                 </StyledCommonHeaderPreviewSubitle>
-                <StyledCommonHeaderTitle size="xl" weight="bold">
+                <StyledCommonHeaderPreviewTitle size="xl" weight="bold">
                     {title}
-                </StyledCommonHeaderTitle>
+                </StyledCommonHeaderPreviewTitle>
             </StyledCommonHeaderPreviewInfo>
 
             {children}
