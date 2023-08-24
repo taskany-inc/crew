@@ -6,8 +6,6 @@ interface CommonHeaderProps {
     title?: React.ReactNode;
     subtitle?: React.ReactNode;
     preTitle?: React.ReactNode;
-    titlePreview?: React.ReactNode;
-    subtitlePreview?: React.ReactNode;
     description?: React.ReactNode;
     children?: React.ReactNode;
     onClick?: () => void;
@@ -33,6 +31,10 @@ const StyledCommonHeaderInfo = styled.div<{ align: 'left' | 'right' }>`
         `}
 `;
 
+const StyledMoreHorizontalIcon = styled(MoreHorizontalIcon)`
+    margin-bottom: -0.5rem;
+`;
+
 const StyledCommonHeaderTitle = styled(Text)`
     width: 850px;
 `;
@@ -51,8 +53,6 @@ export const CommonHeader: React.FC<CommonHeaderProps> = ({
     description,
     children,
     onClick,
-    titlePreview,
-    subtitlePreview,
 }) => {
     return (
         <StyledCommonHeader>
@@ -64,17 +64,11 @@ export const CommonHeader: React.FC<CommonHeaderProps> = ({
                 ))}
 
                 <StyledCommonHeaderSubitle as="span" size="l" weight="bold" color={gray10} onClick={onClick}>
-                    <MoreHorizontalIcon size={15} />
+                    <StyledMoreHorizontalIcon size={15} />
                     {subtitle}
                 </StyledCommonHeaderSubitle>
                 <StyledCommonHeaderTitle size="xxl" weight="bolder">
                     {title}
-                </StyledCommonHeaderTitle>
-                <StyledCommonHeaderSubitle as="span" size="l" weight="bold" color={gray10} onClick={onClick}>
-                    {subtitlePreview}
-                </StyledCommonHeaderSubitle>
-                <StyledCommonHeaderTitle size="xl" weight="bolder">
-                    {titlePreview}
                 </StyledCommonHeaderTitle>
 
                 {nullable(description, (d) => (

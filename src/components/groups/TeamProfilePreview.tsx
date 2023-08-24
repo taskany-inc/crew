@@ -1,10 +1,21 @@
-import { BinIcon, Link, ModalContent, ModalHeader, MoreHorizontalIcon, Text, UserPic } from '@taskany/bricks';
+import {
+    BinIcon,
+    FlowIcon,
+    GitForkIcon,
+    Link,
+    ModalContent,
+    ModalHeader,
+    MoreHorizontalIcon,
+    Text,
+    UserPic,
+} from '@taskany/bricks';
 import styled from 'styled-components';
 import { gapL, gapM, gapS, gapXl, gapXs, gray8, gray9, textColor } from '@taskany/colors';
+import router from 'next/router';
 
 import { Group, GroupsPage } from '../../api-client/groups/group-types';
 import { useGroup } from '../../hooks/group-hooks';
-import { UsersPage } from '../../api-client/users/user-types';
+import { User, UsersPage } from '../../api-client/users/user-types';
 import { pageHrefs } from '../../utils/path';
 import { PageSep } from '../PageSep';
 import { CommonHeaderPreview } from '../CommonHeaderPreview';
@@ -60,7 +71,7 @@ export const TeamProfilePreview = ({ group, users, groupChildren }: UserProps): 
     const parentId = group?.parentId;
     const parentQuery = useGroup(String(parentId));
     const parentGroup = parentQuery.data;
-    const supervisor = users?.items.map((user) => user)[0];
+    const admin = users?.items.find((user) => user.groupMemberships.find((i) => i.groupName && group?._id === i.uid));
 
     return (
         <>
@@ -70,23 +81,26 @@ export const TeamProfilePreview = ({ group, users, groupChildren }: UserProps): 
             </StyledModalHeader>
             <StyledModalContent>
                 <StyledQuickSummary>
-                    {supervisor && (
-                        <>
-                            <Text as="span" size="m" color={gray9} weight="bold">
-                                Quick summary
-                                <StyledPageSep />
+                    <>
+                        <Text as="span" size="m" color={gray9} weight="bold">
+                            Quick summary
+                            <StyledPageSep />
+                        </Text>
+                        <div>
+                            <Text as="span" size="m" color={gray9}>
+                                Supervisor:{' '}
                             </Text>
-                            <div>
-                                <Text as="span" size="m" color={gray9}>
-                                    Supervisor:{' '}
-                                </Text>
-                                <UserPic size={17} src={supervisor?.avatar} />
-                                <StyledSupervisorLink inline target="_blank" href={pageHrefs.user(supervisor?._id)}>
-                                    {supervisor?.fullName}
+                            {admin?.supervisor && (
+                                <StyledSupervisorLink
+                                    inline
+                                    target="_blank"
+                                    href={pageHrefs.user(admin.supervisor?.userId)}
+                                >
+                                    {admin?.supervisor?.fullName}
                                 </StyledSupervisorLink>
-                            </div>
-                        </>
-                    )}
+                            )}
+                        </div>
+                    </>
                 </StyledQuickSummary>
 
                 <TeamChildren groupChildren={groupChildren} />
