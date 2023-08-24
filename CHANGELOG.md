@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.6.0](https://github.com/taskany-inc/crew/compare/v0.5.0...v0.6.0) (2023-08-24)
+
+
+### Features
+
+* group preview popup ([66c6990](https://github.com/taskany-inc/crew/commit/66c6990e68d3df4e391fb093615e28bda69fa13f))
+* user preview in popup ([2054ae7](https://github.com/taskany-inc/crew/commit/2054ae715ff9f1a677a2dc1627674954790a6ae6))
+* user preview in popup ([615fc67](https://github.com/taskany-inc/crew/commit/615fc677c1ab22bfe49ede63c0713fdca885c3a4))
+
+
+### Bug Fixes
+
+* contacts paddings are non-consistent ([11ed8d3](https://github.com/taskany-inc/crew/commit/11ed8d3f5eb197746309d7d0ff488580209f52ae))
+* group preview popup ([8549d21](https://github.com/taskany-inc/crew/commit/8549d217820428bd0fcb6e06ea5954be09f2b64d))
+
 ## [0.5.0](https://github.com/taskany-inc/crew/compare/v0.4.1...v0.5.0) (2023-08-16)
 
 
