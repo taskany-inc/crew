@@ -1,17 +1,14 @@
 import { useRouter } from 'next/router';
+import { Link, UserPic, Text, Button } from '@taskany/bricks';
 import {
-    EnvelopeIcon,
-    GitHubIcon,
-    GitLabIcon,
-    Link,
-    TelegramIcon,
-    UserPic,
-    Text,
-    ProjectIcon,
-    Button,
-    PinAltIcon,
-    PlusIcon,
-} from '@taskany/bricks';
+    IconPlusCircleOutline,
+    IconEnvelopeOutline,
+    IconGithubOutline,
+    IconPinAltOutline,
+    IconTelegramOutline,
+    IconUsersOutline,
+    IconGitlabOutline,
+} from '@taskany/icons';
 import {
     backgroundColor,
     gapL,
@@ -93,6 +90,11 @@ const StyledAddLink = styled.div`
     margin-top: ${gapS};
 `;
 
+const StyledSupervisorLink = styled(Link)`
+    color: ${textColor};
+    font-weight: 500;
+`;
+
 const StyledGroups = styled.div`
     display: flex;
     flex-direction: row;
@@ -109,6 +111,12 @@ const StyledActivityFeedItem = styled(ActivityFeedItem)`
 
 const StyledCircle = styled(Circle)`
     margin-top: ${gapXl};
+`;
+
+const StyledTeamsLink = styled(Link)`
+    margin-left: ${gapS};
+    color: ${textColor};
+    font-weight: 500;
 `;
 
 export const UserProfile = () => {
@@ -128,7 +136,7 @@ export const UserProfile = () => {
     return (
         <>
             <StyledUser>
-                <UserPic size={150} src={user.avatar} />{' '}
+                <UserPic size={150} src={user.avatar || user.email} />{' '}
                 <StyledCard>
                     <Text size="s" color={gray6} weight="bold">
                         {!!orgStructureGroup && orgStructureGroup.roles.map((role) => role.title).join(', ')}
@@ -156,7 +164,7 @@ export const UserProfile = () => {
                     </Text>
 
                     <div>
-                        <EnvelopeIcon size={15} color={textColor} />
+                        <IconEnvelopeOutline size={15} color={textColor} />
                         <StyledLink inline target="_blank" href={`mailto:${user.email}`}>
                             {user.email}
                         </StyledLink>
@@ -164,7 +172,7 @@ export const UserProfile = () => {
 
                     {user.telegram && (
                         <div>
-                            <TelegramIcon size={15} color={textColor} />
+                            <IconTelegramOutline size={15} color={textColor} />
                             <StyledLink inline target="_blank" href={`https://t.me/${user.telegram}`}>
                                 {user.telegram}
                             </StyledLink>
@@ -173,7 +181,7 @@ export const UserProfile = () => {
 
                     {user.gitlab && (
                         <div>
-                            <GitLabIcon size={15} color={textColor} />
+                            <IconGitlabOutline size={15} color={textColor} />
                             <StyledLink inline target="_blank" href={user.gitlab?.web_url}>
                                 {user.gitlab?.username}
                             </StyledLink>
@@ -182,7 +190,7 @@ export const UserProfile = () => {
 
                     {user.github && (
                         <div>
-                            <GitHubIcon size={15} color={textColor} />
+                            <IconGithubOutline size={15} color={textColor} />
                             <StyledLink inline target="_blank" href={`https://github.com/${user.github}`}>
                                 {user.github}
                             </StyledLink>
@@ -194,7 +202,7 @@ export const UserProfile = () => {
                         <InlineTrigger
                             icon={
                                 <Circle size={16}>
-                                    <CircleIconInner as={PlusIcon} size="l" color={backgroundColor} />
+                                    <CircleIconInner as={IconPlusCircleOutline} size="l" color={backgroundColor} />
                                 </Circle>
                             }
                             text={'Add link'}
@@ -207,7 +215,7 @@ export const UserProfile = () => {
 
                 <StyledActivityFeedItem>
                     <Circle size={32}>
-                        <CircleIconInner as={PinAltIcon} size="s" color={backgroundColor} />
+                        <CircleIconInner as={IconPinAltOutline} size="s" color={backgroundColor} />
                     </Circle>
                     <div>
                         <Text as="span" size="m" color={gray9} weight="bold">
@@ -218,16 +226,20 @@ export const UserProfile = () => {
                             <div>
                                 <Text size="m" color={gray9} style={{ marginTop: gapSm }}>
                                     {tr('Supervisor:')}{' '}
-                                    <Link inline target="_blank" href={pageHrefs.user(user.supervisor?.userId)}>
+                                    <StyledSupervisorLink
+                                        inline
+                                        target="_blank"
+                                        href={pageHrefs.user(user.supervisor?.userId)}
+                                    >
                                         {user.supervisor?.fullName}
-                                    </Link>
+                                    </StyledSupervisorLink>
                                 </Text>
                             </div>
                         )}
                     </div>
 
                     <StyledCircle size={32}>
-                        <CircleIconInner as={ProjectIcon} size="s" color={backgroundColor} />
+                        <CircleIconInner as={IconUsersOutline} size="s" color={backgroundColor} />
                     </StyledCircle>
                     <div style={{ marginTop: gapXl }}>
                         <Text size="m" color={gray9} weight="bold">
@@ -235,16 +247,16 @@ export const UserProfile = () => {
                         </Text>
                         {teams.map((team) => (
                             <StyledGroups key={team.uid}>
-                                <ProjectIcon size={15} color={gray9} />
+                                <IconUsersOutline size={15} color={gray9} />
 
-                                <StyledLink
+                                <StyledTeamsLink
                                     inline
                                     target="_blank"
                                     key={team.groupName}
                                     href={pageHrefs.group(team.uid)}
                                 >
                                     {team.groupName}
-                                </StyledLink>
+                                </StyledTeamsLink>
                             </StyledGroups>
                         ))}
                     </div>

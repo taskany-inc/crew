@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { gapL, gapM, gapS, gray9, textColor } from '@taskany/colors';
-import { UserPic, Text, PlusIcon, Link } from '@taskany/bricks';
+import { UserPic, Text, Link } from '@taskany/bricks';
+import { IconPlusCircleOutline } from '@taskany/icons';
 
 import { PageSep } from '../PageSep';
 import { InlineTrigger } from '../InlineTrigger';
@@ -40,8 +41,8 @@ export const TeamPeople = ({ users }: TeamPeopleProps) => {
             </Text>
 
             {users?.items.map((user) => (
-                <div key={user._id} style={{ gap: gapS }}>
-                    <UserPic size={17} src={user?.avatar} />
+                <div key={user._id} style={{ gap: gapS, display: 'flex' }}>
+                    <UserPic size={17} src={user?.avatar || user?.email} />
                     <StyledLink inline target="_blank" href={pageHrefs.user(user._id)}>
                         {user.fullName}
                     </StyledLink>
@@ -49,7 +50,11 @@ export const TeamPeople = ({ users }: TeamPeopleProps) => {
             ))}
 
             {/* TODO: Link to "Add participant" */}
-            <InlineTrigger icon={<PlusIcon noWrap size="xs" />} text={'Add participant'} onClick={() => {}} />
+            <InlineTrigger
+                icon={<IconPlusCircleOutline noWrap size="s" />}
+                text={'Add participant'}
+                onClick={() => {}}
+            />
         </StyledUsers>
     );
 };

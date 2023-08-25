@@ -1,6 +1,7 @@
 import { gapL, gapM, gapS, gapXs, gray10, gray9, textColor } from '@taskany/colors';
 import styled from 'styled-components';
-import { Link, PlusIcon, ProjectIcon, Text } from '@taskany/bricks';
+import { Link, Text } from '@taskany/bricks';
+import { IconPlusCircleOutline, IconUsersOutline } from '@taskany/icons';
 
 import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
@@ -52,7 +53,7 @@ export const UserTeams = ({ user }: UserTeamsProps) => {
                 {teams &&
                     teams?.map((team) => (
                         <div key={team.uid}>
-                            <ProjectIcon size={15} color={gray9} />
+                            <IconUsersOutline size={13} color={gray9} />
 
                             <StyledLink
                                 inline
@@ -77,7 +78,7 @@ export const UserTeams = ({ user }: UserTeamsProps) => {
                     ))}
 
                 {/* TODO: Link to add to the teams */}
-                <InlineTrigger icon={<PlusIcon noWrap size="xs" />} text={'Add teams'} onClick={() => {}} />
+                <InlineTrigger icon={<IconPlusCircleOutline noWrap size="s" />} text={'Add teams'} onClick={() => {}} />
             </StyledUserTeams>
         </>
     );

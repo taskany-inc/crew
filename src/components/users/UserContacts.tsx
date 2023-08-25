@@ -1,6 +1,7 @@
 import { gapL, gapM, gapS, gapXs, gray10, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
-import { EnvelopeIcon, GitHubIcon, GitLabIcon, Link, TelegramIcon, Text } from '@taskany/bricks';
+import { Link, Text } from '@taskany/bricks';
+import { IconEnvelopeOutline, IconGithubOutline, IconGitlabOutline, IconTelegramOutline } from '@taskany/icons';
 
 import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
@@ -42,14 +43,14 @@ export const UserContacts = ({ user }: UserContactsProps) => {
                         <StyledContactsLine />
                     </Text>
                     <div>
-                        <EnvelopeIcon size={15} color={gray10} />
+                        <IconEnvelopeOutline size={15} color={gray10} />
                         <StyledLink inline target="_blank" href={`mailto:${user?.email}`}>
                             {user?.email}
                         </StyledLink>
                     </div>
                     {user?.telegram && (
                         <div>
-                            <TelegramIcon size={15} color={gray10} />
+                            <IconTelegramOutline size={15} color={gray10} />
                             <StyledLink inline target="_blank" href={`https://t.me/${user.telegram}`}>
                                 {user.telegram}
                             </StyledLink>
@@ -57,7 +58,7 @@ export const UserContacts = ({ user }: UserContactsProps) => {
                     )}
                     {user?.gitlab && (
                         <div>
-                            <GitLabIcon size={15} color={gray10} />
+                            <IconGitlabOutline size={15} color={gray10} />
                             <StyledLink inline target="_blank" href={user?.gitlab?.web_url}>
                                 {user.gitlab?.username}
                             </StyledLink>
@@ -65,7 +66,7 @@ export const UserContacts = ({ user }: UserContactsProps) => {
                     )}
                     {user?.github && (
                         <div>
-                            <GitHubIcon size={15} color={gray10} />
+                            <IconGithubOutline size={15} color={gray10} />
                             <StyledLink inline target="_blank" href={`https://github.com/${user.github}`}>
                                 {user.github}
                             </StyledLink>

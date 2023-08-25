@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { gapM, gapS, gray10, gray6 } from '@taskany/colors';
-import { MoreHorizontalIcon, Text, nullable } from '@taskany/bricks';
+import { Text, nullable } from '@taskany/bricks';
+import { IconMoreHorizontalOutline } from '@taskany/icons';
 
 interface CommonHeaderProps {
     title?: React.ReactNode;
@@ -31,7 +32,7 @@ const StyledCommonHeaderInfo = styled.div<{ align: 'left' | 'right' }>`
         `}
 `;
 
-const StyledMoreHorizontalIcon = styled(MoreHorizontalIcon)`
+const StyledMoreHorizontalIcon = styled(IconMoreHorizontalOutline)`
     margin-bottom: -0.5rem;
 `;
 

@@ -1,16 +1,8 @@
 import styled from 'styled-components';
 import { gapM, gapL, gray9 } from '@taskany/colors';
-import {
-    Text,
-    UserMenu,
-    Header,
-    HeaderContent,
-    HeaderLogo,
-    HeaderNav,
-    HeaderNavLink,
-    SearchIcon,
-} from '@taskany/bricks';
 import { useSession } from 'next-auth/react';
+import { Text, UserMenu, Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink } from '@taskany/bricks';
+import { IconSearchOutline } from '@taskany/icons';
 
 import { PageHeaderLogo } from './PageHeaderLogo';
 import { useHeaderMenu } from './useHeaderMenu';
@@ -56,7 +48,7 @@ export const PageHeader: React.FC = () => {
                     ))}
                     <StyledText weight="bold">{tr('Explore')}</StyledText>
                     <HeaderSearch>
-                        <SearchIcon size={15} color={gray9} />
+                        <IconSearchOutline size={15} color={gray9} />
                     </HeaderSearch>
                 </StyledNav>
             }

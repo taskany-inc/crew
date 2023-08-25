@@ -1,21 +1,11 @@
-import {
-    BinIcon,
-    FlowIcon,
-    GitForkIcon,
-    Link,
-    ModalContent,
-    ModalHeader,
-    MoreHorizontalIcon,
-    Text,
-    UserPic,
-} from '@taskany/bricks';
+import { Link, ModalContent, ModalHeader, Text } from '@taskany/bricks';
 import styled from 'styled-components';
-import { gapL, gapM, gapS, gapXl, gapXs, gray8, gray9, textColor } from '@taskany/colors';
-import router from 'next/router';
+import { gapL, gapM, gapS, gapXl, gapXs, gray9, textColor } from '@taskany/colors';
+import { IconBinOutline, IconGitPullOutline } from '@taskany/icons';
 
 import { Group, GroupsPage } from '../../api-client/groups/group-types';
 import { useGroup } from '../../hooks/group-hooks';
-import { User, UsersPage } from '../../api-client/users/user-types';
+import { UsersPage } from '../../api-client/users/user-types';
 import { pageHrefs } from '../../utils/path';
 import { PageSep } from '../PageSep';
 import { CommonHeaderPreview } from '../CommonHeaderPreview';
@@ -55,9 +45,8 @@ const StyledSupervisorLink = styled(Link)`
     margin-left: ${gapS};
 `;
 
-const StyledBinIcon = styled.div`
+const Wrapper = styled.div`
     height: 100%;
-    gap: ${gapS};
     margin: ${gapS} 0 ${gapL} ${gapM};
 `;
 
@@ -76,7 +65,6 @@ export const TeamProfilePreview = ({ group, users, groupChildren }: UserProps): 
     return (
         <>
             <StyledModalHeader>
-                <MoreHorizontalIcon size={15} color={gray8} style={{ marginLeft: gapM }} />
                 <CommonHeaderPreview subtitle={parentGroup?.name} title={group?.name} />
             </StyledModalHeader>
             <StyledModalContent>
@@ -107,10 +95,21 @@ export const TeamProfilePreview = ({ group, users, groupChildren }: UserProps): 
 
                 <TeamPeople users={users} />
 
-                <StyledBinIcon>
+                <Wrapper>
                     <StyledPageSep />
-                    <InlineTrigger icon={<BinIcon noWrap size="xs" />} text={'Archive group'} onClick={() => {}} />
-                </StyledBinIcon>
+                    <InlineTrigger
+                        icon={<IconGitPullOutline noWrap size="xs" />}
+                        text={'Transfer group'}
+                        onClick={() => {}}
+                    />
+                    <div style={{ marginTop: gapS }}>
+                        <InlineTrigger
+                            icon={<IconBinOutline noWrap size="xs" />}
+                            text={'Archive group'}
+                            onClick={() => {}}
+                        />
+                    </div>
+                </Wrapper>
             </StyledModalContent>
         </>
     );
