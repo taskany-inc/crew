@@ -14,7 +14,7 @@ interface CommonHeaderPreviewProps {
 const StyledCommonHeaderPreview = styled.div`
     display: flex;
     grid-template-columns: 4fr, 8fr 4fr;
-    padding: ${gapXs} ${gapL} 0 ${gapM};
+    padding: ${gapXs} ${gapL} 0 ${gapXs};
 `;
 
 const StyledCommonHeaderPreviewInfo = styled.div<{ align: 'left' | 'right' }>`
@@ -33,12 +33,14 @@ const StyledCommonHeaderPreviewInfo = styled.div<{ align: 'left' | 'right' }>`
 
 const StyledCommonHeaderPreviewTitle = styled(Text)`
     width: 850px;
+    margin-top: ${gapXs};
 `;
 
 const StyledCommonHeaderPreviewSubitle = styled(Text)`
     display: grid;
     grid-template-columns: 8fr;
     transition: color 200ms ease-in-out;
+    margin-top: ${gapXs};
 `;
 
 export const CommonHeaderPreview: React.FC<CommonHeaderPreviewProps> = ({
@@ -51,11 +53,9 @@ export const CommonHeaderPreview: React.FC<CommonHeaderPreviewProps> = ({
 }) => {
     return (
         <StyledCommonHeaderPreview>
-            {avatar && (
-                <StyledCommonHeaderPreviewInfo align="right" style={{ marginRight: gapM }}>
-                    {avatar && <UserPic size={75} src={avatar} />}
-                </StyledCommonHeaderPreviewInfo>
-            )}
+            <StyledCommonHeaderPreviewInfo align="right" style={{ marginRight: gapM }}>
+                <UserPic size={75} src={avatar} />
+            </StyledCommonHeaderPreviewInfo>
             <StyledCommonHeaderPreviewInfo align="left">
                 {nullable(preTitle, (pT) => (
                     <Text size="s" weight="bold" color={gray6}>
@@ -63,7 +63,7 @@ export const CommonHeaderPreview: React.FC<CommonHeaderPreviewProps> = ({
                     </Text>
                 ))}
 
-                <StyledCommonHeaderPreviewSubitle as="span" size="m" weight="bold" color={gray10} onClick={onClick}>
+                <StyledCommonHeaderPreviewSubitle as="span" size="l" weight="bold" color={gray10} onClick={onClick}>
                     {subtitle}
                 </StyledCommonHeaderPreviewSubitle>
                 <StyledCommonHeaderPreviewTitle size="xl" weight="bold">

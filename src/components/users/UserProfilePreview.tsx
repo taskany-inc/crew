@@ -1,6 +1,6 @@
 import { ModalContent, ModalHeader } from '@taskany/bricks';
 import styled from 'styled-components';
-import { gapM } from '@taskany/colors';
+import { gapL, gapM, gapSm } from '@taskany/colors';
 
 import { User } from '../../api-client/users/user-types';
 import { CommonHeaderPreview } from '../CommonHeaderPreview';
@@ -14,10 +14,15 @@ const StyledModalHeader = styled(ModalHeader)`
     position: sticky;
 
     box-shadow: 0 2px 5px 2px rgb(0 0 0 / 10%);
+    gap: ${gapM};
+`;
+
+const StyledCommonHeaderPreview = styled.div`
+    margin-left: ${gapSm};
 `;
 
 const StyledModalContent = styled(ModalContent)`
-    padding-top: ${gapM};
+    padding-top: ${gapL};
     overflow: scroll;
     height: 100%;
 `;
@@ -34,12 +39,15 @@ export const UserProfileRreview = ({ user }: UserProps): JSX.Element => {
     return (
         <>
             <StyledModalHeader>
-                <CommonHeaderPreview
-                    preTitle={orgStructureGroup?.groupName}
-                    avatar={user?.avatar}
-                    subtitle={!!orgStructureGroup && roles}
-                    title={user?.fullName}
-                />
+                <StyledCommonHeaderPreview>
+                    {' '}
+                    <CommonHeaderPreview
+                        preTitle={!!orgStructureGroup && roles}
+                        avatar={user?.avatar || user?.email}
+                        subtitle={orgStructureGroup?.groupName}
+                        title={user?.fullName}
+                    />
+                </StyledCommonHeaderPreview>
             </StyledModalHeader>
             <StyledModalContent>
                 <QuickSummary user={user} />
