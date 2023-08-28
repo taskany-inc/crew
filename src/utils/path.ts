@@ -33,6 +33,7 @@ export const generatePath = <T extends Paths>(path: T, vars: PathVars<T>): strin
     Object.entries(vars).reduce((prev, curr) => prev.replace(`{${curr[0]}}`, String(curr[1])), String(path));
 
 export const pageHrefs = {
+    signIn: '/api/auth/signin',
     user: (userId: string): string => generatePath(Paths.USER, { userId }),
     group: (groupId: string): string => generatePath(Paths.TEAM, { groupId }),
 };
