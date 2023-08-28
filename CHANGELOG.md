@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.7.0](https://github.com/taskany-inc/crew/compare/v0.6.0...v0.7.0) (2023-08-28)
+
+
+### Features
+
+* **auth:** api auth handlers ([0410b38](https://github.com/taskany-inc/crew/commit/0410b38f28c123e140104454d1cd7bca3c7575e5))
+* icons from the package taskany/icons ([99549f8](https://github.com/taskany-inc/crew/commit/99549f87491a4a3c92b46c1bededad8985c55c16))
+
 ## [0.6.0](https://github.com/taskany-inc/crew/compare/v0.5.0...v0.6.0) (2023-08-24)
 
 
