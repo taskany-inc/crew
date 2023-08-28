@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { ThemeProvider } from 'next-themes';
 import type { AppProps } from 'next/app';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PageLoadProgress } from '@taskany/bricks';
 import { SessionProvider } from 'next-auth/react';
 

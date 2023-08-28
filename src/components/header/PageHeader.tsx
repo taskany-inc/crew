@@ -10,6 +10,7 @@ import {
     HeaderNavLink,
     SearchIcon,
 } from '@taskany/bricks';
+import { useSession } from 'next-auth/react';
 
 import { PageHeaderLogo } from './PageHeaderLogo';
 import { useHeaderMenu } from './useHeaderMenu';
@@ -34,6 +35,7 @@ const HeaderSearch = styled.div`
 
 export const PageHeader: React.FC = () => {
     const { entityListMenuItems } = useHeaderMenu();
+    const session = useSession();
 
     return (
         <Header
@@ -42,7 +44,7 @@ export const PageHeader: React.FC = () => {
                     <PageHeaderLogo />
                 </HeaderLogo>
             }
-            menu={<UserMenu onClick={() => {}} avatar="" />}
+            menu={<UserMenu onClick={() => {}} email={session.data?.user.email} />}
             nav={
                 <StyledNav>
                     {entityListMenuItems.map((item, index) => (

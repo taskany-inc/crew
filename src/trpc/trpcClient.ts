@@ -1,6 +1,8 @@
-import { httpBatchLink } from '@trpc/client';
+import { TRPCClientError, httpBatchLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import superjson from 'superjson';
+
+import { pageHrefs } from '../utils/path';
 
 import type { TrpcRouter } from './router';
 
@@ -12,10 +14,40 @@ function getBaseUrl() {
     return process.env.NEXTAUTH_URL;
 }
 
+const queryRetries = 3;
+
+const handleUnauthorizedErrorOnClient = (error: unknown): boolean => {
+    if (typeof window === 'undefined') return false;
+    if (!(error instanceof TRPCClientError)) return false;
+    if (error.data?.code !== 'UNAUTHORIZED') return false;
+
+    document.location.href = pageHrefs.signIn;
+
+    return true;
+};
+
 export const trpc = createTRPCNext<TrpcRouter>({
     config: ({ ctx }) => {
         return {
             transformer: superjson,
+            queryClientConfig: {
+                defaultOptions: {
+                    queries: {
+                        retry: (failureCount, error) => {
+                            if (handleUnauthorizedErrorOnClient(error)) {
+                                return false;
+                            }
+                            return failureCount < queryRetries;
+                        },
+                    },
+                    mutations: {
+                        retry: (_, error) => {
+                            handleUnauthorizedErrorOnClient(error);
+                            return false;
+                        },
+                    },
+                },
+            },
 
             links: [
                 httpBatchLink({
