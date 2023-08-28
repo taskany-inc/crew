@@ -1,15 +1,11 @@
 import { router } from '../trpcBackend';
 
-import { useGroupChildrenRouter } from './children-router';
-import { useGroupRouter } from './group-router';
-import { useUserRouter } from './user-router';
-import { usersOfGroupRouter } from './users-of-group-router';
+import { groupRouter } from './group-router';
+import { userRouter } from './user-router';
 
 export const trpcRouter = router({
-    usersOfGroup: usersOfGroupRouter,
-    user: useUserRouter,
-    group: useGroupRouter,
-    groupChildren: useGroupChildrenRouter,
+    user: userRouter,
+    group: groupRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;
