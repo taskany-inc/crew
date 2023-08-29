@@ -12,7 +12,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint && eslint --ext .js,.ts,.tsx .",
-    "generate:i18n": "generate-i18n --func=tr --langs=en,ru --path='./src/{components,controllers,backend,hooks,utils,plugins,i18n,schema}/**/*' --getLang='./src/utils/getLang'",
+    "generate:i18n": "generate-i18n --func=tr --langs=en,ru --path='./src/{components,controllers,backend,hooks,utils,plugins,i18n,schema,api-client}/**/*' --getLang='./src/utils/getLang'",
     "test": "jest",
     "prepare": "husky install",
     "type-check": "npx tsc"
@@ -21,6 +21,7 @@
     "seed": "ts-node -r dotenv/config --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
+    "@hookform/resolvers": "3.3.1",
     "@next-auth/prisma-adapter": "1.0.7",
     "@sentry/nextjs": "7.61.1",
     "@tanstack/react-query": "4.32.6",
@@ -38,6 +39,7 @@
     "next-themes": "0.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-hook-form": "7.45.4",
     "styled-components": "5.3.11",
     "superjson": "1.13.1",
     "throttle-debounce": "5.0.0",
