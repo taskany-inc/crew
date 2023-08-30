@@ -57,15 +57,42 @@ model VerificationToken {
 }
 
 model User {
-  id            String    @id @default(nanoid())
-  active        Boolean   @default(true)
+  id            String         @id @default(nanoid())
+  active        Boolean        @default(true)
   name          String?
-  email         String    @unique
+  email         String         @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
+  services      UserServices[]
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+model ExternalService {
+  name       String         @id @unique
+  icon       String
+  linkPrefix String?
+  users      UserServices[]
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+model UserServices {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  service     ExternalService @relation(fields: [serviceName], references: [name])
+  serviceName String
+
+  serviceId String
+  active    Boolean @default(true)
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+
+  @@unique([serviceName, serviceId])
 }
