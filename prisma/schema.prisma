@@ -26,8 +26,8 @@ model Account {
   user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                   String
 
-  createdAt DateTime @default(dbgenerated("timezone('utc', current_timestamp)")) @db.Timestamp()
-  updatedAt DateTime @default(dbgenerated("timezone('utc', current_timestamp)")) @updatedAt
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 
   @@unique([provider, providerAccountId])
 }
@@ -40,8 +40,8 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
 
-  createdAt DateTime @default(dbgenerated("timezone('utc', current_timestamp)")) @db.Timestamp()
-  updatedAt DateTime @default(dbgenerated("timezone('utc', current_timestamp)")) @updatedAt
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
 
 model VerificationToken {
@@ -50,8 +50,8 @@ model VerificationToken {
   token      String   @unique
   expires    DateTime
 
-  createdAt DateTime @default(dbgenerated("timezone('utc', current_timestamp)")) @db.Timestamp()
-  updatedAt DateTime @default(dbgenerated("timezone('utc', current_timestamp)")) @updatedAt
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 
   @@unique([identifier, token])
 }
@@ -66,6 +66,6 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  createdAt DateTime @default(dbgenerated("timezone('utc', current_timestamp)")) @db.Timestamp()
-  updatedAt DateTime @default(dbgenerated("timezone('utc', current_timestamp)")) @updatedAt
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
