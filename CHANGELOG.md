@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.8.0](https://github.com/taskany-inc/crew/compare/v0.7.0...v0.8.0) (2023-08-31)
+
+
+### Features
+
+* external services model ([d7dc190](https://github.com/taskany-inc/crew/commit/d7dc190503bbb401c52c97a2c17bd1109a65f415))
+* feedback button as in issues ([440f367](https://github.com/taskany-inc/crew/commit/440f36705b3822fed922f6447cc12296b2edf5cf))
+
+
+### Bug Fixes
+
+* **api:** use protected routes ([bf426a3](https://github.com/taskany-inc/crew/commit/bf426a3ea99d2e5891c78e5fc15cd1d8b994359f))
+* **db schema:** change timestamp db values to match db values ([53a071d](https://github.com/taskany-inc/crew/commit/53a071d83ec5f4d4ef16f8dca368a4a8f20c4ef7))
+
 ## [0.7.0](https://github.com/taskany-inc/crew/compare/v0.6.0...v0.7.0) (2023-08-28)
 
 
