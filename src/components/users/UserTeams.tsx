@@ -5,7 +5,7 @@ import { IconPlusCircleOutline, IconUsersOutline } from '@taskany/icons';
 
 import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
-import { pageHrefs } from '../../utils/path';
+import { pages } from '../../utils/pages';
 import { InlineTrigger } from '../InlineTrigger';
 
 const StyledUserTeams = styled.div`
@@ -60,7 +60,7 @@ export const UserTeams = ({ user }: UserTeamsProps) => {
                                 target="_blank"
                                 color={textColor}
                                 key={team.groupName}
-                                href={pageHrefs.group(team.uid)}
+                                href={pages.team(team.uid)}
                             >
                                 {team.groupName}
                             </StyledLink>

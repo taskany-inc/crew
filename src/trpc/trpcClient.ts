@@ -2,7 +2,7 @@ import { TRPCClientError, httpBatchLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import superjson from 'superjson';
 
-import { pageHrefs } from '../utils/path';
+import { pages } from '../utils/pages';
 
 import type { TrpcRouter } from './router';
 
@@ -21,7 +21,7 @@ const handleUnauthorizedErrorOnClient = (error: unknown): boolean => {
     if (!(error instanceof TRPCClientError)) return false;
     if (error.data?.code !== 'UNAUTHORIZED') return false;
 
-    document.location.href = pageHrefs.signIn;
+    document.location.href = pages.signIn;
 
     return true;
 };

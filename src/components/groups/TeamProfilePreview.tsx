@@ -6,7 +6,7 @@ import { IconBinOutline, IconGitPullOutline } from '@taskany/icons';
 import { Group, GroupsPage } from '../../api-client/groups/group-types';
 import { useGroup } from '../../hooks/group-hooks';
 import { UsersPage } from '../../api-client/users/user-types';
-import { pageHrefs } from '../../utils/path';
+import { pages } from '../../utils/pages';
 import { PageSep } from '../PageSep';
 import { CommonHeaderPreview } from '../CommonHeaderPreview';
 import { InlineTrigger } from '../InlineTrigger';
@@ -79,11 +79,7 @@ export const TeamProfilePreview = ({ group, users, groupChildren }: UserProps): 
                                 Supervisor:{' '}
                             </Text>
                             {admin?.supervisor && (
-                                <StyledSupervisorLink
-                                    inline
-                                    target="_blank"
-                                    href={pageHrefs.user(admin.supervisor?.userId)}
-                                >
+                                <StyledSupervisorLink inline target="_blank" href={pages.user(admin.supervisor.userId)}>
                                     {admin?.supervisor?.fullName}
                                 </StyledSupervisorLink>
                             )}

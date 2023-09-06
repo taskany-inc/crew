@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 import { CommonHeader } from '../CommonHeader';
 import { FiltersPanel } from '../FiltersPanel';
-import { Paths } from '../../utils/path';
+import { pages } from '../../utils/pages';
 import { useUsersOfGroup } from '../../hooks/users-of-group-hooks';
 import { UserProfileRreview } from '../users/UserProfilePreview';
 import { User } from '../../api-client/users/user-types';
@@ -31,18 +31,18 @@ export const TeamProfile = () => {
     const [userPreview, setUserPreview] = useState<User | undefined>(undefined);
     const [groupPreview, setGroupPreview] = useState<Group | undefined>(undefined);
 
-    const { groupId } = router.query;
-    const userQuery = useGroup(String(groupId));
+    const { teamId } = router.query;
+    const userQuery = useGroup(String(teamId));
     const group = userQuery.data;
 
     const parentId = group?.parentId;
     const parentQuery = useGroup(String(parentId));
     const parentGroup = parentQuery.data;
 
-    const usersOfGroupQuery = useUsersOfGroup(String(groupId));
+    const usersOfGroupQuery = useUsersOfGroup(String(teamId));
     const users = usersOfGroupQuery.data;
 
-    const groupChildrenQuery = useGroupChildren(String(groupId));
+    const groupChildrenQuery = useGroupChildren(String(teamId));
     const groupChildren = groupChildrenQuery.data;
 
     if (!users) return null;
@@ -51,11 +51,11 @@ export const TeamProfile = () => {
     if (!groupChildren) return null;
 
     const tabsMenuOptions: Array<[string, string]> = [
-        ['People', Paths.PEOPLE],
-        ['Services', Paths.SERVICES],
-        ['Projects', Paths.PROJECTS],
-        ['Goals', Paths.GOALS],
-        ['Settings', Paths.SETTINGS],
+        ['People', pages.people],
+        ['Services', pages.services],
+        ['Projects', pages.projects],
+        ['Goals', pages.goals],
+        ['Settings', pages.settings],
     ];
 
     const onClickUserPreview = (user: User | undefined) => {

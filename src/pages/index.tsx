@@ -1,7 +1,7 @@
-import { Paths } from '../utils/path';
+import { pages } from '../utils/pages';
 
 export async function getServerSideProps() {
-    return { redirect: { destination: Paths.TEAMS } };
+    return { redirect: { destination: pages.teams } };
 }
 
 export default function HomePage() {
