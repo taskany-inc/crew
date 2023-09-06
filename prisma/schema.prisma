@@ -66,6 +66,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   services      UserServices[]
+  memberships   Membership[]
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -95,4 +96,46 @@ model UserServices {
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 
   @@unique([serviceName, serviceId])
+}
+
+model Group {
+  id   String @id @default(nanoid())
+  name String
+
+  parent   Group?  @relation("GroupChildren", fields: [parentId], references: [id])
+  parentId String?
+
+  children Group[] @relation("GroupChildren")
+
+  memberships Membership[]
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+model Membership {
+  id String @id @default(nanoid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id])
+
+  roles Role[]
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+
+  @@unique([userId, groupId])
+}
+
+model Role {
+  id   String @id @default(nanoid())
+  name String @unique
+
+  memberships Membership[]
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
