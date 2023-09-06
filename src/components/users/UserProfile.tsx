@@ -27,7 +27,7 @@ import styled from 'styled-components';
 import { PageSep } from '../PageSep';
 import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
-import { pageHrefs } from '../../utils/path';
+import { pages } from '../../utils/pages';
 import { useUser } from '../../hooks/user-hooks';
 import { InlineTrigger } from '../InlineTrigger';
 
@@ -143,7 +143,7 @@ export const UserProfile = () => {
                     </Text>
 
                     {!!orgStructureGroup && (
-                        <StyledGroupLink inline target="_blank" href={pageHrefs.group(orgStructureGroup.uid)}>
+                        <StyledGroupLink inline target="_blank" href={pages.team(orgStructureGroup.uid)}>
                             {orgStructureGroup.groupName}
                         </StyledGroupLink>
                     )}
@@ -229,7 +229,7 @@ export const UserProfile = () => {
                                     <StyledSupervisorLink
                                         inline
                                         target="_blank"
-                                        href={pageHrefs.user(user.supervisor?.userId)}
+                                        href={pages.user(user.supervisor?.userId)}
                                     >
                                         {user.supervisor?.fullName}
                                     </StyledSupervisorLink>
@@ -253,7 +253,7 @@ export const UserProfile = () => {
                                     inline
                                     target="_blank"
                                     key={team.groupName}
-                                    href={pageHrefs.group(team.uid)}
+                                    href={pages.team(team.uid)}
                                 >
                                     {team.groupName}
                                 </StyledTeamsLink>

@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { trpcRouter, TrpcRouter } from '../trpc/router';
 
 import { authOptions } from './auth';
-import { pageHrefs } from './path';
+import { pages } from './pages';
 import { objKeys } from './objKeys';
 import { tr } from './utils.i18n';
 
@@ -73,7 +73,7 @@ export const createGetServerSideProps =
             session = await getServerSession(context.req, context.res, authOptions);
 
             if (!session) {
-                return { redirect: { destination: pageHrefs.signIn }, props: { session } };
+                return { redirect: { destination: pages.signIn }, props: { session } };
             }
             props.session = session;
         }

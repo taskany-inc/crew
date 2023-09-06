@@ -4,7 +4,7 @@ import { Link, Text } from '@taskany/bricks';
 import { IconPlusCircleOutline, IconUsersOutline } from '@taskany/icons';
 
 import { PageSep } from '../PageSep';
-import { pageHrefs } from '../../utils/path';
+import { pages } from '../../utils/pages';
 import { GroupsPage } from '../../api-client/groups/group-types';
 import { InlineTrigger } from '../InlineTrigger';
 
@@ -51,7 +51,7 @@ export const TeamChildren = ({ groupChildren }: GroupTeamsProps) => {
                                 target="_blank"
                                 color={backgroundColor}
                                 key={child.name}
-                                href={pageHrefs.group(child._id)}
+                                href={pages.team(child._id)}
                             >
                                 {child.name}
                             </StyledLink>
