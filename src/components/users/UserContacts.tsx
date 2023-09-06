@@ -1,19 +1,29 @@
 import { gapL, gapM, gapS, gapXs, gray10, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
 import { Link, Text } from '@taskany/bricks';
-import { IconEnvelopeOutline, IconGithubOutline, IconGitlabOutline, IconTelegramOutline } from '@taskany/icons';
+import {
+    IconEnvelopeOutline,
+    IconGithubOutline,
+    IconGitlabOutline,
+    IconPlusCircleOutline,
+    IconTelegramOutline,
+} from '@taskany/icons';
 
 import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
+import { InlineTrigger } from '../InlineTrigger';
 
-const StyledUserInfo = styled.div`
+const StyledInfo = styled.div`
     display: grid;
     grid-template-columns: 6fr;
     gap: ${gapS};
+    &:last-child {
+        gap: ${gapS};
+    }
     margin: ${gapS} 0 ${gapL} ${gapM};
 `;
 
-const StyledContactsLine = styled(PageSep)`
+const StyledLine = styled(PageSep)`
     white-space: nowrap;
     margin: ${gapXs} 0px;
     width: 300px;
@@ -25,22 +35,28 @@ const StyledLink = styled(Link)`
     font-size: 14px;
 `;
 
+const StyledText = styled(Text)`
+    color: ${gray10};
+    font-size: 14px;
+`;
+
 const StyledCard = styled.div`
     height: 100%;
 `;
 
 type UserContactsProps = {
-    user: User | undefined;
+    user: User;
+    showDevices?: boolean;
 };
 
-export const UserContacts = ({ user }: UserContactsProps) => {
+export const UserContacts = ({ user, showDevices = false }: UserContactsProps) => {
     return (
         <>
             <StyledCard>
-                <StyledUserInfo>
+                <StyledInfo>
                     <Text size="m" color={gray9} weight="bold">
                         Contacts
-                        <StyledContactsLine />
+                        <StyledLine />
                     </Text>
                     <div>
                         <IconEnvelopeOutline size={15} color={gray10} />
@@ -72,7 +88,49 @@ export const UserContacts = ({ user }: UserContactsProps) => {
                             </StyledLink>
                         </div>
                     )}
-                </StyledUserInfo>
+                    {/* TODO: Link to add to the teams */}
+                    <InlineTrigger
+                        icon={<IconPlusCircleOutline noWrap size="s" />}
+                        text={'Add link'}
+                        onClick={() => {}}
+                    />
+                </StyledInfo>
+
+                <StyledInfo>
+                    {showDevices && (
+                        <>
+                            {user.devices.length > 0 && (
+                                <>
+                                    <Text size="m" color={gray9} weight="bold">
+                                        Corporate devices
+                                        <StyledLine />
+                                    </Text>
+                                    {user?.devices.map((device) => (
+                                        <StyledText weight="bolder" color={gray10} size="s" key={device.deviceId}>
+                                            {device?.name}
+                                            <Text
+                                                as="span"
+                                                size="s"
+                                                weight="regular"
+                                                color={gray10}
+                                                key={device.deviceId}
+                                            >
+                                                {' '}
+                                                {device?.deviceId}
+                                            </Text>
+                                        </StyledText>
+                                    ))}
+                                    {/* TODO: inline form for devices */}
+                                    <InlineTrigger
+                                        icon={<IconPlusCircleOutline noWrap size="s" />}
+                                        text={'Request a device'}
+                                        onClick={() => {}}
+                                    />
+                                </>
+                            )}
+                        </>
+                    )}
+                </StyledInfo>
             </StyledCard>
         </>
     );

@@ -1,17 +1,10 @@
 import { useRouter } from 'next/router';
 import { Link, UserPic, Text, Button } from '@taskany/bricks';
-import {
-    IconPlusCircleOutline,
-    IconEnvelopeOutline,
-    IconGithubOutline,
-    IconPinAltOutline,
-    IconTelegramOutline,
-    IconUsersOutline,
-    IconGitlabOutline,
-} from '@taskany/icons';
+import { IconPinAltOutline, IconUsersOutline } from '@taskany/icons';
 import {
     backgroundColor,
     gapL,
+    gapM,
     gapS,
     gapSm,
     gapXl,
@@ -29,9 +22,10 @@ import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
 import { pages } from '../../utils/pages';
 import { useUser } from '../../hooks/user-hooks';
-import { InlineTrigger } from '../InlineTrigger';
 
 import { tr } from './users.i18n';
+import { UserContacts } from './UserContacts';
+import { QuickSummary } from './QuickSummary';
 
 const StyledUser = styled.div`
     display: grid;
@@ -44,6 +38,11 @@ const StyledCard = styled.div`
     flex-direction: column;
     align-self: end;
     gap: ${gapS};
+    margin-left: ${gapL};
+`;
+
+const StyledUserPic = styled(UserPic)`
+    margin-left: ${gapM};
 `;
 
 const StyledGroupLink = styled(Link)`
@@ -54,10 +53,6 @@ const StyledGroupLink = styled(Link)`
 
 const StyledButton = styled.div`
     align-self: end;
-`;
-
-const StyledContactsLine = styled(PageSep)`
-    margin: 0 ${gapS} ${gapXs} 0;
 `;
 
 const StyledVerticalLine = styled.div`
@@ -71,34 +66,27 @@ const StyledWrapper = styled.div`
     margin-top: ${gapL};
 `;
 
-const StyledUserInfo = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin-left: ${gapL};
-    gap: ${gapS};
-`;
-
-const StyledLink = styled(Link)`
-    color: ${gray10};
-    margin-left: ${gapS};
-    font-size: 14px;
-`;
-
-const StyledAddLink = styled.div`
-    display: flex;
-    flex-direction: row;
-    margin-top: ${gapS};
-`;
-
-const StyledSupervisorLink = styled(Link)`
-    color: ${textColor};
-    font-weight: 500;
+const StyledUserContacts = styled.div`
+    padding: ${gapXs} 0 0 ${gapL};
 `;
 
 const StyledGroups = styled.div`
     display: flex;
     flex-direction: row;
     margin-top: ${gapSm};
+`;
+
+const StyledInfo = styled.div`
+    display: grid;
+    grid-template-columns: 6fr;
+    gap: ${gapS};
+    margin: ${gapM} 0 ${gapL} ${gapM};
+`;
+
+const StyledLine = styled(PageSep)`
+    white-space: nowrap;
+    margin: ${gapXs} 0px;
+    width: 300px;
 `;
 
 const StyledActivityFeedItem = styled(ActivityFeedItem)`
@@ -136,9 +124,10 @@ export const UserProfile = () => {
     return (
         <>
             <StyledUser>
-                <UserPic size={150} src={user.avatar || user.email} />{' '}
+                <StyledUserPic size={150} src={user.avatar || user.email} />{' '}
                 <StyledCard>
                     <Text size="s" color={gray6} weight="bold">
+                        {user.source}:{' '}
                         {!!orgStructureGroup && orgStructureGroup.roles.map((role) => role.title).join(', ')}
                     </Text>
 
@@ -158,92 +147,27 @@ export const UserProfile = () => {
             <PageSep />
 
             <StyledWrapper>
-                <StyledUserInfo>
-                    <Text size="m" color={gray9} weight="bold">
-                        {tr('Contacts')} <StyledContactsLine />
-                    </Text>
-
-                    <div>
-                        <IconEnvelopeOutline size={15} color={textColor} />
-                        <StyledLink inline target="_blank" href={`mailto:${user.email}`}>
-                            {user.email}
-                        </StyledLink>
-                    </div>
-
-                    {user.telegram && (
-                        <div>
-                            <IconTelegramOutline size={15} color={textColor} />
-                            <StyledLink inline target="_blank" href={`https://t.me/${user.telegram}`}>
-                                {user.telegram}
-                            </StyledLink>
-                        </div>
-                    )}
-
-                    {user.gitlab && (
-                        <div>
-                            <IconGitlabOutline size={15} color={textColor} />
-                            <StyledLink inline target="_blank" href={user.gitlab?.web_url}>
-                                {user.gitlab?.username}
-                            </StyledLink>
-                        </div>
-                    )}
-
-                    {user.github && (
-                        <div>
-                            <IconGithubOutline size={15} color={textColor} />
-                            <StyledLink inline target="_blank" href={`https://github.com/${user.github}`}>
-                                {user.github}
-                            </StyledLink>
-                        </div>
-                    )}
-
-                    <StyledAddLink>
-                        {/* TODO: Add link */}
-                        <InlineTrigger
-                            icon={
-                                <Circle size={16}>
-                                    <CircleIconInner as={IconPlusCircleOutline} size="l" color={backgroundColor} />
-                                </Circle>
-                            }
-                            text={'Add link'}
-                            onClick={() => {}}
-                        />
-                    </StyledAddLink>
-                </StyledUserInfo>
-
+                <StyledUserContacts>
+                    <UserContacts user={user} showDevices />
+                </StyledUserContacts>
                 <StyledVerticalLine />
 
                 <StyledActivityFeedItem>
                     <Circle size={32}>
                         <CircleIconInner as={IconPinAltOutline} size="s" color={backgroundColor} />
                     </Circle>
-                    <div>
-                        <Text as="span" size="m" color={gray9} weight="bold">
-                            {tr('Quick summary')}
-                        </Text>
 
-                        {user.supervisor && (
-                            <div>
-                                <Text size="m" color={gray9} style={{ marginTop: gapSm }}>
-                                    {tr('Supervisor:')}{' '}
-                                    <StyledSupervisorLink
-                                        inline
-                                        target="_blank"
-                                        href={pages.user(user.supervisor?.userId)}
-                                    >
-                                        {user.supervisor?.fullName}
-                                    </StyledSupervisorLink>
-                                </Text>
-                            </div>
-                        )}
+                    <div>
+                        <QuickSummary user={user} />
                     </div>
 
                     <StyledCircle size={32}>
                         <CircleIconInner as={IconUsersOutline} size="s" color={backgroundColor} />
                     </StyledCircle>
-                    <div style={{ marginTop: gapXl }}>
+                    <StyledInfo>
                         <Text size="m" color={gray9} weight="bold">
                             {tr('Teams with participation')}
+                            <StyledLine />
                         </Text>
                         {teams.map((team) => (
                             <StyledGroups key={team.uid}>
@@ -259,7 +183,7 @@ export const UserProfile = () => {
                                 </StyledTeamsLink>
                             </StyledGroups>
                         ))}
-                    </div>
+                    </StyledInfo>
                 </StyledActivityFeedItem>
             </StyledWrapper>
         </>

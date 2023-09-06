@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
-import { ModalPreview, TabsMenu, TabsMenuItem, Text } from '@taskany/bricks';
+import { ModalPreview, TabsMenu, TabsMenuItem, Text, nullable } from '@taskany/bricks';
 import styled from 'styled-components';
 import { gapL, gray10 } from '@taskany/colors';
 import { useState } from 'react';
@@ -95,11 +95,15 @@ export const TeamProfile = () => {
                     ))}
 
                 <StyledModalPreview visible={!!userPreview} onClose={() => onClickUserPreview(undefined)}>
-                    <UserProfileRreview user={userPreview} />
+                    {nullable(userPreview, (user) => (
+                        <UserProfileRreview user={user} />
+                    ))}
                 </StyledModalPreview>
 
                 <StyledModalPreview visible={!!groupPreview} onClose={() => onClickGroupPreview(undefined)}>
-                    <TeamProfilePreview group={groupPreview} users={users} groupChildren={groupChildren} />
+                    {nullable(groupPreview, (groupData) => (
+                        <TeamProfilePreview group={groupData} users={users} groupChildren={groupChildren} />
+                    ))}
                 </StyledModalPreview>
             </div>
         </>

@@ -28,7 +28,7 @@ const StyledModalContent = styled(ModalContent)`
 `;
 
 type UserProps = {
-    user: User | undefined;
+    user: User;
 };
 
 export const UserProfileRreview = ({ user }: UserProps): JSX.Element => {
