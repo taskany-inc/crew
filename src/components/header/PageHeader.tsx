@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import NextLink from 'next/link';
 import { gapM, gapL, gray9 } from '@taskany/colors';
 import { useSession } from 'next-auth/react';
 import { Text, UserMenu, Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink } from '@taskany/bricks';
@@ -39,12 +40,10 @@ export const PageHeader: React.FC = () => {
             menu={<UserMenu onClick={() => {}} email={session.data?.user.email} />}
             nav={
                 <StyledNav>
-                    {entityListMenuItems.map((item, index) => (
-                        // <NextLink>
-                        <HeaderNavLink key={index + item.text} href={item.path}>
-                            {item.text}
-                        </HeaderNavLink>
-                        // </NextLink>
+                    {entityListMenuItems.map((item) => (
+                        <NextLink key={item.path} href={item.path} passHref legacyBehavior>
+                            <HeaderNavLink>{item.text}</HeaderNavLink>
+                        </NextLink>
                     ))}
                     <StyledText weight="bold">{tr('Explore')}</StyledText>
                     <HeaderSearch>

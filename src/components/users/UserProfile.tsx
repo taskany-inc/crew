@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { Link, UserPic, Text, Button } from '@taskany/bricks';
+import { UserPic, Text, Button } from '@taskany/bricks';
 import { IconPinAltOutline, IconUsersOutline } from '@taskany/icons';
 import {
     backgroundColor,
@@ -20,8 +20,9 @@ import styled from 'styled-components';
 import { PageSep } from '../PageSep';
 import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
-import { pages } from '../../utils/pages';
+import { pages } from '../../hooks/useRouter';
 import { useUser } from '../../hooks/user-hooks';
+import { Link } from '../Link';
 
 import { tr } from './users.i18n';
 import { UserContacts } from './UserContacts';
@@ -132,7 +133,7 @@ export const UserProfile = () => {
                     </Text>
 
                     {!!orgStructureGroup && (
-                        <StyledGroupLink inline target="_blank" href={pages.team(orgStructureGroup.uid)}>
+                        <StyledGroupLink target="_blank" href={pages.team(orgStructureGroup.uid)}>
                             {orgStructureGroup.groupName}
                         </StyledGroupLink>
                     )}
@@ -173,12 +174,7 @@ export const UserProfile = () => {
                             <StyledGroups key={team.uid}>
                                 <IconUsersOutline size={15} color={gray9} />
 
-                                <StyledTeamsLink
-                                    inline
-                                    target="_blank"
-                                    key={team.groupName}
-                                    href={pages.team(team.uid)}
-                                >
+                                <StyledTeamsLink target="_blank" key={team.groupName} href={pages.team(team.uid)}>
                                     {team.groupName}
                                 </StyledTeamsLink>
                             </StyledGroups>

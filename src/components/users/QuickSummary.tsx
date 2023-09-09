@@ -1,10 +1,11 @@
-import { gapL, gapM, gapS, gray9, gapXs, textColor } from '@taskany/colors';
+import { gapL, gapM, gapS, gray9, gapXs } from '@taskany/colors';
 import styled from 'styled-components';
-import { Link, Text } from '@taskany/bricks';
+import { Text } from '@taskany/bricks';
 
 import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
-import { pages } from '../../utils/pages';
+import { pages } from '../../hooks/useRouter';
+import { Link } from '../Link';
 
 const StyledQuickSummary = styled.div`
     display: grid;
@@ -20,7 +21,6 @@ const StyledPageSep = styled(PageSep)`
 `;
 
 const StyledSupervisorLink = styled(Link)`
-    color: ${textColor};
     margin-left: ${gapXs};
 `;
 
@@ -41,7 +41,7 @@ export const QuickSummary = ({ user }: QuickSummaryProps) => {
                         <div>
                             <Text size="m" color={gray9}>
                                 Supervisor:{' '}
-                                <StyledSupervisorLink inline target="_blank" href={pages.user(user.supervisor.userId)}>
+                                <StyledSupervisorLink target="_blank" href={pages.user(user.supervisor.userId)}>
                                     {user.supervisor.fullName}
                                 </StyledSupervisorLink>
                             </Text>

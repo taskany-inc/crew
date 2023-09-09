@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import NextLink from 'next/link';
 import { ModalPreview, TabsMenu, TabsMenuItem, Text, nullable } from '@taskany/bricks';
 import styled from 'styled-components';
 import { gapL, gray10 } from '@taskany/colors';
@@ -7,13 +6,14 @@ import { useState } from 'react';
 
 import { CommonHeader } from '../CommonHeader';
 import { FiltersPanel } from '../FiltersPanel';
-import { pages } from '../../utils/pages';
+import { pages } from '../../hooks/useRouter';
 import { useUsersOfGroup } from '../../hooks/users-of-group-hooks';
 import { UserProfileRreview } from '../users/UserProfilePreview';
 import { User } from '../../api-client/users/user-types';
 import { useGroup } from '../../hooks/group-hooks';
 import { Group } from '../../api-client/groups/group-types';
 import { useGroupChildren } from '../../hooks/children-hooks';
+import { Link } from '../Link';
 
 import { TeamProfilePreview } from './TeamProfilePreview';
 
@@ -78,9 +78,9 @@ export const TeamProfile = () => {
 
             <StyledTabsMenu>
                 {tabsMenuOptions.map(([title, href]) => (
-                    <NextLink key={href} href={href} passHref>
+                    <Link key={href} href={href}>
                         <TabsMenuItem active={router.asPath === href}>{title}</TabsMenuItem>
-                    </NextLink>
+                    </Link>
                 ))}
             </StyledTabsMenu>
             <FiltersPanel />

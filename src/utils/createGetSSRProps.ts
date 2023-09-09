@@ -9,9 +9,9 @@ import type { ErrorProps } from 'next/error';
 import { z } from 'zod';
 
 import { trpcRouter, TrpcRouter } from '../trpc/router';
+import { pages } from '../hooks/useRouter';
 
 import { authOptions } from './auth';
-import { pages } from './pages';
 import { objKeys } from './objKeys';
 import { tr } from './utils.i18n';
 

@@ -1,4 +1,4 @@
-import { Link, ModalContent, ModalHeader, Text } from '@taskany/bricks';
+import { ModalContent, ModalHeader, Text } from '@taskany/bricks';
 import styled from 'styled-components';
 import { gapL, gapM, gapS, gapXl, gapXs, gray9, textColor } from '@taskany/colors';
 import { IconBinOutline, IconGitPullOutline } from '@taskany/icons';
@@ -6,10 +6,11 @@ import { IconBinOutline, IconGitPullOutline } from '@taskany/icons';
 import { Group, GroupsPage } from '../../api-client/groups/group-types';
 import { useGroup } from '../../hooks/group-hooks';
 import { UsersPage } from '../../api-client/users/user-types';
-import { pages } from '../../utils/pages';
+import { pages } from '../../hooks/useRouter';
 import { PageSep } from '../PageSep';
 import { CommonHeaderPreview } from '../CommonHeaderPreview';
 import { InlineTrigger } from '../InlineTrigger';
+import { Link } from '../Link';
 
 import { TeamChildren } from './TeamChildren';
 import { TeamPeople } from './TeamPeople';
@@ -41,7 +42,6 @@ const StyledPageSep = styled(PageSep)`
 `;
 
 const StyledSupervisorLink = styled(Link)`
-    color: ${textColor};
     margin-left: ${gapS};
 `;
 
@@ -79,7 +79,7 @@ export const TeamProfilePreview = ({ group, users, groupChildren }: UserProps): 
                                 Supervisor:{' '}
                             </Text>
                             {admin?.supervisor && (
-                                <StyledSupervisorLink inline target="_blank" href={pages.user(admin.supervisor.userId)}>
+                                <StyledSupervisorLink target="_blank" href={pages.user(admin.supervisor.userId)}>
                                     {admin?.supervisor?.fullName}
                                 </StyledSupervisorLink>
                             )}

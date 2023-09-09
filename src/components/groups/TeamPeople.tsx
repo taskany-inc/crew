@@ -1,12 +1,13 @@
 import styled from 'styled-components';
-import { gapL, gapM, gapS, gray9, textColor } from '@taskany/colors';
-import { UserPic, Text, Link } from '@taskany/bricks';
+import { gapL, gapM, gapS, gapXs, gray9 } from '@taskany/colors';
+import { UserPic, Text } from '@taskany/bricks';
 import { IconPlusCircleOutline } from '@taskany/icons';
 
 import { PageSep } from '../PageSep';
 import { InlineTrigger } from '../InlineTrigger';
 import { UsersPage } from '../../api-client/users/user-types';
-import { pages } from '../../utils/pages';
+import { pages } from '../../hooks/useRouter';
+import { Link } from '../Link';
 
 const StyledUsers = styled.div`
     display: grid;
@@ -22,8 +23,7 @@ const StyledPageSep = styled(PageSep)`
 `;
 
 const StyledLink = styled(Link)`
-    color: ${textColor};
-    margin-left: ${gapS};
+    margin-left: ${gapXs};
     font-size: 14px;
     font-weight: 600;
 `;
@@ -43,7 +43,7 @@ export const TeamPeople = ({ users }: TeamPeopleProps) => {
             {users?.items.map((user) => (
                 <div key={user._id} style={{ gap: gapS, display: 'flex' }}>
                     <UserPic size={17} name={user.fullName} src={user.avatar} email={user.email} />
-                    <StyledLink inline target="_blank" href={pages.user(user._id)}>
+                    <StyledLink target="_blank" href={pages.user(user._id)}>
                         {user.fullName}
                     </StyledLink>
                 </div>
