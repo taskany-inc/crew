@@ -2,7 +2,7 @@ import { TRPCClientError, httpBatchLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import superjson from 'superjson';
 
-import { pages } from '../utils/pages';
+import { pages } from '../hooks/useRouter';
 
 import type { TrpcRouter } from './router';
 

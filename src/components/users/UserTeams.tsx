@@ -1,12 +1,13 @@
 import { gapL, gapM, gapS, gapXs, gray10, gray9, textColor } from '@taskany/colors';
 import styled from 'styled-components';
-import { Link, Text } from '@taskany/bricks';
+import { Text } from '@taskany/bricks';
 import { IconPlusCircleOutline, IconUsersOutline } from '@taskany/icons';
 
 import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
-import { pages } from '../../utils/pages';
+import { pages } from '../../hooks/useRouter';
 import { InlineTrigger } from '../InlineTrigger';
+import { Link } from '../Link';
 
 const StyledUserTeams = styled.div`
     display: grid;
@@ -28,7 +29,6 @@ const StyledRoles = styled.div`
 `;
 
 const StyledLink = styled(Link)`
-    color: ${gray10};
     margin-left: ${gapS};
     color: ${textColor};
     font-weight: bold;
@@ -55,13 +55,7 @@ export const UserTeams = ({ user }: UserTeamsProps) => {
                         <div key={team.uid}>
                             <IconUsersOutline size={13} color={gray9} />
 
-                            <StyledLink
-                                inline
-                                target="_blank"
-                                color={textColor}
-                                key={team.groupName}
-                                href={pages.team(team.uid)}
-                            >
+                            <StyledLink target="_blank" href={pages.team(team.uid)}>
                                 {team.groupName}
                             </StyledLink>
                             <StyledRoles>

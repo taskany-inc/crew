@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { pages } from '../../utils/pages';
+import { pages } from '../../hooks/useRouter';
 
 import { tr } from './header.i18n';
 

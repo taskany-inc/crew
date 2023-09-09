@@ -1,6 +1,6 @@
 import { gapL, gapM, gapS, gapXs, gray10, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
-import { Link, Text } from '@taskany/bricks';
+import { Text } from '@taskany/bricks';
 import {
     IconEnvelopeOutline,
     IconGithubOutline,
@@ -12,6 +12,7 @@ import {
 import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
 import { InlineTrigger } from '../InlineTrigger';
+import { Link } from '../Link';
 
 const StyledInfo = styled.div`
     display: grid;
@@ -60,14 +61,14 @@ export const UserContacts = ({ user, showDevices = false }: UserContactsProps) =
                     </Text>
                     <div>
                         <IconEnvelopeOutline size={15} color={gray10} />
-                        <StyledLink inline target="_blank" href={`mailto:${user?.email}`}>
+                        <StyledLink target="_blank" href={`mailto:${user?.email}`}>
                             {user?.email}
                         </StyledLink>
                     </div>
                     {user?.telegram && (
                         <div>
                             <IconTelegramOutline size={15} color={gray10} />
-                            <StyledLink inline target="_blank" href={`https://t.me/${user.telegram}`}>
+                            <StyledLink target="_blank" href={`https://t.me/${user.telegram}`}>
                                 {user.telegram}
                             </StyledLink>
                         </div>
@@ -75,7 +76,7 @@ export const UserContacts = ({ user, showDevices = false }: UserContactsProps) =
                     {user?.gitlab && (
                         <div>
                             <IconGitlabOutline size={15} color={gray10} />
-                            <StyledLink inline target="_blank" href={user?.gitlab?.web_url}>
+                            <StyledLink target="_blank" href={user?.gitlab?.web_url}>
                                 {user.gitlab?.username}
                             </StyledLink>
                         </div>
@@ -83,7 +84,7 @@ export const UserContacts = ({ user, showDevices = false }: UserContactsProps) =
                     {user?.github && (
                         <div>
                             <IconGithubOutline size={15} color={gray10} />
-                            <StyledLink inline target="_blank" href={`https://github.com/${user.github}`}>
+                            <StyledLink target="_blank" href={`https://github.com/${user.github}`}>
                                 {user.github}
                             </StyledLink>
                         </div>
