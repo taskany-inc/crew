@@ -11,9 +11,20 @@ on:
       - '**/**.ts'
       - '**/**.tsx'
 
+env:
+  DATABASE_URL: 'postgresql://user:pass@postgres:5432/crew'
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: node:18.12.1-alpine
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: crew
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -29,7 +40,9 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
-      - name: Unit
+      - name: Initialize database
+        run: npm run db:migrate
+      - name: Unit tests
         run: npm run test
       - name: Build
         run: npm run build
