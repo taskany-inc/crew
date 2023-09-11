@@ -124,7 +124,7 @@ export const UserProfile = () => {
     return (
         <>
             <StyledUser>
-                <StyledUserPic size={150} src={user.avatar || user.email} />{' '}
+                <StyledUserPic size={150} name={user.fullName} src={user.avatar} email={user.email} />{' '}
                 <StyledCard>
                     <Text size="s" color={gray6} weight="bold">
                         {user.source}:{' '}

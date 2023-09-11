@@ -119,6 +119,7 @@ export const createGetServerSideProps =
             try {
                 const actionResult = await options.action({
                     context,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     session: session as any,
                     ssg: ssgHelper,
                     numberIds,
@@ -143,6 +144,7 @@ export const createGetServerSideProps =
 
         return {
             props: {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 session: session as any,
                 trpcState: ssgHelper.dehydrate(),
                 numberIds,
