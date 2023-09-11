@@ -8,7 +8,7 @@ interface CommonHeaderPreviewProps {
     preTitle?: React.ReactNode;
     children?: React.ReactNode;
     onClick?: () => void;
-    avatar?: string;
+    user?: { name?: string; email?: string; avatar?: string };
 }
 
 const StyledCommonHeaderPreview = styled.div`
@@ -49,12 +49,12 @@ export const CommonHeaderPreview: React.FC<CommonHeaderPreviewProps> = ({
     subtitle,
     children,
     onClick,
-    avatar,
+    user,
 }) => {
     return (
         <StyledCommonHeaderPreview>
             <StyledCommonHeaderPreviewInfo align="right" style={{ marginRight: gapM }}>
-                <UserPic size={75} src={avatar} />
+                <UserPic size={75} name={user?.name} src={user?.avatar} email={user?.email} />
             </StyledCommonHeaderPreviewInfo>
             <StyledCommonHeaderPreviewInfo align="left">
                 {nullable(preTitle, (pT) => (

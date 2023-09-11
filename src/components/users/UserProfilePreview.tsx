@@ -40,10 +40,9 @@ export const UserProfileRreview = ({ user }: UserProps): JSX.Element => {
         <>
             <StyledModalHeader>
                 <StyledCommonHeaderPreview>
-                    {' '}
                     <CommonHeaderPreview
                         preTitle={!!orgStructureGroup && roles}
-                        avatar={user?.avatar || user?.email}
+                        user={user}
                         subtitle={orgStructureGroup?.groupName}
                         title={user?.fullName}
                     />

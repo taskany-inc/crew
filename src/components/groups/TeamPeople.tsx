@@ -42,7 +42,7 @@ export const TeamPeople = ({ users }: TeamPeopleProps) => {
 
             {users?.items.map((user) => (
                 <div key={user._id} style={{ gap: gapS, display: 'flex' }}>
-                    <UserPic size={17} src={user?.avatar || user?.email} />
+                    <UserPic size={17} name={user.fullName} src={user.avatar} email={user.email} />
                     <StyledLink inline target="_blank" href={pages.user(user._id)}>
                         {user.fullName}
                     </StyledLink>
