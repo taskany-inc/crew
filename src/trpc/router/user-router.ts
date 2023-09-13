@@ -1,13 +1,23 @@
+import { z } from 'zod';
+
 import { protectedProcedure, router } from '../trpcBackend';
-import { getUser, getUsersOfGroup } from '../../api-client/users/user-methods';
-import { getUserSchema, getUsersOfGroupSchema } from '../../api-client/users/user-schemas';
+import { userMethods } from '../../modules/user.methods';
+import { addUserToGroupSchema } from '../../modules/user.schemas';
 
 export const userRouter = router({
-    getById: protectedProcedure.input(getUserSchema).query(({ input }) => {
-        return getUser(input.userId);
+    addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(({ input }) => {
+        return userMethods.addToGroup(input);
     }),
 
-    getUsersOfGroup: protectedProcedure.input(getUsersOfGroupSchema).query(({ input }) => {
-        return getUsersOfGroup(input.groupId);
+    getById: protectedProcedure.input(z.string()).query(({ input }) => {
+        return userMethods.getById(input);
+    }),
+
+    getMemberships: protectedProcedure.input(z.string()).query(({ input }) => {
+        return userMethods.getMemberships(input);
+    }),
+
+    getGroupMembers: protectedProcedure.input(z.string()).query(({ input }) => {
+        return userMethods.getGroupMembers(input);
     }),
 });

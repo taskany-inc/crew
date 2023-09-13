@@ -21,8 +21,8 @@ import { PageSep } from '../PageSep';
 import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
 import { ActivityFeedItem } from '../ActivityFeed';
 import { pages } from '../../hooks/useRouter';
-import { useUser } from '../../hooks/user-hooks';
 import { Link } from '../Link';
+import { trpc } from '../../trpc/trpcClient';
 
 import { tr } from './users.i18n';
 import { UserContacts } from './UserContacts';
@@ -111,34 +111,33 @@ const StyledTeamsLink = styled(Link)`
 export const UserProfile = () => {
     const router = useRouter();
     const { userId } = router.query;
-    const userQuery = useUser(String(userId));
+    const userQuery = trpc.user.getById.useQuery(String(userId));
     const user = userQuery.data;
 
     if (!user) return null;
 
-    const groupMemberships = user?.groupMemberships;
+    const groupMemberships = user.memberships;
 
-    const orgStructureGroup = groupMemberships.filter(({ isOrgGroup }) => isOrgGroup)[0];
-
-    const teams = groupMemberships.filter(({ isOrgGroup }) => !isOrgGroup);
+    // TODO: select real org group
+    const orgStructureMembership = groupMemberships[0];
+    const otherMemberships = groupMemberships.slice(1);
 
     return (
         <>
             <StyledUser>
-                <StyledUserPic size={150} name={user.fullName} src={user.avatar} email={user.email} />{' '}
+                <StyledUserPic size={150} name={user.name} src={user.image} email={user.email} />{' '}
                 <StyledCard>
                     <Text size="s" color={gray6} weight="bold">
-                        {user.source}:{' '}
-                        {!!orgStructureGroup && orgStructureGroup.roles.map((role) => role.title).join(', ')}
+                        {!!orgStructureMembership && orgStructureMembership.roles.map((role) => role.name).join(', ')}
                     </Text>
 
-                    {!!orgStructureGroup && (
-                        <StyledGroupLink target="_blank" href={pages.team(orgStructureGroup.uid)}>
-                            {orgStructureGroup.groupName}
+                    {!!orgStructureMembership && (
+                        <StyledGroupLink target="_blank" href={pages.team(orgStructureMembership.id)}>
+                            {orgStructureMembership.group.name}
                         </StyledGroupLink>
                     )}
                     <Text size="xxl" weight="bold">
-                        {user.fullName}
+                        {user.name}
                     </Text>
                 </StyledCard>
                 <StyledButton>
@@ -149,7 +148,7 @@ export const UserProfile = () => {
 
             <StyledWrapper>
                 <StyledUserContacts>
-                    <UserContacts user={user} showDevices />
+                    <UserContacts user={user} userServices={[]} />
                 </StyledUserContacts>
                 <StyledVerticalLine />
 
@@ -159,7 +158,7 @@ export const UserProfile = () => {
                     </Circle>
 
                     <div>
-                        <QuickSummary user={user} />
+                        <QuickSummary />
                     </div>
 
                     <StyledCircle size={32}>
@@ -170,12 +169,16 @@ export const UserProfile = () => {
                             {tr('Teams with participation')}
                             <StyledLine />
                         </Text>
-                        {teams.map((team) => (
-                            <StyledGroups key={team.uid}>
+                        {otherMemberships.map((membership) => (
+                            <StyledGroups key={membership.id}>
                                 <IconUsersOutline size={15} color={gray9} />
 
-                                <StyledTeamsLink target="_blank" key={team.groupName} href={pages.team(team.uid)}>
-                                    {team.groupName}
+                                <StyledTeamsLink
+                                    target="_blank"
+                                    key={membership.group.name}
+                                    href={pages.team(membership.id)}
+                                >
+                                    {membership.group.name}
                                 </StyledTeamsLink>
                             </StyledGroups>
                         ))}

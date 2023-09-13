@@ -1,13 +1,14 @@
+import { User } from 'prisma/prisma-client';
 import { gapL, gapM, gapS, gapXs, gray10, gray9, textColor } from '@taskany/colors';
 import styled from 'styled-components';
 import { Text } from '@taskany/bricks';
 import { IconPlusCircleOutline, IconUsersOutline } from '@taskany/icons';
 
-import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
 import { pages } from '../../hooks/useRouter';
 import { InlineTrigger } from '../InlineTrigger';
 import { Link } from '../Link';
+import { trpc } from '../../trpc/trpcClient';
 
 const StyledUserTeams = styled.div`
     display: grid;
@@ -35,12 +36,11 @@ const StyledLink = styled(Link)`
 `;
 
 type UserTeamsProps = {
-    user: User | undefined;
+    user: User;
 };
 
 export const UserTeams = ({ user }: UserTeamsProps) => {
-    const groupMemberships = user?.groupMemberships;
-    const teams = groupMemberships?.filter(({ isOrgGroup }) => !isOrgGroup);
+    const membershipsQuery = trpc.user.getMemberships.useQuery(user.id);
 
     return (
         <>
@@ -50,26 +50,25 @@ export const UserTeams = ({ user }: UserTeamsProps) => {
                     <StyledPageSep />
                 </Text>
 
-                {teams &&
-                    teams?.map((team) => (
-                        <div key={team.uid}>
-                            <IconUsersOutline size={13} color={gray9} />
+                {membershipsQuery.data?.map((membership) => (
+                    <div key={membership.groupId}>
+                        <IconUsersOutline size={13} color={gray9} />
 
-                            <StyledLink target="_blank" href={pages.team(team.uid)}>
-                                {team.groupName}
-                            </StyledLink>
-                            <StyledRoles>
-                                {team.roles.length > 0 && (
-                                    <Text size="s" color={gray10}>
-                                        <Text size="s" as="span" color={gray9}>
-                                            Role:
-                                        </Text>{' '}
-                                        {team.roles.map((role) => role.title).join(', ')}
-                                    </Text>
-                                )}
-                            </StyledRoles>
-                        </div>
-                    ))}
+                        <StyledLink target="_blank" href={pages.team(membership.groupId)}>
+                            {membership.group.name}
+                        </StyledLink>
+                        <StyledRoles>
+                            {membership.roles.length > 0 && (
+                                <Text size="s" color={gray10}>
+                                    <Text size="s" as="span" color={gray9}>
+                                        Role:
+                                    </Text>{' '}
+                                    {membership.roles.map((role) => role.name).join(', ')}
+                                </Text>
+                            )}
+                        </StyledRoles>
+                    </div>
+                ))}
 
                 {/* TODO: Link to add to the teams */}
                 <InlineTrigger icon={<IconPlusCircleOutline noWrap size="s" />} text={'Add teams'} onClick={() => {}} />
