@@ -1,18 +1,13 @@
+import { ExternalService, User, UserServices } from 'prisma/prisma-client';
 import { gapL, gapM, gapS, gapXs, gray10, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
 import { Text } from '@taskany/bricks';
-import {
-    IconEnvelopeOutline,
-    IconGithubOutline,
-    IconGitlabOutline,
-    IconPlusCircleOutline,
-    IconTelegramOutline,
-} from '@taskany/icons';
+import { IconEnvelopeOutline, IconPlusCircleOutline } from '@taskany/icons';
 
-import { User } from '../../api-client/users/user-types';
 import { PageSep } from '../PageSep';
 import { InlineTrigger } from '../InlineTrigger';
 import { Link } from '../Link';
+import { getDynamicIcon } from '../../utils/getDynamicIcon';
 
 const StyledInfo = styled.div`
     display: grid;
@@ -36,21 +31,16 @@ const StyledLink = styled(Link)`
     font-size: 14px;
 `;
 
-const StyledText = styled(Text)`
-    color: ${gray10};
-    font-size: 14px;
-`;
-
 const StyledCard = styled.div`
     height: 100%;
 `;
 
 type UserContactsProps = {
     user: User;
-    showDevices?: boolean;
+    userServices: (UserServices & { service: ExternalService })[];
 };
 
-export const UserContacts = ({ user, showDevices = false }: UserContactsProps) => {
+export const UserContacts = ({ user, userServices }: UserContactsProps) => {
     return (
         <>
             <StyledCard>
@@ -65,30 +55,21 @@ export const UserContacts = ({ user, showDevices = false }: UserContactsProps) =
                             {user?.email}
                         </StyledLink>
                     </div>
-                    {user?.telegram && (
-                        <div>
-                            <IconTelegramOutline size={15} color={gray10} />
-                            <StyledLink target="_blank" href={`https://t.me/${user.telegram}`}>
-                                {user.telegram}
-                            </StyledLink>
-                        </div>
-                    )}
-                    {user?.gitlab && (
-                        <div>
-                            <IconGitlabOutline size={15} color={gray10} />
-                            <StyledLink target="_blank" href={user?.gitlab?.web_url}>
-                                {user.gitlab?.username}
-                            </StyledLink>
-                        </div>
-                    )}
-                    {user?.github && (
-                        <div>
-                            <IconGithubOutline size={15} color={gray10} />
-                            <StyledLink target="_blank" href={`https://github.com/${user.github}`}>
-                                {user.github}
-                            </StyledLink>
-                        </div>
-                    )}
+
+                    {userServices.map((userService) => {
+                        const Icon = getDynamicIcon(userService.service.icon);
+                        return (
+                            <div key={`${userService.serviceName}-${userService.serviceId}`}>
+                                <Icon size={15} color={gray10} />
+                                <StyledLink
+                                    target="_blank"
+                                    href={`${userService.service.linkPrefix}${userService.serviceId}`}
+                                >
+                                    {userService.serviceName}
+                                </StyledLink>
+                            </div>
+                        );
+                    })}
                     {/* TODO: Link to add to the teams */}
                     <InlineTrigger
                         icon={<IconPlusCircleOutline noWrap size="s" />}
@@ -98,39 +79,15 @@ export const UserContacts = ({ user, showDevices = false }: UserContactsProps) =
                 </StyledInfo>
 
                 <StyledInfo>
-                    {showDevices && (
-                        <>
-                            {user.devices.length > 0 && (
-                                <>
-                                    <Text size="m" color={gray9} weight="bold">
-                                        Corporate devices
-                                        <StyledLine />
-                                    </Text>
-                                    {user?.devices.map((device) => (
-                                        <StyledText weight="bolder" color={gray10} size="s" key={device.deviceId}>
-                                            {device?.name}
-                                            <Text
-                                                as="span"
-                                                size="s"
-                                                weight="regular"
-                                                color={gray10}
-                                                key={device.deviceId}
-                                            >
-                                                {' '}
-                                                {device?.deviceId}
-                                            </Text>
-                                        </StyledText>
-                                    ))}
-                                    {/* TODO: inline form for devices */}
-                                    <InlineTrigger
-                                        icon={<IconPlusCircleOutline noWrap size="s" />}
-                                        text={'Request a device'}
-                                        onClick={() => {}}
-                                    />
-                                </>
-                            )}
-                        </>
-                    )}
+                    <Text size="m" color={gray9} weight="bold">
+                        Corporate devices
+                        <StyledLine />
+                    </Text>
+                    <InlineTrigger
+                        icon={<IconPlusCircleOutline noWrap size="s" />}
+                        text={'Request a device'}
+                        onClick={() => {}}
+                    />
                 </StyledInfo>
             </StyledCard>
         </>

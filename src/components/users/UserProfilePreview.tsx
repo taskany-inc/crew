@@ -1,25 +1,13 @@
-import { ModalContent, ModalHeader } from '@taskany/bricks';
+import { User } from 'prisma/prisma-client';
+import { ModalContent } from '@taskany/bricks';
 import styled from 'styled-components';
-import { gapL, gapM, gapSm } from '@taskany/colors';
+import { gapL } from '@taskany/colors';
 
-import { User } from '../../api-client/users/user-types';
-import { CommonHeaderPreview } from '../CommonHeaderPreview';
+import { PreviewHeader } from '../PreviewHeader';
 
 import { UserContacts } from './UserContacts';
 import { UserTeams } from './UserTeams';
 import { QuickSummary } from './QuickSummary';
-
-const StyledModalHeader = styled(ModalHeader)`
-    top: 0;
-    position: sticky;
-
-    box-shadow: 0 2px 5px 2px rgb(0 0 0 / 10%);
-    gap: ${gapM};
-`;
-
-const StyledCommonHeaderPreview = styled.div`
-    margin-left: ${gapSm};
-`;
 
 const StyledModalContent = styled(ModalContent)`
     padding-top: ${gapL};
@@ -29,29 +17,18 @@ const StyledModalContent = styled(ModalContent)`
 
 type UserProps = {
     user: User;
+    groupName?: string;
+    role?: string;
 };
 
-export const UserProfileRreview = ({ user }: UserProps): JSX.Element => {
-    const groupMemberships = user?.groupMemberships;
-
-    const orgStructureGroup = groupMemberships?.filter(({ isOrgGroup }) => isOrgGroup)[0];
-    const roles = orgStructureGroup?.roles.map((role) => role.title).join(', ');
+export const UserProfilePreview = ({ user, groupName, role }: UserProps): JSX.Element => {
     return (
         <>
-            <StyledModalHeader>
-                <StyledCommonHeaderPreview>
-                    <CommonHeaderPreview
-                        preTitle={!!orgStructureGroup && roles}
-                        user={user}
-                        subtitle={orgStructureGroup?.groupName}
-                        title={user?.fullName}
-                    />
-                </StyledCommonHeaderPreview>
-            </StyledModalHeader>
+            <PreviewHeader preTitle={role} user={user} subtitle={groupName} title={user.name} />
             <StyledModalContent>
-                <QuickSummary user={user} />
+                <QuickSummary />
                 <UserTeams user={user} />
-                <UserContacts user={user} />
+                <UserContacts user={user} userServices={[]} />
             </StyledModalContent>
         </>
     );

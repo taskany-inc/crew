@@ -1,3 +1,4 @@
+import { User } from 'prisma/prisma-client';
 import { useRouter } from 'next/router';
 import { ModalPreview, TabsMenu, TabsMenuItem, Text, nullable } from '@taskany/bricks';
 import styled from 'styled-components';
@@ -7,13 +8,12 @@ import { useState } from 'react';
 import { CommonHeader } from '../CommonHeader';
 import { FiltersPanel } from '../FiltersPanel';
 import { pages } from '../../hooks/useRouter';
-import { useUsersOfGroup } from '../../hooks/users-of-group-hooks';
-import { UserProfileRreview } from '../users/UserProfilePreview';
-import { User } from '../../api-client/users/user-types';
+import { UserProfilePreview } from '../users/UserProfilePreview';
 import { useGroup } from '../../hooks/group-hooks';
 import { Group } from '../../api-client/groups/group-types';
 import { useGroupChildren } from '../../hooks/children-hooks';
 import { Link } from '../Link';
+import { trpc } from '../../trpc/trpcClient';
 
 import { TeamProfilePreview } from './TeamProfilePreview';
 
@@ -39,8 +39,8 @@ export const TeamProfile = () => {
     const parentQuery = useGroup(String(parentId));
     const parentGroup = parentQuery.data;
 
-    const usersOfGroupQuery = useUsersOfGroup(String(teamId));
-    const users = usersOfGroupQuery.data;
+    const groupMembersQuery = trpc.user.getGroupMembers.useQuery(String(teamId));
+    const users = groupMembersQuery.data;
 
     const groupChildrenQuery = useGroupChildren(String(teamId));
     const groupChildren = groupChildrenQuery.data;
@@ -88,15 +88,15 @@ export const TeamProfile = () => {
             <div style={{ marginLeft: gapL }}>
                 <Text onClick={() => onClickGroupPreview(group)}>{group.name}</Text>
                 {users &&
-                    users.items.map((user) => (
-                        <Text color={gray10} key={user._id} onClick={() => onClickUserPreview(user)}>
-                            {user.fullName}
+                    users.map((user) => (
+                        <Text color={gray10} key={user.id} onClick={() => onClickUserPreview(user)}>
+                            {user.name}
                         </Text>
                     ))}
 
                 <StyledModalPreview visible={!!userPreview} onClose={() => onClickUserPreview(undefined)}>
                     {nullable(userPreview, (user) => (
-                        <UserProfileRreview user={user} />
+                        <UserProfilePreview user={user} />
                     ))}
                 </StyledModalPreview>
 

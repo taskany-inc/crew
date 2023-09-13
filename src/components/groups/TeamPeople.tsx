@@ -1,3 +1,4 @@
+import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { gapL, gapM, gapS, gapXs, gray9 } from '@taskany/colors';
 import { UserPic, Text } from '@taskany/bricks';
@@ -5,7 +6,6 @@ import { IconPlusCircleOutline } from '@taskany/icons';
 
 import { PageSep } from '../PageSep';
 import { InlineTrigger } from '../InlineTrigger';
-import { UsersPage } from '../../api-client/users/user-types';
 import { pages } from '../../hooks/useRouter';
 import { Link } from '../Link';
 
@@ -29,7 +29,7 @@ const StyledLink = styled(Link)`
 `;
 
 type TeamPeopleProps = {
-    users: UsersPage;
+    users: User[];
 };
 
 export const TeamPeople = ({ users }: TeamPeopleProps) => {
@@ -40,16 +40,15 @@ export const TeamPeople = ({ users }: TeamPeopleProps) => {
                 <StyledPageSep />
             </Text>
 
-            {users?.items.map((user) => (
-                <div key={user._id} style={{ gap: gapS, display: 'flex' }}>
-                    <UserPic size={17} name={user.fullName} src={user.avatar} email={user.email} />
-                    <StyledLink target="_blank" href={pages.user(user._id)}>
-                        {user.fullName}
+            {users.map((user) => (
+                <div key={user.id} style={{ gap: gapS, display: 'flex' }}>
+                    <UserPic size={17} name={user.name} src={user.image} email={user.email} />
+                    <StyledLink target="_blank" href={pages.user(user.id)}>
+                        {user.name}
                     </StyledLink>
                 </div>
             ))}
 
-            {/* TODO: Link to "Add participant" */}
             <InlineTrigger
                 icon={<IconPlusCircleOutline noWrap size="s" />}
                 text={'Add participant'}
