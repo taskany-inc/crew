@@ -2,5 +2,6 @@
     "Cannot delete group with children": "Cannot delete group with children",
     "Title is required": "Title is required",
     "Title must be a string": "Title must be a string",
-    "Title must be longer than {upTo} symbol": "Title must be longer than {upTo} symbol"
+    "Title must be longer than {upTo} symbol": "Title must be longer than {upTo} symbol",
+    "Choose a service": "Choose a service"
 }

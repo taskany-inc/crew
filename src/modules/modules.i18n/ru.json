@@ -2,5 +2,6 @@
     "Cannot delete group with children": "Нельзя удалить группу у которой есть вложенные группы",
     "Title is required": "Заголовок обязателен",
     "Title must be a string": "Заголовок должен быть строкой",
-    "Title must be longer than {upTo} symbol": "Заголовок должен быть длиннее {upTo} символов"
+    "Title must be longer than {upTo} symbol": "Заголовок должен быть длиннее {upTo} символов",
+    "Choose a service": "Выберите сервис"
 }
