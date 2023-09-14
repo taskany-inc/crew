@@ -2,11 +2,10 @@ import { ExternalService, User, UserServices } from 'prisma/prisma-client';
 import { gapM, gapS, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
 import { Text } from '@taskany/bricks';
-import { IconPlusCircleOutline } from '@taskany/icons';
 
 import { PageSep } from '../PageSep';
-import { InlineTrigger } from '../InlineTrigger';
 import { UserServiceListItem } from '../UserServiceListItem';
+import { AddServiceToUserForm } from '../services/AddServiceToUserForm';
 
 import { tr } from './users.i18n';
 
@@ -49,8 +48,7 @@ export const UserContacts = ({ user, userServices }: UserContactsProps) => {
                 ))}
             </StyledServicesList>
 
-            {/* TODO: implement AddServiceToUser */}
-            <InlineTrigger icon={<IconPlusCircleOutline noWrap size="s" />} text={tr('Add link')} disabled />
+            <AddServiceToUserForm userId={user.id} />
         </div>
     );
 };

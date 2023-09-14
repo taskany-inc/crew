@@ -146,11 +146,11 @@ export const UserPage = () => {
                 </StyledButton>
             </StyledUser>
             <PageSep />
-
             <StyledWrapper>
                 <StyledUserContacts>
                     <UserContacts user={user} userServices={[]} />
                 </StyledUserContacts>
+
                 <StyledVerticalLine />
 
                 <StyledActivityFeedItem>
