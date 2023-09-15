@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { tr } from './feedback.i18n';
+import { tr } from './modules.i18n';
 
 export const createFeedbackSchema = z.object({
     title: z
@@ -18,5 +18,4 @@ export const createFeedbackSchema = z.object({
     description: z.string().optional(),
     href: z.string().optional(),
 });
-
 export type CreateFeedback = z.infer<typeof createFeedbackSchema>;

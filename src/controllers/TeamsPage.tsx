@@ -9,10 +9,10 @@ import { tr } from './controllers.i18n';
 
 const GroupWithChildren = ({ group }: { group: Group }) => {
     const utils = trpc.useContext();
-    const children = trpc.groupNew.getChildren.useQuery(group.id);
-    const breadcrumbs = trpc.groupNew.getBreadcrumbs.useQuery(group.id);
-    const add = trpc.groupNew.add.useMutation();
-    const delete_ = trpc.groupNew.delete.useMutation();
+    const children = trpc.group.getChildren.useQuery(group.id);
+    const breadcrumbs = trpc.group.getBreadcrumbs.useQuery(group.id);
+    const add = trpc.group.add.useMutation();
+    const delete_ = trpc.group.delete.useMutation();
     const [name, setName] = useState('');
     if (!children.data || !breadcrumbs.data) return <span>Loading...</span>;
     return (
@@ -25,7 +25,7 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
                     size="xs"
                     onClick={() => {
                         delete_.mutateAsync(group.id).then(() => {
-                            utils.groupNew.invalidate();
+                            utils.group.invalidate();
                         });
                     }}
                 />
@@ -35,7 +35,7 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
                     onClick={() => {
                         add.mutateAsync({ name, parentId: group.id }).then(() => {
                             setName('');
-                            utils.groupNew.getChildren.invalidate();
+                            utils.group.getChildren.invalidate();
                         });
                     }}
                 >
@@ -52,8 +52,8 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
 };
 
 export const TeamsPage = () => {
-    const roots = trpc.groupNew.getRoots.useQuery();
-    const add = trpc.groupNew.add.useMutation();
+    const roots = trpc.group.getRoots.useQuery();
+    const add = trpc.group.add.useMutation();
     const utils = trpc.useContext();
     const [name, setName] = useState('');
 
@@ -65,7 +65,7 @@ export const TeamsPage = () => {
                     style={{ marginLeft: 8 }}
                     onClick={() => {
                         add.mutateAsync({ name }).then(() => {
-                            utils.groupNew.getRoots.invalidate();
+                            utils.group.getRoots.invalidate();
                             setName('');
                         });
                     }}

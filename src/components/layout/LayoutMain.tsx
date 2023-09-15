@@ -23,10 +23,12 @@ type LayoutMainProps = {
 export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, aboveContainer, children }) => {
     const theme: 'dark' | 'light' = 'dark';
 
+    const fullTitle = pageTitle ? `${pageTitle} - Taskany Crew` : 'Taskany Crew';
+
     return (
         <>
             <Head>
-                <title>{pageTitle} - Taskany Crew</title>
+                <title>{fullTitle}</title>
             </Head>
 
             <GlobalStyle />

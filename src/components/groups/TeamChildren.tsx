@@ -1,3 +1,4 @@
+import { Group } from 'prisma/prisma-client';
 import { gapL, gapM, gapS, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
 import { Text } from '@taskany/bricks';
@@ -5,7 +6,6 @@ import { IconPlusCircleOutline, IconUsersOutline } from '@taskany/icons';
 
 import { PageSep } from '../PageSep';
 import { pages } from '../../hooks/useRouter';
-import { GroupsPage } from '../../api-client/groups/group-types';
 import { InlineTrigger } from '../InlineTrigger';
 import { Link } from '../Link';
 
@@ -27,7 +27,7 @@ const StyledLink = styled(Link)`
 `;
 
 type GroupTeamsProps = {
-    groupChildren: GroupsPage;
+    groupChildren: Group[];
 };
 
 export const TeamChildren = ({ groupChildren }: GroupTeamsProps) => {
@@ -40,11 +40,11 @@ export const TeamChildren = ({ groupChildren }: GroupTeamsProps) => {
                 </Text>
 
                 {groupChildren &&
-                    groupChildren?.items?.map((child) => (
-                        <div key={child._id}>
+                    groupChildren.map((child) => (
+                        <div key={child.id}>
                             <IconUsersOutline size={13} color={gray9} />
 
-                            <StyledLink target="_blank" href={pages.team(child._id)}>
+                            <StyledLink target="_blank" href={pages.team(child.id)}>
                                 {child.name}
                             </StyledLink>
                         </div>

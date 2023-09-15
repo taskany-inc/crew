@@ -1,4 +1,4 @@
-import { User } from 'prisma/prisma-client';
+import { Group, User } from 'prisma/prisma-client';
 import { useRouter } from 'next/router';
 import { ModalPreview, TabsMenu, TabsMenuItem, Text, nullable } from '@taskany/bricks';
 import styled from 'styled-components';
@@ -9,9 +9,6 @@ import { CommonHeader } from '../CommonHeader';
 import { FiltersPanel } from '../FiltersPanel';
 import { pages } from '../../hooks/useRouter';
 import { UserProfilePreview } from '../users/UserProfilePreview';
-import { useGroup } from '../../hooks/group-hooks';
-import { Group } from '../../api-client/groups/group-types';
-import { useGroupChildren } from '../../hooks/children-hooks';
 import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
 
@@ -32,17 +29,17 @@ export const TeamProfile = () => {
     const [groupPreview, setGroupPreview] = useState<Group | undefined>(undefined);
 
     const { teamId } = router.query;
-    const userQuery = useGroup(String(teamId));
-    const group = userQuery.data;
+    const groupQuery = trpc.group.getById.useQuery(String(teamId));
+    const group = groupQuery.data;
 
     const parentId = group?.parentId;
-    const parentQuery = useGroup(String(parentId));
+    const parentQuery = trpc.group.getById.useQuery(String(parentId), { enabled: !!parentId });
     const parentGroup = parentQuery.data;
 
     const groupMembersQuery = trpc.user.getGroupMembers.useQuery(String(teamId));
     const users = groupMembersQuery.data;
 
-    const groupChildrenQuery = useGroupChildren(String(teamId));
+    const groupChildrenQuery = trpc.group.getChildren.useQuery(String(teamId));
     const groupChildren = groupChildrenQuery.data;
 
     if (!users) return null;

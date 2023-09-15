@@ -1,14 +1,13 @@
-import { User } from 'prisma/prisma-client';
+import { Group, User } from 'prisma/prisma-client';
 import { ModalContent, ModalHeader, Text } from '@taskany/bricks';
 import styled from 'styled-components';
 import { gapL, gapM, gapS, gapXl, gapXs, gray9 } from '@taskany/colors';
 import { IconBinOutline, IconGitPullOutline } from '@taskany/icons';
 
-import { Group, GroupsPage } from '../../api-client/groups/group-types';
-import { useGroup } from '../../hooks/group-hooks';
 import { PageSep } from '../PageSep';
 import { PreviewHeader } from '../PreviewHeader';
 import { InlineTrigger } from '../InlineTrigger';
+import { trpc } from '../../trpc/trpcClient';
 
 import { TeamChildren } from './TeamChildren';
 import { TeamPeople } from './TeamPeople';
@@ -47,12 +46,12 @@ const Wrapper = styled.div`
 type UserProps = {
     group: Group | undefined;
     users: User[];
-    groupChildren: GroupsPage;
+    groupChildren: Group[];
 };
 
 export const TeamProfilePreview = ({ group, users, groupChildren }: UserProps): JSX.Element => {
     const parentId = group?.parentId;
-    const parentQuery = useGroup(String(parentId));
+    const parentQuery = trpc.group.getById.useQuery(String(parentId));
     const parentGroup = parentQuery.data;
 
     return (
