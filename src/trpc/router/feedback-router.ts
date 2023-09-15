@@ -1,5 +1,5 @@
+import { createFeedbackSchema } from '../../modules/feedback.schemas';
 import { protectedProcedure, router } from '../trpcBackend';
-import { createFeedbackSchema } from '../../api-client/feedback/feedback-schemas';
 
 export const feedbackRouter = router({
     create: protectedProcedure

@@ -5,7 +5,7 @@ import { Button, Form, FormActions, FormAction, FormTextarea, FormInput, ModalCo
 import * as Sentry from '@sentry/nextjs';
 
 import { errorsProvider } from '../../utils/forms';
-import { createFeedbackSchema, CreateFeedback } from '../../api-client/feedback/feedback-schemas';
+import { CreateFeedback, createFeedbackSchema } from '../../modules/feedback.schemas';
 import { trpc } from '../../trpc/trpcClient';
 
 import { tr } from './feedback.i18n';
