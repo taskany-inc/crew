@@ -15,7 +15,7 @@ const StyledContent = styled.div`
 `;
 
 type LayoutMainProps = {
-    pageTitle?: string;
+    pageTitle?: string | null;
     aboveContainer?: JSX.Element;
     children?: ReactNode;
 };

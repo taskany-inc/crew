@@ -4,6 +4,8 @@ import { Text } from '@taskany/bricks';
 
 import { PageSep } from '../PageSep';
 
+import { tr } from './users.i18n';
+
 const StyledQuickSummary = styled.div`
     display: grid;
     grid-template-columns: 6fr;
@@ -23,12 +25,12 @@ export const QuickSummary = () => {
             <StyledQuickSummary>
                 <>
                     <Text as="span" size="m" color={gray9} weight="bold">
-                        Quick summary
+                        {tr('Quick summary')}
                         <StyledPageSep />
                     </Text>
                     <div>
                         <Text size="m" color={gray9}>
-                            Supervisor:
+                            {tr('Supervisor:')}
                         </Text>
                     </div>
                 </>

@@ -17,6 +17,10 @@ export const userMethods = {
         });
     },
 
+    getList: () => {
+        return prisma.user.findMany();
+    },
+
     getMemberships: (id: string): Promise<UserMembership[]> => {
         return prisma.membership.findMany({ where: { userId: id }, include: { group: true, roles: true } });
     },

@@ -1,4 +1,4 @@
-import { TeamPage } from '../../../controllers/TeamPage';
+import { TeamPage } from '../../../components/groups/TeamPage';
 import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({ requireSession: true });

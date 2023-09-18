@@ -2,23 +2,26 @@ import { useState } from 'react';
 import { Group } from 'prisma/prisma-client';
 import { IconBinOutline, IconMoreHorizontalOutline } from '@taskany/icons';
 
-import { LayoutMain } from '../components/layout/LayoutMain';
-import { trpc } from '../trpc/trpcClient';
+import { LayoutMain } from '../layout/LayoutMain';
+import { Link } from '../Link';
+import { trpc } from '../../trpc/trpcClient';
+import { pages } from '../../hooks/useRouter';
 
-import { tr } from './controllers.i18n';
+import { tr } from './groups.i18n';
 
 const GroupWithChildren = ({ group }: { group: Group }) => {
     const utils = trpc.useContext();
-    const children = trpc.group.getChildren.useQuery(group.id);
+    const [showChildren, setShowChildren] = useState(false);
+    const children = trpc.group.getChildren.useQuery(group.id, { enabled: showChildren });
     const breadcrumbs = trpc.group.getBreadcrumbs.useQuery(group.id);
     const add = trpc.group.add.useMutation();
     const delete_ = trpc.group.delete.useMutation();
     const [name, setName] = useState('');
-    if (!children.data || !breadcrumbs.data) return <span>Loading...</span>;
+    if (!breadcrumbs.data) return <span>Loading...</span>;
     return (
         <div>
             <div style={{ marginBottom: 12 }}>
-                <span>{group.name} </span>
+                <Link href={pages.team(group.id)}>{group.name} </Link>
                 <IconMoreHorizontalOutline size="xs" title={breadcrumbs.data.map((b) => b.name).join()} />
                 <IconBinOutline
                     style={{ marginLeft: 8 }}
@@ -42,11 +45,14 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
                     add child
                 </button>
             </div>
-            <div style={{ marginLeft: 24 }}>
-                {children.data.map((c) => (
-                    <GroupWithChildren key={c.id} group={c} />
-                ))}
-            </div>
+            {!showChildren && <button onClick={() => setShowChildren(true)}>show children</button>}
+            {showChildren && children.data && (
+                <div style={{ marginLeft: 24 }}>
+                    {children.data.map((c) => (
+                        <GroupWithChildren key={c.id} group={c} />
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
