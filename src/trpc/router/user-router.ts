@@ -13,6 +13,10 @@ export const userRouter = router({
         return userMethods.getById(input);
     }),
 
+    getList: protectedProcedure.query(() => {
+        return userMethods.getList();
+    }),
+
     getMemberships: protectedProcedure.input(z.string()).query(({ input }) => {
         return userMethods.getMemberships(input);
     }),

@@ -1,4 +1,4 @@
-import { UsersPage } from '../../controllers/UsersPage';
+import { UsersPage } from '../../components/users/UsersPage';
 import { createGetServerSideProps } from '../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({ requireSession: true });

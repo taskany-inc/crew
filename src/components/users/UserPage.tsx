@@ -23,10 +23,11 @@ import { ActivityFeedItem } from '../ActivityFeed';
 import { pages } from '../../hooks/useRouter';
 import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
+import { LayoutMain } from '../layout/LayoutMain';
 
-import { tr } from './users.i18n';
 import { UserContacts } from './UserContacts';
 import { QuickSummary } from './QuickSummary';
+import { tr } from './users.i18n';
 
 const StyledUser = styled.div`
     display: grid;
@@ -108,7 +109,7 @@ const StyledTeamsLink = styled(Link)`
     font-weight: 500;
 `;
 
-export const UserProfile = () => {
+export const UserPage = () => {
     const router = useRouter();
     const { userId } = router.query;
     const userQuery = trpc.user.getById.useQuery(String(userId));
@@ -123,7 +124,7 @@ export const UserProfile = () => {
     const otherMemberships = groupMemberships.slice(1);
 
     return (
-        <>
+        <LayoutMain pageTitle={user.name}>
             <StyledUser>
                 <StyledUserPic size={150} name={user.name} src={user.image} email={user.email} />{' '}
                 <StyledCard>
@@ -185,6 +186,6 @@ export const UserProfile = () => {
                     </StyledInfo>
                 </StyledActivityFeedItem>
             </StyledWrapper>
-        </>
+        </LayoutMain>
     );
 };

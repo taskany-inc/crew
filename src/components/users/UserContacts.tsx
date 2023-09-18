@@ -9,6 +9,8 @@ import { InlineTrigger } from '../InlineTrigger';
 import { Link } from '../Link';
 import { getDynamicIcon } from '../../utils/getDynamicIcon';
 
+import { tr } from './users.i18n';
+
 const StyledInfo = styled.div`
     display: grid;
     grid-template-columns: 6fr;
@@ -46,7 +48,7 @@ export const UserContacts = ({ user, userServices }: UserContactsProps) => {
             <StyledCard>
                 <StyledInfo>
                     <Text size="m" color={gray9} weight="bold">
-                        Contacts
+                        {tr('Contacts')}
                         <StyledLine />
                     </Text>
                     <div>
@@ -73,7 +75,7 @@ export const UserContacts = ({ user, userServices }: UserContactsProps) => {
                     {/* TODO: Link to add to the teams */}
                     <InlineTrigger
                         icon={<IconPlusCircleOutline noWrap size="s" />}
-                        text={'Add link'}
+                        text={tr('Add link')}
                         onClick={() => {}}
                     />
                 </StyledInfo>

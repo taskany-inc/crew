@@ -11,6 +11,7 @@ import { pages } from '../../hooks/useRouter';
 import { UserProfilePreview } from '../users/UserProfilePreview';
 import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
+import { LayoutMain } from '../layout/LayoutMain';
 
 import { TeamProfilePreview } from './TeamProfilePreview';
 
@@ -23,7 +24,7 @@ const StyledModalPreview = styled(ModalPreview)`
     height: 100%;
 `;
 
-export const TeamProfile = () => {
+export const TeamPage = () => {
     const router = useRouter();
     const [userPreview, setUserPreview] = useState<User | undefined>(undefined);
     const [groupPreview, setGroupPreview] = useState<Group | undefined>(undefined);
@@ -42,10 +43,7 @@ export const TeamProfile = () => {
     const groupChildrenQuery = trpc.group.getChildren.useQuery(String(teamId));
     const groupChildren = groupChildrenQuery.data;
 
-    if (!users) return null;
-    if (!parentGroup) return null;
     if (!group) return null;
-    if (!groupChildren) return null;
 
     const tabsMenuOptions: Array<[string, string]> = [
         ['People', pages.people],
@@ -66,9 +64,9 @@ export const TeamProfile = () => {
     };
 
     return (
-        <>
+        <LayoutMain pageTitle={group.name}>
             <CommonHeader
-                subtitle={parentGroup.name}
+                subtitle={parentGroup?.name}
                 title={group.name}
                 description={'This is  group description. One line and truncate...'}
             />
@@ -99,10 +97,10 @@ export const TeamProfile = () => {
 
                 <StyledModalPreview visible={!!groupPreview} onClose={() => onClickGroupPreview(undefined)}>
                     {nullable(groupPreview, (groupData) => (
-                        <TeamProfilePreview group={groupData} users={users} groupChildren={groupChildren} />
+                        <TeamProfilePreview group={groupData} users={users ?? []} groupChildren={groupChildren ?? []} />
                     ))}
                 </StyledModalPreview>
             </div>
-        </>
+        </LayoutMain>
     );
 };
