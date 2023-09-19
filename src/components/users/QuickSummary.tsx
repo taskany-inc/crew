@@ -1,40 +1,30 @@
-import { gapL, gapM, gapS, gray9, gapXs } from '@taskany/colors';
+import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
+import { gapS, gray9 } from '@taskany/colors';
 import { Text } from '@taskany/bricks';
 
 import { PageSep } from '../PageSep';
+import { UserListItem } from '../UserListItem';
 
 import { tr } from './users.i18n';
 
-const StyledQuickSummary = styled.div`
-    display: grid;
-    grid-template-columns: 6fr;
-    gap: ${gapXs};
-    margin: ${gapS} 0 ${gapL} ${gapM};
-`;
-
-const StyledPageSep = styled(PageSep)`
-    white-space: nowrap;
-    margin: 5px 0px;
-    width: 300px;
+const StyledSupervisorText = styled(Text)`
+    display: flex;
+    gap: ${gapS};
 `;
 
 export const QuickSummary = () => {
     return (
-        <>
-            <StyledQuickSummary>
-                <>
-                    <Text as="span" size="m" color={gray9} weight="bold">
-                        {tr('Quick summary')}
-                        <StyledPageSep />
-                    </Text>
-                    <div>
-                        <Text size="m" color={gray9}>
-                            {tr('Supervisor:')}
-                        </Text>
-                    </div>
-                </>
-            </StyledQuickSummary>
-        </>
+        <div>
+            <Text as="span" size="m" color={gray9} weight="bold">
+                {tr('Quick summary')}
+                <PageSep width={300} margins={5} />
+            </Text>
+
+            <StyledSupervisorText size="m" color={gray9}>
+                {tr('Supervisor:')}{' '}
+                <UserListItem user={{ name: 'Placeholder user', email: 'placeholder@example.com' } as User} />
+            </StyledSupervisorText>
+        </div>
     );
 };

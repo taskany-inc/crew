@@ -8,6 +8,7 @@ import { PageSep } from '../PageSep';
 import { PreviewHeader } from '../PreviewHeader';
 import { InlineTrigger } from '../InlineTrigger';
 import { trpc } from '../../trpc/trpcClient';
+import { pages } from '../../hooks/useRouter';
 
 import { TeamChildren } from './TeamChildren';
 import { TeamPeople } from './TeamPeople';
@@ -21,7 +22,7 @@ const StyledModalHeader = styled(ModalHeader)`
 
 const StyledModalContent = styled(ModalContent)`
     gap: ${gapXl};
-    overflow: scroll;
+    overflow: auto;
     height: 100%;
 `;
 
@@ -39,12 +40,11 @@ const StyledPageSep = styled(PageSep)`
 `;
 
 const Wrapper = styled.div`
-    height: 100%;
     margin: ${gapS} 0 ${gapL} ${gapM};
 `;
 
 type UserProps = {
-    group: Group | undefined;
+    group: Group;
     users: User[];
     groupChildren: Group[];
 };
@@ -57,7 +57,7 @@ export const TeamProfilePreview = ({ group, users, groupChildren }: UserProps): 
     return (
         <>
             <StyledModalHeader>
-                <PreviewHeader subtitle={parentGroup?.name} title={group?.name} />
+                <PreviewHeader subtitle={parentGroup?.name} title={group?.name} link={pages.team(group.id)} />
             </StyledModalHeader>
             <StyledModalContent>
                 <StyledQuickSummary>

@@ -19,15 +19,10 @@ const StyledTabsMenu = styled(TabsMenu)`
     margin-left: ${gapL};
 `;
 
-const StyledModalPreview = styled(ModalPreview)`
-    overflow: visible;
-    height: 100%;
-`;
-
 export const TeamPage = () => {
     const router = useRouter();
-    const [userPreview, setUserPreview] = useState<User | undefined>(undefined);
-    const [groupPreview, setGroupPreview] = useState<Group | undefined>(undefined);
+    const [userPreview, setUserPreview] = useState<User>();
+    const [groupPreview, setGroupPreview] = useState<Group>();
 
     const { teamId } = router.query;
     const groupQuery = trpc.group.getById.useQuery(String(teamId));
@@ -89,17 +84,17 @@ export const TeamPage = () => {
                         </Text>
                     ))}
 
-                <StyledModalPreview visible={!!userPreview} onClose={() => onClickUserPreview(undefined)}>
+                <ModalPreview visible={!!userPreview} onClose={() => onClickUserPreview(undefined)}>
                     {nullable(userPreview, (user) => (
-                        <UserProfilePreview user={user} />
+                        <UserProfilePreview user={user} groupName="Group placeholder" role="Role placeholder" />
                     ))}
-                </StyledModalPreview>
+                </ModalPreview>
 
-                <StyledModalPreview visible={!!groupPreview} onClose={() => onClickGroupPreview(undefined)}>
+                <ModalPreview visible={!!groupPreview} onClose={() => onClickGroupPreview(undefined)}>
                     {nullable(groupPreview, (groupData) => (
                         <TeamProfilePreview group={groupData} users={users ?? []} groupChildren={groupChildren ?? []} />
                     ))}
-                </StyledModalPreview>
+                </ModalPreview>
             </div>
         </LayoutMain>
     );

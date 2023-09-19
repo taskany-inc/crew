@@ -4,7 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { prisma } from '../utils/prisma';
 import { objByKey } from '../utils/objByKey';
 
-import { CreateGroup, MoveGroup } from './group.schemas';
+import { CreateGroup, GetGroupList, MoveGroup } from './group.schemas';
 import { tr } from './modules.i18n';
 
 export const groupMethods = {
@@ -36,6 +36,10 @@ export const groupMethods = {
 
     getByIdWithChildren: (id: string) => {
         return prisma.group.findUnique({ where: { id }, include: { children: true } });
+    },
+
+    getList: (data: GetGroupList) => {
+        return prisma.group.findMany({ where: { name: { contains: data.search } }, take: data.take });
     },
 
     getBreadCrumbs: async (id: string) => {

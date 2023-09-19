@@ -9,21 +9,22 @@ interface InlineTriggerProps {
     icon: React.ReactNode;
     className?: string;
     onClick?: () => void;
+    disabled?: boolean;
 }
 
-const StyledInlineTrigger = styled(Text)`
+const StyledInlineTrigger = styled(Text)<{ disabled?: boolean }>`
     display: flex;
     align-items: center;
 
     transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
     transition-property: color;
 
-    cursor: pointer;
+    cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
 
     color: ${gray8};
 
     &:hover {
-        color: ${textColor};
+        color: ${({ disabled }) => (disabled ? 'auto' : textColor)};
     }
 `;
 
@@ -33,9 +34,9 @@ const StyledInlineTriggerText = styled.span`
 `;
 
 export const InlineTrigger = forwardRef<HTMLDivElement, InlineTriggerProps>(
-    ({ text, icon, className, onClick }, ref) => {
+    ({ text, icon, className, onClick, disabled }, ref) => {
         return (
-            <StyledInlineTrigger ref={ref} size="s" className={className} onClick={onClick}>
+            <StyledInlineTrigger ref={ref} size="s" className={className} onClick={onClick} disabled={disabled}>
                 {icon}
                 <StyledInlineTriggerText>{text}</StyledInlineTriggerText>
             </StyledInlineTrigger>
