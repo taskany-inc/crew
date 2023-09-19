@@ -11,3 +11,9 @@ export const moveGroupSchema = z.object({
     newParentId: z.string(),
 });
 export type MoveGroup = z.infer<typeof moveGroupSchema>;
+
+export const getGroupListSchema = z.object({
+    search: z.string().optional(),
+    take: z.number().optional(),
+});
+export type GetGroupList = z.infer<typeof getGroupListSchema>;

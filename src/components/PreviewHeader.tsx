@@ -1,14 +1,16 @@
 import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { gapM, gray10, gray6 } from '@taskany/colors';
+import { gapM, gapS, gray10, gray6 } from '@taskany/colors';
 import { ModalHeader, Text, UserPic, nullable } from '@taskany/bricks';
+
+import { Link } from './Link';
 
 interface PreviewHeaderProps {
     title: React.ReactNode;
     subtitle?: React.ReactNode;
     preTitle?: React.ReactNode;
     children?: React.ReactNode;
-    onClick?: () => void;
+    link: string;
     user?: User;
 }
 
@@ -20,7 +22,11 @@ const StyledModalHeader = styled(ModalHeader)`
     padding-bottom: ${gapM};
 `;
 
-export const PreviewHeader: React.FC<PreviewHeaderProps> = ({ preTitle, title, subtitle, children, onClick, user }) => {
+const StyledTitle = styled(Text)`
+    margin-top: ${gapS};
+`;
+
+export const PreviewHeader: React.FC<PreviewHeaderProps> = ({ preTitle, title, subtitle, children, link, user }) => {
     return (
         <StyledModalHeader>
             <UserPic size={75} name={user?.name} src={user?.image} email={user?.email} />
@@ -32,13 +38,13 @@ export const PreviewHeader: React.FC<PreviewHeaderProps> = ({ preTitle, title, s
                     </Text>
                 ))}
                 {nullable(subtitle, (sub) => (
-                    <Text as="span" size="l" weight="bold" color={gray10} onClick={onClick}>
+                    <Text as="span" size="m" weight="bold" color={gray10}>
                         {sub}
                     </Text>
                 ))}
-                <Text size="xl" weight="bold">
-                    {title}
-                </Text>
+                <StyledTitle size="l" weight="bold">
+                    <Link href={link}>{title}</Link>
+                </StyledTitle>
             </div>
 
             {children}

@@ -1,40 +1,20 @@
 import { ExternalService, User, UserServices } from 'prisma/prisma-client';
-import { gapL, gapM, gapS, gapXs, gray10, gray9 } from '@taskany/colors';
+import { gapM, gapS, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
 import { Text } from '@taskany/bricks';
-import { IconEnvelopeOutline, IconPlusCircleOutline } from '@taskany/icons';
+import { IconPlusCircleOutline } from '@taskany/icons';
 
 import { PageSep } from '../PageSep';
 import { InlineTrigger } from '../InlineTrigger';
-import { Link } from '../Link';
-import { getDynamicIcon } from '../../utils/getDynamicIcon';
+import { UserServiceListItem } from '../UserServiceListItem';
 
 import { tr } from './users.i18n';
 
-const StyledInfo = styled.div`
-    display: grid;
-    grid-template-columns: 6fr;
+const StyledServicesList = styled.div`
+    display: flex;
+    flex-direction: column;
     gap: ${gapS};
-    &:last-child {
-        gap: ${gapS};
-    }
-    margin: ${gapS} 0 ${gapL} ${gapM};
-`;
-
-const StyledLine = styled(PageSep)`
-    white-space: nowrap;
-    margin: ${gapXs} 0px;
-    width: 300px;
-`;
-
-const StyledLink = styled(Link)`
-    color: ${gray10};
-    margin-left: ${gapS};
-    font-size: 14px;
-`;
-
-const StyledCard = styled.div`
-    height: 100%;
+    margin-bottom: ${gapM};
 `;
 
 type UserContactsProps = {
@@ -44,54 +24,33 @@ type UserContactsProps = {
 
 export const UserContacts = ({ user, userServices }: UserContactsProps) => {
     return (
-        <>
-            <StyledCard>
-                <StyledInfo>
-                    <Text size="m" color={gray9} weight="bold">
-                        {tr('Contacts')}
-                        <StyledLine />
-                    </Text>
-                    <div>
-                        <IconEnvelopeOutline size={15} color={gray10} />
-                        <StyledLink target="_blank" href={`mailto:${user?.email}`}>
-                            {user?.email}
-                        </StyledLink>
-                    </div>
+        <div>
+            <Text size="m" color={gray9} weight="bold">
+                {tr('Contacts')}
+                <PageSep width={300} margins={5} />
+            </Text>
 
-                    {userServices.map((userService) => {
-                        const Icon = getDynamicIcon(userService.service.icon);
-                        return (
-                            <div key={`${userService.serviceName}-${userService.serviceId}`}>
-                                <Icon size={15} color={gray10} />
-                                <StyledLink
-                                    target="_blank"
-                                    href={`${userService.service.linkPrefix}${userService.serviceId}`}
-                                >
-                                    {userService.serviceName}
-                                </StyledLink>
-                            </div>
-                        );
-                    })}
-                    {/* TODO: Link to add to the teams */}
-                    <InlineTrigger
-                        icon={<IconPlusCircleOutline noWrap size="s" />}
-                        text={tr('Add link')}
-                        onClick={() => {}}
-                    />
-                </StyledInfo>
+            <StyledServicesList>
+                <UserServiceListItem
+                    serviceId={user.email}
+                    icon="IconEnvelopeOutline"
+                    linkPrefix="mailto:"
+                    serviceName={user.email}
+                />
 
-                <StyledInfo>
-                    <Text size="m" color={gray9} weight="bold">
-                        Corporate devices
-                        <StyledLine />
-                    </Text>
-                    <InlineTrigger
-                        icon={<IconPlusCircleOutline noWrap size="s" />}
-                        text={'Request a device'}
-                        onClick={() => {}}
+                {userServices.map((userService) => (
+                    <UserServiceListItem
+                        key={userService.serviceId}
+                        serviceId={userService.serviceId}
+                        icon={userService.service.icon}
+                        linkPrefix={userService.service.linkPrefix}
+                        serviceName={userService.serviceName}
                     />
-                </StyledInfo>
-            </StyledCard>
-        </>
+                ))}
+            </StyledServicesList>
+
+            {/* TODO: implement AddServiceToUser */}
+            <InlineTrigger icon={<IconPlusCircleOutline noWrap size="s" />} text={tr('Add link')} disabled />
+        </div>
     );
 };

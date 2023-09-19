@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { router, protectedProcedure } from '../trpcBackend';
-import { createGroupSchema, moveGroupSchema } from '../../modules/group.schemas';
+import { createGroupSchema, getGroupListSchema, moveGroupSchema } from '../../modules/group.schemas';
 import { groupMethods } from '../../modules/group.methods';
 
 export const groupRouter = router({
@@ -31,6 +31,10 @@ export const groupRouter = router({
 
     getByIdWithChildren: protectedProcedure.input(z.string()).query(({ input }) => {
         return groupMethods.getByIdWithChildren(input);
+    }),
+
+    getList: protectedProcedure.input(getGroupListSchema).query(({ input }) => {
+        return groupMethods.getList(input);
     }),
 
     getBreadcrumbs: protectedProcedure.input(z.string()).query(({ input }) => {

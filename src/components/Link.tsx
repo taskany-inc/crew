@@ -5,21 +5,22 @@ import { Link as LinkBricks } from '@taskany/bricks';
 interface LinkProps {
     href?: string;
     target?: React.ComponentProps<typeof LinkBricks>['target'];
+    onClick?: VoidFunction;
     className?: string;
     children?: React.ReactNode;
 }
 
-export const Link = ({ href, target, className, children }: LinkProps) => {
+export const Link = ({ href, target, onClick, className, children }: LinkProps) => {
     if (!href) {
         return (
-            <LinkBricks inline className={className}>
+            <LinkBricks inline onClick={onClick} className={className}>
                 {children}
             </LinkBricks>
         );
     }
 
     return (
-        <NextLink href={href} passHref legacyBehavior>
+        <NextLink href={href} onClick={onClick} passHref legacyBehavior>
             <LinkBricks inline target={target} className={className}>
                 {children}
             </LinkBricks>
