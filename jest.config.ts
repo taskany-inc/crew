@@ -3,7 +3,11 @@
  * https://jestjs.io/docs/configuration
  */
 
-export default {
+module.exports = {
+    transform: {
+        '^.+\\.(t|j)sx?$': '@swc/jest',
+    },
+
     // Automatically clear mock calls, instances and results before every test
     clearMocks: true,
 
