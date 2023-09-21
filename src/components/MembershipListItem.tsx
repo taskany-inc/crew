@@ -7,6 +7,7 @@ import { UserMembership } from '../modules/user.types';
 import { pages } from '../hooks/useRouter';
 
 import { Link } from './Link';
+import { tr } from './components.i18n';
 
 type MembershipListItemProps = {
     membership: UserMembership;
@@ -34,7 +35,7 @@ export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
                 {membership.roles.length > 0 && (
                     <Text size="s" color={gray10}>
                         <Text size="s" as="span" color={gray9}>
-                            Role:
+                            {tr('Role')}:
                         </Text>{' '}
                         {membership.roles.map((role) => role.name).join(', ')}
                     </Text>

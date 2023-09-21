@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 import NextLink from 'next/link';
-import { gapM, gapL, gray9 } from '@taskany/colors';
+import { gapL } from '@taskany/colors';
 import { useSession } from 'next-auth/react';
 import { Text, UserMenu, Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink } from '@taskany/bricks';
-import { IconSearchOutline } from '@taskany/icons';
+
+import { GlobalSearch } from '../GlobalSearch';
 
 import { PageHeaderLogo } from './PageHeaderLogo';
 import { useHeaderMenu } from './useHeaderMenu';
@@ -21,9 +22,7 @@ const StyledText = styled(Text)`
 `;
 
 const HeaderSearch = styled.div`
-    margin-left: ${gapM};
-    position: relative;
-    top: 2px;
+    margin-left: ${gapL};
 `;
 
 export const PageHeader: React.FC = () => {
@@ -47,7 +46,7 @@ export const PageHeader: React.FC = () => {
                     ))}
                     <StyledText weight="bold">{tr('Explore')}</StyledText>
                     <HeaderSearch>
-                        <IconSearchOutline size={15} color={gray9} />
+                        <GlobalSearch />
                     </HeaderSearch>
                 </StyledNav>
             }
