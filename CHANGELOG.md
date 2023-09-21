@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.10.0](https://github.com/taskany-inc/crew/compare/v0.9.0...v0.10.0) (2023-09-21)
+
+
+### Features
+
+* method for global search ([63d4ca4](https://github.com/taskany-inc/crew/commit/63d4ca4a37310194446724f46a76772a4346ccb6))
+* **UserPreview:** implement missing features ([8038e20](https://github.com/taskany-inc/crew/commit/8038e20e6d9d5bbe15b5afd18b563f56d0849500))
+
 ## [0.9.0](https://github.com/taskany-inc/crew/compare/v0.8.0...v0.9.0) (2023-09-11)
 
 
