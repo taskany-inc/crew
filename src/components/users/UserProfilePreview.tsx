@@ -1,24 +1,19 @@
 import { User } from 'prisma/prisma-client';
-import { ModalContent } from '@taskany/bricks';
 import styled from 'styled-components';
-import { gapL } from '@taskany/colors';
+import { Text } from '@taskany/bricks';
+import { gapM, gapS, gray9 } from '@taskany/colors';
 
 import { PreviewHeader } from '../PreviewHeader';
+import { PreviewContent } from '../PreviewContent';
+import { UserListItem } from '../UserListItem';
+import { UserGroupListItem } from '../UserGroupListItem';
+import { NarrowSection } from '../NarrowSection';
 import { pages } from '../../hooks/useRouter';
+import { trpc } from '../../trpc/trpcClient';
 
 import { UserContacts } from './UserContacts';
-import { UserTeams } from './UserTeams';
-import { QuickSummary } from './QuickSummary';
-import { UserDevices } from './UserDevices';
-
-const StyledModalContent = styled(ModalContent)`
-    padding-top: ${gapL};
-    overflow: auto;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: ${gapL};
-`;
+import { tr } from './users.i18n';
+import { AddUserToTeamForm } from './AddUserToTeamForm';
 
 type UserProps = {
     user: User;
@@ -26,7 +21,21 @@ type UserProps = {
     role?: string;
 };
 
+const StyledSupervisorText = styled(Text)`
+    display: flex;
+    gap: ${gapS};
+`;
+
+const StyledMembershipList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${gapS};
+    margin-bottom: ${gapM};
+`;
+
 export const UserProfilePreview = ({ user, groupName, role }: UserProps): JSX.Element => {
+    const membershipsQuery = trpc.user.getMemberships.useQuery(user.id);
+
     return (
         <>
             <PreviewHeader
@@ -36,12 +45,26 @@ export const UserProfilePreview = ({ user, groupName, role }: UserProps): JSX.El
                 title={user.name}
                 link={pages.user(user.id)}
             />
-            <StyledModalContent>
-                <QuickSummary />
-                <UserTeams user={user} />
+            <PreviewContent>
+                <NarrowSection title={tr('Quick summary')}>
+                    <StyledSupervisorText size="m" color={gray9}>
+                        {tr('Supervisor')}
+                        <UserListItem user={{ name: 'Placeholder user', email: 'placeholder@example.com' } as User} />
+                    </StyledSupervisorText>
+                </NarrowSection>
+
+                <NarrowSection title={tr('Teams')}>
+                    <StyledMembershipList>
+                        {membershipsQuery.data?.map((membership) => (
+                            <UserGroupListItem key={membership.id} membership={membership} />
+                        ))}
+                    </StyledMembershipList>
+
+                    <AddUserToTeamForm userId={user.id} />
+                </NarrowSection>
+
                 <UserContacts user={user} userServices={[]} />
-                <UserDevices />
-            </StyledModalContent>
+            </PreviewContent>
         </>
     );
 };

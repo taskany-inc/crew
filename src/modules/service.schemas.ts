@@ -25,6 +25,9 @@ export type createServices = z.infer<typeof createServiceSchema>;
 
 export const getServiceListSchema = z.object({
     search: z.string().optional(),
-    take: z.number().optional(),
+    take: z
+        .number()
+        .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
+        .optional(),
 });
 export type getServiceList = z.infer<typeof getServiceListSchema>;

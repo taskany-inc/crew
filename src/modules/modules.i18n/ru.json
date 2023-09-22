@@ -3,5 +3,6 @@
     "Title is required": "Заголовок обязателен",
     "Title must be a string": "Заголовок должен быть строкой",
     "Title must be longer than {upTo} symbol": "Заголовок должен быть длиннее {upTo} символов",
-    "Choose a service": "Выберите сервис"
+    "Choose a service": "Выберите сервис",
+    "Max {max} items in a single request": "Максимум {max} объектов в одном запросе"
 }

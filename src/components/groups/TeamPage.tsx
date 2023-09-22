@@ -35,9 +35,6 @@ export const TeamPage = () => {
     const groupMembersQuery = trpc.user.getGroupMembers.useQuery(String(teamId));
     const users = groupMembersQuery.data;
 
-    const groupChildrenQuery = trpc.group.getChildren.useQuery(String(teamId));
-    const groupChildren = groupChildrenQuery.data;
-
     if (!group) return null;
 
     const tabsMenuOptions: Array<[string, string]> = [
@@ -91,8 +88,8 @@ export const TeamPage = () => {
                 </ModalPreview>
 
                 <ModalPreview visible={!!groupPreview} onClose={() => onClickGroupPreview(undefined)}>
-                    {nullable(groupPreview, (groupData) => (
-                        <TeamProfilePreview group={groupData} users={users ?? []} groupChildren={groupChildren ?? []} />
+                    {nullable(groupPreview, (g) => (
+                        <TeamProfilePreview group={g} />
                     ))}
                 </ModalPreview>
             </div>

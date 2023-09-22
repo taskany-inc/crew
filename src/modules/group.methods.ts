@@ -6,6 +6,7 @@ import { objByKey } from '../utils/objByKey';
 
 import { CreateGroup, GetGroupList, MoveGroup } from './group.schemas';
 import { tr } from './modules.i18n';
+import { UserMembership } from './user.types';
 
 export const groupMethods = {
     add: (data: CreateGroup) => {
@@ -39,7 +40,10 @@ export const groupMethods = {
     },
 
     getList: (data: GetGroupList) => {
-        return prisma.group.findMany({ where: { name: { contains: data.search } }, take: data.take });
+        return prisma.group.findMany({
+            where: { name: { contains: data.search, mode: 'insensitive' } },
+            take: data.take,
+        });
     },
 
     getBreadCrumbs: async (id: string) => {
@@ -58,8 +62,11 @@ export const groupMethods = {
         return groups.reverse();
     },
 
-    getMembers: (id: string) => {
-        return prisma.membership.findMany({ where: { groupId: id }, include: { user: true } });
+    getMemberships: (id: string): Promise<UserMembership[]> => {
+        return prisma.membership.findMany({
+            where: { groupId: id },
+            include: { group: true, user: true, roles: true },
+        });
     },
 
     getHierarchy: async (id: string) => {
