@@ -1,25 +1,10 @@
 import { useRouter } from 'next/router';
 import { UserPic, Text, Button } from '@taskany/bricks';
-import { IconPinAltOutline, IconUsersOutline } from '@taskany/icons';
-import {
-    backgroundColor,
-    gapL,
-    gapM,
-    gapS,
-    gapSm,
-    gapXl,
-    gapXs,
-    gray10,
-    gray6,
-    gray7,
-    gray9,
-    textColor,
-} from '@taskany/colors';
+import { IconUsersOutline } from '@taskany/icons';
+import { gapL, gapM, gapS, gapSm, gapXl, gapXs, gray10, gray6, gray9, textColor } from '@taskany/colors';
 import styled from 'styled-components';
 
 import { PageSep } from '../PageSep';
-import { Circle, CircledAddIcon as CircleIconInner } from '../Circle';
-import { ActivityFeedItem } from '../ActivityFeed';
 import { pages } from '../../hooks/useRouter';
 import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
@@ -57,12 +42,6 @@ const StyledButton = styled.div`
     align-self: end;
 `;
 
-const StyledVerticalLine = styled.div`
-    border-left: 1px solid ${gray7};
-    display: inline-block;
-    margin-left: ${gapXl};
-`;
-
 const StyledWrapper = styled.div`
     display: flex;
     margin-top: ${gapL};
@@ -81,26 +60,14 @@ const StyledGroups = styled.div`
 const StyledInfo = styled.div`
     display: grid;
     grid-template-columns: 6fr;
-    gap: ${gapS};
-    margin: ${gapM} 0 ${gapL} ${gapM};
+    gap: ${gapL};
+    margin: ${gapXs} 0 ${gapL} ${gapXl};
 `;
 
 const StyledLine = styled(PageSep)`
     white-space: nowrap;
     margin: ${gapXs} 0px;
     width: 300px;
-`;
-
-const StyledActivityFeedItem = styled(ActivityFeedItem)`
-    align-items: flex-start;
-    grid-template-columns: ${gapXl} 1fr;
-    justify-content: flex-start;
-    position: relative;
-    margin-left: -17px;
-`;
-
-const StyledCircle = styled(Circle)`
-    margin-top: ${gapXl};
 `;
 
 const StyledTeamsLink = styled(Link)`
@@ -151,40 +118,28 @@ export const UserPage = () => {
                     <UserContacts user={user} userServices={[]} />
                 </StyledUserContacts>
 
-                <StyledVerticalLine />
-
-                <StyledActivityFeedItem>
-                    <Circle size={32}>
-                        <CircleIconInner as={IconPinAltOutline} size="s" color={backgroundColor} />
-                    </Circle>
-
+                <StyledInfo>
                     <div>
                         <QuickSummary />
                     </div>
+                    <Text size="m" color={gray9} weight="bold">
+                        {tr('Teams with participation')}
+                        <StyledLine />
+                    </Text>
+                    {otherMemberships.map((membership) => (
+                        <StyledGroups key={membership.id}>
+                            <IconUsersOutline size={15} color={gray9} />
 
-                    <StyledCircle size={32}>
-                        <CircleIconInner as={IconUsersOutline} size="s" color={backgroundColor} />
-                    </StyledCircle>
-                    <StyledInfo>
-                        <Text size="m" color={gray9} weight="bold">
-                            {tr('Teams with participation')}
-                            <StyledLine />
-                        </Text>
-                        {otherMemberships.map((membership) => (
-                            <StyledGroups key={membership.id}>
-                                <IconUsersOutline size={15} color={gray9} />
-
-                                <StyledTeamsLink
-                                    target="_blank"
-                                    key={membership.group.name}
-                                    href={pages.team(membership.id)}
-                                >
-                                    {membership.group.name}
-                                </StyledTeamsLink>
-                            </StyledGroups>
-                        ))}
-                    </StyledInfo>
-                </StyledActivityFeedItem>
+                            <StyledTeamsLink
+                                target="_blank"
+                                key={membership.group.name}
+                                href={pages.team(membership.id)}
+                            >
+                                {membership.group.name}
+                            </StyledTeamsLink>
+                        </StyledGroups>
+                    ))}
+                </StyledInfo>
             </StyledWrapper>
         </LayoutMain>
     );
