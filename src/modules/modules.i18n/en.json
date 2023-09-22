@@ -4,5 +4,8 @@
     "Title must be a string": "Title must be a string",
     "Title must be longer than {upTo} symbol": "Title must be longer than {upTo} symbol",
     "Choose a service": "Choose a service",
-    "Max {max} items in a single request": ""
+    "Max {max} items in a single request": "",
+    "Cannot move group inside its child": "",
+    "No group with id {id}": "",
+    "Cannot move group inside itself": ""
 }

@@ -38,7 +38,7 @@ export const groupRouter = router({
     }),
 
     getBreadcrumbs: protectedProcedure.input(z.string()).query(({ input }) => {
-        return groupMethods.getBreadCrumbs(input);
+        return groupMethods.getBreadcrumbs(input);
     }),
 
     getMemberships: protectedProcedure.input(z.string()).query(({ input }) => {

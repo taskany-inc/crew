@@ -7,6 +7,7 @@ import { IconPlusCircleOutline } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
 import { InlineTrigger } from '../InlineTrigger';
+import { useServiceMutations } from '../../modules/service.hooks';
 
 import { tr } from './services.i18n';
 
@@ -36,12 +37,11 @@ interface ServicesFormProps {
     userId: string;
 }
 
-export const AddServiceToUserForm: React.FC<ServicesFormProps> = ({ userId }) => {
-    const utils = trpc.useContext();
+export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
     const [search, setSearch] = useState('');
     const [selectedService, setSelectedService] = useState<ExternalService>();
     const [serviceId, setServiceId] = useState('');
-    const addService = trpc.service.addToUser.useMutation();
+    const { addServiceToUser } = useServiceMutations();
     const servicesListQuery = trpc.service.getList.useQuery({ search, take: 10 });
 
     const onReset = () => {
@@ -54,16 +54,11 @@ export const AddServiceToUserForm: React.FC<ServicesFormProps> = ({ userId }) =>
         if (!selectedService) {
             return;
         }
-        await addService
-            .mutateAsync({
-                serviceId,
-                userId,
-                serviceName: selectedService.name,
-            })
-            .then(() => {
-                setServiceId('');
-                utils.user.getById.invalidate();
-            });
+        await addServiceToUser.mutateAsync({
+            serviceId,
+            userId,
+            serviceName: selectedService.name,
+        });
         onReset();
     };
 
@@ -121,7 +116,7 @@ export const AddServiceToUserForm: React.FC<ServicesFormProps> = ({ userId }) =>
                     onChange={(e) => setServiceId(e.target.value)}
                     placeholder={tr('Link to the service')}
                 />
-                <Button type="submit" brick="left" outline size="m" text="Add" view="primary" />
+                <Button type="submit" brick="left" outline size="m" text={tr('Add')} view="primary" />
             </StyledTableCell>
         </InlineForm>
     );

@@ -3,5 +3,12 @@
     "Quick summary": "Быстрая сводка",
     "Supervisor": "Руководитель",
     "People": "Люди",
-    "Edit roles": "Редактировать роли"
+    "Edit roles": "Редактировать роли",
+    "Transfer group": "Перенести группу",
+    "Current group path": "Текущий путь группы",
+    "New group path": "Новый путь группы",
+    "Transfer": "Перенести",
+    "Cancel": "Отмена",
+    "Group search": "Поиск групп",
+    "Groups": "Группы"
 }

@@ -8,6 +8,8 @@ import { UserListItem } from '../UserListItem';
 import { GroupListItem } from '../GroupListItem';
 import { useRoleMutations } from '../../modules/role.hooks';
 
+import { tr } from './groups.i18n';
+
 type EditRolesModalProps = {
     membership: UserMembership;
     visible: boolean;
@@ -26,7 +28,7 @@ export const EditRolesModal = ({ membership, visible, onClose }: EditRolesModalP
     return (
         <Modal visible={visible} onClose={onClose} width={500}>
             <ModalHeader>
-                <Text size="l">Редактирование ролей</Text>
+                <Text size="l">{tr('Edit roles')}</Text>
                 <ModalCross onClick={onClose} />
             </ModalHeader>
 

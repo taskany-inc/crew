@@ -84,4 +84,21 @@ describe('groups', () => {
         const hierarchy = await groupMethods.getHierarchy(testRoot);
         expect(Object.keys(hierarchy.dict).length).toBe(11);
     });
+
+    it('moves group', async () => {
+        const groupBefore = await groupMethods.getById('barracuda');
+        expect(groupBefore.parentId).not.toBe('wildcat');
+        const group = await groupMethods.move({ id: 'barracuda', newParentId: 'wildcat' });
+        expect(group.parentId).toBe('wildcat');
+    });
+
+    it('cannot move group inside itself', async () => {
+        const check = () => groupMethods.move({ id: 'grouse', newParentId: 'grouse' });
+        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot move group inside itself"');
+    });
+
+    it('cannot move group inside its child', async () => {
+        const check = () => groupMethods.move({ id: 'grouse', newParentId: 'wildcat' });
+        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot move group inside its child"');
+    });
 });

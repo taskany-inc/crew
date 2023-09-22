@@ -2,7 +2,7 @@ import { Group, User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
-import { IconBinOutline, IconGitPullOutline } from '@taskany/icons';
+import { IconBinOutline } from '@taskany/icons';
 
 import { PreviewHeader } from '../PreviewHeader';
 import { PreviewContent } from '../PreviewContent';
@@ -14,6 +14,7 @@ import { pages } from '../../hooks/useRouter';
 
 import { TeamChildren } from './TeamChildren';
 import { TeamPeople } from './TeamPeople';
+import { TransferGroupForm } from './TransferGroupForm';
 import { tr } from './groups.i18n';
 
 type UserProps = {
@@ -47,10 +48,8 @@ export const TeamProfilePreview = ({ group }: UserProps): JSX.Element => {
                 <TeamPeople groupId={group.id} />
 
                 <NarrowSection>
-                    <InlineTrigger icon={<IconGitPullOutline noWrap size="xs" />} text={'Transfer group'} disabled />
-                    <div style={{ marginTop: gapS }}>
-                        <InlineTrigger icon={<IconBinOutline noWrap size="xs" />} text={'Archive group'} disabled />
-                    </div>
+                    <TransferGroupForm group={group} />
+                    <InlineTrigger icon={<IconBinOutline noWrap size="xs" />} text={'Archive group'} disabled />
                 </NarrowSection>
             </PreviewContent>
         </>
