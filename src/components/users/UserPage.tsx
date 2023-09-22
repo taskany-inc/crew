@@ -11,7 +11,6 @@ import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../layout/LayoutMain';
 
 import { UserContacts } from './UserContacts';
-import { QuickSummary } from './QuickSummary';
 import { tr } from './users.i18n';
 
 const StyledUser = styled.div`
@@ -119,9 +118,6 @@ export const UserPage = () => {
                 </StyledUserContacts>
 
                 <StyledInfo>
-                    <div>
-                        <QuickSummary />
-                    </div>
                     <Text size="m" color={gray9} weight="bold">
                         {tr('Teams with participation')}
                         <StyledLine />

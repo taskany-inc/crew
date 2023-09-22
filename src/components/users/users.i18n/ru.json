@@ -1,8 +1,12 @@
 {
     "Contacts": "Контакты",
     "Quick summary": "Быстрая сводка",
-    "Supervisor:": "Руководитель",
     "Teams with participation": "Команды с участием",
     "Users": "Пользователи",
-    "Add team": "Добавить команду"
+    "Add team": "Добавить команду",
+    "Supervisor": "Руководитель",
+    "Teams": "Команды",
+    "Corporate devices": "Корпоративные устройства",
+    "Add": "Добавить",
+    "Add role": "Добавить роль"
 }

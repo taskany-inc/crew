@@ -1,17 +1,12 @@
 import { ExternalService, User, UserServices } from 'prisma/prisma-client';
-import { gapM, gapS, gapXl, gray9 } from '@taskany/colors';
+import { gapM, gapS } from '@taskany/colors';
 import styled from 'styled-components';
-import { Text } from '@taskany/bricks';
 
-import { PageSep } from '../PageSep';
-import { UserServiceListItem } from '../UserServiceListItem';
 import { AddServiceToUserForm } from '../services/AddServiceToUserForm';
+import { UserServiceListItem } from '../UserServiceListItem';
+import { NarrowSection } from '../NarrowSection';
 
 import { tr } from './users.i18n';
-
-const StyledUserServices = styled.div`
-    margin: 0 ${gapM} 0;
-`;
 
 const StyledServicesList = styled.div`
     display: flex;
@@ -27,12 +22,7 @@ type UserContactsProps = {
 
 export const UserContacts = ({ user, userServices }: UserContactsProps) => {
     return (
-        <StyledUserServices>
-            <Text size="m" color={gray9} weight="bold">
-                {tr('Contacts')}
-                <PageSep width={300} margins={5} />
-            </Text>
-
+        <NarrowSection title={tr('Contacts')}>
             <StyledServicesList>
                 <UserServiceListItem
                     serviceId={user.email}
@@ -53,6 +43,6 @@ export const UserContacts = ({ user, userServices }: UserContactsProps) => {
             </StyledServicesList>
 
             <AddServiceToUserForm userId={user.id} />
-        </StyledUserServices>
+        </NarrowSection>
     );
 };

@@ -41,8 +41,8 @@ export const groupRouter = router({
         return groupMethods.getBreadCrumbs(input);
     }),
 
-    getMembers: protectedProcedure.input(z.string()).query(({ input }) => {
-        return groupMethods.getMembers(input);
+    getMemberships: protectedProcedure.input(z.string()).query(({ input }) => {
+        return groupMethods.getMemberships(input);
     }),
 
     getHierarchy: protectedProcedure.input(z.string()).query(({ input }) => {

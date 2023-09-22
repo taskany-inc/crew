@@ -9,7 +9,7 @@ import { pages } from '../hooks/useRouter';
 import { Link } from './Link';
 import { tr } from './components.i18n';
 
-type MembershipListItemProps = {
+type UserGroupListItemProps = {
     membership: UserMembership;
 };
 
@@ -24,7 +24,7 @@ const StyledRoles = styled.div`
     gap: ${gapXs};
 `;
 
-export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
+export const UserGroupListItem = ({ membership }: UserGroupListItemProps) => {
     return (
         <div>
             <IconUsersOutline size={13} color={gray9} />

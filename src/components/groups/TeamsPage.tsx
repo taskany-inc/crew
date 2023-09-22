@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Group } from 'prisma/prisma-client';
 import { IconBinOutline, IconMoreHorizontalOutline } from '@taskany/icons';
+import { ModalPreview } from '@taskany/bricks';
 
 import { LayoutMain } from '../layout/LayoutMain';
 import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
-import { pages } from '../../hooks/useRouter';
 
 import { tr } from './groups.i18n';
+import { TeamProfilePreview } from './TeamProfilePreview';
 
 const GroupWithChildren = ({ group }: { group: Group }) => {
     const utils = trpc.useContext();
@@ -17,11 +18,12 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
     const add = trpc.group.add.useMutation();
     const delete_ = trpc.group.delete.useMutation();
     const [name, setName] = useState('');
+    const [showPreview, setShowPreview] = useState(false);
     if (!breadcrumbs.data) return <span>Loading...</span>;
     return (
         <div>
             <div style={{ marginBottom: 12 }}>
-                <Link href={pages.team(group.id)}>{group.name} </Link>
+                <Link onClick={() => setShowPreview(true)}>{group.name} </Link>
                 <IconMoreHorizontalOutline size="xs" title={breadcrumbs.data.map((b) => b.name).join()} />
                 <IconBinOutline
                     style={{ marginLeft: 8 }}
@@ -53,6 +55,10 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
                     ))}
                 </div>
             )}
+
+            <ModalPreview visible={showPreview} onClose={() => setShowPreview(false)}>
+                <TeamProfilePreview group={group} />
+            </ModalPreview>
         </div>
     );
 };

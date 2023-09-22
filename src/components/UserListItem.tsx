@@ -1,6 +1,6 @@
 import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { UserPic } from '@taskany/bricks';
+import { Text, UserPic } from '@taskany/bricks';
 import { gapS } from '@taskany/colors';
 
 import { pages } from '../hooks/useRouter';
@@ -21,7 +21,9 @@ export const UserListItem = ({ user }: UserListItemProps) => {
     return (
         <StyledWrapper>
             <UserPic size={20} name={user.name} src={user.image} email={user.email} />
-            <Link href={pages.user(user.id)}>{user.name}</Link>
+            <Text>
+                <Link href={pages.user(user.id)}>{user.name}</Link>
+            </Text>
         </StyledWrapper>
     );
 };

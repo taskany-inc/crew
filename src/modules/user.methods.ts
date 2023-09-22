@@ -22,7 +22,7 @@ export const userMethods = {
     },
 
     getMemberships: (id: string): Promise<UserMembership[]> => {
-        return prisma.membership.findMany({ where: { userId: id }, include: { group: true, roles: true } });
+        return prisma.membership.findMany({ where: { userId: id }, include: { group: true, user: true, roles: true } });
     },
 
     getGroupMembers: (groupId: string): Promise<User[]> => {
