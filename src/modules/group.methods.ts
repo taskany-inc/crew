@@ -19,7 +19,14 @@ export const groupMethods = {
         return prisma.group.delete({ where: { id } });
     },
 
-    move: (data: MoveGroup) => {
+    move: async (data: MoveGroup) => {
+        if (data.id === data.newParentId) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot move group inside itself') });
+        }
+        const breadcrumbs = await groupMethods.getBreadcrumbs(data.newParentId);
+        if (breadcrumbs.find((group) => group.id === data.id)) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot move group inside its child') });
+        }
         return prisma.group.update({ where: { id: data.id }, data: { parentId: data.newParentId } });
     },
 
@@ -27,8 +34,10 @@ export const groupMethods = {
         return prisma.group.findMany({ where: { parentId: null } });
     },
 
-    getById: (id: string) => {
-        return prisma.group.findUnique({ where: { id } });
+    getById: async (id: string): Promise<Group> => {
+        const group = await prisma.group.findUnique({ where: { id } });
+        if (!group) throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { id }) });
+        return group;
     },
 
     getChildren: (id: string) => {
@@ -46,7 +55,7 @@ export const groupMethods = {
         });
     },
 
-    getBreadCrumbs: async (id: string) => {
+    getBreadcrumbs: async (id: string) => {
         const groups = await prisma.$queryRaw<Group[]>`
             WITH RECURSIVE rectree AS (
                 SELECT *
