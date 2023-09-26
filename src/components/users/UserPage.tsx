@@ -5,10 +5,11 @@ import { gapL, gapM, gapS, gapSm, gapXl, gapXs, gray10, gray6, gray9, textColor 
 import styled from 'styled-components';
 
 import { PageSep } from '../PageSep';
-import { pages } from '../../hooks/useRouter';
 import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../layout/LayoutMain';
+import { usePreviewContext } from '../../context/preview-context';
+import { pages } from '../../hooks/useRouter';
 
 import { UserContacts } from './UserContacts';
 import { tr } from './users.i18n';
@@ -77,6 +78,8 @@ const StyledTeamsLink = styled(Link)`
 
 export const UserPage = () => {
     const router = useRouter();
+    const { showGroupPreview } = usePreviewContext();
+
     const { userId } = router.query;
     const userQuery = trpc.user.getById.useQuery(String(userId));
     const user = userQuery.data;
@@ -99,7 +102,11 @@ export const UserPage = () => {
                     </Text>
 
                     {!!orgStructureMembership && (
-                        <StyledGroupLink target="_blank" href={pages.team(orgStructureMembership.id)}>
+                        <StyledGroupLink
+                            target="_blank"
+                            href={pages.team(orgStructureMembership.id)}
+                            onClick={() => showGroupPreview(orgStructureMembership.group)}
+                        >
                             {orgStructureMembership.group.name}
                         </StyledGroupLink>
                     )}
@@ -128,8 +135,9 @@ export const UserPage = () => {
 
                             <StyledTeamsLink
                                 target="_blank"
-                                key={membership.group.name}
                                 href={pages.team(membership.id)}
+                                key={membership.group.name}
+                                onClick={() => showGroupPreview(membership.group)}
                             >
                                 {membership.group.name}
                             </StyledTeamsLink>

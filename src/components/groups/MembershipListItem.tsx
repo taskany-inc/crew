@@ -4,9 +4,10 @@ import { Dropdown, MenuItem, Text, UserPic } from '@taskany/bricks';
 import { gray9 } from '@taskany/colors';
 import { IconMoreVerticalOutline } from '@taskany/icons';
 
-import { pages } from '../../hooks/useRouter';
 import { UserMembership } from '../../modules/user.types';
 import { Link } from '../Link';
+import { pages } from '../../hooks/useRouter';
+import { usePreviewContext } from '../../context/preview-context';
 
 import { tr } from './groups.i18n';
 import { EditRolesModal } from './EditRolesModal';
@@ -23,6 +24,7 @@ const StyledRow = styled.div`
 
 export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
     const [editRolesPopupVisible, setEditRolesPopupVisible] = useState(false);
+    const { showUserPreview } = usePreviewContext();
 
     const items = useMemo(() => [{ name: tr('Edit roles'), action: () => setEditRolesPopupVisible(true) }], []);
 
@@ -30,7 +32,9 @@ export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
         <StyledRow>
             <UserPic size={20} name={membership.user.name} src={membership.user.image} email={membership.user.email} />
             <Text>
-                <Link href={pages.user(membership.user.id)}>{membership.user.name}</Link>
+                <Link href={pages.user(membership.user.id)} onClick={() => showUserPreview(membership.user)}>
+                    {membership.user.name}
+                </Link>
             </Text>
             <Text size="xs" color={gray9}>
                 {membership.roles.map((role) => role.name).join(', ')}

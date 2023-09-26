@@ -1,6 +1,6 @@
 import { Group, User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { Text } from '@taskany/bricks';
+import { ModalPreview, Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 import { IconBinOutline } from '@taskany/icons';
 
@@ -11,6 +11,7 @@ import { UserListItem } from '../UserListItem';
 import { NarrowSection } from '../NarrowSection';
 import { trpc } from '../../trpc/trpcClient';
 import { pages } from '../../hooks/useRouter';
+import { usePreviewContext } from '../../context/preview-context';
 
 import { TeamChildren } from './TeamChildren';
 import { TeamPeople } from './TeamPeople';
@@ -26,14 +27,15 @@ const StyledSupervisorText = styled(Text)`
     gap: ${gapS};
 `;
 
-export const TeamProfilePreview = ({ group }: UserProps): JSX.Element => {
+const TeamProfilePreview = ({ group }: UserProps): JSX.Element => {
+    const { hidePreview } = usePreviewContext();
     const parentId = group?.parentId;
     const parentQuery = trpc.group.getById.useQuery(String(parentId));
     const parentGroup = parentQuery.data;
     const childrenQuery = trpc.group.getChildren.useQuery(group.id);
 
     return (
-        <>
+        <ModalPreview visible onClose={hidePreview}>
             <PreviewHeader subtitle={parentGroup?.name} title={group?.name} link={pages.team(group.id)} />
             <PreviewContent>
                 <NarrowSection title={tr('Quick summary')}>
@@ -52,6 +54,8 @@ export const TeamProfilePreview = ({ group }: UserProps): JSX.Element => {
                     <InlineTrigger icon={<IconBinOutline noWrap size="xs" />} text={'Archive group'} disabled />
                 </NarrowSection>
             </PreviewContent>
-        </>
+        </ModalPreview>
     );
 };
+
+export default TeamProfilePreview;

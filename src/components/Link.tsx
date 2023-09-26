@@ -20,8 +20,17 @@ export const Link = ({ href, target, onClick, className, children }: LinkProps) 
     }
 
     return (
-        <NextLink href={href} onClick={onClick} passHref legacyBehavior>
-            <LinkBricks inline target={target} className={className}>
+        <NextLink href={href} passHref legacyBehavior>
+            <LinkBricks
+                inline
+                onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey || !onClick) return;
+                    e.preventDefault();
+                    onClick();
+                }}
+                target={target}
+                className={className}
+            >
                 {children}
             </LinkBricks>
         </NextLink>

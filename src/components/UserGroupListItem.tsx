@@ -4,6 +4,7 @@ import { IconUsersOutline } from '@taskany/icons';
 import { gapS, gapXs, gray10, gray9, textColor } from '@taskany/colors';
 
 import { UserMembership } from '../modules/user.types';
+import { usePreviewContext } from '../context/preview-context';
 import { pages } from '../hooks/useRouter';
 
 import { Link } from './Link';
@@ -25,11 +26,15 @@ const StyledRoles = styled.div`
 `;
 
 export const UserGroupListItem = ({ membership }: UserGroupListItemProps) => {
+    const { showGroupPreview } = usePreviewContext();
+
     return (
         <div>
             <IconUsersOutline size={13} color={gray9} />
 
-            <StyledLink href={pages.team(membership.groupId)}>{membership.group.name}</StyledLink>
+            <StyledLink onClick={() => showGroupPreview(membership.group)} href={pages.team(membership.groupId)}>
+                {membership.group.name}
+            </StyledLink>
 
             <StyledRoles>
                 {membership.roles.length > 0 && (

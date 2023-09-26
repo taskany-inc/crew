@@ -1,29 +1,33 @@
 import { useState } from 'react';
 import { Group } from 'prisma/prisma-client';
 import { IconBinOutline, IconMoreHorizontalOutline } from '@taskany/icons';
-import { ModalPreview } from '@taskany/bricks';
 
 import { LayoutMain } from '../layout/LayoutMain';
 import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
+import { usePreviewContext } from '../../context/preview-context';
+import { pages } from '../../hooks/useRouter';
 
 import { tr } from './groups.i18n';
-import { TeamProfilePreview } from './TeamProfilePreview';
 
 const GroupWithChildren = ({ group }: { group: Group }) => {
     const utils = trpc.useContext();
+    const { showGroupPreview } = usePreviewContext();
     const [showChildren, setShowChildren] = useState(false);
     const children = trpc.group.getChildren.useQuery(group.id, { enabled: showChildren });
     const breadcrumbs = trpc.group.getBreadcrumbs.useQuery(group.id);
     const add = trpc.group.add.useMutation();
     const delete_ = trpc.group.delete.useMutation();
     const [name, setName] = useState('');
-    const [showPreview, setShowPreview] = useState(false);
+
     if (!breadcrumbs.data) return <span>Loading...</span>;
     return (
         <div>
+            {/* //TODO: replace with CollapsibleItem https://github.com/taskany-inc/bricks/issues/312*/}
             <div style={{ marginBottom: 12 }}>
-                <Link onClick={() => setShowPreview(true)}>{group.name} </Link>
+                <Link onClick={() => showGroupPreview(group)} href={pages.team(group.name)}>
+                    {group.name}{' '}
+                </Link>
                 <IconMoreHorizontalOutline size="xs" title={breadcrumbs.data.map((b) => b.name).join()} />
                 <IconBinOutline
                     style={{ marginLeft: 8 }}
@@ -55,10 +59,6 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
                     ))}
                 </div>
             )}
-
-            <ModalPreview visible={showPreview} onClose={() => setShowPreview(false)}>
-                <TeamProfilePreview group={group} />
-            </ModalPreview>
         </div>
     );
 };
