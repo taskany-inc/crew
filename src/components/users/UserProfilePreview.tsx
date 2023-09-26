@@ -1,6 +1,6 @@
 import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { Text } from '@taskany/bricks';
+import { ModalPreview, Text } from '@taskany/bricks';
 import { gapM, gapS, gray9 } from '@taskany/colors';
 
 import { PreviewHeader } from '../PreviewHeader';
@@ -10,6 +10,7 @@ import { UserGroupListItem } from '../UserGroupListItem';
 import { NarrowSection } from '../NarrowSection';
 import { pages } from '../../hooks/useRouter';
 import { trpc } from '../../trpc/trpcClient';
+import { usePreviewContext } from '../../context/preview-context';
 
 import { UserContacts } from './UserContacts';
 import { tr } from './users.i18n';
@@ -33,11 +34,12 @@ const StyledMembershipList = styled.div`
     margin-bottom: ${gapM};
 `;
 
-export const UserProfilePreview = ({ user, groupName, role }: UserProps): JSX.Element => {
+const UserProfilePreview = ({ user, groupName, role }: UserProps): JSX.Element => {
+    const { hidePreview } = usePreviewContext();
     const membershipsQuery = trpc.user.getMemberships.useQuery(user.id);
 
     return (
-        <>
+        <ModalPreview visible onClose={hidePreview}>
             <PreviewHeader
                 preTitle={role}
                 user={user}
@@ -65,6 +67,8 @@ export const UserProfilePreview = ({ user, groupName, role }: UserProps): JSX.El
 
                 <UserContacts user={user} userServices={[]} />
             </PreviewContent>
-        </>
+        </ModalPreview>
     );
 };
+
+export default UserProfilePreview;

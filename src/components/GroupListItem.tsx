@@ -4,6 +4,7 @@ import { Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 import { IconUsersOutline } from '@taskany/icons';
 
+import { usePreviewContext } from '../context/preview-context';
 import { pages } from '../hooks/useRouter';
 
 import { Link } from './Link';
@@ -19,11 +20,14 @@ const StyledWrapper = styled.div`
 `;
 
 export const GroupListItem = ({ group }: GroupListItemProps) => {
+    const { showGroupPreview } = usePreviewContext();
     return (
         <StyledWrapper>
             <IconUsersOutline size={13} color={gray9} />
             <Text>
-                <Link href={pages.team(group.id)}>{group.name}</Link>
+                <Link onClick={() => showGroupPreview(group)} href={pages.team(group.name)}>
+                    {group.name}
+                </Link>
             </Text>
         </StyledWrapper>
     );

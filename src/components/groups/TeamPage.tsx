@@ -1,19 +1,15 @@
-import { Group, User } from 'prisma/prisma-client';
 import { useRouter } from 'next/router';
-import { ModalPreview, TabsMenu, TabsMenuItem, Text, nullable } from '@taskany/bricks';
+import { TabsMenu, TabsMenuItem, Text } from '@taskany/bricks';
 import styled from 'styled-components';
 import { gapL, gray10 } from '@taskany/colors';
-import { useState } from 'react';
 
 import { CommonHeader } from '../CommonHeader';
 import { FiltersPanel } from '../FiltersPanel';
 import { pages } from '../../hooks/useRouter';
-import { UserProfilePreview } from '../users/UserProfilePreview';
 import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../layout/LayoutMain';
-
-import { TeamProfilePreview } from './TeamProfilePreview';
+import { usePreviewContext } from '../../context/preview-context';
 
 const StyledTabsMenu = styled(TabsMenu)`
     margin-left: ${gapL};
@@ -21,8 +17,7 @@ const StyledTabsMenu = styled(TabsMenu)`
 
 export const TeamPage = () => {
     const router = useRouter();
-    const [userPreview, setUserPreview] = useState<User>();
-    const [groupPreview, setGroupPreview] = useState<Group>();
+    const { showUserPreview, showGroupPreview } = usePreviewContext();
 
     const { teamId } = router.query;
     const groupQuery = trpc.group.getById.useQuery(String(teamId));
@@ -45,16 +40,6 @@ export const TeamPage = () => {
         ['Settings', pages.settings],
     ];
 
-    const onClickUserPreview = (user: User | undefined) => {
-        setUserPreview(user);
-        setGroupPreview(undefined);
-    };
-
-    const onClickGroupPreview = (groupData: Group | undefined) => {
-        setGroupPreview(groupData);
-        setUserPreview(undefined);
-    };
-
     return (
         <LayoutMain pageTitle={group.name}>
             <CommonHeader
@@ -73,25 +58,13 @@ export const TeamPage = () => {
             <FiltersPanel />
 
             <div style={{ marginLeft: gapL }}>
-                <Text onClick={() => onClickGroupPreview(group)}>{group.name}</Text>
+                <Text onClick={() => showGroupPreview(group)}>{group.name}</Text>
                 {users &&
                     users.map((user) => (
-                        <Text color={gray10} key={user.id} onClick={() => onClickUserPreview(user)}>
+                        <Text color={gray10} key={user.id} onClick={() => showUserPreview(user)}>
                             {user.name}
                         </Text>
                     ))}
-
-                <ModalPreview visible={!!userPreview} onClose={() => onClickUserPreview(undefined)}>
-                    {nullable(userPreview, (user) => (
-                        <UserProfilePreview user={user} groupName="Group placeholder" role="Role placeholder" />
-                    ))}
-                </ModalPreview>
-
-                <ModalPreview visible={!!groupPreview} onClose={() => onClickGroupPreview(undefined)}>
-                    {nullable(groupPreview, (g) => (
-                        <TeamProfilePreview group={g} />
-                    ))}
-                </ModalPreview>
             </div>
         </LayoutMain>
     );

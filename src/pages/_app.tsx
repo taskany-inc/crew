@@ -8,6 +8,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { usePageLoad } from '../hooks/usePageLoad';
 import { TLocale, setSSRLocale } from '../utils/getLang';
 import { trpc } from '../trpc/trpcClient';
+import { PreviewContextProvider } from '../context/preview-context';
+import { Previews } from '../components/Previews';
 
 const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
     setSSRLocale(router.locale as TLocale);
@@ -21,9 +23,12 @@ const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
             </Head>
             <SessionProvider session={pageProps.session} refetchOnWindowFocus={true}>
                 <ThemeProvider themes={['light', 'dark']}>
-                    <PageLoadProgress height={2} ref={pageLoadRef} />
-                    <Component {...pageProps} />
-                    <ReactQueryDevtools />
+                    <PreviewContextProvider>
+                        <PageLoadProgress height={2} ref={pageLoadRef} />
+                        <Component {...pageProps} />
+                        <Previews />
+                        <ReactQueryDevtools />
+                    </PreviewContextProvider>
                 </ThemeProvider>
             </SessionProvider>
         </>
