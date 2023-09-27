@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.11.0](https://github.com/taskany-inc/crew/compare/v0.10.0...v0.11.0) (2023-09-27)
+
+
+### Features
+
+* **group preview:** transfer group ([6696a2a](https://github.com/taskany-inc/crew/commit/6696a2aa23ad844e52283081a2c2d8a5ff9da58f))
+* profile links should open pop-ups ([805c7fe](https://github.com/taskany-inc/crew/commit/805c7feefb954c862af5bbdc8fb46982d394a4b1))
+* **TeamPreview:** add and remove users ([83f9156](https://github.com/taskany-inc/crew/commit/83f91563623fccd255161577b3e5e1bbce9ead45))
+
 ## [0.10.0](https://github.com/taskany-inc/crew/compare/v0.9.0...v0.10.0) (2023-09-25)
 
 
