@@ -14,7 +14,7 @@ import { usePreviewContext } from '../../context/preview-context';
 
 import { UserContacts } from './UserContacts';
 import { tr } from './users.i18n';
-import { AddUserToTeamForm } from './AddUserToTeamForm';
+import { AddTeamToUserForm } from './AddTeamToUserForm';
 
 type UserProps = {
     user: User;
@@ -62,7 +62,7 @@ const UserProfilePreview = ({ user, groupName, role }: UserProps): JSX.Element =
                         ))}
                     </StyledMembershipList>
 
-                    <AddUserToTeamForm userId={user.id} />
+                    <AddTeamToUserForm userId={user.id} />
                 </NarrowSection>
 
                 <UserContacts user={user} userServices={[]} />

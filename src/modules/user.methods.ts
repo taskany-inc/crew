@@ -3,11 +3,15 @@ import { User } from 'prisma/prisma-client';
 import { prisma } from '../utils/prisma';
 
 import { UserMembership } from './user.types';
-import { AddUserToGroup } from './user.schemas';
+import { AddUserToGroup, GetUserList, RemoveUserFromGroup } from './user.schemas';
 
 export const userMethods = {
     addToGroup: (data: AddUserToGroup) => {
         return prisma.membership.create({ data });
+    },
+
+    removeFromGroup: (data: RemoveUserFromGroup) => {
+        return prisma.membership.delete({ where: { userId_groupId: data } });
     },
 
     getById: (id: string) => {
@@ -17,8 +21,11 @@ export const userMethods = {
         });
     },
 
-    getList: () => {
-        return prisma.user.findMany();
+    getList: (data: GetUserList) => {
+        return prisma.user.findMany({
+            where: { name: { contains: data.search, mode: 'insensitive' } },
+            take: data.take,
+        });
     },
 
     getMemberships: (id: string): Promise<UserMembership[]> => {

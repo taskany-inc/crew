@@ -4,10 +4,9 @@ import { Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 import { IconUsersOutline } from '@taskany/icons';
 
-import { usePreviewContext } from '../context/preview-context';
-import { pages } from '../hooks/useRouter';
-
-import { Link } from './Link';
+import { usePreviewContext } from '../../context/preview-context';
+import { pages } from '../../hooks/useRouter';
+import { Link } from '../Link';
 
 type GroupListItemProps = {
     group: Group;

@@ -19,9 +19,9 @@ import { IconGitPullOutline, IconSearchOutline } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
 import { InlineTrigger } from '../InlineTrigger';
-import { GroupListItem } from '../GroupListItem';
 import { useGroupMutations } from '../../modules/group.hooks';
 
+import { GroupListItem } from './GroupListItem';
 import { tr } from './groups.i18n';
 
 const StyledModalContent = styled(ModalContent)`

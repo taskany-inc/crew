@@ -7,7 +7,7 @@ import { LayoutMain } from '../layout/LayoutMain';
 import { tr } from './users.i18n';
 
 export const UsersPage = () => {
-    const usersQuery = trpc.user.getList.useQuery();
+    const usersQuery = trpc.user.getList.useQuery({});
     const { showUserPreview } = usePreviewContext();
 
     return (

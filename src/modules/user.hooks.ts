@@ -7,6 +7,14 @@ export const useUserMutations = () => {
         addUserToGroup: trpc.user.addToGroup.useMutation({
             onSuccess: () => {
                 utils.user.invalidate();
+                utils.group.getMemberships.invalidate();
+            },
+        }),
+
+        removeUserFromGroup: trpc.user.removeFromGroup.useMutation({
+            onSuccess: () => {
+                utils.user.invalidate();
+                utils.group.getMemberships.invalidate();
             },
         }),
     };

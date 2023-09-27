@@ -1,13 +1,13 @@
 import styled from 'styled-components';
-import { Modal, ModalContent, ModalCross, ModalHeader, Text, Tag } from '@taskany/bricks';
+import { Modal, ModalContent, ModalCross, ModalHeader, Text, Tag, FormTitle } from '@taskany/bricks';
 import { gapM } from '@taskany/colors';
 
 import { UserMembership } from '../../modules/user.types';
 import { AddRoleToMembershipForm } from '../users/AddRoleToMembershipForm';
 import { UserListItem } from '../UserListItem';
-import { GroupListItem } from '../GroupListItem';
 import { useRoleMutations } from '../../modules/role.hooks';
 
+import { GroupListItem } from './GroupListItem';
 import { tr } from './groups.i18n';
 
 type EditRolesModalProps = {
@@ -28,7 +28,7 @@ export const EditRolesModal = ({ membership, visible, onClose }: EditRolesModalP
     return (
         <Modal visible={visible} onClose={onClose} width={500}>
             <ModalHeader>
-                <Text size="l">{tr('Edit roles')}</Text>
+                <FormTitle>{tr('Edit roles')}</FormTitle>
                 <ModalCross onClick={onClose} />
             </ModalHeader>
 

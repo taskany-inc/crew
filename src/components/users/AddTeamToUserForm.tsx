@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { Role } from 'prisma/prisma-client';
+import { Group } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { Button, ComboBox, InlineForm, Input, MenuItem } from '@taskany/bricks';
 import { IconPlusCircleSolid } from '@taskany/icons';
 
 import { InlineTrigger } from '../InlineTrigger';
 import { trpc } from '../../trpc/trpcClient';
-import { useRoleMutations } from '../../modules/role.hooks';
+import { useUserMutations } from '../../modules/user.hooks';
 
 import { tr } from './users.i18n';
 
-type AddRoleToMembershipFormProps = {
-    membershipId: string;
+type AddTeamToUserFormProps = {
+    userId: string;
 };
 
 const StyledRowWrapper = styled.div`
@@ -19,22 +19,22 @@ const StyledRowWrapper = styled.div`
     grid-template-columns: minmax(calc(240px), 20%) max-content;
 `;
 
-export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFormProps) => {
+export const AddTeamToUserForm = ({ userId }: AddTeamToUserFormProps) => {
     const [search, setSearch] = useState('');
-    const [selectedRole, setSelectedRole] = useState<Role>();
-    const roleListQuery = trpc.role.getList.useQuery({ search, take: 5 });
-    const { addToMembership } = useRoleMutations();
+    const groupListQuery = trpc.group.getList.useQuery({ search, take: 10 });
+    const [selectedGroup, setSelectedGroup] = useState<Group>();
+    const { addUserToGroup } = useUserMutations();
 
     const onReset = () => {
         setSearch('');
-        setSelectedRole(undefined);
+        setSelectedGroup(undefined);
     };
 
     const onSubmit = async () => {
-        if (!selectedRole) {
+        if (!selectedGroup) {
             return;
         }
-        await addToMembership.mutateAsync({ membershipId, roleId: selectedRole.id });
+        await addUserToGroup.mutateAsync({ userId, groupId: selectedGroup.id });
         onReset();
     };
 
@@ -43,17 +43,17 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
             onSubmit={onSubmit}
             onReset={onReset}
             renderTrigger={(props) => (
-                <InlineTrigger text={tr('Add role')} icon={<IconPlusCircleSolid noWrap size="s" />} {...props} />
+                <InlineTrigger text={tr('Add team')} icon={<IconPlusCircleSolid noWrap size="s" />} {...props} />
             )}
         >
             <ComboBox
-                value={selectedRole ? undefined : search}
-                visible={!selectedRole}
-                onChange={(value: Role) => {
+                value={selectedGroup ? undefined : search}
+                visible={!selectedGroup}
+                onChange={(value: Group) => {
                     setSearch(value.name);
-                    setSelectedRole(value);
+                    setSelectedGroup(value);
                 }}
-                items={roleListQuery.data}
+                items={groupListQuery.data}
                 maxWidth={550}
                 renderInput={({ value, ...restProps }) => (
                     <StyledRowWrapper>
@@ -62,7 +62,7 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
                             autoComplete="off"
                             value={value ?? search}
                             onChange={(e) => {
-                                setSelectedRole(undefined);
+                                setSelectedGroup(undefined);
                                 setSearch(e.target.value);
                             }}
                             brick="right"
@@ -73,7 +73,7 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
                             view="primary"
                             text={tr('Add')}
                             type="submit"
-                            disabled={!selectedRole}
+                            disabled={!selectedGroup}
                             outline
                         />
                     </StyledRowWrapper>

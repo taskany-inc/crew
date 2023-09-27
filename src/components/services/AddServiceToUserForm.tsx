@@ -3,7 +3,7 @@ import { gray10, gray7, gray8 } from '@taskany/colors';
 import styled from 'styled-components';
 import { useState } from 'react';
 import { ExternalService } from 'prisma/prisma-client';
-import { IconPlusCircleOutline } from '@taskany/icons';
+import { IconPlusCircleSolid } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
 import { InlineTrigger } from '../InlineTrigger';
@@ -65,11 +65,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
     return (
         <InlineForm
             renderTrigger={(props) => (
-                <StyledInlineTrigger
-                    text={tr('Add link')}
-                    icon={<IconPlusCircleOutline noWrap size="s" />}
-                    {...props}
-                />
+                <StyledInlineTrigger text={tr('Add link')} icon={<IconPlusCircleSolid noWrap size="s" />} {...props} />
             )}
             onSubmit={onSubmit}
             onReset={onReset}

@@ -1,13 +1,12 @@
 import styled from 'styled-components';
 import { gapM, gapS } from '@taskany/colors';
-import { IconPlusCircleOutline } from '@taskany/icons';
 
-import { InlineTrigger } from '../InlineTrigger';
 import { NarrowSection } from '../NarrowSection';
 import { trpc } from '../../trpc/trpcClient';
 
 import { MembershipListItem } from './MembershipListItem';
 import { tr } from './groups.i18n';
+import { AddUserToTeamForm } from './AddUserToTeamForm';
 
 const StyledUserList = styled.div`
     display: flex;
@@ -31,8 +30,7 @@ export const TeamPeople = ({ groupId }: TeamPeopleProps) => {
                 ))}
             </StyledUserList>
 
-            {/* TODO: implement AddUserToGroup */}
-            <InlineTrigger icon={<IconPlusCircleOutline noWrap size="s" />} text={'Add participant'} disabled />
+            <AddUserToTeamForm groupId={groupId} />
         </NarrowSection>
     );
 };
