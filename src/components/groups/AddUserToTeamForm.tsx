@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { Group } from 'prisma/prisma-client';
+import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { Button, ComboBox, InlineForm, Input, MenuItem } from '@taskany/bricks';
-import { IconPlusCircleOutline } from '@taskany/icons';
+import { IconPlusCircleSolid } from '@taskany/icons';
 
 import { InlineTrigger } from '../InlineTrigger';
 import { trpc } from '../../trpc/trpcClient';
 import { useUserMutations } from '../../modules/user.hooks';
 
-import { tr } from './users.i18n';
+import { tr } from './groups.i18n';
 
 type AddUserToTeamFormProps = {
-    userId: string;
+    groupId: string;
 };
 
 const StyledRowWrapper = styled.div`
@@ -19,22 +19,22 @@ const StyledRowWrapper = styled.div`
     grid-template-columns: minmax(calc(240px), 20%) max-content;
 `;
 
-export const AddUserToTeamForm = ({ userId }: AddUserToTeamFormProps) => {
+export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
     const [search, setSearch] = useState('');
-    const groupListQuery = trpc.group.getList.useQuery({ search, take: 10 });
-    const [selectedGroup, setSelectedGroup] = useState<Group>();
+    const userListQuery = trpc.user.getList.useQuery({ search, take: 10 }, { keepPreviousData: true });
+    const [selectedUser, setSelectedUser] = useState<User>();
     const { addUserToGroup } = useUserMutations();
 
     const onReset = () => {
         setSearch('');
-        setSelectedGroup(undefined);
+        setSelectedUser(undefined);
     };
 
     const onSubmit = async () => {
-        if (!selectedGroup) {
+        if (!selectedUser) {
             return;
         }
-        await addUserToGroup.mutateAsync({ userId, groupId: selectedGroup.id });
+        await addUserToGroup.mutateAsync({ userId: selectedUser.id, groupId });
         onReset();
     };
 
@@ -43,17 +43,17 @@ export const AddUserToTeamForm = ({ userId }: AddUserToTeamFormProps) => {
             onSubmit={onSubmit}
             onReset={onReset}
             renderTrigger={(props) => (
-                <InlineTrigger text={tr('Add team')} icon={<IconPlusCircleOutline noWrap size="s" />} {...props} />
+                <InlineTrigger text={tr('Add participant')} icon={<IconPlusCircleSolid noWrap size="s" />} {...props} />
             )}
         >
             <ComboBox
-                value={selectedGroup ? undefined : search}
-                visible={!selectedGroup}
-                onChange={(value: Group) => {
-                    setSearch(value.name);
-                    setSelectedGroup(value);
+                value={selectedUser ? undefined : search}
+                visible={!selectedUser}
+                onChange={(value: User) => {
+                    setSearch(value.name || value.email);
+                    setSelectedUser(value);
                 }}
-                items={groupListQuery.data}
+                items={userListQuery.data}
                 maxWidth={550}
                 renderInput={({ value, ...restProps }) => (
                     <StyledRowWrapper>
@@ -62,7 +62,7 @@ export const AddUserToTeamForm = ({ userId }: AddUserToTeamFormProps) => {
                             autoComplete="off"
                             value={value ?? search}
                             onChange={(e) => {
-                                setSelectedGroup(undefined);
+                                setSelectedUser(undefined);
                                 setSearch(e.target.value);
                             }}
                             brick="right"
@@ -73,7 +73,7 @@ export const AddUserToTeamForm = ({ userId }: AddUserToTeamFormProps) => {
                             view="primary"
                             text={tr('Add')}
                             type="submit"
-                            disabled={!selectedGroup}
+                            disabled={!selectedUser}
                             outline
                         />
                     </StyledRowWrapper>

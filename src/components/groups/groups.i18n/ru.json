@@ -10,5 +10,9 @@
     "Transfer": "Перенести",
     "Cancel": "Отмена",
     "Group search": "Поиск групп",
-    "Groups": "Группы"
+    "Groups": "Группы",
+    "Add participant": "Добавить участника",
+    "Add": "Добавить",
+    "Remove": "Удалить",
+    "Remove user from group": "Удалить пользователя из группы"
 }

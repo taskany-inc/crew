@@ -11,6 +11,7 @@ import { usePreviewContext } from '../../context/preview-context';
 
 import { tr } from './groups.i18n';
 import { EditRolesModal } from './EditRolesModal';
+import { RemoveUserFromGroupModal } from './RemoveUserFromGroupModal';
 
 type MembershipListItemProps = {
     membership: UserMembership;
@@ -25,8 +26,15 @@ const StyledRow = styled.div`
 export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
     const [editRolesPopupVisible, setEditRolesPopupVisible] = useState(false);
     const { showUserPreview } = usePreviewContext();
+    const [removePopupVisible, setRemovePopupVisible] = useState(false);
 
-    const items = useMemo(() => [{ name: tr('Edit roles'), action: () => setEditRolesPopupVisible(true) }], []);
+    const items = useMemo(
+        () => [
+            { name: tr('Edit roles'), action: () => setEditRolesPopupVisible(true) },
+            { name: tr('Remove'), action: () => setRemovePopupVisible(true) },
+        ],
+        [],
+    );
 
     return (
         <StyledRow>
@@ -57,6 +65,12 @@ export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
                 visible={editRolesPopupVisible}
                 membership={membership}
                 onClose={() => setEditRolesPopupVisible(false)}
+            />
+
+            <RemoveUserFromGroupModal
+                visible={removePopupVisible}
+                membership={membership}
+                onClose={() => setRemovePopupVisible(false)}
             />
         </StyledRow>
     );
