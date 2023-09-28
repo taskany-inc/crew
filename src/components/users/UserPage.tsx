@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { UserPic, Text, Button } from '@taskany/bricks';
-import { IconUsersOutline } from '@taskany/icons';
-import { gapL, gapM, gapS, gapSm, gapXl, gapXs, gray10, gray6, gray9, textColor } from '@taskany/colors';
+import { gapL, gapS, gapXl, gray10, gray6 } from '@taskany/colors';
 import styled from 'styled-components';
 
 import { PageSep } from '../PageSep';
@@ -10,26 +9,25 @@ import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../layout/LayoutMain';
 import { usePreviewContext } from '../../context/preview-context';
 import { pages } from '../../hooks/useRouter';
+import { NarrowSection } from '../NarrowSection';
+import { GroupListItem } from '../groups/GroupListItem';
 
 import { UserContacts } from './UserContacts';
 import { tr } from './users.i18n';
+import { UserBonusPoints } from './UserBonusPoints';
 
-const StyledUser = styled.div`
+const StyledHeader = styled.div`
     display: grid;
-    grid-template-columns: 12rem 1fr 5vw;
-    padding: ${gapXs} ${gapL};
+    grid-template-columns: max-content 1fr max-content;
+    gap: ${gapXl};
+    padding: 0 ${gapL} ${gapL} ${gapL};
+    align-items: end;
 `;
 
-const StyledCard = styled.div`
+const StyledUserNameWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    align-self: end;
     gap: ${gapS};
-    margin-left: ${gapL};
-`;
-
-const StyledUserPic = styled(UserPic)`
-    margin-left: ${gapM};
 `;
 
 const StyledGroupLink = styled(Link)`
@@ -38,42 +36,24 @@ const StyledGroupLink = styled(Link)`
     font-weight: 700;
 `;
 
-const StyledButton = styled.div`
-    align-self: end;
-`;
-
-const StyledWrapper = styled.div`
-    display: flex;
+const StyledUserInfoWrapper = styled.div`
     margin-top: ${gapL};
+    padding: 0 ${gapL};
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: ${gapL};
 `;
 
-const StyledUserContacts = styled.div`
-    padding: ${gapXs} 0 0 ${gapL};
-`;
-
-const StyledGroups = styled.div`
+const StyledLeftPanel = styled.div`
     display: flex;
-    flex-direction: row;
-    margin-top: ${gapSm};
+    flex-direction: column;
+    gap: ${gapL};
 `;
 
-const StyledInfo = styled.div`
+const StyledRightPanel = styled.div`
     display: grid;
     grid-template-columns: 6fr;
     gap: ${gapL};
-    margin: ${gapXs} 0 ${gapL} ${gapXl};
-`;
-
-const StyledLine = styled(PageSep)`
-    white-space: nowrap;
-    margin: ${gapXs} 0px;
-    width: 300px;
-`;
-
-const StyledTeamsLink = styled(Link)`
-    margin-left: ${gapS};
-    color: ${textColor};
-    font-weight: 500;
 `;
 
 export const UserPage = () => {
@@ -94,16 +74,15 @@ export const UserPage = () => {
 
     return (
         <LayoutMain pageTitle={user.name}>
-            <StyledUser>
-                <StyledUserPic size={150} name={user.name} src={user.image} email={user.email} />{' '}
-                <StyledCard>
+            <StyledHeader>
+                <UserPic size={150} name={user.name} src={user.image} email={user.email} />
+                <StyledUserNameWrapper>
                     <Text size="s" color={gray6} weight="bold">
                         {!!orgStructureMembership && orgStructureMembership.roles.map((role) => role.name).join(', ')}
                     </Text>
 
                     {!!orgStructureMembership && (
                         <StyledGroupLink
-                            target="_blank"
                             href={pages.team(orgStructureMembership.id)}
                             onClick={() => showGroupPreview(orgStructureMembership.group)}
                         >
@@ -113,38 +92,28 @@ export const UserPage = () => {
                     <Text size="xxl" weight="bold">
                         {user.name}
                     </Text>
-                </StyledCard>
-                <StyledButton>
-                    <Button onClick={() => {}} text="Edit" color={textColor} size="s" />
-                </StyledButton>
-            </StyledUser>
+                </StyledUserNameWrapper>
+                {/* TODO: implement profile editing issues/29 */}
+                <Button onClick={() => {}} text={tr('Edit')} size="s" />
+            </StyledHeader>
+
             <PageSep />
-            <StyledWrapper>
-                <StyledUserContacts>
+
+            <StyledUserInfoWrapper>
+                <StyledLeftPanel>
+                    <UserBonusPoints user={user} />
+
                     <UserContacts user={user} userServices={[]} />
-                </StyledUserContacts>
+                </StyledLeftPanel>
 
-                <StyledInfo>
-                    <Text size="m" color={gray9} weight="bold">
-                        {tr('Teams with participation')}
-                        <StyledLine />
-                    </Text>
-                    {otherMemberships.map((membership) => (
-                        <StyledGroups key={membership.id}>
-                            <IconUsersOutline size={15} color={gray9} />
-
-                            <StyledTeamsLink
-                                target="_blank"
-                                href={pages.team(membership.id)}
-                                key={membership.group.name}
-                                onClick={() => showGroupPreview(membership.group)}
-                            >
-                                {membership.group.name}
-                            </StyledTeamsLink>
-                        </StyledGroups>
-                    ))}
-                </StyledInfo>
-            </StyledWrapper>
+                <StyledRightPanel>
+                    <NarrowSection title={tr('Teams with participation')}>
+                        {otherMemberships.map((membership) => (
+                            <GroupListItem group={membership.group} key={membership.id} />
+                        ))}
+                    </NarrowSection>
+                </StyledRightPanel>
+            </StyledUserInfoWrapper>
         </LayoutMain>
     );
 };

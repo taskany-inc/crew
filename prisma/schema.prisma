@@ -67,6 +67,7 @@ model User {
   sessions      Session[]
   services      UserServices[]
   memberships   Membership[]
+  bonusPoints   Int            @default(0)
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt

@@ -3,13 +3,10 @@ import { gray4 } from '@taskany/colors';
 
 type PageSepProps = {
     width?: number;
-    margins?: number;
 };
 
 export const PageSep = styled.div<PageSepProps>`
     border-top: 1px solid ${gray4};
 
     width: ${({ width }) => (width ? `${width}px` : 'auto')};
-
-    margin: ${({ margins }) => `${margins ?? 16}px 0`};
 `;
