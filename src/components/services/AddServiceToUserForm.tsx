@@ -1,4 +1,4 @@
-import { Button, ComboBox, InlineForm, Input, MenuItem, TableCell } from '@taskany/bricks';
+import { Button, ComboBox, InlineForm, Input, MenuItem } from '@taskany/bricks';
 import { gray10, gray7, gray8 } from '@taskany/colors';
 import styled from 'styled-components';
 import { useState } from 'react';
@@ -27,10 +27,9 @@ const StyledInput = styled(Input)`
     box-sizing: border-box;
 `;
 
-const StyledTableCell = styled(TableCell)`
-    flex-wrap: nowrap;
-    display: flex;
-    align-items: center;
+const StyledInputsWrapper = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr max-content;
 `;
 
 interface ServicesFormProps {
@@ -70,7 +69,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
             onSubmit={onSubmit}
             onReset={onReset}
         >
-            <StyledTableCell col={4} align="center">
+            <StyledInputsWrapper>
                 <ComboBox
                     value={selectedService ? undefined : search}
                     onChange={(value: ExternalService) => {
@@ -110,10 +109,10 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
                     brick="center"
                     value={serviceId}
                     onChange={(e) => setServiceId(e.target.value)}
-                    placeholder={tr('Link to the service')}
+                    placeholder={tr('Id in service')}
                 />
                 <Button type="submit" brick="left" outline size="m" text={tr('Add')} view="primary" />
-            </StyledTableCell>
+            </StyledInputsWrapper>
         </InlineForm>
     );
 };
