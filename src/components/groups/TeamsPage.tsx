@@ -23,7 +23,7 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
     if (!breadcrumbs.data) return <span>Loading...</span>;
     return (
         <div>
-            {/* //TODO: replace with CollapsibleItem https://github.com/taskany-inc/bricks/issues/312*/}
+            {/* //TODO: replace with CollapsibleItem https://github.com/taskany-inc/bricks/issues/312 and https://github.com/taskany-inc/crew/issues/21*/}
             <div style={{ marginBottom: 12 }}>
                 <Link onClick={() => showGroupPreview(group)} href={pages.team(group.name)}>
                     {group.name}{' '}
