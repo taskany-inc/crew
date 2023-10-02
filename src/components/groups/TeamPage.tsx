@@ -61,7 +61,7 @@ export const TeamPage = () => {
                 <Text onClick={() => showGroupPreview(group)}>{group.name}</Text>
                 {users &&
                     users.map((user) => (
-                        <Text color={gray10} key={user.id} onClick={() => showUserPreview(user)}>
+                        <Text color={gray10} key={user.id} onClick={() => showUserPreview(user.id)}>
                             {user.name}
                         </Text>
                     ))}

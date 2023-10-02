@@ -1,12 +1,12 @@
-import { Group, User } from 'prisma/prisma-client';
+import { Group } from 'prisma/prisma-client';
 import { useMemo, createContext, useContext, useState, FC, PropsWithChildren } from 'react';
 
 export const noop = (): void => {};
 
 type PreviewContext = {
-    showUserPreview: (user: User) => void;
+    showUserPreview: (userId: string) => void;
     showGroupPreview: (group: Group) => void;
-    user?: User;
+    userId?: string;
     group?: Group;
     hidePreview: () => void;
 };
@@ -18,28 +18,28 @@ export const previewContext = createContext<PreviewContext>({
 });
 
 export const PreviewContextProvider: FC<PropsWithChildren> = ({ children }) => {
-    const [user, setUser] = useState<User>();
+    const [userId, setUserId] = useState<string>();
     const [group, setGroup] = useState<Group>();
 
     const value: PreviewContext = useMemo(
         () => ({
-            showUserPreview: (u: User) => {
-                setUser(u);
+            showUserPreview: (id: string) => {
+                setUserId(id);
                 setGroup(undefined);
             },
             showGroupPreview: (g: Group) => {
                 setGroup(g);
-                setUser(undefined);
+                setUserId(undefined);
             },
-            user,
+            userId,
             group,
             hidePreview: () => {
                 setGroup(undefined);
-                setUser(undefined);
+                setUserId(undefined);
             },
         }),
 
-        [user, group],
+        [userId, group],
     );
 
     return <previewContext.Provider value={value}>{children}</previewContext.Provider>;
