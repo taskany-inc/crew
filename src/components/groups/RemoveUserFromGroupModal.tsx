@@ -12,7 +12,7 @@ import {
 import { gapS } from '@taskany/colors';
 import styled from 'styled-components';
 
-import { UserMembership } from '../../modules/user.types';
+import { MembershipInfo } from '../../modules/user.types';
 import { UserListItem } from '../UserListItem';
 import { useUserMutations } from '../../modules/user.hooks';
 
@@ -21,7 +21,7 @@ import { GroupListItem } from './GroupListItem';
 
 type RemoveUserFromGroupModalProps = {
     visible: boolean;
-    membership: UserMembership;
+    membership: MembershipInfo;
     onClose: VoidFunction;
 };
 

@@ -3,7 +3,7 @@ import { Text } from '@taskany/bricks';
 import { IconUsersOutline } from '@taskany/icons';
 import { gapS, gapXs, gray10, gray9, textColor } from '@taskany/colors';
 
-import { UserMembership } from '../modules/user.types';
+import { MembershipInfo } from '../modules/user.types';
 import { usePreviewContext } from '../context/preview-context';
 import { pages } from '../hooks/useRouter';
 
@@ -11,7 +11,7 @@ import { Link } from './Link';
 import { tr } from './components.i18n';
 
 type UserGroupListItemProps = {
-    membership: UserMembership;
+    membership: MembershipInfo;
 };
 
 const StyledLink = styled(Link)`

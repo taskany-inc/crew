@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Modal, ModalContent, ModalCross, ModalHeader, Text, Tag, FormTitle } from '@taskany/bricks';
 import { gapM } from '@taskany/colors';
 
-import { UserMembership } from '../../modules/user.types';
+import { MembershipInfo } from '../../modules/user.types';
 import { AddRoleToMembershipForm } from '../users/AddRoleToMembershipForm';
 import { UserListItem } from '../UserListItem';
 import { useRoleMutations } from '../../modules/role.hooks';
@@ -11,7 +11,7 @@ import { GroupListItem } from './GroupListItem';
 import { tr } from './groups.i18n';
 
 type EditRolesModalProps = {
-    membership: UserMembership;
+    membership: MembershipInfo;
     visible: boolean;
     onClose: VoidFunction;
 };
