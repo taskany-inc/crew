@@ -40,7 +40,7 @@ export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
         <StyledRow>
             <UserPic size={20} name={membership.user.name} src={membership.user.image} email={membership.user.email} />
             <Text>
-                <Link href={pages.user(membership.user.id)} onClick={() => showUserPreview(membership.user)}>
+                <Link href={pages.user(membership.user.id)} onClick={() => showUserPreview(membership.userId)}>
                     {membership.user.name}
                 </Link>
             </Text>

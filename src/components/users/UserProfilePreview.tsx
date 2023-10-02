@@ -1,6 +1,6 @@
 import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { ModalPreview, Text } from '@taskany/bricks';
+import { ModalPreview, Text, nullable } from '@taskany/bricks';
 import { gapM, gapS, gray9 } from '@taskany/colors';
 
 import { PreviewHeader } from '../PreviewHeader';
@@ -17,9 +17,7 @@ import { tr } from './users.i18n';
 import { AddTeamToUserForm } from './AddTeamToUserForm';
 
 type UserProps = {
-    user: User;
-    groupName?: string;
-    role?: string;
+    userId: string;
 };
 
 const StyledSupervisorText = styled(Text)`
@@ -34,40 +32,50 @@ const StyledMembershipList = styled.div`
     margin-bottom: ${gapM};
 `;
 
-const UserProfilePreview = ({ user, groupName, role }: UserProps): JSX.Element => {
+const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
-    const membershipsQuery = trpc.user.getMemberships.useQuery(user.id);
+    const userQuery = trpc.user.getById.useQuery(userId);
+
+    // TODO: select real org group
+    const orgStructureMembership = userQuery.data?.memberships[0];
+    const orgStructureRoles = orgStructureMembership?.roles.map((r) => r.name).join(', ');
 
     return (
-        <ModalPreview visible onClose={hidePreview}>
-            <PreviewHeader
-                preTitle={role}
-                user={user}
-                subtitle={groupName}
-                title={user.name}
-                link={pages.user(user.id)}
-            />
-            <PreviewContent>
-                <NarrowSection title={tr('Quick summary')}>
-                    <StyledSupervisorText size="m" color={gray9}>
-                        {tr('Supervisor')}
-                        <UserListItem user={{ name: 'Placeholder user', email: 'placeholder@example.com' } as User} />
-                    </StyledSupervisorText>
-                </NarrowSection>
+        <>
+            {nullable(userQuery.data, (user) => (
+                <ModalPreview visible onClose={hidePreview}>
+                    <PreviewHeader
+                        preTitle={orgStructureRoles}
+                        user={user}
+                        subtitle={orgStructureMembership?.group.name}
+                        title={user.name}
+                        link={pages.user(user.id)}
+                    />
+                    <PreviewContent>
+                        <NarrowSection title={tr('Quick summary')}>
+                            <StyledSupervisorText size="m" color={gray9}>
+                                {tr('Supervisor')}
+                                <UserListItem
+                                    user={{ name: 'Placeholder user', email: 'placeholder@example.com' } as User}
+                                />
+                            </StyledSupervisorText>
+                        </NarrowSection>
 
-                <NarrowSection title={tr('Teams')}>
-                    <StyledMembershipList>
-                        {membershipsQuery.data?.map((membership) => (
-                            <UserGroupListItem key={membership.id} membership={membership} />
-                        ))}
-                    </StyledMembershipList>
+                        <NarrowSection title={tr('Teams')}>
+                            <StyledMembershipList>
+                                {user.memberships.map((membership) => (
+                                    <UserGroupListItem key={membership.id} membership={membership} />
+                                ))}
+                            </StyledMembershipList>
 
-                    <AddTeamToUserForm userId={user.id} />
-                </NarrowSection>
+                            <AddTeamToUserForm userId={user.id} />
+                        </NarrowSection>
 
-                <UserContacts user={user} userServices={[]} />
-            </PreviewContent>
-        </ModalPreview>
+                        <UserContacts user={user} userServices={[]} />
+                    </PreviewContent>
+                </ModalPreview>
+            ))}
+        </>
     );
 };
 

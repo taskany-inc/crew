@@ -17,7 +17,7 @@ export const userMethods = {
     getById: (id: string) => {
         return prisma.user.findUniqueOrThrow({
             where: { id },
-            include: { memberships: { include: { group: true, roles: true } } },
+            include: { memberships: { include: { group: true, user: true, roles: true } } },
         });
     },
 

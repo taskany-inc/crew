@@ -6,14 +6,14 @@ import TeamProfilePreview from './groups/TeamProfilePreview';
 import UserProfilePreview from './users/UserProfilePreview';
 
 export const Previews = () => {
-    const { user, group } = usePreviewContext();
+    const { userId, group } = usePreviewContext();
     return (
         <>
             {nullable(group, (g) => (
                 <TeamProfilePreview group={g} />
             ))}
-            {nullable(user, (u) => (
-                <UserProfilePreview user={u} />
+            {nullable(userId, (u) => (
+                <UserProfilePreview userId={u} />
             ))}
         </>
     );

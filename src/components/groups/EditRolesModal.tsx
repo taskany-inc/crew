@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Modal, ModalContent, ModalCross, ModalHeader, Text, Tag, FormTitle } from '@taskany/bricks';
+import { Modal, ModalContent, ModalCross, ModalHeader, Tag, FormTitle } from '@taskany/bricks';
 import { gapM } from '@taskany/colors';
 
 import { MembershipInfo } from '../../modules/user.types';

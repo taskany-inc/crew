@@ -14,7 +14,7 @@ export const UsersPage = () => {
         <LayoutMain pageTitle={tr('Users')}>
             {usersQuery.data?.map((user) => (
                 <div key={user.id}>
-                    <Link onClick={() => showUserPreview(user)} href={pages.user(user.id)}>
+                    <Link onClick={() => showUserPreview(user.id)} href={pages.user(user.id)}>
                         {user.name}
                     </Link>
                 </div>
