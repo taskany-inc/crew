@@ -6,7 +6,7 @@ import { objByKey } from '../utils/objByKey';
 
 import { CreateGroup, GetGroupList, MoveGroup } from './group.schemas';
 import { tr } from './modules.i18n';
-import { UserMembership } from './user.types';
+import { MembershipInfo } from './user.types';
 
 export const groupMethods = {
     add: (data: CreateGroup) => {
@@ -71,7 +71,7 @@ export const groupMethods = {
         return groups.reverse();
     },
 
-    getMemberships: (id: string): Promise<UserMembership[]> => {
+    getMemberships: (id: string): Promise<MembershipInfo[]> => {
         return prisma.membership.findMany({
             where: { groupId: id },
             include: { group: true, user: true, roles: true },

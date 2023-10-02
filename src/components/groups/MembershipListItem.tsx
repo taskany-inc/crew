@@ -4,7 +4,7 @@ import { Dropdown, MenuItem, Text, UserPic } from '@taskany/bricks';
 import { gray9 } from '@taskany/colors';
 import { IconMoreVerticalOutline } from '@taskany/icons';
 
-import { UserMembership } from '../../modules/user.types';
+import { MembershipInfo } from '../../modules/user.types';
 import { Link } from '../Link';
 import { pages } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../context/preview-context';
@@ -14,7 +14,7 @@ import { EditRolesModal } from './EditRolesModal';
 import { RemoveUserFromGroupModal } from './RemoveUserFromGroupModal';
 
 type MembershipListItemProps = {
-    membership: UserMembership;
+    membership: MembershipInfo;
 };
 
 const StyledRow = styled.div`

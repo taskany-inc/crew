@@ -2,7 +2,7 @@ import { User } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
 
-import { UserMembership } from './user.types';
+import { MembershipInfo } from './user.types';
 import { AddUserToGroup, GetUserList, RemoveUserFromGroup } from './user.schemas';
 
 export const userMethods = {
@@ -28,7 +28,7 @@ export const userMethods = {
         });
     },
 
-    getMemberships: (id: string): Promise<UserMembership[]> => {
+    getMemberships: (id: string): Promise<MembershipInfo[]> => {
         return prisma.membership.findMany({ where: { userId: id }, include: { group: true, user: true, roles: true } });
     },
 
