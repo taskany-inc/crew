@@ -1,9 +1,21 @@
 import { User } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
+import { SessionUser } from '../utils/auth';
 
-import { MembershipInfo } from './user.types';
+import { MembershipInfo, UserMemberships, UserMeta } from './user.types';
 import { AddUserToGroup, GetUserList, RemoveUserFromGroup } from './user.schemas';
+import { userAccess } from './user.access';
+
+export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: SessionUser): T & UserMeta => {
+    return {
+        ...user,
+        meta: {
+            isEditable: userAccess.isEditable(sessionUser, user.id).allowed,
+            isBalanceEditable: userAccess.isBalanceEditable(sessionUser).allowed,
+        },
+    };
+};
 
 export const userMethods = {
     addToGroup: (data: AddUserToGroup) => {
@@ -14,11 +26,12 @@ export const userMethods = {
         return prisma.membership.delete({ where: { userId_groupId: data } });
     },
 
-    getById: (id: string) => {
-        return prisma.user.findUniqueOrThrow({
+    getById: async (id: string, sessionUser: SessionUser): Promise<User & UserMeta & UserMemberships> => {
+        const user = await prisma.user.findUniqueOrThrow({
             where: { id },
             include: { memberships: { include: { group: true, user: true, roles: true } } },
         });
+        return addCalculatedUserFields(user, sessionUser);
     },
 
     getList: (data: GetUserList) => {

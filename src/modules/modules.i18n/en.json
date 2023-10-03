@@ -7,5 +7,7 @@
     "Max {max} items in a single request": "",
     "Cannot move group inside its child": "",
     "No group with id {id}": "",
-    "Cannot move group inside itself": ""
+    "Cannot move group inside itself": "",
+    "Cannot edit another user": "",
+    "Only admins can edit balance": ""
 }

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { UserPic, Text, Button } from '@taskany/bricks';
+import { UserPic, Text, Button, nullable } from '@taskany/bricks';
 import { gapL, gapS, gapXl, gray10, gray6 } from '@taskany/colors';
 import styled from 'styled-components';
 
@@ -94,7 +94,9 @@ export const UserPage = () => {
                     </Text>
                 </StyledUserNameWrapper>
                 {/* TODO: implement profile editing issues/29 */}
-                <Button onClick={() => {}} text={tr('Edit')} size="s" />
+                {nullable(user.meta.isEditable, () => (
+                    <Button onClick={() => {}} text={tr('Edit')} size="s" />
+                ))}
             </StyledHeader>
 
             <PageSep />
