@@ -13,8 +13,8 @@ export const userRouter = router({
         return userMethods.removeFromGroup(input);
     }),
 
-    getById: protectedProcedure.input(z.string()).query(({ input }) => {
-        return userMethods.getById(input);
+    getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        return userMethods.getById(input, ctx.session.user);
     }),
 
     getList: protectedProcedure.input(getUserListSchema).query(({ input }) => {

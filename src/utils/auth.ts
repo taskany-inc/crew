@@ -1,3 +1,4 @@
+import { UserRole } from 'prisma/prisma-client';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import KeycloakProvider from 'next-auth/providers/keycloak';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -71,7 +72,7 @@ export const authOptions: NextAuthOptions = {
 
             return {
                 ...session,
-                user: { id: dbUser.id, name: dbUser.name, email: dbUser.email },
+                user: { id: dbUser.id, name: dbUser.name, email: dbUser.email, role: dbUser.role },
             };
         },
 
@@ -87,8 +88,15 @@ export const authOptions: NextAuthOptions = {
     },
 };
 
+export type SessionUser = {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+};
+
 declare module 'next-auth' {
     interface Session {
-        user: { id: string; name: string; email: string };
+        user: SessionUser;
     }
 }

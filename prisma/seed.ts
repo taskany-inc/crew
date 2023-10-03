@@ -1,3 +1,5 @@
+import { UserRole } from 'prisma/prisma-client';
+
 import { hashPassword } from '../src/utils/passwords';
 import { prisma } from '../src/utils/prisma';
 
@@ -9,6 +11,7 @@ const main = async () => {
         data: {
             name: 'Admin',
             email: adminEmail,
+            role: UserRole.ADMIN,
             accounts: {
                 create: {
                     type: 'credentials',

@@ -1,16 +1,17 @@
 import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { Button, InlineForm, Input, Text } from '@taskany/bricks';
+import { Button, InlineForm, Input, Text, nullable } from '@taskany/bricks';
 import { IconEditSolid } from '@taskany/icons';
 import { gapM, gapS } from '@taskany/colors';
 
 import { NarrowSection } from '../NarrowSection';
 import { InlineTrigger } from '../InlineTrigger';
+import { UserMeta } from '../../modules/user.types';
 
 import { tr } from './users.i18n';
 
 type UserBonusPointsProps = {
-    user: User;
+    user: User & UserMeta;
 };
 
 const StyledText = styled(Text)`
@@ -34,20 +35,26 @@ export const UserBonusPoints = ({ user }: UserBonusPointsProps) => {
                 {tr('Balance')}: {user.bonusPoints}
             </StyledText>
 
-            <InlineForm
-                onSubmit={async () => {}}
-                onReset={() => {}}
-                renderTrigger={(props) => (
-                    <InlineTrigger text={tr('Add / Subtract')} icon={<IconEditSolid noWrap size="s" />} {...props} />
-                )}
-            >
-                <StyledReasonInput placeholder={tr('Reason for balance change')} />
-                <StyledRowWrapper>
-                    <Input type="number" defaultValue={0} />
-                    <Button text="+" />
-                    <Button text="-" />
-                </StyledRowWrapper>
-            </InlineForm>
+            {nullable(user.meta.isBalanceEditable, () => (
+                <InlineForm
+                    onSubmit={async () => {}}
+                    onReset={() => {}}
+                    renderTrigger={(props) => (
+                        <InlineTrigger
+                            text={tr('Add / Subtract')}
+                            icon={<IconEditSolid noWrap size="s" />}
+                            {...props}
+                        />
+                    )}
+                >
+                    <StyledReasonInput placeholder={tr('Reason for balance change')} />
+                    <StyledRowWrapper>
+                        <Input type="number" defaultValue={0} />
+                        <Button text="+" />
+                        <Button text="-" />
+                    </StyledRowWrapper>
+                </InlineForm>
+            ))}
         </NarrowSection>
     );
 };
