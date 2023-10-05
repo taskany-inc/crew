@@ -51,9 +51,7 @@ export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
             <Dropdown
                 onChange={(v) => v.action()}
                 items={items}
-                renderTrigger={({ ref, onClick }) => (
-                    <IconMoreVerticalOutline ref={ref} noWrap size="xs" onClick={onClick} />
-                )}
+                renderTrigger={({ ref, onClick }) => <IconMoreVerticalOutline ref={ref} size="xs" onClick={onClick} />}
                 renderItem={({ item, cursor, index, onClick }) => (
                     <MenuItem key={item.name} ghost focused={cursor === index} onClick={onClick}>
                         {item.name}

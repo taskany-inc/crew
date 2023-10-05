@@ -51,7 +51,7 @@ const TeamProfilePreview = ({ group }: UserProps): JSX.Element => {
 
                 <NarrowSection>
                     <TransferGroupForm group={group} />
-                    <InlineTrigger icon={<IconBinOutline noWrap size="xs" />} text={'Archive group'} disabled />
+                    <InlineTrigger icon={<IconBinOutline size="xs" />} text={'Archive group'} disabled />
                 </NarrowSection>
             </PreviewContent>
         </ModalPreview>

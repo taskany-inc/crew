@@ -30,7 +30,7 @@ export const TeamChildren = ({ groupChildren }: GroupTeamsProps) => {
             </StyledChildrenList>
 
             {/* TODO: Link to add to the teams */}
-            <InlineTrigger icon={<IconPlusCircleSolid noWrap size="xs" />} text={'Add teams'} disabled />
+            <InlineTrigger icon={<IconPlusCircleSolid size="xs" />} text={'Add teams'} disabled />
         </NarrowSection>
     );
 };

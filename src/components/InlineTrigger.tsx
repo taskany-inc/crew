@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 interface InlineTriggerProps {
     text: React.ReactNode;
-    /** recommended props: noWrap size="xs" */
+    /** recommended props: size="xs" */
     icon: React.ReactNode;
     className?: string;
     onClick?: () => void;
@@ -36,7 +36,7 @@ const StyledInlineTriggerText = styled.span`
 export const InlineTrigger = forwardRef<HTMLDivElement, InlineTriggerProps>(
     ({ text, icon, className, onClick, disabled }, ref) => {
         return (
-            <StyledInlineTrigger ref={ref} size="s" className={className} onClick={onClick} disabled={disabled}>
+            <StyledInlineTrigger forwardRef={ref} size="s" className={className} onClick={onClick} disabled={disabled}>
                 {icon}
                 <StyledInlineTriggerText>{text}</StyledInlineTriggerText>
             </StyledInlineTrigger>

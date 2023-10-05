@@ -43,7 +43,7 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
             onSubmit={onSubmit}
             onReset={onReset}
             renderTrigger={(props) => (
-                <InlineTrigger text={tr('Add role')} icon={<IconPlusCircleSolid noWrap size="s" />} {...props} />
+                <InlineTrigger text={tr('Add role')} icon={<IconPlusCircleSolid size="s" />} {...props} />
             )}
         >
             <ComboBox

@@ -43,7 +43,7 @@ export const AddTeamToUserForm = ({ userId }: AddTeamToUserFormProps) => {
             onSubmit={onSubmit}
             onReset={onReset}
             renderTrigger={(props) => (
-                <InlineTrigger text={tr('Add team')} icon={<IconPlusCircleSolid noWrap size="s" />} {...props} />
+                <InlineTrigger text={tr('Add team')} icon={<IconPlusCircleSolid size="s" />} {...props} />
             )}
         >
             <ComboBox

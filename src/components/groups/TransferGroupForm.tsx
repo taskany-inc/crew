@@ -73,7 +73,7 @@ export const TransferGroupForm = ({ group }: TransferGroupFormProps) => {
     return (
         <>
             <InlineTrigger
-                icon={<IconGitPullOutline noWrap size="xs" />}
+                icon={<IconGitPullOutline size="xs" />}
                 text={tr('Transfer group')}
                 onClick={() => setModalVisible(true)}
             />
