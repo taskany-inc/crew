@@ -1,3 +1,4 @@
+import { BonusAction } from 'prisma/prisma-client';
 import { z } from 'zod';
 
 import { tr } from './modules.i18n';
@@ -13,6 +14,16 @@ export const removeUserFromGroupSchema = z.object({
     groupId: z.string(),
 });
 export type RemoveUserFromGroup = z.infer<typeof removeUserFromGroupSchema>;
+
+export const changeBonusPointsSchema = z.object({
+    userId: z.string(),
+    action: z.nativeEnum(BonusAction),
+    amount: z.number().positive({ message: tr('Amount should be greater than zero') }),
+    description: z
+        .string({ required_error: tr('Description is required') })
+        .min(1, { message: tr('Description must be longer than {upTo} symbol', { upTo: 1 }) }),
+});
+export type ChangeBonusPoints = z.infer<typeof changeBonusPointsSchema>;
 
 export const getUserListSchema = z.object({
     search: z.string().optional(),

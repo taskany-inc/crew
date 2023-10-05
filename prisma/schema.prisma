@@ -67,8 +67,12 @@ model User {
   sessions      Session[]
   services      UserServices[]
   memberships   Membership[]
-  bonusPoints   Int            @default(0)
-  role          UserRole       @default(USER)
+
+  bonusPoints  Int            @default(0)
+  bonusHistory BonusHistory[] @relation("bonusHistory")
+  bonusChanges BonusHistory[] @relation("bonusChanges")
+
+  role UserRole @default(USER)
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -142,7 +146,27 @@ model Role {
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
 
+model BonusHistory {
+  id          String      @id @default(nanoid())
+  action      BonusAction
+  amount      Int
+  description String
+
+  targetUser   User   @relation("bonusHistory", fields: [targetUserId], references: [id])
+  targetUserId String
+
+  actingUser   User   @relation("bonusChanges", fields: [actingUserId], references: [id])
+  actingUserId String
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+}
+
 enum UserRole {
   ADMIN
   USER
+}
+
+enum BonusAction {
+  ADD
+  SUBTRACT
 }

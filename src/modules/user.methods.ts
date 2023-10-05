@@ -1,10 +1,10 @@
-import { User } from 'prisma/prisma-client';
+import { BonusAction, User } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 
 import { MembershipInfo, UserMemberships, UserMeta } from './user.types';
-import { AddUserToGroup, GetUserList, RemoveUserFromGroup } from './user.schemas';
+import { AddUserToGroup, ChangeBonusPoints, GetUserList, RemoveUserFromGroup } from './user.schemas';
 import { userAccess } from './user.access';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: SessionUser): T & UserMeta => {
@@ -24,6 +24,23 @@ export const userMethods = {
 
     removeFromGroup: (data: RemoveUserFromGroup) => {
         return prisma.membership.delete({ where: { userId_groupId: data } });
+    },
+
+    changeBonusPoints: async (data: ChangeBonusPoints, sessionUser: SessionUser): Promise<User> => {
+        const bonusPoints = data.action === BonusAction.ADD ? { increment: data.amount } : { decrement: data.amount };
+        const [user] = await Promise.all([
+            prisma.user.update({ where: { id: data.userId }, data: { bonusPoints } }),
+            prisma.bonusHistory.create({
+                data: {
+                    action: data.action,
+                    amount: data.amount,
+                    targetUserId: data.userId,
+                    actingUserId: sessionUser.id,
+                    description: data.description,
+                },
+            }),
+        ]);
+        return user;
     },
 
     getById: async (id: string, sessionUser: SessionUser): Promise<User & UserMeta & UserMemberships> => {
