@@ -40,11 +40,7 @@ export const UserBonusPoints = ({ user }: UserBonusPointsProps) => {
                     onSubmit={async () => {}}
                     onReset={() => {}}
                     renderTrigger={(props) => (
-                        <InlineTrigger
-                            text={tr('Add / Subtract')}
-                            icon={<IconEditSolid noWrap size="s" />}
-                            {...props}
-                        />
+                        <InlineTrigger text={tr('Add / Subtract')} icon={<IconEditSolid size="s" />} {...props} />
                     )}
                 >
                     <StyledReasonInput placeholder={tr('Reason for balance change')} />

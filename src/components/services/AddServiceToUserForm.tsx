@@ -64,7 +64,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
     return (
         <InlineForm
             renderTrigger={(props) => (
-                <StyledInlineTrigger text={tr('Add link')} icon={<IconPlusCircleSolid noWrap size="s" />} {...props} />
+                <StyledInlineTrigger text={tr('Add link')} icon={<IconPlusCircleSolid size="s" />} {...props} />
             )}
             onSubmit={onSubmit}
             onReset={onReset}
