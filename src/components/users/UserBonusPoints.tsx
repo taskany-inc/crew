@@ -25,6 +25,7 @@ import { UserMeta } from '../../modules/user.types';
 import { ChangeBonusPoints, changeBonusPointsSchema } from '../../modules/user.schemas';
 import { useUserMutations } from '../../modules/user.hooks';
 
+import { BonusPointsHistory } from './BonusPointsHistory';
 import { tr } from './users.i18n';
 
 type UserBonusPointsProps = {
@@ -81,12 +82,16 @@ export const UserBonusPoints = ({ user }: UserBonusPointsProps) => {
                 {tr('Balance')}: {user.bonusPoints}
             </StyledText>
 
-            {nullable(user.meta.isBalanceEditable && !modalVisible, () => (
+            {nullable(user.meta.isBonusEditable && !modalVisible, () => (
                 <InlineTrigger
                     text={tr('Add / Subtract')}
                     icon={<IconEditSolid size="s" />}
                     onClick={() => setModalVisible(true)}
                 />
+            ))}
+
+            {nullable(user.meta.isBonusHistoryViewable, () => (
+                <BonusPointsHistory userId={user.id} />
             ))}
 
             <Modal visible={modalVisible} onClose={hideModal} width={500}>

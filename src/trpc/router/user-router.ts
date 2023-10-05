@@ -21,7 +21,7 @@ export const userRouter = router({
     }),
 
     changeBonusPoints: protectedProcedure.input(changeBonusPointsSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isBalanceEditable(ctx.session.user));
+        accessCheck(userAccess.isBonusEditable(ctx.session.user));
         return userMethods.changeBonusPoints(input, ctx.session.user);
     }),
 
@@ -39,5 +39,10 @@ export const userRouter = router({
 
     getGroupMembers: protectedProcedure.input(z.string()).query(({ input }) => {
         return userMethods.getGroupMembers(input);
+    }),
+
+    getBonusPointsHistory: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        accessCheck(userAccess.isBonusHistoryViewable(ctx.session.user, input));
+        return userMethods.getBonusPointsHistory(input);
     }),
 });
