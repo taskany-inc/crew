@@ -11,7 +11,12 @@ export const userAccess = {
         return notAllowed(tr('Cannot edit another user'));
     },
 
-    isBalanceEditable: (sessionUser: SessionUser): AccessCheckResult => {
-        return sessionUser.role === UserRole.ADMIN ? allowed : notAllowed(tr('Only admins can edit balance'));
+    isBonusEditable: (sessionUser: SessionUser): AccessCheckResult => {
+        return sessionUser.role === UserRole.ADMIN ? allowed : notAllowed(tr('Only admins can edit bonus points'));
+    },
+
+    isBonusHistoryViewable: (sessionUser: SessionUser, userId: string): AccessCheckResult => {
+        if (sessionUser.role === UserRole.ADMIN || userId === sessionUser.id) return allowed;
+        return notAllowed(tr('Cannot view another user bonus points history'));
     },
 };

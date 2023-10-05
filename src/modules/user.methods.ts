@@ -12,7 +12,8 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: Se
         ...user,
         meta: {
             isEditable: userAccess.isEditable(sessionUser, user.id).allowed,
-            isBalanceEditable: userAccess.isBalanceEditable(sessionUser).allowed,
+            isBonusEditable: userAccess.isBonusEditable(sessionUser).allowed,
+            isBonusHistoryViewable: userAccess.isBonusHistoryViewable(sessionUser, user.id).allowed,
         },
     };
 };
@@ -64,5 +65,12 @@ export const userMethods = {
 
     getGroupMembers: (groupId: string): Promise<User[]> => {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } } } });
+    },
+
+    getBonusPointsHistory: (id: string) => {
+        return prisma.bonusHistory.findMany({
+            where: { targetUserId: id },
+            orderBy: { createdAt: 'asc' },
+        });
     },
 };
