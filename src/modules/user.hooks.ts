@@ -17,5 +17,14 @@ export const useUserMutations = () => {
                 utils.group.getMemberships.invalidate();
             },
         }),
+
+        changeBonusPoints: trpc.user.changeBonusPoints.useMutation({
+            onSuccess: (newUser) => {
+                utils.user.getById.setData(newUser.id, (oldUser) => {
+                    return oldUser ? { ...oldUser, bonusPoints: newUser.bonusPoints } : undefined;
+                });
+                utils.user.getById.invalidate();
+            },
+        }),
     };
 };

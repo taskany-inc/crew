@@ -2,7 +2,14 @@ import { z } from 'zod';
 
 import { protectedProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/user.methods';
-import { addUserToGroupSchema, getUserListSchema, removeUserFromGroupSchema } from '../../modules/user.schemas';
+import {
+    addUserToGroupSchema,
+    changeBonusPointsSchema,
+    getUserListSchema,
+    removeUserFromGroupSchema,
+} from '../../modules/user.schemas';
+import { accessCheck } from '../../utils/access';
+import { userAccess } from '../../modules/user.access';
 
 export const userRouter = router({
     addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(({ input }) => {
@@ -11,6 +18,11 @@ export const userRouter = router({
 
     removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(({ input }) => {
         return userMethods.removeFromGroup(input);
+    }),
+
+    changeBonusPoints: protectedProcedure.input(changeBonusPointsSchema).mutation(({ input, ctx }) => {
+        accessCheck(userAccess.isBalanceEditable(ctx.session.user));
+        return userMethods.changeBonusPoints(input, ctx.session.user);
     }),
 
     getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {

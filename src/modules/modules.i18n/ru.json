@@ -9,5 +9,8 @@
     "No group with id {id}": "Не найдена группа с id {id}",
     "Cannot move group inside itself": "Нельзя переместить группу в саму себя",
     "Cannot edit another user": "Нельзя редактировать другого пользователя",
-    "Only admins can edit balance": "Только администраторы могут редактировать баланс"
+    "Only admins can edit balance": "Только администраторы могут редактировать баланс",
+    "Amount should be greater than zero": "Количество очков должно быть больше нуля",
+    "Description is required": "Описание изменений обязательно",
+    "Description must be longer than {upTo} symbol": "Описание должно быть длинее {upTo} символа"
 }

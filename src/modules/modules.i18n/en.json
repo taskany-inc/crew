@@ -9,5 +9,8 @@
     "No group with id {id}": "",
     "Cannot move group inside itself": "",
     "Cannot edit another user": "",
-    "Only admins can edit balance": ""
+    "Only admins can edit balance": "",
+    "Amount should be greater than zero": "",
+    "Description is required": "",
+    "Description must be longer than {upTo} symbol": ""
 }
