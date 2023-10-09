@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.12.0](https://github.com/taskany-inc/crew/compare/v0.11.0...v0.12.0) (2023-10-09)
+
+
+### Features
+
+* **access control:** add global admins, restrict user editing ([21292db](https://github.com/taskany-inc/crew/commit/21292dbae7152739df49442a911cca9b8df7e170))
+* bonus points history and form ([89055b5](https://github.com/taskany-inc/crew/commit/89055b5680a3fa029317da21ef3eee371fd79b6c))
+* bonus points history popup ([0fcd0bb](https://github.com/taskany-inc/crew/commit/0fcd0bb60b0e3ec3549f2ad4e78ef75cd4a0036a))
+* **bonus points:** show in user page ([5b0ec50](https://github.com/taskany-inc/crew/commit/5b0ec50064299c90ee3194a4b964e6f9a7cd34d6))
+* redirect to my profile from root ([ee83b92](https://github.com/taskany-inc/crew/commit/ee83b92af91181fc97ed4dec06782ef66aadc8a7))
+
+
+### Bug Fixes
+
+* profile links should open pop-ups ([221076e](https://github.com/taskany-inc/crew/commit/221076e82b45caf6aaae38fcfce515752b364a35))
+
 ## [0.11.0](https://github.com/taskany-inc/crew/compare/v0.10.0...v0.11.0) (2023-09-27)
 
 
