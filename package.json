@@ -42,7 +42,7 @@
     "next-themes": "0.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hook-form": "7.46.1",
+    "react-hook-form": "7.47.0",
     "styled-components": "5.3.11",
     "superjson": "1.13.1",
     "throttle-debounce": "5.0.0",
