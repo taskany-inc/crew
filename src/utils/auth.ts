@@ -46,6 +46,7 @@ if (config.nextAuth.keycloak.id && config.nextAuth.keycloak.secret && config.nex
     providers.push(
         // https://next-auth.js.org/providers/keycloak
         KeycloakProvider({
+            allowDangerousEmailAccountLinking: true,
             clientId: config.nextAuth.keycloak.id,
             clientSecret: config.nextAuth.keycloak.secret,
             issuer: config.nextAuth.keycloak.issuer,
