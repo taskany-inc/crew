@@ -9,4 +9,7 @@ export const userServicesMethods = {
     addToUser: (data: createServices) => {
         return prisma.userServices.create({ data });
     },
+    getUserServices: (id: string) => {
+        return prisma.userServices.findMany({ where: { userId: id }, include: { service: true } });
+    },
 };

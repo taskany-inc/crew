@@ -14,7 +14,6 @@ import { tr } from './services.i18n';
 const StyledInlineTrigger = styled(InlineTrigger)`
     display: inline-flex;
     color: ${gray8};
-    line-height: 28px;
 `;
 
 const StyledInput = styled(Input)`
