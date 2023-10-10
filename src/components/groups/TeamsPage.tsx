@@ -1,36 +1,40 @@
 import { useState } from 'react';
 import { Group } from 'prisma/prisma-client';
-import { IconBinOutline, IconMoreHorizontalOutline } from '@taskany/icons';
+import styled from 'styled-components';
+import { InlineForm } from '@taskany/bricks';
+import { IconAddOutline, IconArrowDownOutline, IconArrowUpOutline, IconBinOutline } from '@taskany/icons';
+import { gapL, gapS } from '@taskany/colors';
 
 import { LayoutMain } from '../layout/LayoutMain';
-import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
-import { usePreviewContext } from '../../context/preview-context';
-import { pages } from '../../hooks/useRouter';
 
 import { tr } from './groups.i18n';
+import { GroupListItem } from './GroupListItem';
+
+const StyledGroupItemWrapper = styled.div`
+    display: flex;
+    gap: ${gapS};
+    margin-bottom: ${gapS};
+`;
+
+const StyledChildrenWrapper = styled.div`
+    margin-left: ${gapL};
+`;
 
 const GroupWithChildren = ({ group }: { group: Group }) => {
     const utils = trpc.useContext();
-    const { showGroupPreview } = usePreviewContext();
     const [showChildren, setShowChildren] = useState(false);
     const children = trpc.group.getChildren.useQuery(group.id, { enabled: showChildren });
-    const breadcrumbs = trpc.group.getBreadcrumbs.useQuery(group.id);
     const add = trpc.group.add.useMutation();
     const delete_ = trpc.group.delete.useMutation();
     const [name, setName] = useState('');
 
-    if (!breadcrumbs.data) return <span>Loading...</span>;
     return (
         <div>
             {/* //TODO: replace with CollapsibleItem https://github.com/taskany-inc/bricks/issues/312 and https://github.com/taskany-inc/crew/issues/21*/}
-            <div style={{ marginBottom: 12 }}>
-                <Link onClick={() => showGroupPreview(group)} href={pages.team(group.name)}>
-                    {group.name}{' '}
-                </Link>
-                <IconMoreHorizontalOutline size="xs" title={breadcrumbs.data.map((b) => b.name).join()} />
+            <StyledGroupItemWrapper>
+                <GroupListItem group={group} />
                 <IconBinOutline
-                    style={{ marginLeft: 8 }}
                     size="xs"
                     onClick={() => {
                         delete_.mutateAsync(group.id).then(() => {
@@ -38,26 +42,33 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
                         });
                     }}
                 />
-                <input style={{ marginLeft: 8 }} value={name} onChange={(e) => setName(e.target.value)} />
-                <button
-                    style={{ marginLeft: 8 }}
-                    onClick={() => {
-                        add.mutateAsync({ name, parentId: group.id }).then(() => {
+                {showChildren ? (
+                    <IconArrowUpOutline size="xs" onClick={() => setShowChildren(false)} />
+                ) : (
+                    <IconArrowDownOutline size="xs" onClick={() => setShowChildren(true)} />
+                )}
+                <InlineForm
+                    onSubmit={() => {
+                        return add.mutateAsync({ name, parentId: group.id }).then(() => {
                             setName('');
                             utils.group.getChildren.invalidate();
                         });
                     }}
+                    onReset={() => {
+                        setName('');
+                    }}
+                    renderTrigger={(props) => <IconAddOutline size="s" {...props} />}
                 >
-                    add child
-                </button>
-            </div>
-            {!showChildren && <button onClick={() => setShowChildren(true)}>show children</button>}
+                    <input value={name} onChange={(e) => setName(e.target.value)} />
+                    <button type="submit">add child</button>
+                </InlineForm>
+            </StyledGroupItemWrapper>
             {showChildren && children.data && (
-                <div style={{ marginLeft: 24 }}>
+                <StyledChildrenWrapper>
                     {children.data.map((c) => (
                         <GroupWithChildren key={c.id} group={c} />
                     ))}
-                </div>
+                </StyledChildrenWrapper>
             )}
         </div>
     );
