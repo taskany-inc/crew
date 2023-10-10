@@ -81,7 +81,7 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
                             />
                         </NarrowSection>
 
-                        <UserContacts user={user} userServices={[]} />
+                        <UserContacts user={user} />
                     </PreviewContent>
                 </ModalPreview>
             ))}

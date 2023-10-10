@@ -7,6 +7,7 @@ export const useServiceMutations = () => {
         addServiceToUser: trpc.service.addToUser.useMutation({
             onSuccess: () => {
                 utils.user.getById.invalidate();
+                utils.service.getUserServices.invalidate();
             },
         }),
     };

@@ -105,7 +105,7 @@ export const UserPage = () => {
                 <StyledLeftPanel>
                     <UserBonusPoints user={user} />
 
-                    <UserContacts user={user} userServices={[]} />
+                    <UserContacts user={user} />
                 </StyledLeftPanel>
 
                 <StyledRightPanel>

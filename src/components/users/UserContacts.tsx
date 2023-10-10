@@ -2,11 +2,13 @@ import { ExternalService, User, UserServices } from 'prisma/prisma-client';
 import { gapM, gapS } from '@taskany/colors';
 import { nullable } from '@taskany/bricks';
 import styled from 'styled-components';
+import { useMemo } from 'react';
 
 import { AddServiceToUserForm } from '../services/AddServiceToUserForm';
 import { UserServiceListItem } from '../UserServiceListItem';
 import { NarrowSection } from '../NarrowSection';
 import { UserMeta } from '../../modules/user.types';
+import { trpc } from '../../trpc/trpcClient';
 
 import { tr } from './users.i18n';
 
@@ -19,28 +21,37 @@ const StyledServicesList = styled.div`
 
 type UserContactsProps = {
     user: User & UserMeta;
-    userServices: (UserServices & { service: ExternalService })[];
 };
 
-export const UserContacts = ({ user, userServices }: UserContactsProps) => {
+export const UserContacts = ({ user }: UserContactsProps) => {
+    const userServiceQuery = trpc.service.getUserServices.useQuery(user.id);
+
+    const emailStubService = useMemo<UserServices & { service: ExternalService }>(() => {
+        const item = {
+            userId: user.id,
+            serviceName: '',
+            serviceId: user.email,
+            active: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            service: {
+                name: '',
+                icon: 'IconEnvelopeOutline',
+                linkPrefix: 'mailto:',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            },
+        };
+        return item;
+    }, [user.email, user.id]);
+
     return (
         <NarrowSection title={tr('Contacts')}>
             <StyledServicesList>
-                <UserServiceListItem
-                    serviceId={user.email}
-                    icon="IconEnvelopeOutline"
-                    linkPrefix="mailto:"
-                    serviceName={user.email}
-                />
+                <UserServiceListItem userService={emailStubService} />
 
-                {userServices.map((userService) => (
-                    <UserServiceListItem
-                        key={userService.serviceId}
-                        serviceId={userService.serviceId}
-                        icon={userService.service.icon}
-                        linkPrefix={userService.service.linkPrefix}
-                        serviceName={userService.serviceName}
-                    />
+                {userServiceQuery.data?.map((userServices) => (
+                    <UserServiceListItem key={userServices.userId} userService={userServices} />
                 ))}
             </StyledServicesList>
 
