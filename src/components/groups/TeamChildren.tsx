@@ -1,10 +1,10 @@
 import { Group } from 'prisma/prisma-client';
 import { gapM, gapS } from '@taskany/colors';
 import styled from 'styled-components';
-import { IconPlusCircleSolid } from '@taskany/icons';
 
 import { NarrowSection } from '../NarrowSection';
-import { InlineTrigger } from '../InlineTrigger';
+import { useGroupMutations } from '../../modules/group.hooks';
+import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 
 import { GroupListItemEditable } from './GroupListItemEditable';
 import { tr } from './groups.i18n';
@@ -17,10 +17,17 @@ const StyledChildrenList = styled.div`
 `;
 
 type GroupTeamsProps = {
+    groupId: string;
     groupChildren: Group[];
 };
 
-export const TeamChildren = ({ groupChildren }: GroupTeamsProps) => {
+export const TeamChildren = ({ groupId, groupChildren }: GroupTeamsProps) => {
+    const { moveGroup } = useGroupMutations();
+
+    const onSubmit = async (group: Group) => {
+        await moveGroup.mutateAsync({ id: group.id, newParentId: groupId });
+    };
+
     return (
         <NarrowSection title={tr('Teams')}>
             <StyledChildrenList>
@@ -29,8 +36,7 @@ export const TeamChildren = ({ groupChildren }: GroupTeamsProps) => {
                 ))}
             </StyledChildrenList>
 
-            {/* TODO: Link to add to the teams */}
-            <InlineTrigger icon={<IconPlusCircleSolid size="xs" />} text={'Add teams'} disabled />
+            <InlineGroupSelectForm triggerText={tr('Add team')} actionText={tr('Add')} onSubmit={onSubmit} />
         </NarrowSection>
     );
 };

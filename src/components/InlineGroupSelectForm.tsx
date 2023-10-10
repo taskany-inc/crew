@@ -4,26 +4,25 @@ import styled from 'styled-components';
 import { Button, ComboBox, InlineForm, Input, MenuItem } from '@taskany/bricks';
 import { IconPlusCircleSolid } from '@taskany/icons';
 
-import { InlineTrigger } from '../InlineTrigger';
-import { trpc } from '../../trpc/trpcClient';
-import { useUserMutations } from '../../modules/user.hooks';
+import { trpc } from '../trpc/trpcClient';
 
-import { tr } from './users.i18n';
-
-type AddTeamToUserFormProps = {
-    userId: string;
-};
+import { InlineTrigger } from './InlineTrigger';
 
 const StyledRowWrapper = styled.div`
     display: grid;
     grid-template-columns: minmax(calc(240px), 20%) max-content;
 `;
 
-export const AddTeamToUserForm = ({ userId }: AddTeamToUserFormProps) => {
+type InlineGroupSelectFormProps = {
+    triggerText: string;
+    actionText: string;
+    onSubmit: (group: Group) => Promise<void>;
+};
+
+export const InlineGroupSelectForm = (props: InlineGroupSelectFormProps) => {
     const [search, setSearch] = useState('');
-    const groupListQuery = trpc.group.getList.useQuery({ search, take: 10 });
     const [selectedGroup, setSelectedGroup] = useState<Group>();
-    const { addUserToGroup } = useUserMutations();
+    const groupListQuery = trpc.group.getList.useQuery({ search, take: 10 });
 
     const onReset = () => {
         setSearch('');
@@ -31,10 +30,8 @@ export const AddTeamToUserForm = ({ userId }: AddTeamToUserFormProps) => {
     };
 
     const onSubmit = async () => {
-        if (!selectedGroup) {
-            return;
-        }
-        await addUserToGroup.mutateAsync({ userId, groupId: selectedGroup.id });
+        if (!selectedGroup) return;
+        await props.onSubmit(selectedGroup);
         onReset();
     };
 
@@ -42,8 +39,8 @@ export const AddTeamToUserForm = ({ userId }: AddTeamToUserFormProps) => {
         <InlineForm
             onSubmit={onSubmit}
             onReset={onReset}
-            renderTrigger={(props) => (
-                <InlineTrigger text={tr('Add team')} icon={<IconPlusCircleSolid size="s" />} {...props} />
+            renderTrigger={(triggerProps) => (
+                <InlineTrigger text={props.triggerText} icon={<IconPlusCircleSolid size="s" />} {...triggerProps} />
             )}
         >
             <ComboBox
@@ -71,16 +68,21 @@ export const AddTeamToUserForm = ({ userId }: AddTeamToUserFormProps) => {
                         <Button
                             brick="left"
                             view="primary"
-                            text={tr('Add')}
+                            text={props.actionText}
                             type="submit"
                             disabled={!selectedGroup}
                             outline
                         />
                     </StyledRowWrapper>
                 )}
-                renderItem={(props) => (
-                    <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
-                        {props.item.name}
+                renderItem={(itemProps) => (
+                    <MenuItem
+                        key={itemProps.item.id}
+                        focused={itemProps.cursor === itemProps.index}
+                        onClick={itemProps.onClick}
+                        ghost
+                    >
+                        {itemProps.item.name}
                     </MenuItem>
                 )}
             />
