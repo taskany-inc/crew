@@ -1,4 +1,4 @@
-import { User } from 'prisma/prisma-client';
+import { Group, User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { ModalPreview, Text, nullable } from '@taskany/bricks';
 import { gapM, gapS, gray9 } from '@taskany/colors';
@@ -11,10 +11,11 @@ import { NarrowSection } from '../NarrowSection';
 import { pages } from '../../hooks/useRouter';
 import { trpc } from '../../trpc/trpcClient';
 import { usePreviewContext } from '../../context/preview-context';
+import { useUserMutations } from '../../modules/user.hooks';
+import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 
 import { UserContacts } from './UserContacts';
 import { tr } from './users.i18n';
-import { AddTeamToUserForm } from './AddTeamToUserForm';
 
 type UserProps = {
     userId: string;
@@ -35,6 +36,11 @@ const StyledMembershipList = styled.div`
 const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const userQuery = trpc.user.getById.useQuery(userId);
+    const { addUserToGroup } = useUserMutations();
+
+    const onAddUserToTeam = async (group: Group) => {
+        await addUserToGroup.mutateAsync({ userId, groupId: group.id });
+    };
 
     // TODO: select real org group
     const orgStructureMembership = userQuery.data?.memberships[0];
@@ -68,7 +74,11 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
                                 ))}
                             </StyledMembershipList>
 
-                            <AddTeamToUserForm userId={user.id} />
+                            <InlineGroupSelectForm
+                                triggerText={tr('Add team')}
+                                actionText={tr('Add')}
+                                onSubmit={onAddUserToTeam}
+                            />
                         </NarrowSection>
 
                         <UserContacts user={user} userServices={[]} />

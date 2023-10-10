@@ -45,7 +45,7 @@ const TeamProfilePreview = ({ group }: UserProps): JSX.Element => {
                     </StyledSupervisorText>
                 </NarrowSection>
 
-                <TeamChildren groupChildren={childrenQuery.data ?? []} />
+                <TeamChildren groupId={group.id} groupChildren={childrenQuery.data ?? []} />
 
                 <TeamPeople groupId={group.id} />
 
