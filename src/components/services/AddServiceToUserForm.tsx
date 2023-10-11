@@ -108,7 +108,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
                     brick="center"
                     value={serviceId}
                     onChange={(e) => setServiceId(e.target.value)}
-                    placeholder={tr('Id in service')}
+                    placeholder={tr('id or username')}
                 />
                 <Button type="submit" brick="left" outline size="m" text={tr('Add')} view="primary" />
             </StyledInputsWrapper>
