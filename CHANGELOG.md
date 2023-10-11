@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.13.0](https://github.com/taskany-inc/crew/compare/v0.12.0...v0.13.0) (2023-10-11)
+
+
+### Features
+
+* **TeamPreview:** add team inline form ([9d4399d](https://github.com/taskany-inc/crew/commit/9d4399d797d39565eedb68a91b15801e3d43a398))
+* **UserPage:** add and display user services ([c2cec1a](https://github.com/taskany-inc/crew/commit/c2cec1a5fbd687b323020b3dd12feb2a1b3cf780))
+
+
+### Bug Fixes
+
+* **oauth:** allow email account linking ([316d8c0](https://github.com/taskany-inc/crew/commit/316d8c0cdc28b2d4b5b7dcb6decbcc6d7ff93871))
+
 ## [0.12.0](https://github.com/taskany-inc/crew/compare/v0.11.0...v0.12.0) (2023-10-09)
 
 
