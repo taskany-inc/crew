@@ -3,7 +3,7 @@ import { BonusAction, User } from 'prisma/prisma-client';
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 
-import { MembershipInfo, UserMemberships, UserMeta } from './user.types';
+import { MembershipInfo, UserMemberships, UserMeta, UserSupervisor } from './user.types';
 import { AddUserToGroup, ChangeBonusPoints, GetUserList, RemoveUserFromGroup } from './user.schemas';
 import { userAccess } from './user.access';
 
@@ -44,10 +44,13 @@ export const userMethods = {
         return user;
     },
 
-    getById: async (id: string, sessionUser: SessionUser): Promise<User & UserMeta & UserMemberships> => {
+    getById: async (
+        id: string,
+        sessionUser: SessionUser,
+    ): Promise<User & UserMeta & UserMemberships & UserSupervisor> => {
         const user = await prisma.user.findUniqueOrThrow({
             where: { id },
-            include: { memberships: { include: { group: true, user: true, roles: true } } },
+            include: { memberships: { include: { group: true, user: true, roles: true } }, supervisor: true },
         });
         return addCalculatedUserFields(user, sessionUser);
     },

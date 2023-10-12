@@ -1,4 +1,4 @@
-import { Group } from 'prisma/prisma-client';
+import { Group, User } from 'prisma/prisma-client';
 
 import { Nullish } from '../utils/types';
 
@@ -8,3 +8,5 @@ export type GroupHierarchy = {
 };
 
 export type GroupParent = { parent: Nullish<Group> };
+
+export type GroupSupervisor = { supervisor: Nullish<User> };

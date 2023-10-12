@@ -1,4 +1,4 @@
-import { Group, User } from 'prisma/prisma-client';
+import { Group } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { ModalPreview, Text, nullable } from '@taskany/bricks';
 import { gapM, gapS, gray9 } from '@taskany/colors';
@@ -59,12 +59,12 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
                     />
                     <PreviewContent>
                         <NarrowSection title={tr('Quick summary')}>
-                            <StyledSupervisorText size="m" color={gray9}>
-                                {tr('Supervisor')}
-                                <UserListItem
-                                    user={{ name: 'Placeholder user', email: 'placeholder@example.com' } as User}
-                                />
-                            </StyledSupervisorText>
+                            {nullable(user.supervisor, (supervisor) => (
+                                <StyledSupervisorText size="m" color={gray9}>
+                                    {tr('Supervisor')}
+                                    <UserListItem user={supervisor} />
+                                </StyledSupervisorText>
+                            ))}
                         </NarrowSection>
 
                         <NarrowSection title={tr('Teams')}>
