@@ -6,7 +6,7 @@ import { gapM, gapS, gray9 } from '@taskany/colors';
 import { PreviewHeader } from '../PreviewHeader';
 import { PreviewContent } from '../PreviewContent';
 import { UserListItem } from '../UserListItem';
-import { UserGroupListItem } from '../UserGroupListItem';
+import { UserGroupListItemEditable } from '../UserGroupListItemEditable';
 import { NarrowSection } from '../NarrowSection';
 import { pages } from '../../hooks/useRouter';
 import { trpc } from '../../trpc/trpcClient';
@@ -70,7 +70,7 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
                         <NarrowSection title={tr('Teams')}>
                             <StyledMembershipList>
                                 {user.memberships.map((membership) => (
-                                    <UserGroupListItem key={membership.id} membership={membership} />
+                                    <UserGroupListItemEditable key={membership.id} membership={membership} />
                                 ))}
                             </StyledMembershipList>
 
