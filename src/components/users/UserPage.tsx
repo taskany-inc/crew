@@ -15,6 +15,7 @@ import { GroupListItem } from '../groups/GroupListItem';
 import { UserContacts } from './UserContacts';
 import { tr } from './users.i18n';
 import { UserBonusPoints } from './UserBonusPoints';
+import { UserSummary } from './UserSummary';
 
 const StyledHeader = styled.div`
     display: grid;
@@ -108,6 +109,8 @@ export const UserPage = () => {
                 </StyledLeftPanel>
 
                 <StyledRightPanel>
+                    <UserSummary user={user} />
+
                     <NarrowSection title={tr('Teams with participation')}>
                         {groupMemberships.map((membership) => (
                             <GroupListItem group={membership.group} key={membership.id} />
