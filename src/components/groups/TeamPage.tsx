@@ -58,7 +58,7 @@ export const TeamPage = () => {
             <FiltersPanel />
 
             <div style={{ marginLeft: gapL }}>
-                <Text onClick={() => showGroupPreview(group)}>{group.name}</Text>
+                <Text onClick={() => showGroupPreview(group.id)}>{group.name}</Text>
                 {users &&
                     users.map((user) => (
                         <Text color={gray10} key={user.id} onClick={() => showUserPreview(user.id)}>

@@ -8,18 +8,19 @@ import TeamProfilePreview from './groups/TeamProfilePreview';
 import UserProfilePreview from './users/UserProfilePreview';
 
 export const Previews = () => {
-    const { userId, group, hidePreview } = usePreviewContext();
+    const { userId, groupId, hidePreview } = usePreviewContext();
     const router = useRouter();
     const { pathname } = router;
 
+    // TODO: fix missing dependency
     useEffect(() => {
         hidePreview();
     }, [pathname]);
 
     return (
         <>
-            {nullable(group, (g) => (
-                <TeamProfilePreview group={g} />
+            {nullable(groupId, (g) => (
+                <TeamProfilePreview groupId={g} />
             ))}
             {nullable(userId, (u) => (
                 <UserProfilePreview userId={u} />

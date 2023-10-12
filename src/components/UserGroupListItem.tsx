@@ -32,7 +32,7 @@ export const UserGroupListItem = ({ membership }: UserGroupListItemProps) => {
         <div>
             <IconUsersOutline size={13} color={gray9} />
 
-            <StyledLink onClick={() => showGroupPreview(membership.group)} href={pages.team(membership.groupId)}>
+            <StyledLink onClick={() => showGroupPreview(membership.group.id)} href={pages.team(membership.groupId)}>
                 {membership.group.name}
             </StyledLink>
 

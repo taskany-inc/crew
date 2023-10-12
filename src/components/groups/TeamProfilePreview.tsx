@@ -1,6 +1,6 @@
-import { Group, User } from 'prisma/prisma-client';
+import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { ModalPreview, Text } from '@taskany/bricks';
+import { ModalPreview, Text, nullable } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 import { IconBinOutline } from '@taskany/icons';
 
@@ -19,7 +19,7 @@ import { TransferGroupForm } from './TransferGroupForm';
 import { tr } from './groups.i18n';
 
 type UserProps = {
-    group: Group;
+    groupId: string;
 };
 
 const StyledSupervisorText = styled(Text)`
@@ -27,34 +27,38 @@ const StyledSupervisorText = styled(Text)`
     gap: ${gapS};
 `;
 
-const TeamProfilePreview = ({ group }: UserProps): JSX.Element => {
+const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
-    const parentId = group?.parentId;
-    const parentQuery = trpc.group.getById.useQuery(String(parentId));
-    const parentGroup = parentQuery.data;
-    const childrenQuery = trpc.group.getChildren.useQuery(group.id);
+    const groupQuery = trpc.group.getById.useQuery(groupId);
+    const childrenQuery = trpc.group.getChildren.useQuery(groupId);
 
     return (
-        <ModalPreview visible onClose={hidePreview}>
-            <PreviewHeader subtitle={parentGroup?.name} title={group?.name} link={pages.team(group.id)} />
-            <PreviewContent>
-                <NarrowSection title={tr('Quick summary')}>
-                    <StyledSupervisorText size="m" color={gray9}>
-                        {tr('Supervisor')}
-                        <UserListItem user={{ name: 'Placeholder user', email: 'placeholder@example.com' } as User} />
-                    </StyledSupervisorText>
-                </NarrowSection>
+        <>
+            {nullable(groupQuery.data, (group) => (
+                <ModalPreview visible onClose={hidePreview}>
+                    <PreviewHeader subtitle={group.parent?.name} title={group?.name} link={pages.team(group.id)} />
+                    <PreviewContent>
+                        <NarrowSection title={tr('Quick summary')}>
+                            <StyledSupervisorText size="m" color={gray9}>
+                                {tr('Supervisor')}
+                                <UserListItem
+                                    user={{ name: 'Placeholder user', email: 'placeholder@example.com' } as User}
+                                />
+                            </StyledSupervisorText>
+                        </NarrowSection>
 
-                <TeamChildren groupId={group.id} groupChildren={childrenQuery.data ?? []} />
+                        <TeamChildren groupId={group.id} groupChildren={childrenQuery.data ?? []} />
 
-                <TeamPeople groupId={group.id} />
+                        <TeamPeople groupId={group.id} />
 
-                <NarrowSection>
-                    <TransferGroupForm group={group} />
-                    <InlineTrigger icon={<IconBinOutline size="xs" />} text={'Archive group'} disabled />
-                </NarrowSection>
-            </PreviewContent>
-        </ModalPreview>
+                        <NarrowSection>
+                            <TransferGroupForm group={group} />
+                            <InlineTrigger icon={<IconBinOutline size="xs" />} text={'Archive group'} disabled />
+                        </NarrowSection>
+                    </PreviewContent>
+                </ModalPreview>
+            ))}
+        </>
     );
 };
 
