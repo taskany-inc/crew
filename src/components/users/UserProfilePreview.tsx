@@ -1,11 +1,10 @@
 import { Group } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { ModalPreview, Text, nullable } from '@taskany/bricks';
-import { gapM, gapS, gray9 } from '@taskany/colors';
+import { ModalPreview, nullable } from '@taskany/bricks';
+import { gapM, gapS } from '@taskany/colors';
 
 import { PreviewHeader } from '../PreviewHeader';
 import { PreviewContent } from '../PreviewContent';
-import { UserListItem } from '../UserListItem';
 import { UserGroupListItemEditable } from '../UserGroupListItemEditable';
 import { NarrowSection } from '../NarrowSection';
 import { pages } from '../../hooks/useRouter';
@@ -16,15 +15,11 @@ import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 
 import { UserContacts } from './UserContacts';
 import { tr } from './users.i18n';
+import { UserSummary } from './UserSummary';
 
 type UserProps = {
     userId: string;
 };
-
-const StyledSupervisorText = styled(Text)`
-    display: flex;
-    gap: ${gapS};
-`;
 
 const StyledMembershipList = styled.div`
     display: flex;
@@ -58,14 +53,7 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
                         link={pages.user(user.id)}
                     />
                     <PreviewContent>
-                        <NarrowSection title={tr('Quick summary')}>
-                            {nullable(user.supervisor, (supervisor) => (
-                                <StyledSupervisorText size="m" color={gray9}>
-                                    {tr('Supervisor')}
-                                    <UserListItem user={supervisor} />
-                                </StyledSupervisorText>
-                            ))}
-                        </NarrowSection>
+                        <UserSummary user={user} />
 
                         <NarrowSection title={tr('Teams')}>
                             <StyledMembershipList>
