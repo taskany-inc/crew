@@ -24,7 +24,7 @@ export const GroupListItem = ({ group }: GroupListItemProps) => {
         <StyledWrapper>
             <IconUsersOutline size={13} color={gray9} />
             <Text>
-                <Link onClick={() => showGroupPreview(group)} href={pages.team(group.name)}>
+                <Link onClick={() => showGroupPreview(group.id)} href={pages.team(group.name)}>
                     {group.name}
                 </Link>
             </Text>

@@ -84,7 +84,7 @@ export const UserPage = () => {
                     {!!orgStructureMembership && (
                         <StyledGroupLink
                             href={pages.team(orgStructureMembership.id)}
-                            onClick={() => showGroupPreview(orgStructureMembership.group)}
+                            onClick={() => showGroupPreview(orgStructureMembership.group.id)}
                         >
                             {orgStructureMembership.group.name}
                         </StyledGroupLink>
