@@ -70,7 +70,6 @@ export const UserPage = () => {
 
     // TODO: select real org group
     const orgStructureMembership = groupMemberships[0];
-    const otherMemberships = groupMemberships.slice(1);
 
     return (
         <LayoutMain pageTitle={user.name}>
@@ -110,7 +109,7 @@ export const UserPage = () => {
 
                 <StyledRightPanel>
                     <NarrowSection title={tr('Teams with participation')}>
-                        {otherMemberships.map((membership) => (
+                        {groupMemberships.map((membership) => (
                             <GroupListItem group={membership.group} key={membership.id} />
                         ))}
                     </NarrowSection>
