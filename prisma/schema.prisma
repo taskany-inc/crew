@@ -68,6 +68,12 @@ model User {
   services      UserServices[]
   memberships   Membership[]
 
+  supervisor   User?   @relation("userSupervisor", fields: [supervisorId], references: [id])
+  supervisorId String?
+  supervisorOf User[]  @relation("userSupervisor")
+
+  supervisorIn Group[]
+
   bonusPoints  Int            @default(0)
   bonusHistory BonusHistory[] @relation("bonusHistory")
   bonusChanges BonusHistory[] @relation("bonusChanges")
@@ -112,6 +118,9 @@ model Group {
   parentId String?
 
   children Group[] @relation("GroupChildren")
+
+  supervisor   User?   @relation(fields: [supervisorId], references: [id])
+  supervisorId String?
 
   memberships Membership[]
 

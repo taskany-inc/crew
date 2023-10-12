@@ -7,7 +7,7 @@ import { objByKey } from '../utils/objByKey';
 import { CreateGroup, GetGroupList, MoveGroup } from './group.schemas';
 import { tr } from './modules.i18n';
 import { MembershipInfo } from './user.types';
-import { GroupParent } from './group.types';
+import { GroupParent, GroupSupervisor } from './group.types';
 
 export const groupMethods = {
     add: (data: CreateGroup) => {
@@ -35,8 +35,8 @@ export const groupMethods = {
         return prisma.group.findMany({ where: { parentId: null } });
     },
 
-    getById: async (id: string): Promise<Group & GroupParent> => {
-        const group = await prisma.group.findUnique({ where: { id }, include: { parent: true } });
+    getById: async (id: string): Promise<Group & GroupParent & GroupSupervisor> => {
+        const group = await prisma.group.findUnique({ where: { id }, include: { parent: true, supervisor: true } });
         if (!group) throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { id }) });
         return group;
     },

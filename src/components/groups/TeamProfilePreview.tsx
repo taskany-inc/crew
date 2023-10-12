@@ -1,4 +1,3 @@
-import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { ModalPreview, Text, nullable } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
@@ -39,12 +38,12 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                     <PreviewHeader subtitle={group.parent?.name} title={group?.name} link={pages.team(group.id)} />
                     <PreviewContent>
                         <NarrowSection title={tr('Quick summary')}>
-                            <StyledSupervisorText size="m" color={gray9}>
-                                {tr('Supervisor')}
-                                <UserListItem
-                                    user={{ name: 'Placeholder user', email: 'placeholder@example.com' } as User}
-                                />
-                            </StyledSupervisorText>
+                            {nullable(group.supervisor, (supervisor) => (
+                                <StyledSupervisorText size="m" color={gray9}>
+                                    {tr('Supervisor')}
+                                    <UserListItem user={supervisor} />
+                                </StyledSupervisorText>
+                            ))}
                         </NarrowSection>
 
                         <TeamChildren groupId={group.id} groupChildren={childrenQuery.data ?? []} />
