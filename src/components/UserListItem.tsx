@@ -4,6 +4,7 @@ import { Text, UserPic } from '@taskany/bricks';
 import { gapS } from '@taskany/colors';
 
 import { pages } from '../hooks/useRouter';
+import { usePreviewContext } from '../context/preview-context';
 
 import { Link } from './Link';
 
@@ -18,11 +19,15 @@ const StyledWrapper = styled.div`
 `;
 
 export const UserListItem = ({ user }: UserListItemProps) => {
+    const { showUserPreview } = usePreviewContext();
+
     return (
         <StyledWrapper>
             <UserPic size={20} name={user.name} src={user.image} email={user.email} />
             <Text>
-                <Link href={pages.user(user.id)}>{user.name}</Link>
+                <Link href={pages.user(user.id)} onClick={() => showUserPreview(user.id)}>
+                    {user.name}
+                </Link>
             </Text>
         </StyledWrapper>
     );

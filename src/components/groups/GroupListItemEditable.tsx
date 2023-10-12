@@ -13,7 +13,7 @@ type GroupListItemEditableProps = {
 const StyledRow = styled.div`
     display: grid;
     grid-template-columns: 1fr 28px;
-    width: 500px;
+    width: 600px;
 `;
 
 export const GroupListItemEditable = ({ group }: GroupListItemEditableProps) => {
