@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.13.1](https://github.com/taskany-inc/crew/compare/v0.13.0...v0.13.1) (2023-10-12)
+
+
+### Bug Fixes
+
+* **UserPage:** add and display user services ([e0dc8fa](https://github.com/taskany-inc/crew/commit/e0dc8fa92a1073ff4da1fe7633329446fcf100eb))
+
 ## [0.13.0](https://github.com/taskany-inc/crew/compare/v0.12.0...v0.13.0) (2023-10-11)
 
 
