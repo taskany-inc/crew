@@ -1,5 +1,5 @@
 {
-    "Teams": "Teams",
+    "Teams": "",
     "Quick summary": "",
     "Supervisor": "",
     "People": "",
@@ -15,5 +15,6 @@
     "Add": "",
     "Remove": "",
     "Remove user from group": "",
-    "Add team": ""
+    "Add team": "",
+    "Settings": ""
 }

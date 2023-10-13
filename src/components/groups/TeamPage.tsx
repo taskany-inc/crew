@@ -11,6 +11,8 @@ import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../layout/LayoutMain';
 import { usePreviewContext } from '../../context/preview-context';
 
+import { tr } from './groups.i18n';
+
 const StyledTabsMenu = styled(TabsMenu)`
     margin-left: ${gapL};
 `;
@@ -33,11 +35,8 @@ export const TeamPage = () => {
     if (!group) return null;
 
     const tabsMenuOptions: Array<[string, string]> = [
-        ['People', pages.people],
-        ['Services', pages.services],
-        ['Projects', pages.projects],
-        ['Goals', pages.goals],
-        ['Settings', pages.settings],
+        [tr('People'), pages.people],
+        [tr('Settings'), pages.settings],
     ];
 
     return (
@@ -50,7 +49,7 @@ export const TeamPage = () => {
 
             <StyledTabsMenu>
                 {tabsMenuOptions.map(([title, href]) => (
-                    <Link key={href} href={href}>
+                    <Link key={title} href={href} inline>
                         <TabsMenuItem active={router.asPath === href}>{title}</TabsMenuItem>
                     </Link>
                 ))}

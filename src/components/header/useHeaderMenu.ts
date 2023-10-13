@@ -15,7 +15,6 @@ export const useHeaderMenu = (): UseHeaderMenuResult => {
         const items: HeaderLink[] = [
             { path: pages.teams, text: tr('Teams') },
             { path: pages.users, text: tr('Users') },
-            { path: pages.services, text: tr('Services') },
         ];
 
         return items;

@@ -20,13 +20,15 @@ const StyledSupervisorText = styled(Text)`
 
 export const UserSummary = ({ user }: UserSummaryProps) => {
     return (
-        <NarrowSection title={tr('Quick summary')}>
+        <>
             {nullable(user.supervisor, (supervisor) => (
-                <StyledSupervisorText size="m" color={gray9}>
-                    {tr('Supervisor')}
-                    <UserListItem user={supervisor} />
-                </StyledSupervisorText>
+                <NarrowSection title={tr('Quick summary')}>
+                    <StyledSupervisorText size="m" color={gray9}>
+                        {tr('Supervisor')}
+                        <UserListItem user={supervisor} />
+                    </StyledSupervisorText>
+                </NarrowSection>
             ))}
-        </NarrowSection>
+        </>
     );
 };
