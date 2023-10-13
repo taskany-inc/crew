@@ -1,28 +1,21 @@
 import styled from 'styled-components';
 import NextLink from 'next/link';
-import { gapL } from '@taskany/colors';
+import { gapM } from '@taskany/colors';
 import { useSession } from 'next-auth/react';
-import { Text, UserMenu, Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink } from '@taskany/bricks';
+import { UserMenu, Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink, HeaderMenu } from '@taskany/bricks';
 
 import { GlobalSearch } from '../GlobalSearch';
 
 import { PageHeaderLogo } from './PageHeaderLogo';
 import { useHeaderMenu } from './useHeaderMenu';
-import { tr } from './header.i18n';
 
 const StyledNav = styled(HeaderNav)`
-    margin-left: ${gapL};
     display: flex;
     align-items: center;
 `;
 
-const StyledText = styled(Text)`
-    padding-left: ${gapL};
-    font-size: 18px;
-`;
-
 const HeaderSearch = styled.div`
-    margin-left: ${gapL};
+    margin-left: ${gapM};
 `;
 
 export const PageHeader: React.FC = () => {
@@ -36,7 +29,12 @@ export const PageHeader: React.FC = () => {
                     <PageHeaderLogo />
                 </HeaderLogo>
             }
-            menu={<UserMenu onClick={() => {}} email={session.data?.user.email} />}
+            menu={
+                <HeaderMenu>
+                    {/* TODO: https://github.com/taskany-inc/crew/issues/157 */}
+                    <UserMenu onClick={() => {}} email={session.data?.user.email} />
+                </HeaderMenu>
+            }
             nav={
                 <StyledNav>
                     {entityListMenuItems.map((item) => (
@@ -44,7 +42,6 @@ export const PageHeader: React.FC = () => {
                             <HeaderNavLink>{item.text}</HeaderNavLink>
                         </NextLink>
                     ))}
-                    <StyledText weight="bold">{tr('Explore')}</StyledText>
                     <HeaderSearch>
                         <GlobalSearch />
                     </HeaderSearch>

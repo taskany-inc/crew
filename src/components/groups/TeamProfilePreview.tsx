@@ -37,14 +37,14 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                 <ModalPreview visible onClose={hidePreview}>
                     <PreviewHeader subtitle={group.parent?.name} title={group?.name} link={pages.team(group.id)} />
                     <PreviewContent>
-                        <NarrowSection title={tr('Quick summary')}>
-                            {nullable(group.supervisor, (supervisor) => (
+                        {nullable(group.supervisor, (supervisor) => (
+                            <NarrowSection title={tr('Quick summary')}>
                                 <StyledSupervisorText size="m" color={gray9}>
                                     {tr('Supervisor')}
                                     <UserListItem user={supervisor} />
                                 </StyledSupervisorText>
-                            ))}
-                        </NarrowSection>
+                            </NarrowSection>
+                        ))}
 
                         <TeamChildren groupId={group.id} groupChildren={childrenQuery.data ?? []} />
 
