@@ -10,19 +10,22 @@ type UserServiceListItemProps = {
     userService: UserServices & { service: ExternalService };
 };
 
-const StyledLink = styled(Link)`
-    margin-left: ${gapS};
+const StyledWrapper = styled.div`
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: ${gapS};
 `;
 
 export const UserServiceListItem = (props: UserServiceListItemProps) => {
     const Icon = getDynamicIcon(props.userService.service.icon);
 
     return (
-        <div>
-            <Icon size={13} color={gray10} />
-            <StyledLink href={`${props.userService.service.linkPrefix}${props.userService.serviceId}`}>
+        <StyledWrapper>
+            <Icon size="s" color={gray10} />
+            <Link href={`${props.userService.service.linkPrefix}${props.userService.serviceId}`}>
                 {props.userService.serviceId}
-            </StyledLink>
-        </div>
+            </Link>
+        </StyledWrapper>
     );
 };

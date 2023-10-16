@@ -4,14 +4,14 @@ import { Dropdown, MenuItem, Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 import { IconMoreVerticalOutline } from '@taskany/icons';
 
-import { MembershipInfo } from '../../modules/user.types';
-import { UserListItem } from '../UserListItem';
+import { MembershipInfo } from '../modules/user.types';
 
-import { tr } from './groups.i18n';
-import { EditRolesModal } from './EditRolesModal';
-import { RemoveUserFromGroupModal } from './RemoveUserFromGroupModal';
+import { UserListItem } from './UserListItem';
+import { tr } from './groups/groups.i18n';
+import { EditRolesModal } from './groups/EditRolesModal';
+import { RemoveUserFromGroupModal } from './groups/RemoveUserFromGroupModal';
 
-type MembershipListItemProps = {
+type MembershipUserListItemProps = {
     membership: MembershipInfo;
 };
 
@@ -22,7 +22,7 @@ const StyledRow = styled.div`
     width: 600px;
 `;
 
-export const MembershipListItem = ({ membership }: MembershipListItemProps) => {
+export const MembershipUserListItem = ({ membership }: MembershipUserListItemProps) => {
     const [editRolesPopupVisible, setEditRolesPopupVisible] = useState(false);
     const [removePopupVisible, setRemovePopupVisible] = useState(false);
 

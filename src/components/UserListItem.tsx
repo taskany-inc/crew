@@ -14,6 +14,7 @@ type UserListItemProps = {
 
 const StyledWrapper = styled.div`
     display: flex;
+    flex-wrap: nowrap;
     gap: ${gapS};
     align-items: center;
 `;

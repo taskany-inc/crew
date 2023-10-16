@@ -6,10 +6,10 @@ import { IconMoreVerticalOutline } from '@taskany/icons';
 import { MembershipInfo } from '../modules/user.types';
 
 import { tr } from './components.i18n';
-import { UserGroupListItem } from './UserGroupListItem';
+import { MembershipGroupListItem } from './MembershipGroupListItem';
 import { RemoveUserFromGroupModal } from './groups/RemoveUserFromGroupModal';
 
-export type UserGroupListItemEditableProps = {
+export type MembershipGroupListItemEditableProps = {
     membership: MembershipInfo;
 };
 
@@ -19,14 +19,14 @@ const StyledRow = styled.div`
     width: 600px;
 `;
 
-export const UserGroupListItemEditable = ({ membership }: UserGroupListItemEditableProps) => {
+export const MembershipGroupListItemEditable = ({ membership }: MembershipGroupListItemEditableProps) => {
     const [removePopupVisible, setRemovePopupVisible] = useState(false);
 
     const items = useMemo(() => [{ name: tr('Remove'), action: () => setRemovePopupVisible(true) }], []);
 
     return (
         <StyledRow>
-            <UserGroupListItem membership={membership} />
+            <MembershipGroupListItem membership={membership} />
 
             <Dropdown
                 onChange={(v) => v.action()}

@@ -1,5 +1,5 @@
 import { Text } from '@taskany/bricks';
-import { gray8, textColor } from '@taskany/colors';
+import { gapS, gray8, textColor } from '@taskany/colors';
 import { forwardRef } from 'react';
 import styled from 'styled-components';
 
@@ -15,6 +15,7 @@ interface InlineTriggerProps {
 const StyledInlineTrigger = styled(Text)<{ disabled?: boolean }>`
     display: flex;
     align-items: center;
+    gap: ${gapS};
 
     transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
     transition-property: color;
@@ -28,17 +29,16 @@ const StyledInlineTrigger = styled(Text)<{ disabled?: boolean }>`
     }
 `;
 
-const StyledInlineTriggerText = styled.span`
-    display: inline-block;
-    padding-left: 0.5rem;
+const IconWrapper = styled.span`
+    line-height: 1;
 `;
 
 export const InlineTrigger = forwardRef<HTMLDivElement, InlineTriggerProps>(
     ({ text, icon, className, onClick, disabled }, ref) => {
         return (
             <StyledInlineTrigger forwardRef={ref} size="s" className={className} onClick={onClick} disabled={disabled}>
-                {icon}
-                <StyledInlineTriggerText>{text}</StyledInlineTriggerText>
+                <IconWrapper>{icon}</IconWrapper>
+                <span>{text}</span>
             </StyledInlineTrigger>
         );
     },

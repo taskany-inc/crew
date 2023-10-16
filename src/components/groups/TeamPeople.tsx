@@ -3,8 +3,8 @@ import { gapM, gapS } from '@taskany/colors';
 
 import { NarrowSection } from '../NarrowSection';
 import { trpc } from '../../trpc/trpcClient';
+import { MembershipUserListItem } from '../MembershipUserListItem';
 
-import { MembershipListItem } from './MembershipListItem';
 import { tr } from './groups.i18n';
 import { AddUserToTeamForm } from './AddUserToTeamForm';
 
@@ -26,7 +26,7 @@ export const TeamPeople = ({ groupId }: TeamPeopleProps) => {
         <NarrowSection title={tr('People')}>
             <StyledUserList>
                 {membershipsQuery.data?.map((membership) => (
-                    <MembershipListItem key={membership.id} membership={membership} />
+                    <MembershipUserListItem key={membership.id} membership={membership} />
                 ))}
             </StyledUserList>
 

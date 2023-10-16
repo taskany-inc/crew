@@ -16,13 +16,14 @@ const StyledWrapper = styled.div`
     display: flex;
     gap: ${gapS};
     align-items: center;
+    flex-wrap: nowrap;
 `;
 
 export const GroupListItem = ({ group }: GroupListItemProps) => {
     const { showGroupPreview } = usePreviewContext();
     return (
         <StyledWrapper>
-            <IconUsersOutline size={13} color={gray9} />
+            <IconUsersOutline size="s" color={gray9} />
             <Text>
                 <Link onClick={() => showGroupPreview(group.id)} href={pages.team(group.name)}>
                     {group.name}
