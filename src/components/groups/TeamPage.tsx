@@ -17,12 +17,15 @@ const StyledTabsMenu = styled(TabsMenu)`
     margin-left: ${gapL};
 `;
 
-export const TeamPage = () => {
+type TeamPageProps = {
+    teamId: string;
+};
+
+export const TeamPage = ({ teamId }: TeamPageProps) => {
     const router = useRouter();
     const { showUserPreview, showGroupPreview } = usePreviewContext();
 
-    const { teamId } = router.query;
-    const groupQuery = trpc.group.getById.useQuery(String(teamId));
+    const groupQuery = trpc.group.getById.useQuery(teamId);
     const group = groupQuery.data;
 
     const parentId = group?.parentId;
