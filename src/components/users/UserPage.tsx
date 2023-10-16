@@ -43,6 +43,7 @@ const StyledUserInfoWrapper = styled.div`
     display: grid;
     grid-template-columns: 350px 1fr;
     gap: ${gapL};
+    align-items: start;
 `;
 
 const StyledLeftPanel = styled.div`
