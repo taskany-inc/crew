@@ -57,12 +57,14 @@ const StyledRightPanel = styled.div`
     gap: ${gapL};
 `;
 
-export const UserPage = () => {
-    const router = useRouter();
+type UserPageProps = {
+    userId: string;
+};
+
+export const UserPage = ({ userId }: UserPageProps) => {
     const { showGroupPreview } = usePreviewContext();
 
-    const { userId } = router.query;
-    const userQuery = trpc.user.getById.useQuery(String(userId));
+    const userQuery = trpc.user.getById.useQuery(userId);
     const user = userQuery.data;
 
     if (!user) return null;
