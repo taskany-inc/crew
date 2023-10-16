@@ -11,11 +11,6 @@ import { useServiceMutations } from '../../modules/service.hooks';
 
 import { tr } from './services.i18n';
 
-const StyledInlineTrigger = styled(InlineTrigger)`
-    display: inline-flex;
-    color: ${gray8};
-`;
-
 const StyledInput = styled(Input)`
     font-size: 14px;
     font-weight: normal;
@@ -63,7 +58,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
     return (
         <InlineForm
             renderTrigger={(props) => (
-                <StyledInlineTrigger text={tr('Add link')} icon={<IconPlusCircleSolid size="s" />} {...props} />
+                <InlineTrigger text={tr('Add link')} icon={<IconPlusCircleSolid size="s" />} {...props} />
             )}
             onSubmit={onSubmit}
             onReset={onReset}

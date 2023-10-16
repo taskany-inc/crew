@@ -65,7 +65,7 @@ export const CommonHeader: React.FC<CommonHeaderProps> = ({
                 ))}
 
                 <StyledCommonHeaderSubitle as="span" size="l" weight="bold" color={gray10} onClick={onClick}>
-                    <StyledMoreHorizontalIcon size={15} />
+                    <StyledMoreHorizontalIcon size="s" />
                     {subtitle}
                 </StyledCommonHeaderSubitle>
                 <StyledCommonHeaderTitle size="xxl" weight="bolder">
