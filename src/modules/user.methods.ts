@@ -50,7 +50,13 @@ export const userMethods = {
     ): Promise<User & UserMeta & UserMemberships & UserSupervisor> => {
         const user = await prisma.user.findUniqueOrThrow({
             where: { id },
-            include: { memberships: { include: { group: true, user: true, roles: true } }, supervisor: true },
+            include: {
+                memberships: {
+                    include: { group: true, user: true, roles: true },
+                    orderBy: { group: { name: 'asc' } },
+                },
+                supervisor: true,
+            },
         });
         return addCalculatedUserFields(user, sessionUser);
     },
