@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.14.1](https://github.com/taskany-inc/crew/compare/v0.14.0...v0.14.1) (2023-10-16)
+
+
+### Bug Fixes
+
+* remove services/projects/goals tab in group page ([01b80de](https://github.com/taskany-inc/crew/commit/01b80dec4ebb620d9b55efe1cab529e68504dd4c))
+* **UserPage:** constant padding between sections ([95b5067](https://github.com/taskany-inc/crew/commit/95b5067bf22c56e960a64b1beac4d7dd634fbe65))
+
 ## [0.14.0](https://github.com/taskany-inc/crew/compare/v0.13.0...v0.14.0) (2023-10-13)
 
 
