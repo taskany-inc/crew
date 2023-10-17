@@ -52,7 +52,7 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
 
             <StyledTabsMenu>
                 {tabsMenuOptions.map(([title, href]) => (
-                    <Link key={title} href={href} inline>
+                    <Link key={title} href={href}>
                         <TabsMenuItem active={router.asPath === href}>{title}</TabsMenuItem>
                     </Link>
                 ))}
