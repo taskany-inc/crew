@@ -3,15 +3,30 @@ import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
 import { objByKey } from '../utils/objByKey';
+import { SessionUser } from '../utils/auth';
 
-import { CreateGroup, GetGroupList, MoveGroup } from './group.schemas';
+import { CreateGroup, EditGroup, GetGroupList, MoveGroup } from './group.schemas';
 import { tr } from './modules.i18n';
 import { MembershipInfo } from './user.types';
-import { GroupParent, GroupSupervisor } from './group.types';
+import { GroupMeta, GroupParent, GroupSupervisor } from './group.types';
+import { groupAccess } from './group.access';
+
+export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser: SessionUser): T & GroupMeta => {
+    return {
+        ...group,
+        meta: {
+            isEditable: groupAccess.isEditable(sessionUser).allowed,
+        },
+    };
+};
 
 export const groupMethods = {
     add: (data: CreateGroup) => {
         return prisma.group.create({ data });
+    },
+
+    edit: ({ groupId, ...data }: EditGroup) => {
+        return prisma.group.update({ where: { id: groupId }, data });
     },
 
     delete: async (id: string) => {
@@ -24,9 +39,11 @@ export const groupMethods = {
         if (data.id === data.newParentId) {
             throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot move group inside itself') });
         }
-        const breadcrumbs = await groupMethods.getBreadcrumbs(data.newParentId);
-        if (breadcrumbs.find((group) => group.id === data.id)) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot move group inside its child') });
+        if (data.newParentId) {
+            const breadcrumbs = await groupMethods.getBreadcrumbs(data.newParentId);
+            if (breadcrumbs.find((group) => group.id === data.id)) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot move group inside its child') });
+            }
         }
         return prisma.group.update({ where: { id: data.id }, data: { parentId: data.newParentId } });
     },
@@ -35,10 +52,13 @@ export const groupMethods = {
         return prisma.group.findMany({ where: { parentId: null } });
     },
 
-    getById: async (id: string): Promise<Group & GroupParent & GroupSupervisor> => {
+    getById: async (
+        id: string,
+        sessionUser: SessionUser,
+    ): Promise<Group & GroupMeta & GroupParent & GroupSupervisor> => {
         const group = await prisma.group.findUnique({ where: { id }, include: { parent: true, supervisor: true } });
         if (!group) throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { id }) });
-        return group;
+        return addCalculatedGroupFields(group, sessionUser);
     },
 
     getChildren: (id: string) => {

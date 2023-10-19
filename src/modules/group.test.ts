@@ -1,10 +1,13 @@
 /* eslint-disable no-await-in-loop */
-import { Group } from '@prisma/client';
+import { Group, UserRole } from 'prisma/prisma-client';
 import assert from 'assert';
 
 import { prisma } from '../utils/prisma';
+import { SessionUser } from '../utils/auth';
 
 import { groupMethods } from './group.methods';
+
+const mockSessionUser: SessionUser = { id: '', name: '', email: '', role: UserRole.USER };
 
 type TreeNode = { [key: string]: TreeNode };
 
@@ -86,10 +89,18 @@ describe('groups', () => {
     });
 
     it('moves group', async () => {
-        const groupBefore = await groupMethods.getById('barracuda');
+        const groupBefore = await groupMethods.getById('barracuda', mockSessionUser);
         expect(groupBefore.parentId).not.toBe('wildcat');
         const group = await groupMethods.move({ id: 'barracuda', newParentId: 'wildcat' });
         expect(group.parentId).toBe('wildcat');
+    });
+
+    it('removes group parent', async () => {
+        const groupBefore = await groupMethods.getById('barracuda', mockSessionUser);
+        expect(groupBefore.parentId).not.toBeNull();
+        const group = await groupMethods.move({ id: 'barracuda', newParentId: null });
+        expect(group.parentId).toBeNull();
+        await groupMethods.delete('barracuda');
     });
 
     it('cannot move group inside itself', async () => {

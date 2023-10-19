@@ -111,8 +111,9 @@ model UserServices {
 }
 
 model Group {
-  id   String @id @default(nanoid())
-  name String
+  id          String  @id @default(nanoid())
+  name        String
+  description String?
 
   parent   Group?  @relation("GroupChildren", fields: [parentId], references: [id])
   parentId String?

@@ -1,20 +1,20 @@
-import { useRouter } from 'next/router';
-import { TabsMenu, TabsMenuItem, Text } from '@taskany/bricks';
 import styled from 'styled-components';
-import { gapL, gray10 } from '@taskany/colors';
+import { Text, nullable } from '@taskany/bricks';
+import { gapL, gapS } from '@taskany/colors';
 
-import { CommonHeader } from '../CommonHeader';
-import { FiltersPanel } from '../FiltersPanel';
-import { pages } from '../../hooks/useRouter';
-import { Link } from '../Link';
+import { TeamPageFiltersPanel } from '../TeamPageFiltersPanel';
 import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../layout/LayoutMain';
-import { usePreviewContext } from '../../context/preview-context';
+import { UserListItem } from '../UserListItem';
 
-import { tr } from './groups.i18n';
+import { GroupListItem } from './GroupListItem';
+import { TeamPageHeader } from './TeamPageHeader';
 
-const StyledTabsMenu = styled(TabsMenu)`
-    margin-left: ${gapL};
+const StyledGroupList = styled.div`
+    margin: 0 ${gapL};
+    display: flex;
+    flex-direction: column;
+    gap: ${gapS};
 `;
 
 type TeamPageProps = {
@@ -22,52 +22,43 @@ type TeamPageProps = {
 };
 
 export const TeamPage = ({ teamId }: TeamPageProps) => {
-    const router = useRouter();
-    const { showUserPreview, showGroupPreview } = usePreviewContext();
-
     const groupQuery = trpc.group.getById.useQuery(teamId);
     const group = groupQuery.data;
-
-    const parentId = group?.parentId;
-    const parentQuery = trpc.group.getById.useQuery(String(parentId), { enabled: !!parentId });
-    const parentGroup = parentQuery.data;
 
     const groupMembersQuery = trpc.user.getGroupMembers.useQuery(String(teamId));
     const users = groupMembersQuery.data;
 
-    if (!group) return null;
+    const childrenQuery = trpc.group.getChildren.useQuery(teamId);
+    const children = childrenQuery.data ?? [];
 
-    const tabsMenuOptions: Array<[string, string]> = [
-        [tr('People'), pages.people],
-        [tr('Settings'), pages.settings],
-    ];
+    if (!group) return null;
 
     return (
         <LayoutMain pageTitle={group.name}>
-            <CommonHeader
-                subtitle={parentGroup?.name}
-                title={group.name}
-                description={'This is  group description. One line and truncate...'}
-            />
+            <TeamPageHeader group={group} />
 
-            <StyledTabsMenu>
-                {tabsMenuOptions.map(([title, href]) => (
-                    <Link key={title} href={href}>
-                        <TabsMenuItem active={router.asPath === href}>{title}</TabsMenuItem>
-                    </Link>
+            <TeamPageFiltersPanel />
+
+            {/* TODO: replace with CollapsibleItem https://github.com/taskany-inc/bricks/issues/312 */}
+            <StyledGroupList>
+                {nullable(users, (u) => (
+                    <>
+                        <Text>Users:</Text>
+                        {u.map((user) => (
+                            <UserListItem key={user.id} user={user} />
+                        ))}
+                    </>
                 ))}
-            </StyledTabsMenu>
-            <FiltersPanel />
 
-            <div style={{ marginLeft: gapL }}>
-                <Text onClick={() => showGroupPreview(group.id)}>{group.name}</Text>
-                {users &&
-                    users.map((user) => (
-                        <Text color={gray10} key={user.id} onClick={() => showUserPreview(user.id)}>
-                            {user.name}
-                        </Text>
-                    ))}
-            </div>
+                {nullable(children, (c) => (
+                    <>
+                        <Text>Children:</Text>
+                        {c.map((child) => (
+                            <GroupListItem key={child.id} group={child} />
+                        ))}
+                    </>
+                ))}
+            </StyledGroupList>
         </LayoutMain>
     );
 };

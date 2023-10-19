@@ -1,15 +1,23 @@
 import { z } from 'zod';
 
 import { router, protectedProcedure } from '../trpcBackend';
-import { createGroupSchema, getGroupListSchema, moveGroupSchema } from '../../modules/group.schemas';
+import { createGroupSchema, editGroupSchema, getGroupListSchema, moveGroupSchema } from '../../modules/group.schemas';
 import { groupMethods } from '../../modules/group.methods';
+import { accessCheck } from '../../utils/access';
+import { groupAccess } from '../../modules/group.access';
 
 export const groupRouter = router({
     add: protectedProcedure.input(createGroupSchema).mutation(({ input }) => {
         return groupMethods.add(input);
     }),
 
-    delete: protectedProcedure.input(z.string()).mutation(({ input }) => {
+    edit: protectedProcedure.input(editGroupSchema).mutation(({ input, ctx }) => {
+        accessCheck(groupAccess.isEditable(ctx.session.user));
+        return groupMethods.edit(input);
+    }),
+
+    delete: protectedProcedure.input(z.string()).mutation(({ input, ctx }) => {
+        accessCheck(groupAccess.isEditable(ctx.session.user));
         return groupMethods.delete(input);
     }),
 
@@ -21,8 +29,8 @@ export const groupRouter = router({
         return groupMethods.getRoots();
     }),
 
-    getById: protectedProcedure.input(z.string()).query(({ input }) => {
-        return groupMethods.getById(input);
+    getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        return groupMethods.getById(input, ctx.session.user);
     }),
 
     getChildren: protectedProcedure.input(z.string()).query(({ input }) => {

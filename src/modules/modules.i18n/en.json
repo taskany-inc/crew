@@ -13,5 +13,6 @@
     "Amount should be greater than zero": "",
     "Description is required": "",
     "Description must be longer than {upTo} symbol": "",
-    "Cannot view another user bonus points history": ""
+    "Cannot view another user bonus points history": "",
+    "Only admins can edit groups": ""
 }

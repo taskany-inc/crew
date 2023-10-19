@@ -8,9 +8,16 @@ export const createGroupSchema = z.object({
 });
 export type CreateGroup = z.infer<typeof createGroupSchema>;
 
+export const editGroupSchema = z.object({
+    groupId: z.string(),
+    name: z.string().optional(),
+    description: z.string().optional(),
+});
+export type EditGroup = z.infer<typeof editGroupSchema>;
+
 export const moveGroupSchema = z.object({
     id: z.string(),
-    newParentId: z.string(),
+    newParentId: z.string().nullable(),
 });
 export type MoveGroup = z.infer<typeof moveGroupSchema>;
 
