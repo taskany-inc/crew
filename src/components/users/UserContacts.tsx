@@ -29,13 +29,13 @@ export const UserContacts = ({ user }: UserContactsProps) => {
     const emailStubService = useMemo<UserServices & { service: ExternalService }>(() => {
         const item = {
             userId: user.id,
-            serviceName: '',
+            serviceName: 'Email',
             serviceId: user.email,
             active: true,
             createdAt: new Date(),
             updatedAt: new Date(),
             service: {
-                name: '',
+                name: 'Email',
                 icon: 'IconEnvelopeOutline',
                 linkPrefix: 'mailto:',
                 createdAt: new Date(),

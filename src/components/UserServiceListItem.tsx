@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import styled from 'styled-components';
+import { Popup, Text } from '@taskany/bricks';
 import { gapS, gray10 } from '@taskany/colors';
 import { ExternalService, UserServices } from 'prisma/prisma-client';
 
@@ -14,18 +16,30 @@ const StyledWrapper = styled.div`
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
+    width: max-content;
     gap: ${gapS};
 `;
 
-export const UserServiceListItem = (props: UserServiceListItemProps) => {
-    const Icon = getDynamicIcon(props.userService.service.icon);
+export const UserServiceListItem = ({ userService }: UserServiceListItemProps) => {
+    const Icon = getDynamicIcon(userService.service.icon);
+    const ref = useRef<HTMLDivElement>(null);
 
     return (
-        <StyledWrapper>
-            <Icon size="s" color={gray10} />
-            <Link href={`${props.userService.service.linkPrefix}${props.userService.serviceId}`}>
-                {props.userService.serviceId}
-            </Link>
-        </StyledWrapper>
+        <>
+            <StyledWrapper ref={ref}>
+                <Icon size="s" color={gray10} />
+                {userService.service.linkPrefix ? (
+                    <Link href={encodeURIComponent(`${userService.service.linkPrefix}${userService.serviceId}`)}>
+                        {userService.serviceId}
+                    </Link>
+                ) : (
+                    <Text>{userService.serviceId}</Text>
+                )}
+            </StyledWrapper>
+
+            <Popup reference={ref} placement="top">
+                <Text>{userService.service.name}</Text>
+            </Popup>
+        </>
     );
 };
