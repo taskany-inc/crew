@@ -5,12 +5,10 @@ export const pages = {
 
     teams: '/teams',
     team: (teamId: string) => `/teams/${teamId}`,
+    teamSettings: (teamId: string) => `/teams/${teamId}/settings`,
 
     users: '/users',
     user: (userId: string) => `/users/${userId}`,
-
-    people: '/people',
-    settings: '/settings',
 
     signIn: '/api/auth/signin',
     signOut: '/api/auth/signout',
@@ -24,12 +22,10 @@ export const useRouter = () => {
 
         teams: () => router.push(pages.teams),
         team: (teamId: string) => router.push(pages.team(teamId)),
+        teamSettings: (teamId: string) => router.push(pages.teamSettings(teamId)),
 
         users: () => router.push(pages.users),
         user: (userId: string) => router.push(pages.user(userId)),
-
-        people: () => router.push(pages.people),
-        settings: () => router.push(pages.settings),
 
         signIn: () => router.push(pages.signIn),
         signOut: () => router.push(pages.signOut),

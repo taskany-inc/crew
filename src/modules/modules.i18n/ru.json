@@ -13,5 +13,6 @@
     "Amount should be greater than zero": "Количество очков должно быть больше нуля",
     "Description is required": "Описание изменений обязательно",
     "Description must be longer than {upTo} symbol": "Описание должно быть длинее {upTo} символа",
-    "Cannot view another user bonus points history": "Нельзя смотреть историю бонусов другого пользователя"
+    "Cannot view another user bonus points history": "Нельзя смотреть историю бонусов другого пользователя",
+    "Only admins can edit groups": "Только администраторы могут редактировать группы"
 }

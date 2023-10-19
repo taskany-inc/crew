@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Group } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { Button, ComboBox, InlineForm, Input, MenuItem } from '@taskany/bricks';
 import { IconPlusCircleSolid } from '@taskany/icons';
+import { textColor } from '@taskany/colors';
 
 import { trpc } from '../trpc/trpcClient';
 
@@ -14,7 +15,8 @@ const StyledRowWrapper = styled.div`
 `;
 
 type InlineGroupSelectFormProps = {
-    triggerText: string;
+    triggerText?: string;
+    icon?: ReactNode;
     actionText: string;
     onSubmit: (group: Group) => Promise<void>;
 };
@@ -40,7 +42,11 @@ export const InlineGroupSelectForm = (props: InlineGroupSelectFormProps) => {
             onSubmit={onSubmit}
             onReset={onReset}
             renderTrigger={(triggerProps) => (
-                <InlineTrigger text={props.triggerText} icon={<IconPlusCircleSolid size="s" />} {...triggerProps} />
+                <InlineTrigger
+                    text={props.triggerText}
+                    icon={props.icon ?? <IconPlusCircleSolid size="s" />}
+                    {...triggerProps}
+                />
             )}
         >
             <ComboBox
@@ -77,6 +83,7 @@ export const InlineGroupSelectForm = (props: InlineGroupSelectFormProps) => {
                 )}
                 renderItem={(itemProps) => (
                     <MenuItem
+                        color={textColor}
                         key={itemProps.item.id}
                         focused={itemProps.cursor === itemProps.index}
                         onClick={itemProps.onClick}
