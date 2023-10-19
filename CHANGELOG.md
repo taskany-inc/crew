@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.14.2](https://github.com/taskany-inc/crew/compare/v0.14.1...v0.14.2) (2023-10-19)
+
+
+### Bug Fixes
+
+* align inline icons ([ca35f50](https://github.com/taskany-inc/crew/commit/ca35f507690c3137823ea6dff1a05df00992d986))
+* **Link:** remove link props from dom ([c2fa509](https://github.com/taskany-inc/crew/commit/c2fa50912736fa88d71563f52a5146e714948fc7))
+
 ## [0.14.1](https://github.com/taskany-inc/crew/compare/v0.14.0...v0.14.1) (2023-10-16)
 
 
