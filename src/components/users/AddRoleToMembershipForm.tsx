@@ -19,6 +19,10 @@ const StyledRowWrapper = styled.div`
     grid-template-columns: minmax(calc(240px), 20%) max-content;
 `;
 
+const StyledInlineTrigger = styled(InlineTrigger)`
+    height: 28px;
+`;
+
 export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFormProps) => {
     const [search, setSearch] = useState('');
     const [selectedRole, setSelectedRole] = useState<Role>();
@@ -43,7 +47,7 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
             onSubmit={onSubmit}
             onReset={onReset}
             renderTrigger={(props) => (
-                <InlineTrigger text={tr('Add role')} icon={<IconPlusCircleSolid size="s" />} {...props} />
+                <StyledInlineTrigger text={tr('Add role')} icon={<IconPlusCircleSolid size="s" />} {...props} />
             )}
         >
             <ComboBox

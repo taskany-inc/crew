@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { Modal, ModalContent, ModalCross, ModalHeader, Tag, FormTitle } from '@taskany/bricks';
-import { gapM } from '@taskany/colors';
+import { IconXOutline } from '@taskany/icons';
+import { gapM, gapS } from '@taskany/colors';
 
 import { MembershipInfo } from '../../modules/user.types';
 import { AddRoleToMembershipForm } from '../users/AddRoleToMembershipForm';
@@ -22,6 +23,12 @@ export const StyledModalContent = styled(ModalContent)`
     gap: ${gapM};
 `;
 
+const StyledTag = styled(Tag)`
+    display: inline-flex;
+    gap: ${gapS};
+    align-items: center;
+`;
+
 export const EditRolesModal = ({ membership, visible, onClose }: EditRolesModalProps) => {
     const { removeFromMembership } = useRoleMutations();
 
@@ -38,14 +45,15 @@ export const EditRolesModal = ({ membership, visible, onClose }: EditRolesModalP
 
                 <div>
                     {membership.roles.map((role) => (
-                        <Tag
-                            key={role.id}
-                            onClick={() => {
-                                removeFromMembership.mutate({ membershipId: membership.id, roleId: role.id });
-                            }}
-                        >
+                        <StyledTag key={role.id}>
                             {role.name}
-                        </Tag>
+                            <IconXOutline
+                                size="xxs"
+                                onClick={() => {
+                                    removeFromMembership.mutate({ membershipId: membership.id, roleId: role.id });
+                                }}
+                            />
+                        </StyledTag>
                     ))}
                 </div>
 

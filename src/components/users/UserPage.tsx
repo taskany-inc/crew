@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router';
 import { UserPic, Text, Button, nullable } from '@taskany/bricks';
 import { gapL, gapS, gapXl, gray10, gray6 } from '@taskany/colors';
 import styled from 'styled-components';
@@ -9,13 +8,12 @@ import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../layout/LayoutMain';
 import { usePreviewContext } from '../../context/preview-context';
 import { pages } from '../../hooks/useRouter';
-import { NarrowSection } from '../NarrowSection';
-import { GroupListItem } from '../groups/GroupListItem';
 
 import { UserContacts } from './UserContacts';
 import { tr } from './users.i18n';
 import { UserBonusPoints } from './UserBonusPoints';
 import { UserSummary } from './UserSummary';
+import { UserMembershipsList } from './UserMembershipsList';
 
 const StyledHeader = styled.div`
     display: grid;
@@ -114,11 +112,7 @@ export const UserPage = ({ userId }: UserPageProps) => {
                 <StyledRightPanel>
                     <UserSummary user={user} />
 
-                    <NarrowSection title={tr('Teams with participation')}>
-                        {groupMemberships.map((membership) => (
-                            <GroupListItem group={membership.group} key={membership.id} />
-                        ))}
-                    </NarrowSection>
+                    <UserMembershipsList user={user} />
                 </StyledRightPanel>
             </StyledUserInfoWrapper>
         </LayoutMain>

@@ -1,41 +1,22 @@
-import { Group } from 'prisma/prisma-client';
-import styled from 'styled-components';
 import { ModalPreview, nullable } from '@taskany/bricks';
-import { gapM, gapS } from '@taskany/colors';
 
 import { PreviewHeader } from '../PreviewHeader';
 import { PreviewContent } from '../PreviewContent';
-import { MembershipGroupListItemEditable } from '../MembershipGroupListItemEditable';
-import { NarrowSection } from '../NarrowSection';
 import { pages } from '../../hooks/useRouter';
 import { trpc } from '../../trpc/trpcClient';
 import { usePreviewContext } from '../../context/preview-context';
-import { useUserMutations } from '../../modules/user.hooks';
-import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 
 import { UserContacts } from './UserContacts';
-import { tr } from './users.i18n';
 import { UserSummary } from './UserSummary';
+import { UserMembershipsList } from './UserMembershipsList';
 
 type UserProps = {
     userId: string;
 };
 
-const StyledMembershipList = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: ${gapS};
-    margin-bottom: ${gapM};
-`;
-
 const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const userQuery = trpc.user.getById.useQuery(userId);
-    const { addUserToGroup } = useUserMutations();
-
-    const onAddUserToTeam = async (group: Group) => {
-        await addUserToGroup.mutateAsync({ userId, groupId: group.id });
-    };
 
     // TODO: select real org group
     const orgStructureMembership = userQuery.data?.memberships[0];
@@ -55,19 +36,7 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
                     <PreviewContent>
                         <UserSummary user={user} />
 
-                        <NarrowSection title={tr('Teams')}>
-                            <StyledMembershipList>
-                                {user.memberships.map((membership) => (
-                                    <MembershipGroupListItemEditable key={membership.id} membership={membership} />
-                                ))}
-                            </StyledMembershipList>
-
-                            <InlineGroupSelectForm
-                                triggerText={tr('Add team')}
-                                actionText={tr('Add')}
-                                onSubmit={onAddUserToTeam}
-                            />
-                        </NarrowSection>
+                        <UserMembershipsList user={user} />
 
                         <UserContacts user={user} />
                     </PreviewContent>

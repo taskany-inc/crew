@@ -1,5 +1,5 @@
 import { Button, ComboBox, InlineForm, Input, MenuItem } from '@taskany/bricks';
-import { gray10, gray7, gray8 } from '@taskany/colors';
+import { gray10, gray7 } from '@taskany/colors';
 import styled from 'styled-components';
 import { useState } from 'react';
 import { ExternalService } from 'prisma/prisma-client';

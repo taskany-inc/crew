@@ -2,14 +2,14 @@ import { useRef } from 'react';
 import styled from 'styled-components';
 import { Popup, Text } from '@taskany/bricks';
 import { gapS, gray10 } from '@taskany/colors';
-import { ExternalService, UserServices } from 'prisma/prisma-client';
 
 import { getDynamicIcon } from '../utils/getDynamicIcon';
+import { UserServiceInfo } from '../modules/service.types';
 
 import { Link } from './Link';
 
 type UserServiceListItemProps = {
-    userService: UserServices & { service: ExternalService };
+    userService: UserServiceInfo;
 };
 
 const StyledWrapper = styled.div`
