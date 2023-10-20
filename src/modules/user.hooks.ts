@@ -26,5 +26,10 @@ export const useUserMutations = () => {
                 utils.user.getById.invalidate();
             },
         }),
+        editUser: trpc.user.edit.useMutation({
+            onSuccess: () => {
+                utils.user.invalidate();
+            },
+        }),
     };
 };

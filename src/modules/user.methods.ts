@@ -4,7 +4,7 @@ import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 
 import { MembershipInfo, UserMemberships, UserMeta, UserSupervisor } from './user.types';
-import { AddUserToGroup, ChangeBonusPoints, GetUserList, RemoveUserFromGroup } from './user.schemas';
+import { AddUserToGroup, ChangeBonusPoints, EditUser, GetUserList, RemoveUserFromGroup } from './user.schemas';
 import { userAccess } from './user.access';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: SessionUser): T & UserMeta => {
@@ -80,6 +80,12 @@ export const userMethods = {
         return prisma.bonusHistory.findMany({
             where: { targetUserId: id },
             orderBy: { createdAt: 'asc' },
+        });
+    },
+    edit: (data: EditUser) => {
+        return prisma.user.update({
+            where: { id: data.id },
+            data: { name: data.name, supervisorId: data.supervisorId },
         });
     },
 };
