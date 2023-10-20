@@ -31,7 +31,7 @@ const main = async () => {
         },
     });
 
-    await prisma.userServices.create({
+    await prisma.userService.create({
         data: {
             serviceName: github.name,
             userId: user.id,
@@ -47,7 +47,7 @@ const main = async () => {
         },
     });
 
-    await prisma.userServices.create({
+    await prisma.userService.create({
         data: {
             serviceName: gitlab.name,
             userId: user.id,
@@ -63,7 +63,7 @@ const main = async () => {
         },
     });
 
-    await prisma.userServices.create({
+    await prisma.userService.create({
         data: {
             serviceName: email.name,
             userId: user.id,
@@ -79,7 +79,7 @@ const main = async () => {
         },
     });
 
-    await prisma.userServices.create({
+    await prisma.userService.create({
         data: {
             serviceName: telegram.name,
             userId: user.id,

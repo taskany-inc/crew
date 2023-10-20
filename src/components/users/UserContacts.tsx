@@ -1,4 +1,4 @@
-import { ExternalService, User, UserServices } from 'prisma/prisma-client';
+import { User } from 'prisma/prisma-client';
 import { gapM, gapS } from '@taskany/colors';
 import { nullable } from '@taskany/bricks';
 import styled from 'styled-components';
@@ -9,6 +9,7 @@ import { UserServiceListItem } from '../UserServiceListItem';
 import { NarrowSection } from '../NarrowSection';
 import { UserMeta } from '../../modules/user.types';
 import { trpc } from '../../trpc/trpcClient';
+import { UserServiceInfo } from '../../modules/service.types';
 
 import { tr } from './users.i18n';
 
@@ -26,7 +27,7 @@ type UserContactsProps = {
 export const UserContacts = ({ user }: UserContactsProps) => {
     const userServiceQuery = trpc.service.getUserServices.useQuery(user.id);
 
-    const emailStubService = useMemo<UserServices & { service: ExternalService }>(() => {
+    const emailStubService = useMemo<UserServiceInfo>(() => {
         const item = {
             userId: user.id,
             serviceName: 'Email',

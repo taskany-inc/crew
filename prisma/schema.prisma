@@ -57,15 +57,15 @@ model VerificationToken {
 }
 
 model User {
-  id            String         @id @default(nanoid())
-  active        Boolean        @default(true)
+  id            String        @id @default(nanoid())
+  active        Boolean       @default(true)
   name          String?
-  email         String         @unique
+  email         String        @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  services      UserServices[]
+  services      UserService[]
   memberships   Membership[]
 
   supervisor   User?   @relation("userSupervisor", fields: [supervisorId], references: [id])
@@ -85,16 +85,16 @@ model User {
 }
 
 model ExternalService {
-  name       String         @id @unique
+  name       String        @id @unique
   icon       String
   linkPrefix String?
-  users      UserServices[]
+  users      UserService[]
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
 
-model UserServices {
+model UserService {
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
@@ -108,6 +108,7 @@ model UserServices {
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 
   @@unique([serviceName, serviceId])
+  @@map("UserServices")
 }
 
 model Group {

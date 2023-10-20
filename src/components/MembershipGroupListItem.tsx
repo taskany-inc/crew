@@ -15,16 +15,16 @@ export const MembershipGroupListItem = ({ membership }: MembershipGroupListItemP
         <div>
             <GroupListItem group={membership.group} />
 
-            <div>
-                {nullable(membership, () => (
+            {nullable(membership.roles, (roles) => (
+                <div>
                     <Text size="s" color={gray10}>
                         <Text size="s" as="span" color={gray9}>
                             {tr('Role')}:
                         </Text>{' '}
-                        {membership.roles.map((role) => role.name).join(', ')}
+                        {roles.map((role) => role.name).join(', ')}
                     </Text>
-                ))}
-            </div>
+                </div>
+            ))}
         </div>
     );
 };
