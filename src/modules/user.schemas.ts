@@ -33,3 +33,11 @@ export const getUserListSchema = z.object({
         .optional(),
 });
 export type GetUserList = z.infer<typeof getUserListSchema>;
+
+export const editUserSchema = z.object({
+    id: z.string(),
+    name: z.string().optional(),
+    supervisorId: z.string().nullish(),
+});
+
+export type EditUser = z.infer<typeof editUserSchema>;

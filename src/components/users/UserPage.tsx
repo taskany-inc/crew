@@ -1,6 +1,7 @@
-import { UserPic, Text, Button, nullable } from '@taskany/bricks';
+import { UserPic, Text, Button, nullable, Modal } from '@taskany/bricks';
 import { gapL, gapS, gapXl, gray10, gray6 } from '@taskany/colors';
 import styled from 'styled-components';
+import { useState } from 'react';
 
 import { PageSep } from '../PageSep';
 import { Link } from '../Link';
@@ -14,6 +15,7 @@ import { tr } from './users.i18n';
 import { UserBonusPoints } from './UserBonusPoints';
 import { UserSummary } from './UserSummary';
 import { UserMembershipsList } from './UserMembershipsList';
+import UserUpdateForm from './form/UserUpdateForm';
 
 const StyledHeader = styled.div`
     display: grid;
@@ -62,6 +64,7 @@ type UserPageProps = {
 
 export const UserPage = ({ userId }: UserPageProps) => {
     const { showGroupPreview } = usePreviewContext();
+    const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);
 
     const userQuery = trpc.user.getById.useQuery(userId);
     const user = userQuery.data;
@@ -94,9 +97,11 @@ export const UserPage = ({ userId }: UserPageProps) => {
                         {user.name}
                     </Text>
                 </StyledUserNameWrapper>
-                {/* TODO: implement profile editing issues/29 */}
+                <Modal visible={openUpdateUserForm} width={600}>
+                    <UserUpdateForm user={user} onClose={() => setOpenUpdateUserForm(false)} />
+                </Modal>
                 {nullable(user.meta.isEditable, () => (
-                    <Button onClick={() => {}} text={tr('Edit')} size="s" />
+                    <Button onClick={() => setOpenUpdateUserForm(true)} text={tr('Edit')} size="s" />
                 ))}
             </StyledHeader>
 

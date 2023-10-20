@@ -1,10 +1,10 @@
-import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { Text, UserPic } from '@taskany/bricks';
 import { gapS } from '@taskany/colors';
 
 import { pages } from '../hooks/useRouter';
 import { usePreviewContext } from '../context/preview-context';
+import { User } from '../modules/user.types';
 
 import { Link } from './Link';
 

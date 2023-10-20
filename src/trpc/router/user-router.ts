@@ -5,6 +5,7 @@ import { userMethods } from '../../modules/user.methods';
 import {
     addUserToGroupSchema,
     changeBonusPointsSchema,
+    editUserSchema,
     getUserListSchema,
     removeUserFromGroupSchema,
 } from '../../modules/user.schemas';
@@ -44,5 +45,10 @@ export const userRouter = router({
     getBonusPointsHistory: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
         accessCheck(userAccess.isBonusHistoryViewable(ctx.session.user, input));
         return userMethods.getBonusPointsHistory(input);
+    }),
+
+    edit: protectedProcedure.input(editUserSchema).mutation(({ input, ctx }) => {
+        accessCheck(userAccess.isEditable(ctx.session.user, input.id));
+        return userMethods.edit(input);
     }),
 });
