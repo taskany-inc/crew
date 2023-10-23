@@ -1,6 +1,8 @@
 import { BonusAction } from 'prisma/prisma-client';
 import { z } from 'zod';
 
+import { themes } from '../utils/theme';
+
 import { tr } from './modules.i18n';
 
 export const addUserToGroupSchema = z.object({
@@ -33,3 +35,16 @@ export const getUserListSchema = z.object({
         .optional(),
 });
 export type GetUserList = z.infer<typeof getUserListSchema>;
+
+export const editUserSchema = z.object({
+    id: z.string(),
+    name: z.string().optional(),
+    supervisorId: z.string().nullish(),
+});
+
+export type EditUser = z.infer<typeof editUserSchema>;
+
+export const editUserSettingsSchema = z.object({
+    theme: z.enum(themes).optional(),
+});
+export type EditUserSettings = z.infer<typeof editUserSettingsSchema>;

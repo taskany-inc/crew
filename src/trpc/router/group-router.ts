@@ -16,6 +16,11 @@ export const groupRouter = router({
         return groupMethods.edit(input);
     }),
 
+    archive: protectedProcedure.input(z.string()).mutation(({ input, ctx }) => {
+        accessCheck(groupAccess.isEditable(ctx.session.user));
+        return groupMethods.archive(input);
+    }),
+
     delete: protectedProcedure.input(z.string()).mutation(({ input, ctx }) => {
         accessCheck(groupAccess.isEditable(ctx.session.user));
         return groupMethods.delete(input);
@@ -35,10 +40,6 @@ export const groupRouter = router({
 
     getChildren: protectedProcedure.input(z.string()).query(({ input }) => {
         return groupMethods.getChildren(input);
-    }),
-
-    getByIdWithChildren: protectedProcedure.input(z.string()).query(({ input }) => {
-        return groupMethods.getByIdWithChildren(input);
     }),
 
     getList: protectedProcedure.input(getGroupListSchema).query(({ input }) => {

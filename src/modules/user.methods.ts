@@ -1,11 +1,20 @@
 import { BonusAction, User } from 'prisma/prisma-client';
+import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 
-import { MembershipInfo, UserMemberships, UserMeta, UserSupervisor } from './user.types';
-import { AddUserToGroup, ChangeBonusPoints, GetUserList, RemoveUserFromGroup } from './user.schemas';
+import { MembershipInfo, UserMemberships, UserMeta, UserSettings, UserSupervisor } from './user.types';
+import {
+    AddUserToGroup,
+    ChangeBonusPoints,
+    EditUser,
+    EditUserSettings,
+    GetUserList,
+    RemoveUserFromGroup,
+} from './user.schemas';
 import { userAccess } from './user.access';
+import { tr } from './modules.i18n';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: SessionUser): T & UserMeta => {
     return {
@@ -19,12 +28,27 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: Se
 };
 
 export const userMethods = {
-    addToGroup: (data: AddUserToGroup) => {
+    addToGroup: async (data: AddUserToGroup) => {
+        const membership = await prisma.membership.findUnique({ where: { userId_groupId: data } });
+        if (membership?.archived) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived membership') });
+        }
         return prisma.membership.create({ data });
     },
 
-    removeFromGroup: (data: RemoveUserFromGroup) => {
+    removeFromGroup: async (data: RemoveUserFromGroup) => {
+        const membership = await prisma.membership.findUnique({ where: { userId_groupId: data } });
+        if (membership?.archived) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived membership') });
+        }
         return prisma.membership.delete({ where: { userId_groupId: data } });
+    },
+
+    editSettings: (userId: string, data: EditUserSettings) => {
+        return prisma.userSettings.update({
+            where: { userId },
+            data: { theme: data.theme },
+        });
     },
 
     changeBonusPoints: async (data: ChangeBonusPoints, sessionUser: SessionUser): Promise<User> => {
@@ -52,6 +76,7 @@ export const userMethods = {
             where: { id },
             include: {
                 memberships: {
+                    where: { archived: false },
                     include: { group: true, user: true, roles: true },
                     orderBy: { group: { name: 'asc' } },
                 },
@@ -59,6 +84,15 @@ export const userMethods = {
             },
         });
         return addCalculatedUserFields(user, sessionUser);
+    },
+
+    getSettings: async (id: string): Promise<UserSettings> => {
+        const settings = (await prisma.userSettings.upsert({
+            where: { userId: id },
+            update: {},
+            create: { userId: id },
+        })) as UserSettings;
+        return settings;
     },
 
     getList: (data: GetUserList) => {
@@ -69,7 +103,10 @@ export const userMethods = {
     },
 
     getMemberships: (id: string): Promise<MembershipInfo[]> => {
-        return prisma.membership.findMany({ where: { userId: id }, include: { group: true, user: true, roles: true } });
+        return prisma.membership.findMany({
+            where: { userId: id, archived: false },
+            include: { group: true, user: true, roles: true },
+        });
     },
 
     getGroupMembers: (groupId: string): Promise<User[]> => {
@@ -80,6 +117,12 @@ export const userMethods = {
         return prisma.bonusHistory.findMany({
             where: { targetUserId: id },
             orderBy: { createdAt: 'asc' },
+        });
+    },
+    edit: (data: EditUser) => {
+        return prisma.user.update({
+            where: { id: data.id },
+            data: { name: data.name, supervisorId: data.supervisorId },
         });
     },
 };

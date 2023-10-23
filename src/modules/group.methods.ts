@@ -25,8 +25,28 @@ export const groupMethods = {
         return prisma.group.create({ data });
     },
 
-    edit: ({ groupId, ...data }: EditGroup) => {
-        return prisma.group.update({ where: { id: groupId }, data });
+    edit: async ({ groupId, ...data }: EditGroup) => {
+        const group = await prisma.group.findUnique({ where: { id: groupId } });
+        if (group?.archived) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived group') });
+        return prisma.group.update({ where: { id: groupId, archived: false }, data });
+    },
+
+    archive: async (id: string): Promise<Group> => {
+        const count = await prisma.group.count({ where: { parentId: id } });
+        if (count > 0) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with children') });
+        const [group] = await Promise.all([
+            prisma.group.update({ where: { id }, data: { archived: true } }),
+            prisma.membership.updateMany({ where: { groupId: id }, data: { archived: true } }),
+        ]);
+        return group;
+    },
+
+    unarchive: async (id: string): Promise<Group> => {
+        const [group] = await Promise.all([
+            prisma.group.update({ where: { id }, data: { archived: false } }),
+            prisma.membership.updateMany({ where: { groupId: id }, data: { archived: false } }),
+        ]);
+        return group;
     },
 
     delete: async (id: string) => {
@@ -36,6 +56,16 @@ export const groupMethods = {
     },
 
     move: async (data: MoveGroup) => {
+        const groupToMove = await prisma.group.findUnique({ where: { id: data.id } });
+        if (groupToMove?.archived) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot move archived group') });
+        }
+        if (data.newParentId) {
+            const newParent = await prisma.group.findUnique({ where: { id: data.newParentId } });
+            if (newParent?.archived) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot move group into archived group') });
+            }
+        }
         if (data.id === data.newParentId) {
             throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot move group inside itself') });
         }
@@ -49,29 +79,29 @@ export const groupMethods = {
     },
 
     getRoots: () => {
-        return prisma.group.findMany({ where: { parentId: null } });
+        return prisma.group.findMany({ where: { parentId: null, archived: false } });
     },
 
     getById: async (
         id: string,
         sessionUser: SessionUser,
     ): Promise<Group & GroupMeta & GroupParent & GroupSupervisor> => {
-        const group = await prisma.group.findUnique({ where: { id }, include: { parent: true, supervisor: true } });
+        const group = await prisma.group.findUnique({
+            where: { id, archived: false },
+            include: { parent: true, supervisor: true },
+        });
         if (!group) throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { id }) });
+        if (group.archived) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Group is archived') });
         return addCalculatedGroupFields(group, sessionUser);
     },
 
     getChildren: (id: string) => {
-        return prisma.group.findMany({ where: { parentId: id } });
-    },
-
-    getByIdWithChildren: (id: string) => {
-        return prisma.group.findUnique({ where: { id }, include: { children: true } });
+        return prisma.group.findMany({ where: { parentId: id, archived: false } });
     },
 
     getList: (data: GetGroupList) => {
         return prisma.group.findMany({
-            where: { name: { contains: data.search, mode: 'insensitive' } },
+            where: { name: { contains: data.search, mode: 'insensitive' }, archived: false },
             take: data.take,
         });
     },
@@ -94,7 +124,7 @@ export const groupMethods = {
 
     getMemberships: (id: string): Promise<MembershipInfo[]> => {
         return prisma.membership.findMany({
-            where: { groupId: id },
+            where: { groupId: id, archived: false },
             include: { group: true, user: true, roles: true },
         });
     },
@@ -104,12 +134,13 @@ export const groupMethods = {
             WITH RECURSIVE rectree AS (
                 SELECT *
                 FROM public."Group"
-                WHERE id = ${id}
+                WHERE id = ${id} AND archived = FALSE
             UNION ALL
                 SELECT g.*
                 FROM public."Group" g
                 JOIN rectree
                     ON g."parentId" = rectree.id
+                WHERE g.archived = FALSE
             ) SELECT * FROM rectree;
         `;
         const dict = objByKey(groups, 'id');

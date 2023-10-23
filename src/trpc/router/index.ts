@@ -6,6 +6,7 @@ import { feedbackRouter } from './feedback-router';
 import { searchRouter } from './search-router';
 import { serviceRouter } from './service-router';
 import { roleRouter } from './role-router';
+import { deviceRouter } from './device-router';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -14,6 +15,7 @@ export const trpcRouter = router({
     search: searchRouter,
     service: serviceRouter,
     role: roleRouter,
+    device: deviceRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

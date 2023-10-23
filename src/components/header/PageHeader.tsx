@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { UserMenu, Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink, HeaderMenu } from '@taskany/bricks';
 
 import { GlobalSearch } from '../GlobalSearch';
+import { pages } from '../../hooks/useRouter';
 
 import { PageHeaderLogo } from './PageHeaderLogo';
 import { useHeaderMenu } from './useHeaderMenu';
@@ -31,8 +32,9 @@ export const PageHeader: React.FC = () => {
             }
             menu={
                 <HeaderMenu>
-                    {/* TODO: https://github.com/taskany-inc/crew/issues/157 */}
-                    <UserMenu onClick={() => {}} email={session.data?.user.email} />
+                    <NextLink href={pages.userSettings}>
+                        <UserMenu email={session.data?.user.email} />
+                    </NextLink>
                 </HeaderMenu>
             }
             nav={

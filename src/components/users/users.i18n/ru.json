@@ -5,7 +5,6 @@
     "Users": "Пользователи",
     "Add team": "Добавить команду",
     "Supervisor": "Руководитель",
-    "Teams": "Команды",
     "Corporate devices": "Корпоративные устройства",
     "Add": "Добавить",
     "Add role": "Добавить роль",
@@ -18,5 +17,9 @@
     "Added": "Начислено",
     "Subtracted": "Списано",
     "View bonus points history": "Посмотреть историю начислений",
-    "Bonus points history": "История начислений бонусных очков"
+    "Bonus points history": "История начислений бонусных очков",
+    "Choose a supervisor": "Выбрать руководителя",
+    "Add device": "",
+    "Device": "",
+    "id or username": ""
 }

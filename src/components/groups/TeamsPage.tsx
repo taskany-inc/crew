@@ -7,6 +7,7 @@ import { gapL, gapS } from '@taskany/colors';
 
 import { LayoutMain } from '../layout/LayoutMain';
 import { trpc } from '../../trpc/trpcClient';
+import { useGroupMutations } from '../../modules/group.hooks';
 
 import { tr } from './groups.i18n';
 import { GroupListItem } from './GroupListItem';
@@ -22,11 +23,9 @@ const StyledChildrenWrapper = styled.div`
 `;
 
 const GroupWithChildren = ({ group }: { group: Group }) => {
-    const utils = trpc.useContext();
     const [showChildren, setShowChildren] = useState(false);
     const children = trpc.group.getChildren.useQuery(group.id, { enabled: showChildren });
-    const add = trpc.group.add.useMutation();
-    const delete_ = trpc.group.delete.useMutation();
+    const { addGroup, archiveGroup } = useGroupMutations();
     const [name, setName] = useState('');
 
     return (
@@ -34,14 +33,7 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
             {/* //TODO: replace with CollapsibleItem https://github.com/taskany-inc/bricks/issues/312 and https://github.com/taskany-inc/crew/issues/21*/}
             <StyledGroupItemWrapper>
                 <GroupListItem group={group} />
-                <IconBinOutline
-                    size="xs"
-                    onClick={() => {
-                        delete_.mutateAsync(group.id).then(() => {
-                            utils.group.invalidate();
-                        });
-                    }}
-                />
+                <IconBinOutline size="xs" onClick={() => archiveGroup.mutateAsync(group.id)} />
                 {showChildren ? (
                     <IconArrowUpOutline size="xs" onClick={() => setShowChildren(false)} />
                 ) : (
@@ -49,9 +41,8 @@ const GroupWithChildren = ({ group }: { group: Group }) => {
                 )}
                 <InlineForm
                     onSubmit={() => {
-                        return add.mutateAsync({ name, parentId: group.id }).then(() => {
+                        return addGroup.mutateAsync({ name, parentId: group.id }).then(() => {
                             setName('');
-                            utils.group.getChildren.invalidate();
                         });
                     }}
                     onReset={() => {

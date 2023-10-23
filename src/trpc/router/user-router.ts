@@ -5,6 +5,8 @@ import { userMethods } from '../../modules/user.methods';
 import {
     addUserToGroupSchema,
     changeBonusPointsSchema,
+    editUserSchema,
+    editUserSettingsSchema,
     getUserListSchema,
     removeUserFromGroupSchema,
 } from '../../modules/user.schemas';
@@ -20,6 +22,10 @@ export const userRouter = router({
         return userMethods.removeFromGroup(input);
     }),
 
+    editSettings: protectedProcedure.input(editUserSettingsSchema).mutation(({ input, ctx }) => {
+        return userMethods.editSettings(ctx.session.user.id, input);
+    }),
+
     changeBonusPoints: protectedProcedure.input(changeBonusPointsSchema).mutation(({ input, ctx }) => {
         accessCheck(userAccess.isBonusEditable(ctx.session.user));
         return userMethods.changeBonusPoints(input, ctx.session.user);
@@ -27,6 +33,10 @@ export const userRouter = router({
 
     getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
         return userMethods.getById(input, ctx.session.user);
+    }),
+
+    getSettings: protectedProcedure.query(({ ctx }) => {
+        return userMethods.getSettings(ctx.session.user.id);
     }),
 
     getList: protectedProcedure.input(getUserListSchema).query(({ input }) => {
@@ -44,5 +54,10 @@ export const userRouter = router({
     getBonusPointsHistory: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
         accessCheck(userAccess.isBonusHistoryViewable(ctx.session.user, input));
         return userMethods.getBonusPointsHistory(input);
+    }),
+
+    edit: protectedProcedure.input(editUserSchema).mutation(({ input, ctx }) => {
+        accessCheck(userAccess.isEditable(ctx.session.user, input.id));
+        return userMethods.edit(input);
     }),
 });

@@ -22,10 +22,6 @@ type TeamSettingsPageProps = {
     teamId: string;
 };
 
-const StyledPageSep = styled(PageSep)`
-    margin: ${gapM} 0;
-`;
-
 const StyledFormSection = styled(Text)`
     margin: 0 ${gapM} ${gapS} ${gapM};
     display: flex;
@@ -101,7 +97,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
         <LayoutMain pageTitle={group.name}>
             <TeamPageHeader group={group} />
 
-            <StyledPageSep />
+            <PageSep />
 
             <SettingsContainer>
                 <SettingsCard>

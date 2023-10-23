@@ -1,4 +1,4 @@
-import { UserPage } from '../../../components/users/UserPage';
+import { UserPage } from '../../../components/UserPage/UserPage';
 import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({

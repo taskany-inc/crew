@@ -67,6 +67,11 @@ model User {
   sessions      Session[]
   services      UserService[]
   memberships   Membership[]
+  devices       UserDevice[]
+
+  settings UserSettings?
+
+  settings UserSettings?
 
   supervisor   User?   @relation("userSupervisor", fields: [supervisorId], references: [id])
   supervisorId String?
@@ -111,10 +116,21 @@ model UserService {
   @@map("UserServices")
 }
 
+model UserSettings {
+  id String @id @default(nanoid())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  theme String @default("system")
+}
+
 model Group {
   id          String  @id @default(nanoid())
   name        String
   description String?
+
+  archived Boolean @default(false)
 
   parent   Group?  @relation("GroupChildren", fields: [parentId], references: [id])
   parentId String?
@@ -132,6 +148,8 @@ model Group {
 
 model Membership {
   id String @id @default(nanoid())
+
+  archived Boolean @default(false)
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
@@ -180,4 +198,28 @@ enum UserRole {
 enum BonusAction {
   ADD
   SUBTRACT
+}
+
+model Device {
+  name  String       @id @unique
+  users UserDevice[]
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+model UserDevice {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  device     Device @relation(fields: [deviceName], references: [name])
+  deviceName String
+
+  deviceId String
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+
+  @@unique([deviceName, deviceId])
 }

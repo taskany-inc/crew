@@ -1,15 +1,12 @@
 {
-    "Contacts": "Contacts",
-    "Quick summary": "Quick summary",
-    "Teams with participation": "Teams with participation",
-    "Users": "Users",
-    "Add team": "Add team",
+    "Contacts": "",
+    "Quick summary": "",
+    "Teams with participation": "",
+    "Users": "",
+    "Add team": "",
     "Supervisor": "",
-    "Teams": "",
-    "Corporate devices": "",
     "Add": "",
     "Add role": "",
-    "Edit": "",
     "Bonus points": "",
     "Reason for balance change": "",
     "Balance": "",
@@ -18,5 +15,6 @@
     "Added": "",
     "Subtracted": "",
     "View bonus points history": "",
-    "Bonus points history": ""
+    "Bonus points history": "",
+    "Choose a supervisor": ""
 }
