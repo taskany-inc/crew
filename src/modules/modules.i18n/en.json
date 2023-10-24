@@ -14,5 +14,11 @@
     "Description is required": "",
     "Description must be longer than {upTo} symbol": "",
     "Cannot view another user bonus points history": "",
-    "Only admins can edit groups": ""
+    "Only admins can edit groups": "",
+    "Cannot archive group with children": "",
+    "Cannot edit archived membership": "",
+    "Cannot move archived group": "",
+    "Cannot move group into archived group": "",
+    "Cannot edit archived group": "",
+    "Group is archived": ""
 }

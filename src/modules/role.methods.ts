@@ -1,22 +1,33 @@
+import { TRPCError } from '@trpc/server';
+
 import { prisma } from '../utils/prisma';
 
 import { AddRoleToMembership, CreateRole, GetRoleList, RemoveRoleFromMembership } from './role.schemas';
+import { tr } from './modules.i18n';
 
 export const roleMethods = {
     add: (data: CreateRole) => {
         return prisma.role.create({ data });
     },
 
-    addToMembership: (data: AddRoleToMembership) => {
+    addToMembership: async (data: AddRoleToMembership) => {
+        const membership = await prisma.membership.findUnique({ where: { id: data.membershipId } });
+        if (membership?.archived) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived membership') });
+        }
         return prisma.membership.update({
-            where: { id: data.membershipId },
+            where: { id: data.membershipId, archived: false },
             data: { roles: { connect: { id: data.roleId } } },
         });
     },
 
-    removeFromMembership: (data: RemoveRoleFromMembership) => {
+    removeFromMembership: async (data: RemoveRoleFromMembership) => {
+        const membership = await prisma.membership.findUnique({ where: { id: data.membershipId } });
+        if (membership?.archived) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived membership') });
+        }
         return prisma.membership.update({
-            where: { id: data.membershipId },
+            where: { id: data.membershipId, archived: false },
             data: { roles: { disconnect: { id: data.roleId } } },
         });
     },

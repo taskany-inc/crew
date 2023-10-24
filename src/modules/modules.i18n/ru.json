@@ -14,5 +14,11 @@
     "Description is required": "Описание изменений обязательно",
     "Description must be longer than {upTo} symbol": "Описание должно быть длинее {upTo} символа",
     "Cannot view another user bonus points history": "Нельзя смотреть историю бонусов другого пользователя",
-    "Only admins can edit groups": "Только администраторы могут редактировать группы"
+    "Only admins can edit groups": "Только администраторы могут редактировать группы",
+    "Cannot archive group with children": "Нельзя заархивировать группу у которой есть вложенные группы",
+    "Cannot edit archived membership": "Нельзя редактировать заархивированное членство в группе",
+    "Cannot move archived group": "Нельзя перемещать аархивированную группу",
+    "Cannot move group into archived group": "Нельзя переместить группу в заархивированную группу",
+    "Cannot edit archived group": "Нельзя редактировать заархивированную группу",
+    "Group is archived": "Группа заархивирована"
 }
