@@ -31,6 +31,7 @@ export const searchMethods = {
                         contains: input,
                         mode: 'insensitive',
                     },
+                    archived: false,
                 },
             }),
         ]);

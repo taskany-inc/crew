@@ -116,6 +116,8 @@ model Group {
   name        String
   description String?
 
+  archived Boolean @default(false)
+
   parent   Group?  @relation("GroupChildren", fields: [parentId], references: [id])
   parentId String?
 
@@ -132,6 +134,8 @@ model Group {
 
 model Membership {
   id String @id @default(nanoid())
+
+  archived Boolean @default(false)
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
