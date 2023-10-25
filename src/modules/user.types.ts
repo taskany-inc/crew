@@ -1,6 +1,7 @@
 import { Group, Membership, Role } from 'prisma/prisma-client';
 
 import { Nullish } from '../utils/types';
+import { Theme } from '../utils/theme';
 
 import { userAccess } from './user.access';
 
@@ -10,6 +11,11 @@ export interface User {
     name?: string | null;
     email: string;
     image?: string | null;
+}
+
+export interface UserSettings {
+    userId: string;
+    theme: Theme;
 }
 
 export type MembershipInfo = Membership & { group: Group; user: User; roles: Role[] };

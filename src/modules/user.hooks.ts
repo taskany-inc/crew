@@ -18,6 +18,22 @@ export const useUserMutations = () => {
             },
         }),
 
+        editUserSettings: trpc.user.editSettings.useMutation({
+            onMutate: (newSettings) => {
+                utils.user.getSettings.setData(undefined, (oldSettings) => {
+                    return oldSettings
+                        ? {
+                              userId: oldSettings.userId,
+                              theme: newSettings.theme ?? oldSettings.theme,
+                          }
+                        : undefined;
+                });
+            },
+            onSuccess: () => {
+                utils.user.getSettings.invalidate();
+            },
+        }),
+
         changeBonusPoints: trpc.user.changeBonusPoints.useMutation({
             onSuccess: (newUser) => {
                 utils.user.getById.setData(newUser.id, (oldUser) => {
