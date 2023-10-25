@@ -9,6 +9,7 @@ export const pages = {
 
     users: '/users',
     user: (userId: string) => `/users/${userId}`,
+    userSettings: '/users/settings',
 
     signIn: '/api/auth/signin',
     signOut: '/api/auth/signout',
@@ -26,6 +27,7 @@ export const useRouter = () => {
 
         users: () => router.push(pages.users),
         user: (userId: string) => router.push(pages.user(userId)),
+        userSettings: () => router.push(pages.userSettings),
 
         signIn: () => router.push(pages.signIn),
         signOut: () => router.push(pages.signOut),

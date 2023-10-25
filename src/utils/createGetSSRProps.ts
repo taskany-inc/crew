@@ -84,6 +84,8 @@ export const createGetServerSideProps =
             transformer: superjson,
         });
 
+        await ssgHelper.user.getSettings.fetch();
+
         const numberIds = {} as Record<Num, number>;
         const stringIds = {} as Record<Str, string>;
 

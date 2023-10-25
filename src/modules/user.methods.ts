@@ -4,8 +4,15 @@ import { TRPCError } from '@trpc/server';
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 
-import { MembershipInfo, UserMemberships, UserMeta, UserSupervisor } from './user.types';
-import { AddUserToGroup, ChangeBonusPoints, EditUser, GetUserList, RemoveUserFromGroup } from './user.schemas';
+import { MembershipInfo, UserMemberships, UserMeta, UserSettings, UserSupervisor } from './user.types';
+import {
+    AddUserToGroup,
+    ChangeBonusPoints,
+    EditUser,
+    EditUserSettings,
+    GetUserList,
+    RemoveUserFromGroup,
+} from './user.schemas';
 import { userAccess } from './user.access';
 import { tr } from './modules.i18n';
 
@@ -35,6 +42,13 @@ export const userMethods = {
             throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived membership') });
         }
         return prisma.membership.delete({ where: { userId_groupId: data } });
+    },
+
+    editSettings: (userId: string, data: EditUserSettings) => {
+        return prisma.userSettings.update({
+            where: { userId },
+            data: { theme: data.theme },
+        });
     },
 
     changeBonusPoints: async (data: ChangeBonusPoints, sessionUser: SessionUser): Promise<User> => {
@@ -70,6 +84,15 @@ export const userMethods = {
             },
         });
         return addCalculatedUserFields(user, sessionUser);
+    },
+
+    getSettings: async (id: string): Promise<UserSettings> => {
+        const settings = (await prisma.userSettings.upsert({
+            where: { userId: id },
+            update: {},
+            create: { userId: id },
+        })) as UserSettings;
+        return settings;
     },
 
     getList: (data: GetUserList) => {
