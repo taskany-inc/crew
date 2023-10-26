@@ -11,10 +11,10 @@ import {
     testRootGroup,
 } from '../utils/testDbData';
 
-import { groupMethods } from './group.methods';
-import { userMethods } from './user.methods';
-import { roleMethods } from './role.methods';
-import { searchMethods } from './search.methods';
+import { groupMethods } from './groupMethods';
+import { userMethods } from './userMethods';
+import { roleMethods } from './roleMethods';
+import { searchMethods } from './searchMethods';
 
 const mockSessionUser: SessionUser = { id: '', name: '', email: '', role: UserRole.USER };
 

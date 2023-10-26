@@ -1,4 +1,4 @@
-import { TeamSettingsPage } from '../../../components/groups/TeamSettingsPage';
+import { TeamSettingsPage } from '../../../components/TeamSettingsPage/TeamSettingsPage';
 import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({

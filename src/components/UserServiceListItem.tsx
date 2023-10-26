@@ -4,7 +4,7 @@ import { Popup, Text } from '@taskany/bricks';
 import { gapS, gray10 } from '@taskany/colors';
 
 import { getDynamicIcon } from '../utils/getDynamicIcon';
-import { UserServiceInfo } from '../modules/service.types';
+import { UserServiceInfo } from '../modules/serviceTypes';
 
 import { Link } from './Link';
 

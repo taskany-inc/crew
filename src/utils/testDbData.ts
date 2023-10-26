@@ -2,7 +2,7 @@
 import { Group } from 'prisma/prisma-client';
 import assert from 'assert';
 
-import { groupMethods } from '../modules/group.methods';
+import { groupMethods } from '../modules/groupMethods';
 
 import { prisma } from './prisma';
 

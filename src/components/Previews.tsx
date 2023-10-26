@@ -2,10 +2,10 @@ import { nullable } from '@taskany/bricks';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { usePreviewContext } from '../context/preview-context';
+import { usePreviewContext } from '../contexts/previewContext';
 
-import TeamProfilePreview from './groups/TeamProfilePreview';
-import UserProfilePreview from './users/UserProfilePreview';
+import TeamProfilePreview from './TeamProfilePreview/TeamProfilePreview';
+import UserProfilePreview from './UserProfilePreview';
 
 export const Previews = () => {
     const { userId, groupId, hidePreview } = usePreviewContext();
