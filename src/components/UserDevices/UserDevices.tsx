@@ -1,0 +1,15 @@
+import { IconPlusCircleSolid } from '@taskany/icons';
+
+import { InlineTrigger } from '../InlineTrigger';
+import { NarrowSection } from '../NarrowSection';
+
+import { tr } from './UserDevices.i18n';
+
+export const UserDevices = () => {
+    return (
+        <NarrowSection title={tr('Corporate devices')}>
+            {/* TODO: implement AddDeviceToUser */}
+            <InlineTrigger icon={<IconPlusCircleSolid size="s" />} text={tr('Request a device')} disabled />
+        </NarrowSection>
+    );
+};

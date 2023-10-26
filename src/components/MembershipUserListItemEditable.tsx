@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import { Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 
-import { MembershipInfo } from '../modules/user.types';
+import { MembershipInfo } from '../modules/userTypes';
 
 import { UserListItem } from './UserListItem';
-import { MembershipEditMenu } from './MembershipEditMenu';
+import { MembershipEditMenu } from './MembershipEditMenu/MembershipEditMenu';
 
 type MembershipUserListItemEditableProps = {
     membership: MembershipInfo;

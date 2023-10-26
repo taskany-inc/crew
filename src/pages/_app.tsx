@@ -8,7 +8,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { usePageLoad } from '../hooks/usePageLoad';
 import { TLocale, setSSRLocale } from '../utils/getLang';
 import { trpc } from '../trpc/trpcClient';
-import { PreviewContextProvider } from '../context/preview-context';
+import { PreviewContextProvider } from '../contexts/previewContext';
 import { Previews } from '../components/Previews';
 
 const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {

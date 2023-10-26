@@ -1,4 +1,4 @@
-import { ServicesPage } from '../../components/services/ServicesPage';
+import { ServicesPage } from '../../components/ServicesPage/ServicesPage';
 import { createGetServerSideProps } from '../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({ requireSession: true });

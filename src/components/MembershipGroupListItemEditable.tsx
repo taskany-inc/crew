@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
-import { MembershipInfo } from '../modules/user.types';
+import { MembershipInfo } from '../modules/userTypes';
 
-import { MembershipGroupListItem } from './MembershipGroupListItem';
-import { MembershipEditMenu } from './MembershipEditMenu';
+import { MembershipGroupListItem } from './MembershipGroupListItem/MembershipGroupListItem';
+import { MembershipEditMenu } from './MembershipEditMenu/MembershipEditMenu';
 
 export type MembershipGroupListItemEditableProps = {
     membership: MembershipInfo;

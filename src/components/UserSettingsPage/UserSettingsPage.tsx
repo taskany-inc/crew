@@ -3,10 +3,10 @@ import { useTheme } from 'next-themes';
 import { Fieldset, Form, FormRadio, FormRadioInput, Text } from '@taskany/bricks';
 
 import { trpc } from '../../trpc/trpcClient';
-import { UserSettings } from '../../modules/user.types';
+import { UserSettings } from '../../modules/userTypes';
 import { SettingsCard, SettingsContainer } from '../Settings';
-import { useUserMutations } from '../../modules/user.hooks';
-import { LayoutMain } from '../layout/LayoutMain';
+import { useUserMutations } from '../../modules/userHooks';
+import { LayoutMain } from '../LayoutMain';
 import { PageSep } from '../PageSep';
 import { CommonHeader } from '../CommonHeader';
 import { Theme, themes } from '../../utils/theme';
