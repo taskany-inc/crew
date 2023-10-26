@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.16.0](https://github.com/taskany-inc/crew/compare/v0.15.0...v0.16.0) (2023-10-26)
+
+
+### Features
+
+* archived groups and memberships ([490bcd5](https://github.com/taskany-inc/crew/commit/490bcd511c645ebd0850ffe92b67176b8ce7beeb))
+* user update form ([5416708](https://github.com/taskany-inc/crew/commit/541670839deb972e98b088f61b3dad99bfe1a6cf))
+
 ## [0.15.0](https://github.com/taskany-inc/crew/compare/v0.14.1...v0.15.0) (2023-10-23)
 
 
