@@ -20,5 +20,6 @@
     "Cannot move archived group": "Нельзя перемещать аархивированную группу",
     "Cannot move group into archived group": "Нельзя переместить группу в заархивированную группу",
     "Cannot edit archived group": "Нельзя редактировать заархивированную группу",
-    "Group is archived": "Группа заархивирована"
+    "Group is archived": "Группа заархивирована",
+    "Choose a device": "Выберите девайс"
 }

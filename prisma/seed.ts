@@ -86,6 +86,48 @@ const main = async () => {
             serviceId: 'telegramId',
         },
     });
+
+    const macBook = await prisma.device.create({
+        data: {
+            name: 'MacBook',
+        },
+    });
+
+    await prisma.userDevice.create({
+        data: {
+            deviceName: macBook.name,
+            userId: user.id,
+            deviceId: 'deviceId',
+        },
+    });
+
+    const sberportal = await prisma.device.create({
+        data: {
+            name: 'Sberportal',
+        },
+    });
+
+    await prisma.userDevice.create({
+        data: {
+            deviceName: sberportal.name,
+            userId: user.id,
+            deviceId: 'deviceId',
+        },
+    });
+
+    const sberbox = await prisma.device.create({
+        data: {
+            name: 'Sberbox',
+        },
+    });
+
+    await prisma.userDevice.create({
+        data: {
+            deviceName: sberbox.name,
+            userId: user.id,
+            deviceId: 'deviceId',
+        },
+    });
 };
 
 main();

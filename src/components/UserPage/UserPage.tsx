@@ -14,6 +14,7 @@ import { UserContacts } from '../UserContacts/UserContacts';
 import { UserBonusPoints } from '../UserBonusPoints/UserBonusPoints';
 import { UserMembershipsList } from '../UserMembershipsList/UserMembershipsList';
 import UserUpdateForm from '../UserUpdateForm/UserUpdateForm';
+import { UserDevices } from '../UserDevices/UserDevices';
 
 import { tr } from './UserPage.i18n';
 
@@ -112,6 +113,8 @@ export const UserPage = ({ userId }: UserPageProps) => {
                     <UserBonusPoints user={user} />
 
                     <UserContacts user={user} />
+
+                    <UserDevices user={user} />
                 </StyledLeftPanel>
 
                 <StyledRightPanel>

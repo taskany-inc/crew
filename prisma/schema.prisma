@@ -67,6 +67,7 @@ model User {
   sessions      Session[]
   services      UserService[]
   memberships   Membership[]
+  devices       UserDevice[]
 
   settings UserSettings?
 
@@ -195,4 +196,28 @@ enum UserRole {
 enum BonusAction {
   ADD
   SUBTRACT
+}
+
+model Device {
+  name  String       @id @unique
+  users UserDevice[]
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+model UserDevice {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  device     Device @relation(fields: [deviceName], references: [name])
+  deviceName String
+
+  deviceId String
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+
+  @@unique([deviceName, deviceId])
 }

@@ -1,15 +1,42 @@
-import { IconPlusCircleSolid } from '@taskany/icons';
+import { nullable } from '@taskany/bricks';
+import { gapM, gapS } from '@taskany/colors';
+import styled from 'styled-components';
 
-import { InlineTrigger } from '../InlineTrigger';
 import { NarrowSection } from '../NarrowSection';
+import { AddDeviceToUserForm } from '../AddDeviceToUserForm/AddDeviceToUserForm';
+import { User, UserMeta } from '../../modules/userTypes';
+import { trpc } from '../../trpc/trpcClient';
+import { UserDeviceListItem } from '../UserDeviceListItem';
 
 import { tr } from './UserDevices.i18n';
 
-export const UserDevices = () => {
+const StyleDevicesList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${gapS};
+    margin-bottom: ${gapM};
+`;
+
+type UserDevicesProps = {
+    user: User & UserMeta;
+};
+
+export const UserDevices = ({ user }: UserDevicesProps) => {
+    const userDeviceQuery = trpc.device.getUserDevices.useQuery(user.id);
+
     return (
         <NarrowSection title={tr('Corporate devices')}>
-            {/* TODO: implement AddDeviceToUser */}
-            <InlineTrigger icon={<IconPlusCircleSolid size="s" />} text={tr('Request a device')} disabled />
+            <StyleDevicesList>
+                {userDeviceQuery.data?.map((userDevices) => (
+                    <UserDeviceListItem
+                        key={`${userDevices.deviceName}-${userDevices.userId}`}
+                        userDevice={userDevices}
+                    />
+                ))}
+            </StyleDevicesList>
+            {nullable(user.meta.isEditable, () => (
+                <AddDeviceToUserForm userId={user.id} />
+            ))}
         </NarrowSection>
     );
 };

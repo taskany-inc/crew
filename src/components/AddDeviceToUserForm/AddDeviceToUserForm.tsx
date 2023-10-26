@@ -2,45 +2,45 @@ import { Button, ComboBox, InlineForm, Input, MenuItem } from '@taskany/bricks';
 import { gray10 } from '@taskany/colors';
 import styled from 'styled-components';
 import { useState } from 'react';
-import { ExternalService } from 'prisma/prisma-client';
+import { Device } from 'prisma/prisma-client';
 import { IconPlusCircleSolid } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
 import { InlineTrigger } from '../InlineTrigger';
-import { useServiceMutations } from '../../modules/serviceHooks';
+import { useDeviceMutations } from '../../modules/deviceHooks';
 
-import { tr } from './AddServiceToUserForm.i18n';
+import { tr } from './AddDeviceToUserForm.i18n';
 
 const StyledInputsWrapper = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr max-content;
 `;
 
-interface ServicesFormProps {
+interface DevicesFormProps {
     userId: string;
 }
 
-export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
+export const AddDeviceToUserForm = ({ userId }: DevicesFormProps) => {
     const [search, setSearch] = useState('');
-    const [selectedService, setSelectedService] = useState<ExternalService>();
-    const [serviceId, setServiceId] = useState('');
-    const { addServiceToUser } = useServiceMutations();
-    const servicesListQuery = trpc.service.getList.useQuery({ search, take: 10 });
+    const [selectedDevice, setSelectedDevice] = useState<Device>();
+    const [deviceId, setDeviceId] = useState('');
+    const { addDeviceToUser } = useDeviceMutations();
+    const devicesListQuery = trpc.device.getList.useQuery({ search, take: 10 });
 
     const onReset = () => {
         setSearch('');
-        setSelectedService(undefined);
-        setServiceId('');
+        setSelectedDevice(undefined);
+        setDeviceId('');
     };
 
     const onSubmit = async () => {
-        if (!selectedService) {
+        if (!selectedDevice) {
             return;
         }
-        await addServiceToUser.mutateAsync({
-            serviceId,
+        await addDeviceToUser.mutateAsync({
+            deviceId,
             userId,
-            serviceName: selectedService.name,
+            deviceName: selectedDevice.name,
         });
         onReset();
     };
@@ -48,29 +48,29 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
     return (
         <InlineForm
             renderTrigger={(props) => (
-                <InlineTrigger text={tr('Add link')} icon={<IconPlusCircleSolid size="s" />} {...props} />
+                <InlineTrigger text={tr('Add device')} icon={<IconPlusCircleSolid size="s" />} {...props} />
             )}
             onSubmit={onSubmit}
             onReset={onReset}
         >
             <StyledInputsWrapper>
                 <ComboBox
-                    value={selectedService ? undefined : search}
-                    onChange={(value: ExternalService) => {
+                    value={selectedDevice ? undefined : search}
+                    onChange={(value: Device) => {
                         setSearch(value.name);
-                        setSelectedService(value);
+                        setSelectedDevice(value);
                     }}
-                    visible={!selectedService}
-                    items={servicesListQuery.data}
+                    visible={!selectedDevice}
+                    items={devicesListQuery.data}
                     maxWidth={100}
                     renderInput={({ value, ...restProps }) => (
                         <Input
-                            placeholder={tr('Service')}
+                            placeholder={tr('Device')}
                             autoFocus
                             autoComplete="off"
                             value={value ?? search}
                             onChange={(e) => {
-                                setSelectedService(undefined);
+                                setSelectedDevice(undefined);
                                 setSearch(e.target.value);
                             }}
                             brick="right"
@@ -89,12 +89,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
                         </MenuItem>
                     )}
                 />
-                <Input
-                    brick="center"
-                    value={serviceId}
-                    onChange={(e) => setServiceId(e.target.value)}
-                    placeholder={tr('id or username')}
-                />
+                <Input brick="center" value={deviceId} onChange={(e) => setDeviceId(e.target.value)} placeholder="id" />
                 <Button type="submit" brick="left" outline size="m" text={tr('Add')} view="primary" />
             </StyledInputsWrapper>
         </InlineForm>
