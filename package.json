@@ -37,7 +37,7 @@
     "@trpc/server": "10.36.0",
     "bcryptjs": "2.4.3",
     "easy-typed-intl": "1.0.3",
-    "next": "13.4.9",
+    "next": "14.0.0",
     "next-auth": "4.23.2",
     "next-themes": "0.2.1",
     "react": "18.2.0",
