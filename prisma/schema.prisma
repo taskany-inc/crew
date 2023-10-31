@@ -188,6 +188,11 @@ model BonusHistory {
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
 }
 
+model ApiToken {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  description String
+}
+
 enum UserRole {
   ADMIN
   USER

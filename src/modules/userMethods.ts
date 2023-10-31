@@ -86,6 +86,10 @@ export const userMethods = {
         return addCalculatedUserFields(user, sessionUser);
     },
 
+    getByEmail: (email: string) => {
+        return prisma.user.findUniqueOrThrow({ where: { email } });
+    },
+
     getSettings: async (id: string): Promise<UserSettings> => {
         const settings = (await prisma.userSettings.upsert({
             where: { userId: id },
