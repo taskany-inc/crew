@@ -16,7 +16,7 @@ const nextConfig = {
     output: 'standalone',
     i18n: {
         locales: ['en', 'ru'],
-        defaultLocale: 'en',
+        defaultLocale: process.env.DEFAULT_LOCALE || 'en',
     },
     eslint: {
         ignoreDuringBuilds: true,
