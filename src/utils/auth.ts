@@ -91,7 +91,7 @@ export const authOptions: NextAuthOptions = {
 
 export type SessionUser = {
     id: string;
-    name: string;
+    name: string | null;
     email: string;
     role: UserRole;
 };
