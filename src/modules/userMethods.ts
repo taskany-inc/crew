@@ -53,7 +53,7 @@ export const userMethods = {
 
     changeBonusPoints: async (data: ChangeBonusPoints, sessionUser: SessionUser): Promise<User> => {
         const bonusPoints = data.action === BonusAction.ADD ? { increment: data.amount } : { decrement: data.amount };
-        const [user] = await Promise.all([
+        const [user] = await prisma.$transaction([
             prisma.user.update({ where: { id: data.userId }, data: { bonusPoints } }),
             prisma.bonusHistory.create({
                 data: {

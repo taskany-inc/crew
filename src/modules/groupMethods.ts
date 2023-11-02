@@ -34,7 +34,7 @@ export const groupMethods = {
     archive: async (id: string): Promise<Group> => {
         const count = await prisma.group.count({ where: { parentId: id, archived: false } });
         if (count > 0) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with children') });
-        const [group] = await Promise.all([
+        const [group] = await prisma.$transaction([
             prisma.group.update({ where: { id }, data: { archived: true } }),
             prisma.membership.updateMany({ where: { groupId: id }, data: { archived: true } }),
         ]);
@@ -42,11 +42,15 @@ export const groupMethods = {
     },
 
     unarchive: async (id: string): Promise<Group> => {
-        const [group] = await Promise.all([
-            prisma.group.update({ where: { id }, data: { archived: false } }),
+        const group = await prisma.group.findUnique({ where: { id }, include: { parent: true } });
+        if (group?.parent && group.parent.archived) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot unarchive group with archived parent') });
+        }
+        const [updatedGroup] = await prisma.$transaction([
+            prisma.group.update({ where: { id, parent: { archived: false } }, data: { archived: false } }),
             prisma.membership.updateMany({ where: { groupId: id }, data: { archived: false } }),
         ]);
-        return group;
+        return updatedGroup;
     },
 
     delete: async (id: string) => {

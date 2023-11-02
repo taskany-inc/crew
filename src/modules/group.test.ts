@@ -142,6 +142,13 @@ describe('groups', () => {
         await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot archive group with children"');
     });
 
+    it('cannot unarchive group with archived parent', async () => {
+        await groupMethods.archive('duck');
+        await groupMethods.archive('porpoise');
+        const check = () => groupMethods.unarchive('duck');
+        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot unarchive group with archived parent"');
+    });
+
     it('cannot delete group with children', async () => {
         const check = () => groupMethods.delete('zebra');
         await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot delete group with children"');
