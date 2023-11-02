@@ -32,7 +32,7 @@ export const groupMethods = {
     },
 
     archive: async (id: string): Promise<Group> => {
-        const count = await prisma.group.count({ where: { parentId: id } });
+        const count = await prisma.group.count({ where: { parentId: id, archived: false } });
         if (count > 0) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with children') });
         const [group] = await Promise.all([
             prisma.group.update({ where: { id }, data: { archived: true } }),
