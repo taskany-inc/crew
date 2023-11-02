@@ -1,8 +1,8 @@
 {
-    "Cannot delete group with children": "Cannot delete group with children",
-    "Title is required": "Title is required",
-    "Title must be a string": "Title must be a string",
-    "Title must be longer than {upTo} symbol": "Title must be longer than {upTo} symbol",
+    "Cannot delete group with children": "",
+    "Title is required": "",
+    "Title must be a string": "",
+    "Title must be longer than {upTo} symbol": "",
     "Choose a service": "Choose a service",
     "Max {max} items in a single request": "",
     "Cannot move group inside its child": "",
@@ -21,5 +21,6 @@
     "Cannot move group into archived group": "",
     "Cannot edit archived group": "",
     "Group is archived": "",
-    "Choose a device": ""
+    "Choose a device": "",
+    "Cannot unarchive group with archived parent": ""
 }
