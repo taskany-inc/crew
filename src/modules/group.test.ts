@@ -49,7 +49,7 @@ describe('groups', () => {
         await groupMethods.move({ id: 'barracuda', newParentId: testRootGroup });
     });
 
-    it("archives/unarchives group and it's membserships", async () => {
+    it("archives/unarchives group and it's memberships", async () => {
         await groupMethods.archive('goldfinch');
         const archivedGroup = await prisma.group.findUnique({
             where: { id: 'goldfinch' },
@@ -65,6 +65,14 @@ describe('groups', () => {
         });
         expect(unarchivedGroup?.archived).toBe(false);
         expect(unarchivedGroup?.memberships[0].archived).toBe(false);
+    });
+
+    it('archives group with archived children', async () => {
+        const children = await groupMethods.getChildren('porpoise');
+        expect(children.length).toBe(1);
+        await groupMethods.archive(children[0].id);
+        const groupAfter = await groupMethods.archive('porpoise');
+        expect(groupAfter.archived).toBe(true);
     });
 
     it('cannot get archived groups or memberships', async () => {
