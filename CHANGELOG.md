@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.16.1](https://github.com/taskany-inc/crew/compare/v0.16.0...v0.16.1) (2023-11-07)
+
+
+### Bug Fixes
+
+* **rest router:** catch nested routes ([75d0b9c](https://github.com/taskany-inc/crew/commit/75d0b9c79cbb0c2c0b3ee47a7d3c6c2727271251))
+
 ## [0.16.0](https://github.com/taskany-inc/crew/compare/v0.15.0...v0.16.0) (2023-11-02)
 
 
