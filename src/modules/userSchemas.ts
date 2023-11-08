@@ -29,6 +29,9 @@ export type ChangeBonusPoints = z.infer<typeof changeBonusPointsSchema>;
 
 export const getUserListSchema = z.object({
     search: z.string().optional(),
+    groupsQuery: z.array(z.string()).optional(),
+    rolesQuery: z.array(z.string()).optional(),
+    supervisorsQuery: z.array(z.string()).optional(),
     take: z
         .number()
         .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
@@ -48,3 +51,11 @@ export const editUserSettingsSchema = z.object({
     theme: z.enum(themes).optional(),
 });
 export type EditUserSettings = z.infer<typeof editUserSettingsSchema>;
+
+export const getUserSuggestionsSchema = z.object({
+    query: z.string(),
+    take: z.number().optional(),
+    include: z.array(z.string()).optional(),
+});
+
+export type GetUserSuggestions = z.infer<typeof getUserSuggestionsSchema>;

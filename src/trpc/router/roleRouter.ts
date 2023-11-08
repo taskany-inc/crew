@@ -5,6 +5,7 @@ import {
     createRoleSchema,
     getRoleListSchema,
     removeRoleFromMembershipSchema,
+    getRoleSuggestionsSchema,
 } from '../../modules/roleSchemas';
 
 export const roleRouter = router({
@@ -22,5 +23,9 @@ export const roleRouter = router({
 
     getList: protectedProcedure.input(getRoleListSchema).query(({ input }) => {
         return roleMethods.getList(input);
+    }),
+
+    suggestions: protectedProcedure.input(getRoleSuggestionsSchema).query(({ input }) => {
+        return roleMethods.suggestions(input);
     }),
 });

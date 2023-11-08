@@ -10,6 +10,7 @@ import {
     editUserSettingsSchema,
     getUserListSchema,
     removeUserFromGroupSchema,
+    getUserSuggestionsSchema,
 } from '../../modules/userSchemas';
 import { userAccess } from '../../modules/userAccess';
 
@@ -59,5 +60,9 @@ export const userRouter = router({
     edit: protectedProcedure.input(editUserSchema).mutation(({ input, ctx }) => {
         accessCheck(userAccess.isEditable(ctx.session.user, input.id));
         return userMethods.edit(input);
+    }),
+
+    suggestions: protectedProcedure.input(getUserSuggestionsSchema).query(({ input }) => {
+        return userMethods.suggestions(input);
     }),
 });

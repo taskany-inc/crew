@@ -25,3 +25,9 @@ export type UserMeta = { meta: Record<keyof typeof userAccess, boolean> };
 export type UserMemberships = { memberships: MembershipInfo[] };
 
 export type UserSupervisor = { supervisor: Nullish<User> };
+
+export type UserFilterQuery = {
+    groupsQuery?: string[];
+    rolesQuery?: string[];
+    supervisorsQuery?: string[];
+};
