@@ -26,8 +26,9 @@ const StyledFormSection = styled(Text)`
     margin: 0 ${gapM} ${gapS} ${gapM};
     display: flex;
     gap: ${gapM};
+    flex-wrap: wrap;
     align-items: center;
-    height: 28px;
+    min-height: 28px;
 `;
 
 type TeamSettingsPageBaseProps = {

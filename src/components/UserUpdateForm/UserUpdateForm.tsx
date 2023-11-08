@@ -16,7 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
 import { gapM, gray8 } from '@taskany/colors';
 
-import { UserSupervisorEditable } from '../UserSupervisorEditable/UserSupervisorEditable';
+import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { EditUser, editUserSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
 import { User, UserMeta, UserSupervisor } from '../../modules/userTypes';
@@ -34,6 +34,7 @@ const NoWrap = styled.div`
 
 const StyledSupervisorField = styled.div`
     display: inline-flex;
+    align-items: center;
 `;
 
 const StyledTextSupervisor = styled(Text)`
@@ -87,10 +88,10 @@ const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                 {tr('Supervisor:')}
                             </StyledTextSupervisor>
                             {nullable(user.meta.isEditable, () => (
-                                <UserSupervisorEditable
+                                <UserComboBox
                                     user={user.supervisor}
                                     onChange={(newUser) => {
-                                        setValue('supervisorId', newUser.id);
+                                        setValue('supervisorId', newUser?.id);
                                     }}
                                 />
                             ))}
