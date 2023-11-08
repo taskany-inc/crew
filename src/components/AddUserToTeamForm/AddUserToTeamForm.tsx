@@ -53,7 +53,7 @@ export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
                     setSearch(value.name || value.email);
                     setSelectedUser(value);
                 }}
-                items={userListQuery.data}
+                items={userListQuery.data?.users}
                 maxWidth={550}
                 renderInput={({ value, ...restProps }) => (
                     <StyledRowWrapper>

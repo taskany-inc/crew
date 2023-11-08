@@ -1,11 +1,12 @@
-import { Group } from 'prisma/prisma-client';
+import { Group, Prisma } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
 import { objByKey } from '../utils/objByKey';
 import { SessionUser } from '../utils/auth';
+import { suggestionsTake } from '../utils/suggestions';
 
-import { CreateGroup, EditGroup, GetGroupList, MoveGroup } from './groupSchemas';
+import { CreateGroup, EditGroup, GetGroupList, MoveGroup, GetGroupSuggestions } from './groupSchemas';
 import { tr } from './modules.i18n';
 import { MembershipInfo } from './userTypes';
 import { GroupMeta, GroupParent, GroupSupervisor } from './groupTypes';
@@ -161,5 +162,22 @@ export const groupMethods = {
             }
         }
         return { adjacencyList, dict };
+    },
+
+    suggestions: async ({ query, include, take = suggestionsTake }: GetGroupSuggestions) => {
+        const where: Prisma.GroupWhereInput = { name: { contains: query, mode: 'insensitive' } };
+
+        if (include) {
+            where.id = { notIn: include };
+        }
+
+        const suggestions = await prisma.group.findMany({ where, take });
+
+        if (include) {
+            const includes = await prisma.group.findMany({ where: { id: { in: include } } });
+            suggestions.push(...includes);
+        }
+
+        return suggestions;
     },
 };

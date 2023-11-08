@@ -1,8 +1,9 @@
-import { BonusAction, User } from 'prisma/prisma-client';
+import { BonusAction, Prisma, User } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
+import { suggestionsTake } from '../utils/suggestions';
 
 import { MembershipInfo, UserMemberships, UserMeta, UserSettings, UserSupervisor } from './userTypes';
 import {
@@ -12,6 +13,7 @@ import {
     EditUserSettings,
     GetUserList,
     RemoveUserFromGroup,
+    GetUserSuggestions,
 } from './userSchemas';
 import { userAccess } from './userAccess';
 import { tr } from './modules.i18n';
@@ -25,6 +27,30 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: Se
             isBonusHistoryViewable: userAccess.isBonusHistoryViewable(sessionUser, user.id).allowed,
         },
     };
+};
+
+const usersWhere = (data: GetUserList) => {
+    const where: Prisma.UserWhereInput = {};
+    if (data.search) where.name = { contains: data.search, mode: 'insensitive' };
+    if (data.supervisorsQuery) where.supervisorId = { in: data.supervisorsQuery };
+    if (data.groupsQuery && !data.rolesQuery) {
+        where.memberships = {
+            some: { groupId: { in: data.groupsQuery } },
+        };
+    }
+    if (!data.groupsQuery && data.rolesQuery) {
+        where.memberships = {
+            some: { roles: { some: { id: { in: data.rolesQuery } } } },
+        };
+    }
+
+    if (data.groupsQuery && data.rolesQuery) {
+        where.memberships = {
+            some: { groupId: { in: data.groupsQuery }, roles: { some: { id: { in: data.rolesQuery } } } },
+        };
+    }
+
+    return where;
 };
 
 export const userMethods = {
@@ -99,11 +125,19 @@ export const userMethods = {
         return settings;
     },
 
-    getList: (data: GetUserList) => {
-        return prisma.user.findMany({
-            where: { name: { contains: data.search, mode: 'insensitive' } },
+    getList: async (data: GetUserList) => {
+        const where = usersWhere(data);
+
+        const counter = await prisma.user.count({ where });
+
+        const total = await prisma.user.count({});
+
+        const users = await prisma.user.findMany({
+            where,
             take: data.take,
         });
+
+        return { users, total, counter };
     },
 
     getMemberships: (id: string): Promise<MembershipInfo[]> => {
@@ -123,10 +157,32 @@ export const userMethods = {
             orderBy: { createdAt: 'asc' },
         });
     },
+
     edit: (data: EditUser) => {
         return prisma.user.update({
             where: { id: data.id },
             data: { name: data.name, supervisorId: data.supervisorId },
         });
+    },
+
+    suggestions: async ({ query, include, take = suggestionsTake }: GetUserSuggestions) => {
+        const where: Prisma.UserWhereInput = {
+            OR: [
+                { name: { contains: query, mode: 'insensitive' } },
+                { email: { contains: query, mode: 'insensitive' } },
+            ],
+        };
+
+        if (include) {
+            where.id = { notIn: include };
+        }
+        const suggestions = await prisma.user.findMany({ where, take });
+
+        if (include) {
+            const includes = await prisma.user.findMany({ where: { id: { in: include } } });
+            suggestions.push(...includes);
+        }
+
+        return suggestions;
     },
 };

@@ -29,3 +29,11 @@ export const getGroupListSchema = z.object({
         .optional(),
 });
 export type GetGroupList = z.infer<typeof getGroupListSchema>;
+
+export const getGroupSuggestionsSchema = z.object({
+    query: z.string(),
+    take: z.number().optional(),
+    include: z.array(z.string()).optional(),
+});
+
+export type GetGroupSuggestions = z.infer<typeof getGroupSuggestionsSchema>;

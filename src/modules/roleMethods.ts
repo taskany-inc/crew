@@ -1,8 +1,16 @@
 import { TRPCError } from '@trpc/server';
+import { Prisma } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
+import { suggestionsTake } from '../utils/suggestions';
 
-import { AddRoleToMembership, CreateRole, GetRoleList, RemoveRoleFromMembership } from './roleSchemas';
+import {
+    AddRoleToMembership,
+    CreateRole,
+    GetRoleList,
+    RemoveRoleFromMembership,
+    GetRoleSuggestions,
+} from './roleSchemas';
 import { tr } from './modules.i18n';
 
 export const roleMethods = {
@@ -37,5 +45,21 @@ export const roleMethods = {
             where: { name: { contains: data.search, mode: 'insensitive' } },
             take: data.take,
         });
+    },
+
+    suggestions: async ({ query, include, take = suggestionsTake }: GetRoleSuggestions) => {
+        const where: Prisma.RoleWhereInput = { name: { contains: query, mode: 'insensitive' } };
+
+        if (include) {
+            where.id = { notIn: include };
+        }
+        const suggestions = await prisma.role.findMany({ where, take });
+
+        if (include) {
+            const includes = await prisma.role.findMany({ where: { id: { in: include } } });
+            suggestions.push(...includes);
+        }
+
+        return suggestions;
     },
 };

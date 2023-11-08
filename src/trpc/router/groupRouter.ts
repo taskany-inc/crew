@@ -2,7 +2,13 @@ import { z } from 'zod';
 
 import { accessCheck } from '../../utils/access';
 import { router, protectedProcedure } from '../trpcBackend';
-import { createGroupSchema, editGroupSchema, getGroupListSchema, moveGroupSchema } from '../../modules/groupSchemas';
+import {
+    createGroupSchema,
+    editGroupSchema,
+    getGroupListSchema,
+    moveGroupSchema,
+    getGroupSuggestionsSchema,
+} from '../../modules/groupSchemas';
 import { groupMethods } from '../../modules/groupMethods';
 import { groupAccess } from '../../modules/groupAccess';
 
@@ -56,5 +62,9 @@ export const groupRouter = router({
 
     getHierarchy: protectedProcedure.input(z.string()).query(({ input }) => {
         return groupMethods.getHierarchy(input);
+    }),
+
+    suggestions: protectedProcedure.input(getGroupSuggestionsSchema).query(({ input }) => {
+        return groupMethods.suggestions(input);
     }),
 });

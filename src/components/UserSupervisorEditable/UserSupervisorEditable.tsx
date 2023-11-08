@@ -31,7 +31,7 @@ export const UserSupervisorEditable = ({ onChange }: UserSupervisorEditableProps
                 onChange(value);
             }}
             visible={!selectedSupervisor}
-            items={userListQuery.data}
+            items={userListQuery.data?.users}
             maxWidth={100}
             renderInput={({ value, ...restProps }) => (
                 <Input

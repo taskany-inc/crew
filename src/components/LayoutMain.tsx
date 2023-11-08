@@ -2,6 +2,7 @@ import { FC, ReactNode } from 'react';
 import Head from 'next/head';
 import { useTheme } from 'next-themes';
 import styled from 'styled-components';
+import { gapL, gapM } from '@taskany/colors';
 
 import { trpc } from '../trpc/trpcClient';
 
@@ -13,6 +14,10 @@ import { GlobalStyle } from './GlobalStyle';
 const StyledContent = styled.div`
     /* presses the footer to the bottom*/
     min-height: calc(100vh - 160px);
+`;
+
+export const PageContent = styled.div`
+    padding: ${gapM} ${gapL} ${gapL} ${gapL};
 `;
 
 interface LayoutMainProps {
