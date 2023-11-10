@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.18.0](https://github.com/taskany-inc/crew/compare/v0.17.0...v0.18.0) (2023-11-10)
+
+
+### Features
+
+* bonus points store link ([64349ed](https://github.com/taskany-inc/crew/commit/64349ed62c78e06c811ea9fda38a929d62bb3c73))
+
+
+### Bug Fixes
+
+* **bonus history:** new records first ([7622e17](https://github.com/taskany-inc/crew/commit/7622e178ffdd0bcd4cfb162ebaccd5668f69ec4a))
+* hide bonus points from user page ([6f65452](https://github.com/taskany-inc/crew/commit/6f654526339ee374845f7589489fde2f10e14c25))
+
 ## [0.17.0](https://github.com/taskany-inc/crew/compare/v0.16.1...v0.17.0) (2023-11-09)
 
 
