@@ -8,4 +8,7 @@ export const config = {
             jwsAlgorithm: process.env.KEYCLOAK_JWS_ALGORITHM || 'RS256',
         },
     },
+    bonusPoints: {
+        storeLink: process.env.NEXT_PUBLIC_BONUS_POINTS_STORE_LINK,
+    },
 };

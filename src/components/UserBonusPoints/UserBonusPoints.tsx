@@ -17,7 +17,7 @@ import {
     nullable,
 } from '@taskany/bricks';
 import { IconEditSolid } from '@taskany/icons';
-import { danger10, gapM, gapS } from '@taskany/colors';
+import { danger10, gapM, gapS, gray8 } from '@taskany/colors';
 
 import { NarrowSection } from '../NarrowSection';
 import { InlineTrigger } from '../InlineTrigger';
@@ -25,6 +25,8 @@ import { UserMeta } from '../../modules/userTypes';
 import { ChangeBonusPoints, changeBonusPointsSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
 import { BonusPointsHistory } from '../BonusPointsHistory/BonusPointsHistory';
+import { config } from '../../config';
+import { Link } from '../Link';
 
 import { tr } from './UserBonusPoints.i18n';
 
@@ -82,7 +84,7 @@ export const UserBonusPoints = ({ user }: UserBonusPointsProps) => {
                 {tr('Balance')}: {user.bonusPoints}
             </StyledText>
 
-            {nullable(user.meta.isBonusEditable && !modalVisible, () => (
+            {nullable(user.meta.isBonusEditable, () => (
                 <InlineTrigger
                     text={tr('Add / Subtract')}
                     icon={<IconEditSolid size="s" />}
@@ -92,6 +94,14 @@ export const UserBonusPoints = ({ user }: UserBonusPointsProps) => {
 
             {nullable(user.meta.isBonusHistoryViewable, () => (
                 <BonusPointsHistory userId={user.id} />
+            ))}
+
+            {nullable(config.bonusPoints.storeLink, (storeLink) => (
+                <Text color={gray8} size="s">
+                    <Link href={storeLink} target="_blank">
+                        {tr('Spend and earn')}
+                    </Link>
+                </Text>
             ))}
 
             <Modal visible={modalVisible} onClose={hideModal} width={500}>

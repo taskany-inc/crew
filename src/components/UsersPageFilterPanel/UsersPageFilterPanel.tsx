@@ -21,7 +21,7 @@ import { trpc } from '../../trpc/trpcClient';
 import { GroupsOrRolesFilter } from '../GroupsOrRolesFilter/GroupsOrRolesFilter';
 import { UserFilterQuery } from '../../modules/userTypes';
 
-import { tr } from './UsersPageFiltersPanel.i18n';
+import { tr } from './UsersPageFilterPanel.i18n';
 
 type UsersPageFilterPanelProps = {
     setSearchQuery: (searchQuery: string) => void;
