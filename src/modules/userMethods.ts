@@ -154,7 +154,7 @@ export const userMethods = {
     getBonusPointsHistory: (id: string) => {
         return prisma.bonusHistory.findMany({
             where: { targetUserId: id },
-            orderBy: { createdAt: 'asc' },
+            orderBy: { createdAt: 'desc' },
         });
     },
 
