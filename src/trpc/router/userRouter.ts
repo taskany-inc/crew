@@ -53,7 +53,7 @@ export const userRouter = router({
     }),
 
     getBonusPointsHistory: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheck(userAccess.isBonusHistoryViewable(ctx.session.user, input));
+        accessCheck(userAccess.isBonusViewable(ctx.session.user, input));
         return userMethods.getBonusPointsHistory(input);
     }),
 

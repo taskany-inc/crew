@@ -110,7 +110,9 @@ export const UserPage = ({ userId }: UserPageProps) => {
 
             <StyledUserInfoWrapper>
                 <StyledLeftPanel>
-                    <UserBonusPoints user={user} />
+                    {nullable(user.meta.isBonusViewable, () => (
+                        <UserBonusPoints user={user} />
+                    ))}
 
                     <UserContacts user={user} />
 

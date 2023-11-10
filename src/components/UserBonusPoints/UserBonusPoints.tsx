@@ -92,9 +92,7 @@ export const UserBonusPoints = ({ user }: UserBonusPointsProps) => {
                 />
             ))}
 
-            {nullable(user.meta.isBonusHistoryViewable, () => (
-                <BonusPointsHistory userId={user.id} />
-            ))}
+            <BonusPointsHistory userId={user.id} />
 
             {nullable(config.bonusPoints.storeLink, (storeLink) => (
                 <Text color={gray8} size="s">

@@ -15,8 +15,8 @@ export const userAccess = {
         return sessionUser.role === UserRole.ADMIN ? allowed : notAllowed(tr('Only admins can edit bonus points'));
     },
 
-    isBonusHistoryViewable: (sessionUser: SessionUser, userId: string): AccessCheckResult => {
+    isBonusViewable: (sessionUser: SessionUser, userId: string): AccessCheckResult => {
         if (sessionUser.role === UserRole.ADMIN || userId === sessionUser.id) return allowed;
-        return notAllowed(tr('Cannot view another user bonus points history'));
+        return notAllowed(tr('Cannot view another user bonus points'));
     },
 };
