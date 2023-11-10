@@ -90,9 +90,7 @@ export const UserBonusPoints = ({ user }: UserBonusPointsProps) => {
                 />
             ))}
 
-            {nullable(user.meta.isBonusHistoryViewable, () => (
-                <BonusPointsHistory userId={user.id} />
-            ))}
+            <BonusPointsHistory userId={user.id} />
 
             <Modal visible={modalVisible} onClose={hideModal} width={500}>
                 <ModalHeader>

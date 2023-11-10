@@ -24,7 +24,7 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: Se
         meta: {
             isEditable: userAccess.isEditable(sessionUser, user.id).allowed,
             isBonusEditable: userAccess.isBonusEditable(sessionUser).allowed,
-            isBonusHistoryViewable: userAccess.isBonusHistoryViewable(sessionUser, user.id).allowed,
+            isBonusViewable: userAccess.isBonusViewable(sessionUser, user.id).allowed,
         },
     };
 };
