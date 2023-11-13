@@ -1,20 +1,16 @@
 import styled from 'styled-components';
-import { Text, nullable } from '@taskany/bricks';
-import { gapL, gapS } from '@taskany/colors';
+import { TreeView, nullable } from '@taskany/bricks';
+import { gapL, gapM } from '@taskany/colors';
 
 import { trpc } from '../trpc/trpcClient';
 
-import { TeamPageFiltersPanel } from './TeamPageFiltersPanel/TeamPageFiltersPanel';
 import { LayoutMain } from './LayoutMain';
-import { UserListItem } from './UserListItem';
-import { GroupListItem } from './GroupListItem';
-import { TeamPageHeader } from './TeamPageHeader/TeamPageHeader';
+import { GroupTreeViewNode } from './GroupTreeViewNode';
+import { CommonHeader } from './CommonHeader';
+import { tr } from './components.i18n';
 
-const StyledGroupList = styled.div`
-    margin: 0 ${gapL};
-    display: flex;
-    flex-direction: column;
-    gap: ${gapS};
+const StyledTreeContainer = styled.div`
+    margin: ${gapM} ${gapL} 0 ${gapL};
 `;
 
 type TeamPageProps = {
@@ -25,40 +21,20 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
     const groupQuery = trpc.group.getById.useQuery(teamId);
     const group = groupQuery.data;
 
-    const groupMembersQuery = trpc.user.getGroupMembers.useQuery(String(teamId));
-    const users = groupMembersQuery.data;
-
     const childrenQuery = trpc.group.getChildren.useQuery(teamId);
-    const children = childrenQuery.data ?? [];
-
     if (!group) return null;
 
     return (
         <LayoutMain pageTitle={group.name}>
-            <TeamPageHeader group={group} />
+            <CommonHeader title={tr('Team')} description={tr('All active children teams')} />
 
-            <TeamPageFiltersPanel />
-
-            {/* TODO: replace with CollapsibleItem https://github.com/taskany-inc/bricks/issues/312 */}
-            <StyledGroupList>
-                {nullable(users, (u) => (
-                    <>
-                        <Text>Users:</Text>
-                        {u.map((user) => (
-                            <UserListItem key={user.id} user={user} />
-                        ))}
-                    </>
-                ))}
-
-                {nullable(children, (c) => (
-                    <>
-                        <Text>Children:</Text>
-                        {c.map((child) => (
-                            <GroupListItem key={child.id} group={child} />
-                        ))}
-                    </>
-                ))}
-            </StyledGroupList>
+            <StyledTreeContainer>
+                <TreeView>
+                    {nullable(childrenQuery.data, (children) =>
+                        children.map((child) => <GroupTreeViewNode key={child.id} group={child} visible />),
+                    )}
+                </TreeView>
+            </StyledTreeContainer>
         </LayoutMain>
     );
 };

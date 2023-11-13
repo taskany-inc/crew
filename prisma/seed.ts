@@ -128,6 +128,27 @@ const main = async () => {
             deviceId: 'deviceId',
         },
     });
+
+    await prisma.group.create({
+        data: {
+            name: 'taskany',
+            children: {
+                create: {
+                    name: 'frontend',
+                    children: {
+                        create: {
+                            name: 'services',
+                            children: {
+                                create: {
+                                    name: 'crew',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
 };
 
 main();

@@ -4,7 +4,10 @@ import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
 export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
     stringIds: { teamId: true },
-    action: ({ stringIds }) => {
+    action: async ({ ssg, stringIds }) => {
+        const team = await ssg.group.getById.fetch(stringIds.teamId);
+        await ssg.group.getChildren.fetch(team.id);
+
         return { teamId: stringIds.teamId };
     },
 });
