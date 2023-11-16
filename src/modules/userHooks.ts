@@ -4,6 +4,13 @@ export const useUserMutations = () => {
     const utils = trpc.useContext();
 
     return {
+        createUser: trpc.user.create.useMutation({
+            onSuccess: () => {
+                utils.user.invalidate();
+                utils.group.getMemberships.invalidate();
+            },
+        }),
+
         addUserToGroup: trpc.user.addToGroup.useMutation({
             onSuccess: () => {
                 utils.user.invalidate();
@@ -42,6 +49,7 @@ export const useUserMutations = () => {
                 utils.user.getById.invalidate();
             },
         }),
+
         editUser: trpc.user.edit.useMutation({
             onSuccess: () => {
                 utils.user.invalidate();

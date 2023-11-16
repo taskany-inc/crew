@@ -5,6 +5,19 @@ import { themes } from '../utils/theme';
 
 import { tr } from './modules.i18n';
 
+export const createUserSchema = z.object({
+    surname: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    firstName: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    middleName: z.string().optional(),
+    email: z.string().min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
+    phone: z.string().min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
+    login: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 3 }) }),
+    organizationUnitId: z.string().nullish(),
+    groupId: z.string().nullish(),
+    supervisorId: z.string().nullish(),
+});
+export type CreateUser = z.infer<typeof createUserSchema>;
+
 export const addUserToGroupSchema = z.object({
     userId: z.string(),
     groupId: z.string(),

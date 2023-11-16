@@ -11,10 +11,15 @@ import {
     getUserListSchema,
     removeUserFromGroupSchema,
     getUserSuggestionsSchema,
+    createUserSchema,
 } from '../../modules/userSchemas';
 import { userAccess } from '../../modules/userAccess';
 
 export const userRouter = router({
+    create: protectedProcedure.input(createUserSchema).mutation(({ input }) => {
+        return userMethods.create(input);
+    }),
+
     addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(({ input }) => {
         return userMethods.addToGroup(input);
     }),

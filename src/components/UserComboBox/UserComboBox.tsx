@@ -5,17 +5,18 @@ import { useState } from 'react';
 import { trpc } from '../../trpc/trpcClient';
 import { User } from '../../modules/userTypes';
 import { Nullish } from '../../utils/types';
+import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './UserComboBox.i18n';
 
 interface UserComboBoxProps {
-    user: Nullish<User>;
+    user?: Nullish<User>;
     onChange: (user: Nullish<User>) => void;
 }
 
 export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
     const [search, setSearch] = useState('');
-    const [comboboxVisibility, setComboboxVisibility] = useState(false);
+    const suggestionsVisibility = useBoolean(false);
     const [selectedUser, setSelectedUser] = useState<Nullish<User>>(user);
     const userListQuery = trpc.user.getList.useQuery({ search, take: 10 }, { keepPreviousData: true });
 
@@ -25,10 +26,10 @@ export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
             onChange={(value: User) => {
                 setSearch(value.name || value.email);
                 setSelectedUser(value);
-                setComboboxVisibility(false);
+                suggestionsVisibility.setFalse();
                 onChange(value);
             }}
-            visible={comboboxVisibility}
+            visible={suggestionsVisibility.value}
             items={userListQuery.data?.users}
             renderInput={({ value, ...restProps }) => (
                 <Input
@@ -36,15 +37,15 @@ export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
                         <UserPic size={16} name={s.name} src={s.image} email={s.email} />
                     ))}
                     placeholder={tr('Choose user')}
-                    autoFocus
                     size="m"
                     autoComplete="off"
                     value={value ?? selectedUser?.name}
+                    onFocus={suggestionsVisibility.setTrue}
+                    onBlur={() => setTimeout(suggestionsVisibility.setFalse, 100)}
                     onChange={(e) => {
                         setSelectedUser(null);
                         onChange(null);
                         setSearch(e.target.value);
-                        setComboboxVisibility(true);
                     }}
                     {...restProps}
                 />
