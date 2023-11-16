@@ -22,5 +22,6 @@
     "Cannot edit archived group": "",
     "Group is archived": "",
     "Choose a device": "",
-    "Cannot unarchive group with archived parent": ""
+    "Cannot unarchive group with archived parent": "",
+    "Minimum {min} symbols": ""
 }

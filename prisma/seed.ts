@@ -23,110 +23,42 @@ const main = async () => {
         },
     });
 
-    const github = await prisma.externalService.create({
-        data: {
-            name: 'github',
-            icon: 'IconGithubOutline',
-            linkPrefix: 'https://github.com/',
-        },
-    });
+    const servicesData = [
+        { name: 'Email', icon: 'IconEnvelopeOutline', linkPrefix: 'mailto:' },
+        { name: 'Phone', icon: 'IconPhoneOutline', linkPrefix: 'tel:' },
+        { name: 'Login', icon: 'IconUserSquareOutline' },
+        { name: 'Github', icon: 'IconGithubOutline', linkPrefix: 'https://github.com/' },
+        { name: 'Gitlab', icon: 'IconGitlabOutline', linkPrefix: 'https://gitlab.com/' },
+        { name: 'Telegram', icon: 'IconTelegramOutline', linkPrefix: 'https://t.me/' },
+    ];
 
-    await prisma.userService.create({
-        data: {
-            serviceName: github.name,
-            userId: user.id,
-            serviceId: 'githubId',
-        },
-    });
+    await prisma.externalService.createMany({ data: servicesData });
 
-    const gitlab = await prisma.externalService.create({
-        data: {
-            name: 'gitlab',
-            icon: 'IconGitlabOutline',
-            linkPrefix: 'https://gitlab.com/',
-        },
-    });
+    await Promise.all(
+        servicesData.map((data) => {
+            return prisma.userService.create({
+                data: { serviceName: data.name, userId: user.id, serviceId: `${data.name} id` },
+            });
+        }),
+    );
 
-    await prisma.userService.create({
-        data: {
-            serviceName: gitlab.name,
-            userId: user.id,
-            serviceId: 'gitlabId',
-        },
-    });
+    const devicesData = [{ name: 'MacBook' }, { name: 'Smart Display' }, { name: 'Smart Speaker' }];
 
-    const email = await prisma.externalService.create({
-        data: {
-            name: 'email',
-            icon: 'IconEnvelopeOutline',
-            linkPrefix: 'mailto:',
-        },
-    });
+    await prisma.device.createMany({ data: devicesData });
 
-    await prisma.userService.create({
-        data: {
-            serviceName: email.name,
-            userId: user.id,
-            serviceId: 'emailId',
-        },
-    });
+    await Promise.all(
+        devicesData.map((data) => {
+            return prisma.userDevice.create({
+                data: { deviceName: data.name, userId: user.id, deviceId: `${data.name} id` },
+            });
+        }),
+    );
 
-    const telegram = await prisma.externalService.create({
-        data: {
-            name: 'telegram',
-            icon: 'IconTelegramOutline',
-            linkPrefix: 'https://t.me/',
-        },
-    });
-
-    await prisma.userService.create({
-        data: {
-            serviceName: telegram.name,
-            userId: user.id,
-            serviceId: 'telegramId',
-        },
-    });
-
-    const macBook = await prisma.device.create({
-        data: {
-            name: 'MacBook',
-        },
-    });
-
-    await prisma.userDevice.create({
-        data: {
-            deviceName: macBook.name,
-            userId: user.id,
-            deviceId: 'deviceId',
-        },
-    });
-
-    const sberportal = await prisma.device.create({
-        data: {
-            name: 'Sberportal',
-        },
-    });
-
-    await prisma.userDevice.create({
-        data: {
-            deviceName: sberportal.name,
-            userId: user.id,
-            deviceId: 'deviceId',
-        },
-    });
-
-    const sberbox = await prisma.device.create({
-        data: {
-            name: 'Sberbox',
-        },
-    });
-
-    await prisma.userDevice.create({
-        data: {
-            deviceName: sberbox.name,
-            userId: user.id,
-            deviceId: 'deviceId',
-        },
+    await prisma.organizationUnit.createMany({
+        data: [
+            { name: 'Head office', country: 'UK' },
+            { name: 'Subsidiary', country: 'France' },
+        ],
     });
 
     await prisma.group.create({

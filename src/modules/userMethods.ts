@@ -4,6 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 import { suggestionsTake } from '../utils/suggestions';
+import { trimAndJoin } from '../utils/trimAndJoin';
 
 import { MembershipInfo, UserMemberships, UserMeta, UserSettings, UserSupervisor } from './userTypes';
 import {
@@ -14,6 +15,7 @@ import {
     GetUserList,
     RemoveUserFromGroup,
     GetUserSuggestions,
+    CreateUser,
 } from './userSchemas';
 import { userAccess } from './userAccess';
 import { tr } from './modules.i18n';
@@ -54,6 +56,30 @@ const usersWhere = (data: GetUserList) => {
 };
 
 export const userMethods = {
+    create: async (data: CreateUser) => {
+        const [phoneService, loginService] = await Promise.all([
+            prisma.externalService.findUnique({ where: { name: 'Phone' } }),
+            prisma.externalService.findUnique({ where: { name: 'Login' } }),
+        ]);
+        const servicesData = [];
+        if (data.phone && phoneService) {
+            servicesData.push({ serviceName: phoneService.name, serviceId: data.phone });
+        }
+        if (data.login && loginService) {
+            servicesData.push({ serviceName: loginService.name, serviceId: data.login });
+        }
+        return prisma.user.create({
+            data: {
+                name: trimAndJoin([data.surname, data.firstName, data.middleName]),
+                email: data.email,
+                supervisorId: data.supervisorId,
+                memberships: data.groupId ? { create: { groupId: data.groupId } } : undefined,
+                organizationUnitId: data.organizationUnitId,
+                services: { createMany: { data: servicesData } },
+            },
+        });
+    },
+
     addToGroup: async (data: AddUserToGroup) => {
         const membership = await prisma.membership.findUnique({ where: { userId_groupId: data } });
         if (membership?.archived) {

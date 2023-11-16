@@ -8,6 +8,7 @@ import { UserMenu, Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink, 
 import { pages } from '../../hooks/useRouter';
 import { GlobalSearch } from '../GlobalSearch/GlobalSearch';
 import { PageHeaderLogo } from '../PageHeaderLogo';
+import { PageHeaderActionButton } from '../PageHeaderActionButton/PageHeaderActionButton';
 
 import { tr } from './PageHeader.i18n';
 
@@ -70,7 +71,9 @@ export const PageHeader: React.FC = () => {
                 </StyledNav>
             }
         >
-            <HeaderContent />
+            <HeaderContent>
+                <PageHeaderActionButton />
+            </HeaderContent>
         </Header>
     );
 };

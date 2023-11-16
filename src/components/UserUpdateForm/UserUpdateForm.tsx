@@ -10,7 +10,6 @@ import {
     ModalHeader,
     ModalCross,
     Text,
-    nullable,
 } from '@taskany/bricks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
@@ -87,14 +86,12 @@ const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                             <StyledTextSupervisor weight="bold" color={gray8}>
                                 {tr('Supervisor:')}
                             </StyledTextSupervisor>
-                            {nullable(user.meta.isEditable, () => (
-                                <UserComboBox
-                                    user={user.supervisor}
-                                    onChange={(newUser) => {
-                                        setValue('supervisorId', newUser?.id);
-                                    }}
-                                />
-                            ))}
+                            <UserComboBox
+                                user={user.supervisor}
+                                onChange={(newUser) => {
+                                    setValue('supervisorId', newUser?.id);
+                                }}
+                            />
                         </StyledSupervisorField>
                     </NoWrap>
 

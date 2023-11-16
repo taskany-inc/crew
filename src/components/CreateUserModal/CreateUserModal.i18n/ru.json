@@ -1,0 +1,15 @@
+{
+    "Create user": "Создать пользователя",
+    "Surname": "Фамилия",
+    "First name": "Имя",
+    "Middle name": "Отчество",
+    "Cancel": "Отмена",
+    "Create": "Создать",
+    "Email": "Почта",
+    "Supervisor:": "Руководитель",
+    "Team:": "Команда",
+    "Required field": "Обязательное поле",
+    "Phone": "Телефон",
+    "Login": "Логин",
+    "Organization:": "Организация"
+}

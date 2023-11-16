@@ -7,6 +7,7 @@ import { searchRouter } from './searchRouter';
 import { serviceRouter } from './serviceRouter';
 import { roleRouter } from './roleRouter';
 import { deviceRouter } from './deviceRouter';
+import { organizationUnitRouter } from './organizationUnitRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -16,6 +17,7 @@ export const trpcRouter = router({
     service: serviceRouter,
     role: roleRouter,
     device: deviceRouter,
+    organizationUnit: organizationUnitRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

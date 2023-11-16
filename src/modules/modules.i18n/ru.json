@@ -22,5 +22,6 @@
     "Cannot edit archived group": "Нельзя редактировать заархивированную группу",
     "Group is archived": "Группа заархивирована",
     "Choose a device": "Выберите девайс",
-    "Cannot unarchive group with archived parent": "Нельзя разахивировать группу с заархивированным родителем"
+    "Cannot unarchive group with archived parent": "Нельзя разахивировать группу с заархивированным родителем",
+    "Minimum {min} symbols": "Минимум {min} символов"
 }
