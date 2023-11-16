@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.19.0](https://github.com/taskany-inc/crew/compare/v0.18.0...v0.19.0) (2023-11-16)
+
+
+### Features
+
+* **TeamPage:** group interface on group page ([3ad2578](https://github.com/taskany-inc/crew/commit/3ad2578c6fbf536cb032be64d231508b8c983798))
+
 ## [0.18.0](https://github.com/taskany-inc/crew/compare/v0.17.0...v0.18.0) (2023-11-10)
 
 
