@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.20.0](https://github.com/taskany-inc/crew/compare/v0.19.0...v0.20.0) (2023-11-20)
+
+
+### Features
+
+* create user form ([692f183](https://github.com/taskany-inc/crew/commit/692f18312c247e3ec64d1b42181a7be9c48badce))
+
 ## [0.19.0](https://github.com/taskany-inc/crew/compare/v0.18.0...v0.19.0) (2023-11-16)
 
 
