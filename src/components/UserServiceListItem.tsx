@@ -29,7 +29,7 @@ export const UserServiceListItem = ({ userService }: UserServiceListItemProps) =
             <StyledWrapper ref={ref}>
                 <Icon size="s" color={gray10} />
                 {userService.service.linkPrefix ? (
-                    <Link href={encodeURIComponent(`${userService.service.linkPrefix}${userService.serviceId}`)}>
+                    <Link href={encodeURI(`${userService.service.linkPrefix}${userService.serviceId}`)}>
                         {userService.serviceId}
                     </Link>
                 ) : (
