@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.20.1](https://github.com/taskany-inc/crew/compare/v0.20.0...v0.20.1) (2023-11-23)
+
+
+### Bug Fixes
+
+* **UserServiceListItem:** service links don't work ([7dc9445](https://github.com/taskany-inc/crew/commit/7dc94458cd208ae924d695b7f097088819b50e25))
+
 ## [0.20.0](https://github.com/taskany-inc/crew/compare/v0.19.0...v0.20.0) (2023-11-20)
 
 
