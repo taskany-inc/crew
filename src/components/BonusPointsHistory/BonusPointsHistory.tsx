@@ -28,18 +28,11 @@ const StyledModalContent = styled(ModalContent)`
     max-height: 70vh;
 `;
 
-const actionToUiText: Record<BonusAction, string> = {
-    ADD: tr('Added'),
-    SUBTRACT: tr('Subtracted'),
-};
-
 const BonusActionItem = ({ history }: { history: BonusHistory }) => {
     return (
         <div>
             <StyledHistoryRow>
-                <Text>
-                    {actionToUiText[history.action]} {history.amount}
-                </Text>
+                <Text>{history.action === BonusAction.ADD ? tr('Added') : tr('Subtracted')}</Text>
                 <FormattedDate date={history.createdAt} />
             </StyledHistoryRow>
             <Text size="s" color={gray10}>
@@ -65,7 +58,7 @@ export const BonusPointsHistory = ({ userId }: BonusPointsHistoryProps) => {
                 onClick={() => setModalVisible(true)}
             />
 
-            <Modal visible={modalVisible && !!historyQuery.data} onClose={() => setModalVisible(false)} width={500}>
+            <Modal visible={modalVisible && !!historyQuery.data} onClose={() => setModalVisible(false)} width={700}>
                 <ModalHeader>
                     <FormTitle>{tr('Bonus points history')}</FormTitle>
                     <ModalCross onClick={() => setModalVisible(false)} />
