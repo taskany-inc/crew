@@ -106,7 +106,11 @@ export const groupMethods = {
 
     getList: (data: GetGroupList) => {
         return prisma.group.findMany({
-            where: { name: { contains: data.search, mode: 'insensitive' }, archived: false },
+            where: {
+                name: { contains: data.search, mode: 'insensitive' },
+                archived: false,
+                id: { notIn: [...(data.filter || [])] },
+            },
             take: data.take,
         });
     },

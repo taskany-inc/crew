@@ -19,12 +19,13 @@ type InlineGroupSelectFormProps = {
     icon?: ReactNode;
     actionText: string;
     onSubmit: (group: Group) => Promise<void>;
+    filter?: string[];
 };
 
 export const InlineGroupSelectForm = (props: InlineGroupSelectFormProps) => {
     const [search, setSearch] = useState('');
     const [selectedGroup, setSelectedGroup] = useState<Group>();
-    const groupListQuery = trpc.group.getList.useQuery({ search, take: 10 });
+    const groupListQuery = trpc.group.getList.useQuery({ search, take: 10, filter: props.filter });
 
     const onReset = () => {
         setSearch('');

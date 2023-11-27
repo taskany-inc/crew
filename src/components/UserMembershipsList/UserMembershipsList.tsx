@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Group, User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { gapM, gapS } from '@taskany/colors';
@@ -28,6 +29,9 @@ export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
     const onAddUserToTeam = async (group: Group) => {
         await addUserToGroup.mutateAsync({ userId: user.id, groupId: group.id });
     };
+    const groupFilter = useMemo(() => {
+        return user.memberships.map(({ groupId }) => groupId);
+    }, [user.memberships]);
 
     return (
         <NarrowSection title={tr('Teams with participation')}>
@@ -37,7 +41,12 @@ export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
                 ))}
             </StyledMembershipList>
 
-            <InlineGroupSelectForm triggerText={tr('Add team')} actionText={tr('Add')} onSubmit={onAddUserToTeam} />
+            <InlineGroupSelectForm
+                triggerText={tr('Add team')}
+                actionText={tr('Add')}
+                filter={groupFilter}
+                onSubmit={onAddUserToTeam}
+            />
         </NarrowSection>
     );
 };
