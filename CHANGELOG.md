@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.20.2](https://github.com/taskany-inc/crew/compare/v0.20.1...v0.20.2) (2023-11-27)
+
+
+### Bug Fixes
+
+* **BonusPointsHistory:** fixed translations ([11cbbca](https://github.com/taskany-inc/crew/commit/11cbbcaeb1c11feafac8f04fb282bbc41fd71f2f))
+
 ## [0.20.1](https://github.com/taskany-inc/crew/compare/v0.20.0...v0.20.1) (2023-11-23)
 
 
