@@ -48,7 +48,7 @@ type BonusPointsHistoryProps = {
 
 export const BonusPointsHistory = ({ userId }: BonusPointsHistoryProps) => {
     const [modalVisible, setModalVisible] = useState(false);
-    const historyQuery = trpc.user.getBonusPointsHistory.useQuery(userId, { enabled: modalVisible });
+    const historyQuery = trpc.bonusPoints.getHistory.useQuery(userId, { enabled: modalVisible });
 
     return (
         <>

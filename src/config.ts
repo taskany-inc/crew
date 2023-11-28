@@ -10,5 +10,7 @@ export const config = {
     },
     bonusPoints: {
         storeLink: process.env.NEXT_PUBLIC_BONUS_POINTS_STORE_LINK,
+        apiUrl: process.env.BONUS_POINTS_API_URL,
+        apiToken: process.env.BONUS_POINTS_API_TOKEN,
     },
 };

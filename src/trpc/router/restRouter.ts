@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
-import { changeBonusPointsSchema } from '../../modules/userSchemas';
+import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
+import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
 
 export const restRouter = router({
     getUserByEmail: restProcedure
@@ -54,6 +55,6 @@ export const restRouter = router({
             const { actingUserEmail, targetUserEmail, ...restInput } = input;
             const targetUser = await userMethods.getByEmail(targetUserEmail);
             const actingUser = await userMethods.getByEmail(actingUserEmail);
-            return userMethods.changeBonusPoints({ userId: targetUser.id, ...restInput }, actingUser);
+            return bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser);
         }),
 });

@@ -1,4 +1,4 @@
-import { BonusAction, Prisma, User } from 'prisma/prisma-client';
+import { Prisma, User } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
@@ -9,7 +9,6 @@ import { trimAndJoin } from '../utils/trimAndJoin';
 import { MembershipInfo, UserMemberships, UserMeta, UserSettings, UserSupervisor } from './userTypes';
 import {
     AddUserToGroup,
-    ChangeBonusPoints,
     EditUser,
     EditUserSettings,
     GetUserList,
@@ -103,23 +102,6 @@ export const userMethods = {
         });
     },
 
-    changeBonusPoints: async (data: ChangeBonusPoints, sessionUser: SessionUser): Promise<User> => {
-        const bonusPoints = data.action === BonusAction.ADD ? { increment: data.amount } : { decrement: data.amount };
-        const [user] = await prisma.$transaction([
-            prisma.user.update({ where: { id: data.userId }, data: { bonusPoints } }),
-            prisma.bonusHistory.create({
-                data: {
-                    action: data.action,
-                    amount: data.amount,
-                    targetUserId: data.userId,
-                    actingUserId: sessionUser.id,
-                    description: data.description,
-                },
-            }),
-        ]);
-        return user;
-    },
-
     getById: async (
         id: string,
         sessionUser: SessionUser,
@@ -175,13 +157,6 @@ export const userMethods = {
 
     getGroupMembers: (groupId: string): Promise<User[]> => {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } } } });
-    },
-
-    getBonusPointsHistory: (id: string) => {
-        return prisma.bonusHistory.findMany({
-            where: { targetUserId: id },
-            orderBy: { createdAt: 'desc' },
-        });
     },
 
     edit: (data: EditUser) => {
