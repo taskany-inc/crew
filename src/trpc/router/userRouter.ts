@@ -5,7 +5,6 @@ import { protectedProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
 import {
     addUserToGroupSchema,
-    changeBonusPointsSchema,
     editUserSchema,
     editUserSettingsSchema,
     getUserListSchema,
@@ -32,11 +31,6 @@ export const userRouter = router({
         return userMethods.editSettings(ctx.session.user.id, input);
     }),
 
-    changeBonusPoints: protectedProcedure.input(changeBonusPointsSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isBonusEditable(ctx.session.user));
-        return userMethods.changeBonusPoints(input, ctx.session.user);
-    }),
-
     getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
         return userMethods.getById(input, ctx.session.user);
     }),
@@ -55,11 +49,6 @@ export const userRouter = router({
 
     getGroupMembers: protectedProcedure.input(z.string()).query(({ input }) => {
         return userMethods.getGroupMembers(input);
-    }),
-
-    getBonusPointsHistory: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheck(userAccess.isBonusViewable(ctx.session.user, input));
-        return userMethods.getBonusPointsHistory(input);
     }),
 
     edit: protectedProcedure.input(editUserSchema).mutation(({ input, ctx }) => {

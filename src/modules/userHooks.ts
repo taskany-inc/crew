@@ -41,15 +41,6 @@ export const useUserMutations = () => {
             },
         }),
 
-        changeBonusPoints: trpc.user.changeBonusPoints.useMutation({
-            onSuccess: (newUser) => {
-                utils.user.getById.setData(newUser.id, (oldUser) => {
-                    return oldUser ? { ...oldUser, bonusPoints: newUser.bonusPoints } : undefined;
-                });
-                utils.user.getById.invalidate();
-            },
-        }),
-
         editUser: trpc.user.edit.useMutation({
             onSuccess: () => {
                 utils.user.invalidate();
