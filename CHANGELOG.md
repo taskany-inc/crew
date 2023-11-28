@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.21.0](https://github.com/taskany-inc/crew/compare/v0.20.1...v0.21.0) (2023-11-28)
+
+
+### Features
+
+* **bonus points:** fetch and apply achievements ([436f1a1](https://github.com/taskany-inc/crew/commit/436f1a1ecb4072d054de7d72361673cd44b531d8))
+
+
+### Bug Fixes
+
+* **BonusPointsHistory:** fixed translations ([11cbbca](https://github.com/taskany-inc/crew/commit/11cbbcaeb1c11feafac8f04fb282bbc41fd71f2f))
+* **UserMembershipsList:** teams in add team Popup are not filtered by teams with participation ([4a470d0](https://github.com/taskany-inc/crew/commit/4a470d092cf6d3072e5a108c7070d8301761d0db))
+
 ## [0.20.1](https://github.com/taskany-inc/crew/compare/v0.20.0...v0.20.1) (2023-11-23)
 
 
