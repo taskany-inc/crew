@@ -77,9 +77,12 @@ export const BonusPointsBalanceModal = ({ userId, visible, onClose }: BonusPoint
         resolver: zodResolver(changeBonusPointsSchema),
     });
 
+    const [achievement, setAchievement] = useState<BonusPointsAchievement>();
+
     const hideModal = () => {
         onClose();
         reset();
+        setAchievement(undefined);
     };
 
     const onSubmit = handleSubmit(async (data) => {
@@ -94,8 +97,6 @@ export const BonusPointsBalanceModal = ({ userId, visible, onClose }: BonusPoint
     const onMinusClick = () => {
         setValue('action', BonusAction.SUBTRACT);
     };
-
-    const [achievement, setAchievement] = useState<BonusPointsAchievement>();
 
     const addAchievement = async () => {
         if (!achievement || changeBonusPoints.isLoading) return;

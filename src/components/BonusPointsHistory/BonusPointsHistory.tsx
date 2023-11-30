@@ -32,7 +32,9 @@ const BonusActionItem = ({ history }: { history: BonusHistory }) => {
     return (
         <div>
             <StyledHistoryRow>
-                <Text>{history.action === BonusAction.ADD ? tr('Added') : tr('Subtracted')}</Text>
+                <Text>
+                    {history.action === BonusAction.ADD ? tr('Added') : tr('Subtracted')} {history.amount}
+                </Text>
                 <FormattedDate date={history.createdAt} />
             </StyledHistoryRow>
             <Text size="s" color={gray10}>
