@@ -23,7 +23,7 @@ export const GroupComboBox = ({ group, onChange }: GroupComboBoxProps) => {
 
     return (
         <ComboBox
-            value={selectedGroup ? undefined : search}
+            value={search}
             onChange={(value: Group) => {
                 setSearch(value.name);
                 setSelectedGroup(value);
@@ -32,7 +32,7 @@ export const GroupComboBox = ({ group, onChange }: GroupComboBoxProps) => {
             }}
             visible={suggestionsVisibility.value}
             items={groupsQuery.data}
-            renderInput={({ value, ...restProps }) => (
+            renderInput={(props) => (
                 <Input
                     iconLeft={nullable(selectedGroup, () => (
                         <IconUsersOutline size={16} color={gray9} />
@@ -40,16 +40,17 @@ export const GroupComboBox = ({ group, onChange }: GroupComboBoxProps) => {
                     placeholder={tr('Choose team')}
                     size="m"
                     autoComplete="off"
-                    value={value ?? selectedGroup?.name}
                     onFocus={suggestionsVisibility.setTrue}
                     onChange={(e) => {
                         setSelectedGroup(null);
                         onChange(null);
                         setSearch(e.target.value);
                     }}
-                    {...restProps}
+                    {...props}
                 />
             )}
+            onClickOutside={(cb) => cb()}
+            onClose={suggestionsVisibility.setFalse}
             renderItem={(props) => (
                 <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
                     <Text size="s" ellipsis>

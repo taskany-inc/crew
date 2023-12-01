@@ -15,6 +15,10 @@ interface OrganizationUnitComboBoxProps {
     onChange: (organizationnNit: Nullish<OrganizationUnit>) => void;
 }
 
+const getOrgUnitTitle = (orgUnit: OrganizationUnit) => {
+    return `${orgUnit.name} / ${orgUnit.country}`;
+};
+
 export const OrganizationUnitComboBox = ({ organizationUnit, onChange }: OrganizationUnitComboBoxProps) => {
     const [search, setSearch] = useState('');
     const suggestionsVisibility = useBoolean(false);
@@ -26,16 +30,16 @@ export const OrganizationUnitComboBox = ({ organizationUnit, onChange }: Organiz
 
     return (
         <ComboBox
-            value={selectedValue ? undefined : search}
+            value={search}
             onChange={(value: OrganizationUnit) => {
-                setSearch(value.name);
+                setSearch(getOrgUnitTitle(value));
                 setSelectedValue(value);
                 suggestionsVisibility.setFalse();
                 onChange(value);
             }}
             visible={suggestionsVisibility.value}
             items={organizationUnitQuery.data}
-            renderInput={({ value, ...restProps }) => (
+            renderInput={(props) => (
                 <Input
                     iconLeft={nullable(selectedValue, () => (
                         <IconHomeAltOutline size={16} color={gray9} />
@@ -43,20 +47,21 @@ export const OrganizationUnitComboBox = ({ organizationUnit, onChange }: Organiz
                     placeholder={tr('Choose organization')}
                     size="m"
                     autoComplete="off"
-                    value={value ?? `${selectedValue?.name} / ${selectedValue?.country}`}
                     onFocus={suggestionsVisibility.setTrue}
                     onChange={(e) => {
                         setSelectedValue(null);
                         onChange(null);
                         setSearch(e.target.value);
                     }}
-                    {...restProps}
+                    {...props}
                 />
             )}
+            onClickOutside={(cb) => cb()}
+            onClose={suggestionsVisibility.setFalse}
             renderItem={(props) => (
                 <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
                     <Text size="s" ellipsis>
-                        {props.item.name} / {props.item.country}
+                        {getOrgUnitTitle(props.item)}
                     </Text>
                 </MenuItem>
             )}

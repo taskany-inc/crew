@@ -14,10 +14,8 @@ interface BonusAchievementComboBoxProps {
     onChange: (achievement?: BonusPointsAchievement) => void;
 }
 
-const getAchievementTitle = (achievement?: BonusPointsAchievement) => {
-    return achievement
-        ? `${achievement.attributes.title} / ${tr('Points')}: ${achievement.attributes.bonus}`
-        : undefined;
+const getAchievementTitle = (achievement: BonusPointsAchievement) => {
+    return `${achievement.attributes.title} / ${tr('Points')}: ${achievement.attributes.bonus}`;
 };
 
 export const BonusAchievementComboBox = ({ achievement, onChange }: BonusAchievementComboBoxProps) => {
@@ -31,16 +29,16 @@ export const BonusAchievementComboBox = ({ achievement, onChange }: BonusAchieve
 
     return (
         <ComboBox
-            value={selectedAchievement ? undefined : search}
+            value={search}
             onChange={(value: BonusPointsAchievement) => {
-                setSearch(value.attributes.title);
+                setSearch(getAchievementTitle(value));
                 setSelectedAchievement(value);
                 suggestionsVisibility.setFalse();
                 onChange(value);
             }}
             visible={suggestionsVisibility.value}
             items={achievementsQuery.data}
-            renderInput={({ value, ...restProps }) => (
+            renderInput={(props) => (
                 <Input
                     iconLeft={nullable(selectedAchievement, () => (
                         <IconTrophyOutline size={16} color={gray9} />
@@ -48,16 +46,17 @@ export const BonusAchievementComboBox = ({ achievement, onChange }: BonusAchieve
                     placeholder={tr('Choose achievement')}
                     size="m"
                     autoComplete="off"
-                    value={value ?? getAchievementTitle(selectedAchievement)}
                     onFocus={suggestionsVisibility.setTrue}
                     onChange={(e) => {
                         setSelectedAchievement(undefined);
                         onChange(undefined);
                         setSearch(e.target.value);
                     }}
-                    {...restProps}
+                    {...props}
                 />
             )}
+            onClickOutside={(cb) => cb()}
+            onClose={suggestionsVisibility.setFalse}
             renderItem={(props) => (
                 <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
                     <Text size="s" ellipsis>

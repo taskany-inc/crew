@@ -22,7 +22,7 @@ export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
 
     return (
         <ComboBox
-            value={selectedUser ? undefined : search}
+            value={search}
             onChange={(value: User) => {
                 setSearch(value.name || value.email);
                 setSelectedUser(value);
@@ -31,7 +31,7 @@ export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
             }}
             visible={suggestionsVisibility.value}
             items={userListQuery.data?.users}
-            renderInput={({ value, ...restProps }) => (
+            renderInput={(props) => (
                 <Input
                     iconLeft={nullable(selectedUser, (s) => (
                         <UserPic size={16} name={s.name} src={s.image} email={s.email} />
@@ -39,16 +39,17 @@ export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
                     placeholder={tr('Choose user')}
                     size="m"
                     autoComplete="off"
-                    value={value ?? selectedUser?.name}
                     onFocus={suggestionsVisibility.setTrue}
                     onChange={(e) => {
                         setSelectedUser(null);
                         onChange(null);
                         setSearch(e.target.value);
                     }}
-                    {...restProps}
+                    {...props}
                 />
             )}
+            onClickOutside={(cb) => cb()}
+            onClose={suggestionsVisibility.setFalse}
             renderItem={(props) => (
                 <UserMenuItem
                     key={props.item.id}
