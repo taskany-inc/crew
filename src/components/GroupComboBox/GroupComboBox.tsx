@@ -42,7 +42,6 @@ export const GroupComboBox = ({ group, onChange }: GroupComboBoxProps) => {
                     autoComplete="off"
                     value={value ?? selectedGroup?.name}
                     onFocus={suggestionsVisibility.setTrue}
-                    onBlur={() => setTimeout(suggestionsVisibility.setFalse, 100)}
                     onChange={(e) => {
                         setSelectedGroup(null);
                         onChange(null);

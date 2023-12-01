@@ -50,7 +50,6 @@ export const BonusAchievementComboBox = ({ achievement, onChange }: BonusAchieve
                     autoComplete="off"
                     value={value ?? getAchievementTitle(selectedAchievement)}
                     onFocus={suggestionsVisibility.setTrue}
-                    onBlur={() => setTimeout(suggestionsVisibility.setFalse, 100)}
                     onChange={(e) => {
                         setSelectedAchievement(undefined);
                         onChange(undefined);
