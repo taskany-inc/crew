@@ -45,7 +45,6 @@ export const OrganizationUnitComboBox = ({ organizationUnit, onChange }: Organiz
                     autoComplete="off"
                     value={value ?? `${selectedValue?.name} / ${selectedValue?.country}`}
                     onFocus={suggestionsVisibility.setTrue}
-                    onBlur={() => setTimeout(suggestionsVisibility.setFalse, 100)}
                     onChange={(e) => {
                         setSelectedValue(null);
                         onChange(null);

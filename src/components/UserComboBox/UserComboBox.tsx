@@ -41,7 +41,6 @@ export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
                     autoComplete="off"
                     value={value ?? selectedUser?.name}
                     onFocus={suggestionsVisibility.setTrue}
-                    onBlur={() => setTimeout(suggestionsVisibility.setFalse, 100)}
                     onChange={(e) => {
                         setSelectedUser(null);
                         onChange(null);
