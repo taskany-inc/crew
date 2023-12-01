@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.21.1](https://github.com/taskany-inc/crew/compare/v0.21.0...v0.21.1) (2023-12-01)
+
+
+### Bug Fixes
+
+* **BonusPointsHistory:** show amount of points ([5845152](https://github.com/taskany-inc/crew/commit/584515222d4705d8cd868fc6c234b5cf15f3e2c3))
+* **comboboxes:** remove bugged onblur handlers ([4d44ab4](https://github.com/taskany-inc/crew/commit/4d44ab468bc13d428f7a0dd1c34b1914975f369e))
+
 ## [0.21.0](https://github.com/taskany-inc/crew/compare/v0.20.1...v0.21.0) (2023-11-28)
 
 
