@@ -14,8 +14,9 @@ import {
     ModalCross,
     ModalHeader,
     Text,
+    nullable,
 } from '@taskany/bricks';
-import { gapM, gapS, gapXs, gray3, gray8 } from '@taskany/colors';
+import { danger0, gapM, gapS, gapXs, gray3, gray8 } from '@taskany/colors';
 
 import { CreateUser, createUserSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
@@ -138,7 +139,15 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             <Text weight="bold" color={gray8}>
                                 {tr('Organization:')}
                             </Text>
-                            <OrganizationUnitComboBox onChange={(group) => setValue('organizationUnitId', group?.id)} />
+
+                            <OrganizationUnitComboBox
+                                onChange={(group) => group && setValue('organizationUnitId', group.id)}
+                            />
+                            {nullable(errors.organizationUnitId, (e) => (
+                                <Text size="xs" color={danger0}>
+                                    {e.message}
+                                </Text>
+                            ))}
                         </StyledInputContainer>
                     </NoWrap>
 

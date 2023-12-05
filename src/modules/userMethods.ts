@@ -5,6 +5,7 @@ import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 import { suggestionsTake } from '../utils/suggestions';
 import { trimAndJoin } from '../utils/trimAndJoin';
+import { config } from '../config';
 
 import { MembershipInfo, UserMemberships, UserMeta, UserSettings, UserSupervisor } from './userTypes';
 import {
@@ -67,6 +68,39 @@ export const userMethods = {
         if (data.login && loginService) {
             servicesData.push({ serviceName: loginService.name, serviceId: data.login });
         }
+
+        if (config.externalUserService.apiUrl && config.externalUserService.apiToken) {
+            try {
+                const { organizationUnitId, firstName, middleName, surname, phone, email } = data;
+                const organization = await prisma.organizationUnit.findFirstOrThrow({
+                    where: { id: organizationUnitId },
+                });
+
+                const body = {
+                    firstName,
+                    middleName,
+                    surname,
+                    phone,
+                    email,
+                    organization,
+                };
+
+                await fetch(config.externalUserService.apiUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(body),
+                    headers: {
+                        authorization: config.externalUserService.apiToken,
+                    },
+                });
+            } catch (error) {
+                console.log(
+                    `Cannot post user to external service ${
+                        error instanceof Error ? error?.message : JSON.stringify(error, null, 2)
+                    }`,
+                );
+            }
+        }
+
         return prisma.user.create({
             data: {
                 name: trimAndJoin([data.surname, data.firstName, data.middleName]),

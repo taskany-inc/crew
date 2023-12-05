@@ -12,7 +12,7 @@ import { tr } from './OrganizationUnitComboBox.i18n';
 
 interface OrganizationUnitComboBoxProps {
     organizationUnit?: Nullish<OrganizationUnit>;
-    onChange: (organizationnNit: Nullish<OrganizationUnit>) => void;
+    onChange: (organizationUnit: Nullish<OrganizationUnit>) => void;
 }
 
 export const OrganizationUnitComboBox = ({ organizationUnit, onChange }: OrganizationUnitComboBoxProps) => {
