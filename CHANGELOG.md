@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.22.0](https://github.com/taskany-inc/crew/compare/v0.21.1...v0.22.0) (2023-12-07)
+
+
+### Features
+
+* create profile for user in extenal service ([b933132](https://github.com/taskany-inc/crew/commit/b93313238f915bb80b8d9abe6a9720dc175e9571))
+
 ## [0.21.1](https://github.com/taskany-inc/crew/compare/v0.21.0...v0.21.1) (2023-12-01)
 
 
