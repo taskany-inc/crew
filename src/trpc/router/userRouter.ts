@@ -52,7 +52,9 @@ export const userRouter = router({
     }),
 
     edit: protectedProcedure.input(editUserSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isEditable(ctx.session.user, input.id));
+        input.active === undefined
+            ? accessCheck(userAccess.isEditable(ctx.session.user, input.id))
+            : accessCheck(userAccess.isBonusEditable(ctx.session.user));
         return userMethods.edit(input);
     }),
 

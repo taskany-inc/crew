@@ -9,6 +9,7 @@
     "No group with id {id}": "Не найдена группа с id {id}",
     "Cannot move group inside itself": "Нельзя переместить группу в саму себя",
     "Cannot edit another user": "Нельзя редактировать другого пользователя",
+    "Only admins can deactivate profile": "Только администраторы могут деактивировать профиль",
     "Only admins can edit bonus points": "Только администраторы могут редактировать бонусные очки",
     "Amount should be greater than zero": "Количество очков должно быть больше нуля",
     "Description is required": "Описание изменений обязательно",
