@@ -13,12 +13,13 @@ import {
 } from '@taskany/bricks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
+import { User } from 'prisma/prisma-client';
 import { gapM, gray8 } from '@taskany/colors';
 
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { EditUser, editUserSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
-import { User, UserMeta, UserSupervisor } from '../../modules/userTypes';
+import { UserMeta, UserSupervisor } from '../../modules/userTypes';
 
 import { tr } from './UserUpdateForm.i18n';
 

@@ -1,10 +1,11 @@
 import { nullable, Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
+import { User } from 'prisma/prisma-client';
 
-import { User, UserSupervisor } from '../../modules/userTypes';
+import { UserSupervisor } from '../../modules/userTypes';
 import { NarrowSection } from '../NarrowSection';
-import { UserListItem } from '../UserListItem';
+import { UserListItem } from '../UserListItem/UserListItem';
 
 import { tr } from './UserSummary.i18n';
 

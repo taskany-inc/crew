@@ -4,7 +4,7 @@ import { gapS, gray9 } from '@taskany/colors';
 
 import { MembershipInfo } from '../modules/userTypes';
 
-import { UserListItem } from './UserListItem';
+import { UserListItem } from './UserListItem/UserListItem';
 import { MembershipEditMenu } from './MembershipEditMenu/MembershipEditMenu';
 
 type MembershipUserListItemEditableProps = {

@@ -13,7 +13,7 @@ import { gapS } from '@taskany/colors';
 import styled from 'styled-components';
 
 import { MembershipInfo } from '../../modules/userTypes';
-import { UserListItem } from '../UserListItem';
+import { UserListItem } from '../UserListItem/UserListItem';
 import { useUserMutations } from '../../modules/userHooks';
 import { GroupListItem } from '../GroupListItem';
 

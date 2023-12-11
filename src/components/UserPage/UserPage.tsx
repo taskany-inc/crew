@@ -1,5 +1,5 @@
-import { UserPic, Text, Button, nullable, Modal } from '@taskany/bricks';
-import { gapL, gapS, gapXl, gray10, gray6 } from '@taskany/colors';
+import { Text, Button, nullable, Modal } from '@taskany/bricks';
+import { gapL, gapS, gapXl, gray10, gray6, gray8, textColor } from '@taskany/colors';
 import styled from 'styled-components';
 import { useState } from 'react';
 
@@ -15,6 +15,8 @@ import { UserBonusPoints } from '../UserBonusPoints/UserBonusPoints';
 import { UserMembershipsList } from '../UserMembershipsList/UserMembershipsList';
 import UserUpdateForm from '../UserUpdateForm/UserUpdateForm';
 import { UserDevices } from '../UserDevices/UserDevices';
+import { UserPic } from '../UserPic';
+import { DeactivateProfileForm } from '../DeactivateProfileForm/DeactivateProvileForm';
 
 import { tr } from './UserPage.i18n';
 
@@ -59,6 +61,11 @@ const StyledRightPanel = styled.div`
     gap: ${gapL};
 `;
 
+const EditButtonsWrapper = styled.div`
+    display: flex;
+    gap: ${gapS};
+`;
+
 type UserPageProps = {
     userId: string;
 };
@@ -66,6 +73,7 @@ type UserPageProps = {
 export const UserPage = ({ userId }: UserPageProps) => {
     const { showGroupPreview } = usePreviewContext();
     const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);
+    const [openDeactivateUserForm, setOpenDeactivateUserForm] = useState(false);
 
     const userQuery = trpc.user.getById.useQuery(userId);
     const user = userQuery.data;
@@ -80,7 +88,7 @@ export const UserPage = ({ userId }: UserPageProps) => {
     return (
         <LayoutMain pageTitle={user.name}>
             <StyledHeader>
-                <UserPic size={150} name={user.name} src={user.image} email={user.email} />
+                <UserPic size={150} user={user} />
                 <StyledUserNameWrapper>
                     <Text size="s" color={gray6} weight="bold">
                         {!!orgStructureMembership && orgStructureMembership.roles.map((role) => role.name).join(', ')}
@@ -94,15 +102,28 @@ export const UserPage = ({ userId }: UserPageProps) => {
                             {orgStructureMembership.group.name}
                         </StyledGroupLink>
                     )}
-                    <Text size="xxl" weight="bold">
+                    <Text size="xxl" weight="bold" color={user.active ? textColor : gray8}>
                         {user.name}
+                        {!user.active && tr(' [inactive]')}
                     </Text>
                 </StyledUserNameWrapper>
                 <Modal visible={openUpdateUserForm} width={600}>
                     <UserUpdateForm user={user} onClose={() => setOpenUpdateUserForm(false)} />
                 </Modal>
+                <Modal visible={openDeactivateUserForm} width={600}>
+                    <DeactivateProfileForm user={user} onClose={() => setOpenDeactivateUserForm(false)} />
+                </Modal>
                 {nullable(user.meta.isEditable, () => (
-                    <Button onClick={() => setOpenUpdateUserForm(true)} text={tr('Edit')} size="s" />
+                    <EditButtonsWrapper>
+                        <Button onClick={() => setOpenUpdateUserForm(true)} text={tr('Edit')} size="s" />
+                        <Button
+                            onClick={() => setOpenDeactivateUserForm(true)}
+                            text={user.active ? tr('Deactivate') : tr('Reactivate')}
+                            view="danger"
+                            outline
+                            size="s"
+                        />
+                    </EditButtonsWrapper>
                 ))}
             </StyledHeader>
 

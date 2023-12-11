@@ -5,7 +5,7 @@ import { gapM, gapS } from '@taskany/colors';
 
 import { MembershipInfo } from '../../modules/userTypes';
 import { AddRoleToMembershipForm } from '../AddRoleToMembershipForm/AddRoleToMembershipForm';
-import { UserListItem } from '../UserListItem';
+import { UserListItem } from '../UserListItem/UserListItem';
 import { useRoleMutations } from '../../modules/roleHooks';
 import { GroupListItem } from '../GroupListItem';
 

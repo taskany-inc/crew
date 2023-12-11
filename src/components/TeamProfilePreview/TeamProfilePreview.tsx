@@ -3,10 +3,10 @@ import { ModalPreview, Text, nullable } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 import { IconBinOutline } from '@taskany/icons';
 
-import { PreviewHeader } from '../PreviewHeader';
+import { PreviewHeader } from '../PreviewHeader/PreviewHeader';
 import { PreviewContent } from '../PreviewContent';
 import { InlineTrigger } from '../InlineTrigger';
-import { UserListItem } from '../UserListItem';
+import { UserListItem } from '../UserListItem/UserListItem';
 import { NarrowSection } from '../NarrowSection';
 import { trpc } from '../../trpc/trpcClient';
 import { pages } from '../../hooks/useRouter';

@@ -1,9 +1,12 @@
 import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { gapM, gapS, gray10, gray6 } from '@taskany/colors';
-import { ModalHeader, Text, UserPic, nullable } from '@taskany/bricks';
+import { gapM, gapS, gray10, gray6, gray8, textColor } from '@taskany/colors';
+import { ModalHeader, Text, nullable } from '@taskany/bricks';
 
-import { Link } from './Link';
+import { Link } from '../Link';
+import { UserPic } from '../UserPic';
+
+import { tr } from './PreviewHeader.i18n';
 
 interface PreviewHeaderProps {
     title: React.ReactNode;
@@ -29,7 +32,7 @@ const StyledTitle = styled(Text)`
 export const PreviewHeader: React.FC<PreviewHeaderProps> = ({ preTitle, title, subtitle, children, link, user }) => {
     return (
         <StyledModalHeader>
-            <UserPic size={75} name={user?.name} src={user?.image} email={user?.email} />
+            {user && <UserPic size={75} user={user} />}
 
             <div>
                 {nullable(preTitle, (pre) => (
@@ -42,8 +45,10 @@ export const PreviewHeader: React.FC<PreviewHeaderProps> = ({ preTitle, title, s
                         {sub}
                     </Text>
                 ))}
-                <StyledTitle size="l" weight="bold">
-                    <Link href={link}>{title}</Link>
+                <StyledTitle size="l" weight="bold" color={user?.active === false ? gray8 : textColor}>
+                    <Link href={link}>
+                        {title} {user?.active === false && tr(' [inactive]')}
+                    </Link>
                 </StyledTitle>
             </div>
 

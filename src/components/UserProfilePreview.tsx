@@ -5,7 +5,7 @@ import { trpc } from '../trpc/trpcClient';
 import { usePreviewContext } from '../contexts/previewContext';
 
 import { PreviewContent } from './PreviewContent';
-import { PreviewHeader } from './PreviewHeader';
+import { PreviewHeader } from './PreviewHeader/PreviewHeader';
 import { UserSummary } from './UserSummary/UserSummary';
 import { UserContacts } from './UserContacts/UserContacts';
 import { UserMembershipsList } from './UserMembershipsList/UserMembershipsList';
