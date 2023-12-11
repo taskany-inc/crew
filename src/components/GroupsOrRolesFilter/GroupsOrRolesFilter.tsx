@@ -37,6 +37,7 @@ export const GroupsOrRolesFilter: React.FC<GroupsOrRolesFilterAutoCompleteProps>
         <Tab name={tabName} label={<FilterTabLabel text={text} selected={values.map(({ name }) => name)} />}>
             <FilterBase
                 key={tabName}
+                title={tr('Suggestions')}
                 mode="multiple"
                 viewMode="split"
                 items={groupsOrRoles}

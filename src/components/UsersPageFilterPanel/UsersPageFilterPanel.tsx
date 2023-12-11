@@ -20,6 +20,7 @@ import { UserFilter } from '../UserFilter/UserFilter';
 import { trpc } from '../../trpc/trpcClient';
 import { GroupsOrRolesFilter } from '../GroupsOrRolesFilter/GroupsOrRolesFilter';
 import { UserFilterQuery } from '../../modules/userTypes';
+import { FilterRadio } from '../FilterRadio';
 
 import { tr } from './UsersPageFilterPanel.i18n';
 
@@ -56,6 +57,10 @@ export const UsersPageFiltersPanel = memo(
         const [rolesQuery, setRoleQuery] = useState('');
         const [filterVisible, setFilterVisible] = useState(false);
         const [filterQuery, setFilterQuery] = useState<UserFilterQuery>(filterState);
+
+        const activeVariants = { Active: true, Inactive: false, All: undefined };
+
+        const [filterActive, setFilterActive] = useState('Active');
 
         const onApplyClick = useCallback(() => {
             setFilterVisible(false);
@@ -173,6 +178,17 @@ export const UsersPageFiltersPanel = memo(
                         value={filterQuery?.rolesQuery}
                         onChange={setPartialQueryByKey('rolesQuery')}
                         onSearchChange={setRoleQuery}
+                    />
+
+                    <FilterRadio
+                        tabName="active"
+                        label={tr('Active')}
+                        items={Object.keys(activeVariants).map((v) => ({ title: v, value: v }))}
+                        value={filterActive}
+                        onChange={(arg) => {
+                            setFilterActive(arg);
+                            setPartialQueryByKey('activeQuery')(activeVariants[arg as keyof typeof activeVariants]);
+                        }}
                     />
                 </FilterPopup>
             </>
