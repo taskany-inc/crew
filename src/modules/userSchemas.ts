@@ -34,6 +34,7 @@ export const getUserListSchema = z.object({
     groupsQuery: z.array(z.string()).optional(),
     rolesQuery: z.array(z.string()).optional(),
     supervisorsQuery: z.array(z.string()).optional(),
+    activeQuery: z.boolean().optional(),
     take: z
         .number()
         .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
@@ -45,6 +46,7 @@ export const editUserSchema = z.object({
     id: z.string(),
     name: z.string().optional(),
     supervisorId: z.string().nullish(),
+    active: z.boolean().optional(),
 });
 
 export type EditUser = z.infer<typeof editUserSchema>;
