@@ -48,6 +48,11 @@ export const UserFilterApplied = ({ filterState, supervisors, groups, roles }: U
         }.`;
     }
 
+    if (filterState.activeQuery !== undefined) {
+        const active = filterState.activeQuery ? tr('Active.') : tr('Inactive.');
+        filterAppliedString = `${filterAppliedString + active}`;
+    }
+
     return (
         <FiltersApplied size="s" weight="bold" color={gray7}>
             {filterAppliedString}
