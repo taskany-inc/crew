@@ -52,6 +52,10 @@ const usersWhere = (data: GetUserList) => {
         };
     }
 
+    if (data.activeQuery !== undefined) {
+        where.active = data.activeQuery;
+    }
+
     return where;
 };
 
@@ -69,9 +73,9 @@ export const userMethods = {
             servicesData.push({ serviceName: loginService.name, serviceId: data.login });
         }
 
-        if (config.externalUserService.apiUrl && config.externalUserService.apiToken) {
+        if (config.externalUserService.apiUrlCreate && config.externalUserService.apiToken) {
             try {
-                const { organizationUnitId, firstName, middleName, surname, phone, email } = data;
+                const { organizationUnitId, firstName, middleName, surname, phone, email, login } = data;
                 const organization = await prisma.organizationUnit.findFirstOrThrow({
                     where: { id: organizationUnitId },
                 });
@@ -83,9 +87,10 @@ export const userMethods = {
                     phone,
                     email,
                     organization,
+                    login,
                 };
 
-                await fetch(config.externalUserService.apiUrl, {
+                await fetch(config.externalUserService.apiUrlCreate, {
                     method: 'POST',
                     body: JSON.stringify(body),
                     headers: {
@@ -93,6 +98,7 @@ export const userMethods = {
                     },
                 });
             } catch (error) {
+                // TODO add onError notification https://github.com/taskany-inc/crew/issues/376
                 console.log(
                     `Cannot post user to external service ${
                         error instanceof Error ? error?.message : JSON.stringify(error, null, 2)
@@ -177,6 +183,7 @@ export const userMethods = {
         const users = await prisma.user.findMany({
             where,
             take: data.take,
+            orderBy: { active: 'desc' },
         });
 
         return { users, total, counter };
@@ -190,13 +197,41 @@ export const userMethods = {
     },
 
     getGroupMembers: (groupId: string): Promise<User[]> => {
-        return prisma.user.findMany({ where: { memberships: { some: { groupId } } } });
+        return prisma.user.findMany({ where: { memberships: { some: { groupId } }, active: { not: true } } });
     },
 
-    edit: (data: EditUser) => {
+    edit: async (data: EditUser) => {
+        if (data.active !== undefined) {
+            await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: true } });
+            if (config.externalUserService.apiUrlDeactivate && config.externalUserService.apiToken) {
+                try {
+                    const user = await prisma.user.findFirstOrThrow({ where: { id: data.id } });
+
+                    await fetch(config.externalUserService.apiUrlDeactivate, {
+                        method: 'PUT',
+                        body: JSON.stringify({ email: user.email }),
+                        headers: {
+                            authorization: config.externalUserService.apiToken,
+                        },
+                    });
+                } catch (error) {
+                    // TODO add onError notification https://github.com/taskany-inc/crew/issues/376
+                    console.log(
+                        `Cannot deactivate user in external service ${
+                            error instanceof Error ? error?.message : JSON.stringify(error, null, 2)
+                        }`,
+                    );
+                }
+            }
+        }
         return prisma.user.update({
             where: { id: data.id },
-            data: { name: data.name, supervisorId: data.supervisorId },
+            data: {
+                name: data.name,
+                supervisorId: data.supervisorId,
+                active: data.active,
+                deactivatedAt: data.active !== undefined ? new Date() : null,
+            },
         });
     },
 
@@ -206,6 +241,7 @@ export const userMethods = {
                 { name: { contains: query, mode: 'insensitive' } },
                 { email: { contains: query, mode: 'insensitive' } },
             ],
+            AND: [{ active: true }],
         };
 
         if (include) {

@@ -1,17 +1,9 @@
-import { Group, Membership, Role } from 'prisma/prisma-client';
+import { Group, Membership, Role, User } from 'prisma/prisma-client';
 
 import { Nullish } from '../utils/types';
 import { Theme } from '../utils/theme';
 
 import { userAccess } from './userAccess';
-
-export interface User {
-    id: string;
-    supervisorId?: string | null;
-    name?: string | null;
-    email: string;
-    image?: string | null;
-}
 
 export interface UserSettings {
     userId: string;
@@ -30,4 +22,5 @@ export type UserFilterQuery = {
     groupsQuery?: string[];
     rolesQuery?: string[];
     supervisorsQuery?: string[];
+    activeQuery?: boolean;
 };
