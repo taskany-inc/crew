@@ -1,11 +1,12 @@
-import { ComboBox, Input, UserMenuItem, UserPic, nullable } from '@taskany/bricks';
+import { ComboBox, Input, UserMenuItem, nullable } from '@taskany/bricks';
 import { gray10 } from '@taskany/colors';
 import { useState } from 'react';
+import { User } from 'prisma/prisma-client';
 
 import { trpc } from '../../trpc/trpcClient';
-import { User } from '../../modules/userTypes';
 import { Nullish } from '../../utils/types';
 import { useBoolean } from '../../hooks/useBoolean';
+import { UserPic } from '../UserPic';
 
 import { tr } from './UserComboBox.i18n';
 
@@ -34,7 +35,7 @@ export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
             renderInput={({ value, ...restProps }) => (
                 <Input
                     iconLeft={nullable(selectedUser, (s) => (
-                        <UserPic size={16} name={s.name} src={s.image} email={s.email} />
+                        <UserPic size={16} user={s} />
                     ))}
                     placeholder={tr('Choose user')}
                     size="m"

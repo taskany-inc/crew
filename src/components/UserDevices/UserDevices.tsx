@@ -1,10 +1,11 @@
 import { nullable } from '@taskany/bricks';
 import { gapM, gapS } from '@taskany/colors';
+import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 
 import { NarrowSection } from '../NarrowSection';
 import { AddDeviceToUserForm } from '../AddDeviceToUserForm/AddDeviceToUserForm';
-import { User, UserMeta } from '../../modules/userTypes';
+import { UserMeta } from '../../modules/userTypes';
 import { trpc } from '../../trpc/trpcClient';
 import { UserDeviceListItem } from '../UserDeviceListItem';
 

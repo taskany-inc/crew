@@ -1,12 +1,14 @@
 import styled from 'styled-components';
-import { Text, UserPic } from '@taskany/bricks';
-import { gapS } from '@taskany/colors';
+import { Text } from '@taskany/bricks';
+import { gapS, gray8, textColor } from '@taskany/colors';
+import { User } from 'prisma/prisma-client';
 
-import { pages } from '../hooks/useRouter';
-import { usePreviewContext } from '../contexts/previewContext';
-import { User } from '../modules/userTypes';
+import { pages } from '../../hooks/useRouter';
+import { usePreviewContext } from '../../contexts/previewContext';
+import { Link } from '../Link';
+import { UserPic } from '../UserPic';
 
-import { Link } from './Link';
+import { tr } from './UserListItem.i18n';
 
 type UserListItemProps = {
     user: User;
@@ -24,10 +26,11 @@ export const UserListItem = ({ user }: UserListItemProps) => {
 
     return (
         <StyledWrapper>
-            <UserPic size={20} name={user.name} src={user.image} email={user.email} />
-            <Text>
+            <UserPic size={20} user={user} />
+            <Text color={user.active ? textColor : gray8}>
                 <Link href={pages.user(user.id)} onClick={() => showUserPreview(user.id)}>
                     {user.name}
+                    {!user.active && tr(' [inactive]')}
                 </Link>
             </Text>
         </StyledWrapper>

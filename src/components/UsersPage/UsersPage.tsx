@@ -1,22 +1,24 @@
 import { useState } from 'react';
+import { gapS } from '@taskany/colors';
+import styled from 'styled-components';
 
-import { usePreviewContext } from '../../contexts/previewContext';
-import { pages } from '../../hooks/useRouter';
 import { trpc } from '../../trpc/trpcClient';
-import { Link } from '../Link';
 import { LayoutMain, PageContent } from '../LayoutMain';
 import { UsersPageFiltersPanel } from '../UsersPageFilterPanel/UsersPageFilterPanel';
 import { CommonHeader } from '../CommonHeader';
 import { UserFilterQuery } from '../../modules/userTypes';
+import { UserListItem } from '../UserListItem/UserListItem';
 
 import { tr } from './UsersPage.i18n';
 
+const StyledUserListItemWrapper = styled.div`
+    margin-bottom: ${gapS};
+`;
+
 export const UsersPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [filtersQuery, setFiltersQuery] = useState<UserFilterQuery>({});
+    const [filtersQuery, setFiltersQuery] = useState<UserFilterQuery>({ activeQuery: true });
     const usersQuery = trpc.user.getList.useQuery({ search: searchQuery, ...filtersQuery });
-
-    const { showUserPreview } = usePreviewContext();
 
     return (
         <LayoutMain pageTitle={tr('Users')}>
@@ -30,11 +32,9 @@ export const UsersPage = () => {
             />
             <PageContent>
                 {usersQuery.data?.users.map((user) => (
-                    <div key={user.id}>
-                        <Link onClick={() => showUserPreview(user.id)} href={pages.user(user.id)}>
-                            {user.name}
-                        </Link>
-                    </div>
+                    <StyledUserListItemWrapper key={user.id}>
+                        <UserListItem user={user} />
+                    </StyledUserListItemWrapper>
                 ))}
             </PageContent>
         </LayoutMain>
