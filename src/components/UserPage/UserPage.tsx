@@ -113,9 +113,11 @@ export const UserPage = ({ userId }: UserPageProps) => {
                 <Modal visible={openDeactivateUserForm} width={600}>
                     <DeactivateProfileForm user={user} onClose={() => setOpenDeactivateUserForm(false)} />
                 </Modal>
-                {nullable(user.meta.isEditable, () => (
-                    <EditButtonsWrapper>
+                <EditButtonsWrapper>
+                    {nullable(user.meta.isEditable, () => (
                         <Button onClick={() => setOpenUpdateUserForm(true)} text={tr('Edit')} size="s" />
+                    ))}
+                    {nullable(user.meta.isDeactivatable, () => (
                         <Button
                             onClick={() => setOpenDeactivateUserForm(true)}
                             text={user.active ? tr('Deactivate') : tr('Reactivate')}
@@ -123,8 +125,8 @@ export const UserPage = ({ userId }: UserPageProps) => {
                             outline
                             size="s"
                         />
-                    </EditButtonsWrapper>
-                ))}
+                    ))}
+                </EditButtonsWrapper>
             </StyledHeader>
 
             <PageSep />
