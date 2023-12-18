@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.23.0](https://github.com/taskany-inc/crew/compare/v0.22.0...v0.23.0) (2023-12-18)
+
+
+### Features
+
+* send profile update data to external service ([1baf6ec](https://github.com/taskany-inc/crew/commit/1baf6ece0623d98ec914ea43470aafc660c4272a))
+
 ## [0.22.0](https://github.com/taskany-inc/crew/compare/v0.21.1...v0.22.0) (2023-12-11)
 
 
