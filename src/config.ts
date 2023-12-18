@@ -14,8 +14,8 @@ export const config = {
         apiToken: process.env.BONUS_POINTS_API_TOKEN,
     },
     externalUserService: {
-        apiUrlCreate: process.env.EXTERNAL_USER_CREATE_SERVICE_API_URL,
-        apiUrlDeactivate: process.env.EXTERNAL_USER_DEACTIVATE_SERVICE_API_URL,
-        apiToken: process.env.EXTERNAL_USER_SERVICE_API_TOKEN,
+        apiUrlCreate: process.env.EXTERNAL_SERVICE_CREATE_PROFILE_API_URL,
+        apiUrlUpdate: process.env.EXTERNAL_SERVICE_UPDATE_PROFILE_API_URL,
+        apiToken: process.env.EXTERNAL_SERVICE_API_TOKEN,
     },
 };

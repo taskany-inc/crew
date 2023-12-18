@@ -203,26 +203,25 @@ export const userMethods = {
 
     edit: async (data: EditUser) => {
         if (data.active !== undefined) {
-            await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: true } });
-            if (config.externalUserService.apiUrlDeactivate && config.externalUserService.apiToken) {
-                try {
-                    const user = await prisma.user.findFirstOrThrow({ where: { id: data.id } });
-
-                    await fetch(config.externalUserService.apiUrlDeactivate, {
-                        method: 'PUT',
-                        body: JSON.stringify({ email: user.email }),
-                        headers: {
-                            authorization: config.externalUserService.apiToken,
-                        },
-                    });
-                } catch (error) {
-                    // TODO add onError notification https://github.com/taskany-inc/crew/issues/376
-                    console.log(
-                        `Cannot deactivate user in external service ${
-                            error instanceof Error ? error?.message : JSON.stringify(error, null, 2)
-                        }`,
-                    );
-                }
+            await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: !data.active } });
+        }
+        if (config.externalUserService.apiUrlUpdate && config.externalUserService.apiToken) {
+            try {
+                const user = await prisma.user.findFirstOrThrow({ where: { id: data.id } });
+                await fetch(config.externalUserService.apiUrlUpdate, {
+                    method: 'POST',
+                    body: JSON.stringify({ email: user.email, ...data }),
+                    headers: {
+                        authorization: config.externalUserService.apiToken,
+                    },
+                });
+            } catch (error) {
+                // TODO add onError notification https://github.com/taskany-inc/crew/issues/376
+                console.log(
+                    `Cannot deactivate user in external service ${
+                        error instanceof Error ? error?.message : JSON.stringify(error, null, 2)
+                    }`,
+                );
             }
         }
         return prisma.user.update({
