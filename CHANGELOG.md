@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.24.0](https://github.com/taskany-inc/crew/compare/v0.23.0...v0.24.0) (2023-12-21)
+
+
+### Features
+
+* **comboboxes:** hide dropdowns on outside click ([1521642](https://github.com/taskany-inc/crew/commit/1521642913d3e836e3ef0f15318edcb6625b5621))
+
 ## [0.23.0](https://github.com/taskany-inc/crew/compare/v0.22.0...v0.23.0) (2023-12-18)
 
 
