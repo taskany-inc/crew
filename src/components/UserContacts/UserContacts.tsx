@@ -53,7 +53,7 @@ export const UserContacts = ({ user }: UserContactsProps) => {
 
                 {userServiceQuery.data?.map((userServices) => (
                     <UserServiceListItem
-                        key={`${userServices.serviceName}-${userServices.userId}`}
+                        key={`${userServices.serviceName}-${userServices.serviceId}-${userServices.userId}`}
                         userService={userServices}
                     />
                 ))}
