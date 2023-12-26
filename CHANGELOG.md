@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.24.1](https://github.com/taskany-inc/crew/compare/v0.24.0...v0.24.1) (2023-12-26)
+
+
+### Bug Fixes
+
+* **UserContacts:** correct key for service list ([2838f1d](https://github.com/taskany-inc/crew/commit/2838f1dc3535e1ae8c89fe72da4b2a942288d116))
+
 ## [0.24.0](https://github.com/taskany-inc/crew/compare/v0.23.0...v0.24.0) (2023-12-21)
 
 
