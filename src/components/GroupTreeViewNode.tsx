@@ -9,13 +9,15 @@ import { pages } from '../hooks/useRouter';
 
 import { Link } from './Link';
 
+const StyledGroupLink = styled(Link)`
+    width: 100%;
+`;
+
 const StyledGroupRow = styled.div`
     cursor: pointer;
     background-color: ${gray4};
     padding: ${gapS};
     border-radius: ${radiusM};
-    display: flex;
-    flex: 1;
 
     &:hover {
         background-color: ${gray6};
@@ -25,11 +27,11 @@ const StyledGroupRow = styled.div`
 const GroupRow = ({ group }: { group: Group }) => {
     const { showGroupPreview } = usePreviewContext();
     return (
-        <StyledGroupRow>
-            <Link onClick={() => showGroupPreview(group.id)} href={pages.team(group.id)}>
+        <StyledGroupLink onClick={() => showGroupPreview(group.id)} href={pages.team(group.id)}>
+            <StyledGroupRow>
                 <Text size="l">{group.name}</Text>
-            </Link>
-        </StyledGroupRow>
+            </StyledGroupRow>
+        </StyledGroupLink>
     );
 };
 
