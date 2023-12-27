@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import { TreeView, nullable } from '@taskany/bricks';
 import { gapL, gapM } from '@taskany/colors';
 
-import { LayoutMain } from '../LayoutMain';
-import { GroupTreeViewNode } from '../GroupTreeViewNode';
-import { CommonHeader } from '../CommonHeader';
-import { trpc } from '../../trpc/trpcClient';
+import { trpc } from '../trpc/trpcClient';
 
-import { tr } from './TeamPage.i18n';
+import { LayoutMain } from './LayoutMain';
+import { GroupTreeViewNode } from './GroupTreeViewNode';
+import { TeamPageHeader } from './TeamPageHeader/TeamPageHeader';
+import { PageSep } from './PageSep';
 
 const StyledTreeContainer = styled.div`
     margin: ${gapM} ${gapL} 0 ${gapL};
@@ -26,7 +26,9 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
 
     return (
         <LayoutMain pageTitle={group.name}>
-            <CommonHeader title={group.name} description={tr('All active children teams')} />
+            <TeamPageHeader group={group} />
+
+            <PageSep />
 
             <StyledTreeContainer>
                 <TreeView>
