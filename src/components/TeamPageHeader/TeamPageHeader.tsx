@@ -15,9 +15,9 @@ import { GroupBreadcrumbListItem } from '../GroupBreadcrumbListItem';
 
 import { tr } from './TeamPageHeader.i18n';
 
-type TeamPageHeaderProps = {
+interface TeamPageHeaderProps {
     group: Group & GroupMeta & GroupParent;
-};
+}
 
 const StyledTabsMenu = styled(TabsMenu)`
     margin: 0 ${gapL};
@@ -36,7 +36,7 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
     const breadcrumbs = breadcrumbsQuery.data ?? [];
 
     const tabsMenuOptions = useMemo<Options>(() => {
-        const options: Options = [[tr('People'), pages.team(group.id)]];
+        const options: Options = [[tr('Teams'), pages.team(group.id)]];
         if (group.meta.isEditable) {
             options.push([tr('Settings'), pages.teamSettings(group.id)]);
         }

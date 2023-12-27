@@ -1,4 +1,4 @@
-import { TeamPage } from '../../../components/TeamPage/TeamPage';
+import { TeamPage } from '../../../components/TeamPage';
 import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({
