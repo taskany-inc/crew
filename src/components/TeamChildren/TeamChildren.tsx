@@ -25,7 +25,7 @@ export const TeamChildren = ({ groupId, groupChildren }: GroupTeamsProps) => {
     const { moveGroup } = useGroupMutations();
 
     const onSubmit = async (group: Group) => {
-        await moveGroup.mutateAsync({ id: group.id, newParentId: groupId });
+        await moveGroup({ id: group.id, newParentId: groupId });
     };
 
     return (

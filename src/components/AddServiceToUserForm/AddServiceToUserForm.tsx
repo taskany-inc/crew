@@ -37,7 +37,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
         if (!selectedService) {
             return;
         }
-        await addServiceToUser.mutateAsync({
+        await addServiceToUser({
             serviceId,
             userId,
             serviceName: selectedService.name,

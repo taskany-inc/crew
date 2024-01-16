@@ -57,7 +57,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
     } = useForm<CreateUser>({ resolver: zodResolver(createUserSchema) });
 
     const onSubmit = handleSubmit(async (data) => {
-        const newUser = await createUser.mutateAsync(data);
+        const newUser = await createUser(data);
         router.user(newUser.id);
         onClose();
     });

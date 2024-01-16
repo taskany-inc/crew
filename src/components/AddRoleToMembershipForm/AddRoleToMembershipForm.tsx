@@ -38,7 +38,7 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
         if (!selectedRole) {
             return;
         }
-        await addToMembership.mutateAsync({ membershipId, roleId: selectedRole.id });
+        await addToMembership({ membershipId, roleId: selectedRole.id });
         onReset();
     };
 

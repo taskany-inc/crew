@@ -54,19 +54,19 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
     const { editGroup, moveGroup } = useGroupMutations();
 
     const onAddParent = async (newParent: Group) => {
-        await moveGroup.mutateAsync({ id: group.id, newParentId: newParent.id });
+        await moveGroup({ id: group.id, newParentId: newParent.id });
     };
 
     const onAddChild = async (newChild: Group) => {
-        await moveGroup.mutateAsync({ id: newChild.id, newParentId: group.id });
+        await moveGroup({ id: newChild.id, newParentId: group.id });
     };
 
     const onRemoveParent = () => {
-        moveGroup.mutateAsync({ id: group.id, newParentId: null });
+        moveGroup({ id: group.id, newParentId: null });
     };
 
     const onRemoveChild = (id: string) => {
-        moveGroup.mutateAsync({ id, newParentId: null });
+        moveGroup({ id, newParentId: null });
     };
 
     const childrenQuery = trpc.group.getChildren.useQuery(group.id);
@@ -86,7 +86,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
     });
 
     const onSubmit = handleSubmit(async (data) => {
-        const editedGroup = await editGroup.mutateAsync(data);
+        const editedGroup = await editGroup(data);
         reset({
             groupId: editedGroup.id,
             name: editedGroup.name,

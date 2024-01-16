@@ -66,7 +66,7 @@ export const TransferGroupForm = ({ group }: TransferGroupFormProps) => {
         if (!selectedGroup) {
             return;
         }
-        await moveGroup.mutateAsync({ id: group.id, newParentId: selectedGroup.id });
+        await moveGroup({ id: group.id, newParentId: selectedGroup.id });
         onClose();
     };
 

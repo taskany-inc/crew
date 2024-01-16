@@ -64,7 +64,7 @@ const StyledRowWrapper = styled.div`
 `;
 
 export const BonusPointsBalanceModal = ({ userId, visible, onClose }: BonusPointsBalanceModalProps) => {
-    const { changeBonusPoints } = useBonusPointsMutations();
+    const { changeBonusPoints, bonusPointsIsLoading } = useBonusPointsMutations();
 
     const {
         register,
@@ -86,7 +86,7 @@ export const BonusPointsBalanceModal = ({ userId, visible, onClose }: BonusPoint
     };
 
     const onSubmit = handleSubmit(async (data) => {
-        await changeBonusPoints.mutateAsync(data);
+        await changeBonusPoints(data);
         hideModal();
     });
 
@@ -99,8 +99,8 @@ export const BonusPointsBalanceModal = ({ userId, visible, onClose }: BonusPoint
     };
 
     const addAchievement = async () => {
-        if (!achievement || changeBonusPoints.isLoading) return;
-        await changeBonusPoints.mutateAsync({
+        if (!achievement || bonusPointsIsLoading) return;
+        await changeBonusPoints({
             userId,
             action: BonusAction.ADD,
             amount: achievement.attributes.bonus,

@@ -2,7 +2,8 @@ import { FC, ReactNode } from 'react';
 import Head from 'next/head';
 import { useTheme } from 'next-themes';
 import styled from 'styled-components';
-import { gapL, gapM } from '@taskany/colors';
+import { gapL, gapM, gray4, radiusM, textColor } from '@taskany/colors';
+import { Toaster } from 'react-hot-toast';
 
 import { trpc } from '../trpc/trpcClient';
 
@@ -44,6 +45,14 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
             <PageHeader />
             <Theme theme={theme} />
             <StyledContent>{children}</StyledContent>
+
+            <Toaster
+                toastOptions={{
+                    style: { borderRadius: radiusM, background: gray4, color: textColor },
+                }}
+                position="bottom-right"
+            />
+
             <PageFooter />
         </>
     );
