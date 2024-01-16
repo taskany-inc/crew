@@ -35,7 +35,7 @@ export const RemoveUserFromGroupModal = ({ visible, membership, onClose }: Remov
     const { removeUserFromGroup } = useUserMutations();
 
     const onRemoveClick = async () => {
-        await removeUserFromGroup.mutateAsync({ userId: membership.userId, groupId: membership.groupId });
+        await removeUserFromGroup({ userId: membership.userId, groupId: membership.groupId });
         onClose();
     };
 

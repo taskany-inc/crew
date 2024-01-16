@@ -42,7 +42,7 @@ export const DeactivateProfileForm = ({ onClose, user }: DeactivateProfileFormPr
     });
 
     const updateUser = useCallback(async () => {
-        await editUser.mutateAsync({ id: user.id, active: !user.active });
+        await editUser({ id: user.id, active: !user.active });
         onClose();
     }, [user, editUser, onClose]);
 

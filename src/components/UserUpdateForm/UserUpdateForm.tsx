@@ -60,9 +60,9 @@ const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
         mode: 'onChange',
         resolver: zodResolver(editUserSchema),
     });
-    /* TODO: Add Notifications https://github.com/taskany-inc/crew/issues/279*/
+
     const updateUser = async (data: EditUser) => {
-        await editUser.mutateAsync(data);
+        await editUser(data);
         onClose();
     };
 

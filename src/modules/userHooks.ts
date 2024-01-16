@@ -1,50 +1,65 @@
 import { trpc } from '../trpc/trpcClient';
+import { notifyPromise } from '../utils/notifications/notifyPromise';
+
+import { AddUserToGroup, CreateUser, EditUser, EditUserSettings, RemoveUserFromGroup } from './userSchemas';
 
 export const useUserMutations = () => {
     const utils = trpc.useContext();
 
+    const createUser = trpc.user.create.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.group.getMemberships.invalidate();
+        },
+    });
+
+    const addUserToGroup = trpc.user.addToGroup.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.group.getMemberships.invalidate();
+        },
+    });
+
+    const removeUserFromGroup = trpc.user.removeFromGroup.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.group.getMemberships.invalidate();
+        },
+    });
+
+    const editUserSettings = trpc.user.editSettings.useMutation({
+        onMutate: (newSettings) => {
+            utils.user.getSettings.setData(undefined, (oldSettings) => {
+                return oldSettings
+                    ? {
+                          userId: oldSettings.userId,
+                          theme: newSettings.theme ?? oldSettings.theme,
+                      }
+                    : undefined;
+            });
+        },
+        onSuccess: () => {
+            utils.user.getSettings.invalidate();
+        },
+    });
+
+    const editUser = trpc.user.edit.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+        },
+    });
+
     return {
-        createUser: trpc.user.create.useMutation({
-            onSuccess: () => {
-                utils.user.invalidate();
-                utils.group.getMemberships.invalidate();
-            },
-        }),
+        createUser: (data: CreateUser) => notifyPromise(createUser.mutateAsync(data), 'userCreate'),
 
-        addUserToGroup: trpc.user.addToGroup.useMutation({
-            onSuccess: () => {
-                utils.user.invalidate();
-                utils.group.getMemberships.invalidate();
-            },
-        }),
+        addUserToGroup: (data: AddUserToGroup) => notifyPromise(addUserToGroup.mutateAsync(data), 'userAddToGroup'),
 
-        removeUserFromGroup: trpc.user.removeFromGroup.useMutation({
-            onSuccess: () => {
-                utils.user.invalidate();
-                utils.group.getMemberships.invalidate();
-            },
-        }),
+        removeUserFromGroup: (data: RemoveUserFromGroup) =>
+            notifyPromise(removeUserFromGroup.mutateAsync(data), 'userRemoveFromGroup'),
 
-        editUserSettings: trpc.user.editSettings.useMutation({
-            onMutate: (newSettings) => {
-                utils.user.getSettings.setData(undefined, (oldSettings) => {
-                    return oldSettings
-                        ? {
-                              userId: oldSettings.userId,
-                              theme: newSettings.theme ?? oldSettings.theme,
-                          }
-                        : undefined;
-                });
-            },
-            onSuccess: () => {
-                utils.user.getSettings.invalidate();
-            },
-        }),
+        editUserSettings: (data: EditUserSettings) =>
+            notifyPromise(editUserSettings.mutateAsync(data), 'userEditSettings'),
 
-        editUser: trpc.user.edit.useMutation({
-            onSuccess: () => {
-                utils.user.invalidate();
-            },
-        }),
+        editUser: (data: EditUser) => notifyPromise(editUser.mutateAsync(data), 'userUpdate'),
     };
 };

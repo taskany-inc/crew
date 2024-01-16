@@ -24,7 +24,7 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
     const { editUserSettings } = useUserMutations();
 
     const onThemeChange = (theme: Theme) => {
-        editUserSettings.mutateAsync({ theme });
+        editUserSettings({ theme });
         setTheme(theme);
     };
 

@@ -50,7 +50,7 @@ export const EditRolesModal = ({ membership, visible, onClose }: EditRolesModalP
                             <IconXOutline
                                 size="xxs"
                                 onClick={() => {
-                                    removeFromMembership.mutate({ membershipId: membership.id, roleId: role.id });
+                                    removeFromMembership({ membershipId: membership.id, roleId: role.id });
                                 }}
                             />
                         </StyledTag>

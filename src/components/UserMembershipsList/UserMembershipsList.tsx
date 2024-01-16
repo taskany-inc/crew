@@ -27,7 +27,7 @@ export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
     const { addUserToGroup } = useUserMutations();
 
     const onAddUserToTeam = async (group: Group) => {
-        await addUserToGroup.mutateAsync({ userId: user.id, groupId: group.id });
+        await addUserToGroup({ userId: user.id, groupId: group.id });
     };
     const groupFilter = useMemo(() => {
         return user.memberships.map(({ groupId }) => groupId);

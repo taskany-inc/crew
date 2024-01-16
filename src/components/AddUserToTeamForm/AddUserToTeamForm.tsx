@@ -34,7 +34,7 @@ export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
         if (!selectedUser) {
             return;
         }
-        await addUserToGroup.mutateAsync({ userId: selectedUser.id, groupId });
+        await addUserToGroup({ userId: selectedUser.id, groupId });
         onReset();
     };
 

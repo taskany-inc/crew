@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/nextjs';
 import { errorsProvider } from '../../utils/forms';
 import { CreateFeedback, createFeedbackSchema } from '../../modules/feedbackSchemas';
 import { trpc } from '../../trpc/trpcClient';
+import { notifyPromise } from '../../utils/notifications/notifyPromise';
 
 import { tr } from './FeedbackCreateForm.i18n';
 
@@ -31,14 +32,17 @@ const FeedbackCreateForm = ({ onClose }: FeedbackCreateFormProps) => {
     const onPending = useCallback(
         async (form: CreateFeedback) => {
             setFormBusy(true);
-            // TODO: Notifications in the pr #76
-            const res = await createMutation.mutateAsync({
-                title: form.title,
-                description: form.description,
-                href: window.location.href,
-            });
 
-            if (res) {
+            const result = await notifyPromise(
+                createMutation.mutateAsync({
+                    title: form.title,
+                    description: form.description,
+                    href: window.location.href,
+                }),
+                'sendFeedback',
+            );
+
+            if (result) {
                 onClose();
             }
 

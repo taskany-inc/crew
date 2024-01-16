@@ -37,7 +37,7 @@ export const AddDeviceToUserForm = ({ userId }: DevicesFormProps) => {
         if (!selectedDevice) {
             return;
         }
-        await addDeviceToUser.mutateAsync({
+        await addDeviceToUser({
             deviceId,
             userId,
             deviceName: selectedDevice.name,

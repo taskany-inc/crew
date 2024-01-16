@@ -81,6 +81,10 @@ const main = async () => {
             },
         },
     });
+
+    await prisma.role.createMany({
+        data: [{ name: 'CEO' }, { name: 'Manager' }, { name: 'Designer' }, { name: 'Programmer' }, { name: 'HR' }],
+    });
 };
 
 main();
