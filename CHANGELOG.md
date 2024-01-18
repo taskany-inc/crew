@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.26.0](https://github.com/taskany-inc/crew/compare/v0.25.0...v0.26.0) (2024-01-18)
+
+
+### Features
+
+* notifications ([e27fdf5](https://github.com/taskany-inc/crew/commit/e27fdf50f9f02d1441cccf6ed2a639c9feff6968))
+
 ## [0.25.0](https://github.com/taskany-inc/crew/compare/v0.24.1...v0.25.0) (2023-12-27)
 
 
