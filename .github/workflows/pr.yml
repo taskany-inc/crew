@@ -17,7 +17,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: node:18.12.1-alpine
+    container: node:20.9.0-alpine
     services:
       postgres:
         image: postgres
