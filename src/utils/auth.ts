@@ -58,10 +58,36 @@ if (config.nextAuth.keycloak.id && config.nextAuth.keycloak.secret && config.nex
     );
 }
 
+const adapter = PrismaAdapter(prisma);
+
 // https://next-auth.js.org/configuration/options
 export const authOptions: NextAuthOptions = {
     secret: config.nextAuth.secret,
-    adapter: PrismaAdapter(prisma),
+    adapter: {
+        ...adapter,
+        createUser: async (user) => {
+            const existingUser = await prisma.user.findFirst({
+                where: { services: { some: { serviceName: 'Email', serviceId: user.email } } },
+            });
+            if (existingUser) {
+                const mainEmail = user.email;
+                const secondaryEmail = existingUser.email;
+                const [updatedUser] = await prisma.$transaction([
+                    prisma.user.update({ where: { id: existingUser.id }, data: { email: mainEmail } }),
+                    prisma.userService.update({
+                        where: {
+                            userId: existingUser.id,
+                            serviceName_serviceId: { serviceName: 'Email', serviceId: mainEmail },
+                        },
+                        data: { serviceId: secondaryEmail },
+                    }),
+                ]);
+                return updatedUser;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return adapter.createUser!(user);
+        },
+    },
     session: { strategy: 'jwt' },
     providers,
     callbacks: {
