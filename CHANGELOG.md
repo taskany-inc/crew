@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.26.1](https://github.com/taskany-inc/crew/compare/v0.26.0...v0.26.1) (2024-01-25)
+
+
+### Bug Fixes
+
+* **auth:** check additional emails before creating new user ([d3b0bc5](https://github.com/taskany-inc/crew/commit/d3b0bc564c951d04ba1c24f50c15fce090b39f09))
+
 ## [0.26.0](https://github.com/taskany-inc/crew/compare/v0.25.0...v0.26.0) (2024-01-18)
 
 
