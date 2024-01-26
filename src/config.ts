@@ -7,6 +7,7 @@ export const config = {
             issuer: process.env.KEYCLOAK_ISSUER,
             jwsAlgorithm: process.env.KEYCLOAK_JWS_ALGORITHM || 'RS256',
         },
+        credentialsAuth: process.env.CREDENTIALS_AUTH,
     },
     bonusPoints: {
         storeLink: process.env.NEXT_PUBLIC_BONUS_POINTS_STORE_LINK,

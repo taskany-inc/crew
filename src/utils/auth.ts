@@ -10,37 +10,41 @@ import { config } from '../config';
 import { prisma } from './prisma';
 import { verifyPassword } from './passwords';
 
-const providers: NextAuthOptions['providers'] = [
-    CredentialsProvider({
-        name: 'Credentials',
-        credentials: {
-            email: { label: 'email', type: 'text', placeholder: 'admin@taskany.org' },
-            password: { label: 'password', type: 'password' },
-        },
-        async authorize(creds) {
-            if (!creds?.email || !creds.password) return null;
+const providers: NextAuthOptions['providers'] = [];
 
-            const user = await prisma.user.findUnique({
-                where: { email: creds.email },
-                include: { accounts: true },
-            });
+if (config.nextAuth.credentialsAuth) {
+    providers.push(
+        CredentialsProvider({
+            name: 'Credentials',
+            credentials: {
+                email: { label: 'email', type: 'text', placeholder: 'admin@taskany.org' },
+                password: { label: 'password', type: 'password' },
+            },
+            async authorize(creds) {
+                if (!creds?.email || !creds.password) return null;
 
-            if (!user) return null;
+                const user = await prisma.user.findUnique({
+                    where: { email: creds.email },
+                    include: { accounts: true },
+                });
 
-            const credentialsAccount = user.accounts.find((account) => account.type === 'credentials');
+                if (!user) return null;
 
-            if (!credentialsAccount?.password) return null;
+                const credentialsAccount = user.accounts.find((account) => account.type === 'credentials');
 
-            const verification = await verifyPassword(creds.password, credentialsAccount.password);
+                if (!credentialsAccount?.password) return null;
 
-            if (!verification) return null;
+                const verification = await verifyPassword(creds.password, credentialsAccount.password);
 
-            const { accounts, ...restUser } = user;
+                if (!verification) return null;
 
-            return restUser;
-        },
-    }),
-];
+                const { accounts, ...restUser } = user;
+
+                return restUser;
+            },
+        }),
+    );
+}
 
 if (config.nextAuth.keycloak.id && config.nextAuth.keycloak.secret && config.nextAuth.keycloak.issuer) {
     providers.push(
