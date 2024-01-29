@@ -31,7 +31,7 @@ const StyledFormCard = styled(FormCard)`
 `;
 
 export const DeactivateProfileForm = ({ onClose, user }: DeactivateProfileFormProps) => {
-    const { editUser } = useUserMutations();
+    const { editUserActiveState } = useUserMutations();
 
     const {
         handleSubmit,
@@ -42,9 +42,9 @@ export const DeactivateProfileForm = ({ onClose, user }: DeactivateProfileFormPr
     });
 
     const updateUser = useCallback(async () => {
-        await editUser({ id: user.id, active: !user.active });
+        await editUserActiveState({ id: user.id, active: !user.active });
         onClose();
-    }, [user, editUser, onClose]);
+    }, [user, editUserActiveState, onClose]);
 
     return (
         <>

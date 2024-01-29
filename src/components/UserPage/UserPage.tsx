@@ -117,7 +117,7 @@ export const UserPage = ({ userId }: UserPageProps) => {
                     {nullable(user.meta.isEditable, () => (
                         <Button onClick={() => setOpenUpdateUserForm(true)} text={tr('Edit')} size="s" />
                     ))}
-                    {nullable(user.meta.isDeactivatable, () => (
+                    {nullable(user.meta.isActiveStateEditable, () => (
                         <Button
                             onClick={() => setOpenDeactivateUserForm(true)}
                             text={user.active ? tr('Deactivate') : tr('Reactivate')}

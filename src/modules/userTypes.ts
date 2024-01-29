@@ -24,3 +24,10 @@ export type UserFilterQuery = {
     supervisorsQuery?: string[];
     activeQuery?: boolean;
 };
+
+export interface ExternalUserUpdate {
+    email: string;
+    name?: string;
+    supervisorId?: string | null;
+    active?: boolean;
+}

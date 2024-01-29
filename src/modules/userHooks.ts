@@ -1,7 +1,14 @@
 import { trpc } from '../trpc/trpcClient';
 import { notifyPromise } from '../utils/notifications/notifyPromise';
 
-import { AddUserToGroup, CreateUser, EditUser, EditUserSettings, RemoveUserFromGroup } from './userSchemas';
+import {
+    AddUserToGroup,
+    CreateUser,
+    EditUser,
+    EditUserActiveState,
+    EditUserSettings,
+    RemoveUserFromGroup,
+} from './userSchemas';
 
 export const useUserMutations = () => {
     const utils = trpc.useContext();
@@ -49,6 +56,12 @@ export const useUserMutations = () => {
         },
     });
 
+    const editUserActiveState = trpc.user.editActiveState.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+        },
+    });
+
     return {
         createUser: (data: CreateUser) => notifyPromise(createUser.mutateAsync(data), 'userCreate'),
 
@@ -61,5 +74,8 @@ export const useUserMutations = () => {
             notifyPromise(editUserSettings.mutateAsync(data), 'userEditSettings'),
 
         editUser: (data: EditUser) => notifyPromise(editUser.mutateAsync(data), 'userUpdate'),
+
+        editUserActiveState: (data: EditUserActiveState) =>
+            notifyPromise(editUserActiveState.mutateAsync(data), 'userUpdate'),
     };
 };
