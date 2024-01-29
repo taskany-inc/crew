@@ -11,8 +11,10 @@ export const userAccess = {
         return notAllowed(tr('Cannot edit another user'));
     },
 
-    isDeactivatable: (sessionUser: SessionUser): AccessCheckResult => {
-        return sessionUser.role === UserRole.ADMIN ? allowed : notAllowed(tr('Only admins can deactivate profile'));
+    isActiveStateEditable: (sessionUser: SessionUser): AccessCheckResult => {
+        return sessionUser.role === UserRole.ADMIN
+            ? allowed
+            : notAllowed(tr('Only admins can activate or deactivate profiles'));
     },
 
     isBonusEditable: (sessionUser: SessionUser): AccessCheckResult => {

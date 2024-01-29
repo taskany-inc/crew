@@ -46,10 +46,16 @@ export const editUserSchema = z.object({
     id: z.string(),
     name: z.string().optional(),
     supervisorId: z.string().nullish(),
-    active: z.boolean().optional(),
 });
 
 export type EditUser = z.infer<typeof editUserSchema>;
+
+export const editUserActiveStateSchema = z.object({
+    id: z.string(),
+    active: z.boolean(),
+});
+
+export type EditUserActiveState = z.infer<typeof editUserActiveStateSchema>;
 
 export const editUserSettingsSchema = z.object({
     theme: z.enum(themes).optional(),

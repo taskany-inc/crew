@@ -49,6 +49,17 @@ describe('groups', () => {
         await groupMethods.move({ id: 'barracuda', newParentId: testRootGroup });
     });
 
+    it('archives/unarchives group memberships on user active state edit', async () => {
+        const membershipsBefore = await userMethods.getMemberships('charmander');
+        expect(membershipsBefore.length).toBe(1);
+        await userMethods.editActiveState({ id: 'charmander', active: false });
+        const membershipsDeactivated = await userMethods.getMemberships('charmander');
+        expect(membershipsDeactivated.length).toBe(0);
+        await userMethods.editActiveState({ id: 'charmander', active: true });
+        const membershipsActivated = await userMethods.getMemberships('charmander');
+        expect(membershipsActivated.length).toBe(1);
+    });
+
     it("archives/unarchives group and it's memberships", async () => {
         await groupMethods.archive('goldfinch');
         const archivedGroup = await prisma.group.findUnique({

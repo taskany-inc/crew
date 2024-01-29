@@ -7,7 +7,14 @@ import { suggestionsTake } from '../utils/suggestions';
 import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 
-import { MembershipInfo, UserMemberships, UserMeta, UserSettings, UserSupervisor } from './userTypes';
+import {
+    ExternalUserUpdate,
+    MembershipInfo,
+    UserMemberships,
+    UserMeta,
+    UserSettings,
+    UserSupervisor,
+} from './userTypes';
 import {
     AddUserToGroup,
     EditUser,
@@ -16,6 +23,7 @@ import {
     RemoveUserFromGroup,
     GetUserSuggestions,
     CreateUser,
+    EditUserActiveState,
 } from './userSchemas';
 import { userAccess } from './userAccess';
 import { tr } from './modules.i18n';
@@ -25,7 +33,7 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: Se
         ...user,
         meta: {
             isEditable: userAccess.isEditable(sessionUser, user.id).allowed,
-            isDeactivatable: userAccess.isDeactivatable(sessionUser).allowed,
+            isActiveStateEditable: userAccess.isActiveStateEditable(sessionUser).allowed,
             isBonusEditable: userAccess.isBonusEditable(sessionUser).allowed,
             isBonusViewable: userAccess.isBonusViewable(sessionUser, user.id).allowed,
         },
@@ -60,6 +68,47 @@ const usersWhere = (data: GetUserList) => {
     return where;
 };
 
+const externalUserCreate = async (data: CreateUser) => {
+    if (!config.externalUserService.apiToken || !config.externalUserService.apiUrlCreate) return;
+    const { organizationUnitId, firstName, middleName, surname, phone, email, login } = data;
+    const organization = await prisma.organizationUnit.findFirstOrThrow({
+        where: { id: organizationUnitId },
+    });
+    const body = {
+        firstName,
+        middleName,
+        surname,
+        phone,
+        email,
+        organization,
+        login,
+    };
+    const response = await fetch(config.externalUserService.apiUrlCreate, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { authorization: config.externalUserService.apiToken },
+    });
+    if (!response.ok) {
+        const text = await response.text();
+        throw new TRPCError({ code: 'BAD_REQUEST', message: text });
+    }
+};
+
+const externalUserUpdate = async (userId: string, data: Omit<ExternalUserUpdate, 'email'>) => {
+    if (!config.externalUserService.apiToken || !config.externalUserService.apiUrlUpdate) return;
+    const user = await prisma.user.findFirstOrThrow({ where: { id: userId } });
+    const fullData: ExternalUserUpdate = { email: user.email, ...data };
+    const response = await fetch(config.externalUserService.apiUrlUpdate, {
+        method: 'POST',
+        body: JSON.stringify(fullData),
+        headers: { authorization: config.externalUserService.apiToken },
+    });
+    if (!response.ok) {
+        const text = await response.text();
+        throw new TRPCError({ code: 'BAD_REQUEST', message: text });
+    }
+};
+
 export const userMethods = {
     create: async (data: CreateUser) => {
         const [phoneService, loginService] = await Promise.all([
@@ -74,39 +123,7 @@ export const userMethods = {
             servicesData.push({ serviceName: loginService.name, serviceId: data.login });
         }
 
-        if (config.externalUserService.apiUrlCreate && config.externalUserService.apiToken) {
-            try {
-                const { organizationUnitId, firstName, middleName, surname, phone, email, login } = data;
-                const organization = await prisma.organizationUnit.findFirstOrThrow({
-                    where: { id: organizationUnitId },
-                });
-
-                const body = {
-                    firstName,
-                    middleName,
-                    surname,
-                    phone,
-                    email,
-                    organization,
-                    login,
-                };
-
-                await fetch(config.externalUserService.apiUrlCreate, {
-                    method: 'POST',
-                    body: JSON.stringify(body),
-                    headers: {
-                        authorization: config.externalUserService.apiToken,
-                    },
-                });
-            } catch (error) {
-                // TODO add onError notification https://github.com/taskany-inc/crew/issues/376
-                console.log(
-                    `Cannot post user to external service ${
-                        error instanceof Error ? error?.message : JSON.stringify(error, null, 2)
-                    }`,
-                );
-            }
-        }
+        await externalUserCreate(data);
 
         return prisma.user.create({
             data: {
@@ -201,37 +218,23 @@ export const userMethods = {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } }, active: { not: true } } });
     },
 
-    edit: async (data: EditUser) => {
-        if (data.active !== undefined) {
-            await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: !data.active } });
-        }
-        if (config.externalUserService.apiUrlUpdate && config.externalUserService.apiToken) {
-            try {
-                const user = await prisma.user.findFirstOrThrow({ where: { id: data.id } });
-                await fetch(config.externalUserService.apiUrlUpdate, {
-                    method: 'POST',
-                    body: JSON.stringify({ email: user.email, ...data }),
-                    headers: {
-                        authorization: config.externalUserService.apiToken,
-                    },
-                });
-            } catch (error) {
-                // TODO add onError notification https://github.com/taskany-inc/crew/issues/376
-                console.log(
-                    `Cannot deactivate user in external service ${
-                        error instanceof Error ? error?.message : JSON.stringify(error, null, 2)
-                    }`,
-                );
-            }
-        }
+    edit: async (data: EditUser): Promise<User> => {
+        await externalUserUpdate(data.id, data);
         return prisma.user.update({
             where: { id: data.id },
             data: {
                 name: data.name,
                 supervisorId: data.supervisorId,
-                active: data.active,
-                deactivatedAt: data.active !== undefined ? new Date() : null,
             },
+        });
+    },
+
+    editActiveState: async (data: EditUserActiveState): Promise<User> => {
+        await externalUserUpdate(data.id, { active: data.active });
+        await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: !data.active } });
+        return prisma.user.update({
+            where: { id: data.id },
+            data: { active: data.active, deactivatedAt: data.active ? null : new Date() },
         });
     },
 

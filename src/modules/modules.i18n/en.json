@@ -9,7 +9,6 @@
     "No group with id {id}": "",
     "Cannot move group inside itself": "",
     "Cannot edit another user": "",
-    "Only admins can deactivate profile": "",
     "Only admins can edit bonus points": "",
     "Amount should be greater than zero": "",
     "Description is required": "",
@@ -24,5 +23,6 @@
     "Group is archived": "",
     "Choose a device": "",
     "Cannot unarchive group with archived parent": "",
-    "Minimum {min} symbols": ""
+    "Minimum {min} symbols": "",
+    "Only admins can activate or deactivate profiles": ""
 }

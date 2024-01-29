@@ -11,6 +11,7 @@ import {
     removeUserFromGroupSchema,
     getUserSuggestionsSchema,
     createUserSchema,
+    editUserActiveStateSchema,
 } from '../../modules/userSchemas';
 import { userAccess } from '../../modules/userAccess';
 
@@ -52,10 +53,13 @@ export const userRouter = router({
     }),
 
     edit: protectedProcedure.input(editUserSchema).mutation(({ input, ctx }) => {
-        input.active === undefined
-            ? accessCheck(userAccess.isEditable(ctx.session.user, input.id))
-            : accessCheck(userAccess.isBonusEditable(ctx.session.user));
+        accessCheck(userAccess.isEditable(ctx.session.user, input.id));
         return userMethods.edit(input);
+    }),
+
+    editActiveState: protectedProcedure.input(editUserActiveStateSchema).mutation(({ input, ctx }) => {
+        accessCheck(userAccess.isActiveStateEditable(ctx.session.user));
+        return userMethods.editActiveState(input);
     }),
 
     suggestions: protectedProcedure.input(getUserSuggestionsSchema).query(({ input }) => {
