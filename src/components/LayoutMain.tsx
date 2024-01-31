@@ -11,6 +11,7 @@ import { Theme } from './Theme';
 import { PageHeader } from './PageHeader/PageHeader';
 import { PageFooter } from './PageFooter/PageFooter';
 import { GlobalStyle } from './GlobalStyle';
+import { OfflineBanner } from './OfflineBanner/OfflineBanner';
 
 const StyledContent = styled.div`
     /* presses the footer to the bottom*/
@@ -41,6 +42,8 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
             <Head>
                 <title>{fullTitle}</title>
             </Head>
+            <OfflineBanner />
+
             <GlobalStyle />
             <PageHeader />
             <Theme theme={theme} />
