@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.27.1](https://github.com/taskany-inc/crew/compare/v0.27.0...v0.27.1) (2024-02-01)
+
+
+### Bug Fixes
+
+* **user edit:** rethrow external user operation error ([a980b84](https://github.com/taskany-inc/crew/commit/a980b842e5f6983c64d0b4275b302fcd33b93cd3))
+
 ## [0.27.0](https://github.com/taskany-inc/crew/compare/v0.26.1...v0.27.0) (2024-01-29)
 
 
