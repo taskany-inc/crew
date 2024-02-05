@@ -4,7 +4,6 @@ import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
 import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
-import { editUserActiveStateSchema, editUserSchema } from '../../modules/userSchemas';
 
 export const restRouter = router({
     getUserByEmail: restProcedure
@@ -38,7 +37,13 @@ export const restRouter = router({
                 path: '/users/edit',
             },
         })
-        .input(editUserSchema)
+        .input(
+            z.object({
+                email: z.string(),
+                name: z.string().optional(),
+                supervisorId: z.string().nullish(),
+            }),
+        )
         .output(
             z.object({
                 id: z.string(),
@@ -47,8 +52,10 @@ export const restRouter = router({
                 supervisorId: z.string().nullable(),
             }),
         )
-        .mutation(({ input }) => {
-            return userMethods.edit(input);
+        .mutation(async ({ input }) => {
+            const { email, ...restInput } = input;
+            const user = await userMethods.getByEmail(email);
+            return userMethods.edit({ id: user.id, ...restInput });
         }),
 
     editUserActiveState: restProcedure
@@ -58,7 +65,12 @@ export const restRouter = router({
                 path: '/users/edit-active',
             },
         })
-        .input(editUserActiveStateSchema)
+        .input(
+            z.object({
+                email: z.string(),
+                active: z.boolean(),
+            }),
+        )
         .output(
             z.object({
                 id: z.string(),
@@ -67,8 +79,9 @@ export const restRouter = router({
                 active: z.boolean(),
             }),
         )
-        .mutation(({ input }) => {
-            return userMethods.editActiveState(input);
+        .mutation(async ({ input }) => {
+            const user = await userMethods.getByEmail(input.email);
+            return userMethods.editActiveState({ id: user.id, active: input.active });
         }),
 
     changeUserBonusPoints: restProcedure
