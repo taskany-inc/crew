@@ -4,6 +4,7 @@ import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
 import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
+import { editUserActiveStateSchema, editUserSchema } from '../../modules/userSchemas';
 
 export const restRouter = router({
     getUserByEmail: restProcedure
@@ -28,6 +29,46 @@ export const restRouter = router({
         )
         .query(({ input }) => {
             return userMethods.getByEmail(input.email);
+        }),
+
+    editUser: restProcedure
+        .meta({
+            openapi: {
+                method: 'PUT',
+                path: '/users/edit',
+            },
+        })
+        .input(editUserSchema)
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string().nullable(),
+                email: z.string(),
+                supervisorId: z.string().nullable(),
+            }),
+        )
+        .mutation(({ input }) => {
+            return userMethods.edit(input);
+        }),
+
+    editUserActiveState: restProcedure
+        .meta({
+            openapi: {
+                method: 'PUT',
+                path: '/users/edit-active',
+            },
+        })
+        .input(editUserActiveStateSchema)
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string().nullable(),
+                email: z.string(),
+                active: z.boolean(),
+            }),
+        )
+        .mutation(({ input }) => {
+            return userMethods.editActiveState(input);
         }),
 
     changeUserBonusPoints: restProcedure
