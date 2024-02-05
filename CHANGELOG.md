@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.28.0](https://github.com/taskany-inc/crew/compare/v0.27.1...v0.28.0) (2024-02-05)
+
+
+### Features
+
+* **rest api:** user edit endpoints ([b3872f4](https://github.com/taskany-inc/crew/commit/b3872f48b53394cfbc43794eb9e68cdf9c75e47b))
+
+
+### Bug Fixes
+
+* **ssr:** handle not found errors ([e6d8c5a](https://github.com/taskany-inc/crew/commit/e6d8c5a93323894e568b932176c5e4677d1f6e52))
+
 ## [0.27.1](https://github.com/taskany-inc/crew/compare/v0.27.0...v0.27.1) (2024-02-01)
 
 
