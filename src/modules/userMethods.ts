@@ -164,7 +164,7 @@ export const userMethods = {
         id: string,
         sessionUser: SessionUser,
     ): Promise<User & UserMeta & UserMemberships & UserSupervisor> => {
-        const user = await prisma.user.findUniqueOrThrow({
+        const user = await prisma.user.findUnique({
             where: { id },
             include: {
                 memberships: {
@@ -175,6 +175,7 @@ export const userMethods = {
                 supervisor: true,
             },
         });
+        if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });
         return addCalculatedUserFields(user, sessionUser);
     },
 

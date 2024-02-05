@@ -17,7 +17,7 @@ import { tr } from './utils.i18n';
 
 type SsgHelper = DecoratedProcedureSSGRecord<TrpcRouter>;
 
-type Props = Record<never, unknown> & { redirect?: { destination: string } };
+type Props = Record<never, unknown> & { notFound?: boolean } & { redirect?: { destination: string } };
 
 type SsrOptions<
     Num extends string,
@@ -56,7 +56,8 @@ type InferredServerSidePropsFromSSROptions<
     | {
           redirect: { destination: string };
           props: { session: Session | null };
-      };
+      }
+    | { notFound: boolean };
 
 export const createGetServerSideProps =
     <Num extends string, Str extends string, ReqSession extends boolean, AdditionalProps extends Props>(
@@ -130,11 +131,18 @@ export const createGetServerSideProps =
 
                 additionalProps = actionResult ?? ({} as AdditionalProps);
 
+                if (additionalProps.notFound) {
+                    return { notFound: true };
+                }
+
                 if (additionalProps.redirect) {
                     return { redirect: additionalProps.redirect, props: { session } };
                 }
             } catch (e) {
                 if (e instanceof TRPCError) {
+                    if (e.code === 'NOT_FOUND') {
+                        return { notFound: true };
+                    }
                     const code = getHTTPStatusCodeFromError(e);
                     context.res.statusCode = code;
                     error = { statusCode: code, title: e.message };
