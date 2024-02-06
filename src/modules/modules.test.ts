@@ -1,8 +1,6 @@
-import { UserRole } from 'prisma/prisma-client';
 import assert from 'assert';
 
 import { prisma } from '../utils/prisma';
-import { SessionUser } from '../utils/auth';
 import {
     createTestGroups,
     createTestUsers,
@@ -15,8 +13,6 @@ import { groupMethods } from './groupMethods';
 import { userMethods } from './userMethods';
 import { roleMethods } from './roleMethods';
 import { searchMethods } from './searchMethods';
-
-const mockSessionUser: SessionUser = { id: '', name: '', email: '', role: UserRole.USER };
 
 describe('groups', () => {
     beforeEach(async () => {
@@ -35,14 +31,14 @@ describe('groups', () => {
     });
 
     it('moves group', async () => {
-        const groupBefore = await groupMethods.getById('barracuda', mockSessionUser);
+        const groupBefore = await groupMethods.getById('barracuda');
         expect(groupBefore.parentId).not.toBe('wildcat');
         const group = await groupMethods.move({ id: 'barracuda', newParentId: 'wildcat' });
         expect(group.parentId).toBe('wildcat');
     });
 
     it('removes group parent', async () => {
-        const groupBefore = await groupMethods.getById('barracuda', mockSessionUser);
+        const groupBefore = await groupMethods.getById('barracuda');
         expect(groupBefore.parentId).not.toBeNull();
         const group = await groupMethods.move({ id: 'barracuda', newParentId: null });
         expect(group.parentId).toBeNull();
@@ -87,14 +83,14 @@ describe('groups', () => {
     });
 
     it('cannot get archived groups or memberships', async () => {
-        const groupBefore = await groupMethods.getById('barracuda', mockSessionUser);
+        const groupBefore = await groupMethods.getById('barracuda');
         expect(groupBefore).toBeTruthy();
         const membershipsBefore = await groupMethods.getMemberships('barracuda');
         expect(membershipsBefore.length).toBeGreaterThan(0);
         assert(groupBefore.parentId);
         const childrenBefore = await groupMethods.getChildren(groupBefore.parentId);
         await groupMethods.archive('barracuda');
-        const getByIdCheck = () => groupMethods.getById('barracuda', mockSessionUser);
+        const getByIdCheck = () => groupMethods.getById('barracuda');
         await expect(getByIdCheck).rejects.toThrowErrorMatchingInlineSnapshot('"No group with id barracuda"');
         const membershipsAfter = await groupMethods.getMemberships('barracuda');
         expect(membershipsAfter.length).toBe(0);

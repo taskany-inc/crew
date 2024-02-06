@@ -4,6 +4,8 @@ import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
 import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
+import { groupMethods } from '../../modules/groupMethods';
+import { getGroupListSchema } from '../../modules/groupSchemas';
 
 export const restRouter = router({
     getUserByEmail: restProcedure
@@ -110,5 +112,81 @@ export const restRouter = router({
             const targetUser = await userMethods.getByEmail(targetUserEmail);
             const actingUser = await userMethods.getByEmail(actingUserEmail);
             return bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser);
+        }),
+
+    getGroupById: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/groups/info',
+            },
+        })
+        .input(
+            z.object({
+                id: z.string(),
+            }),
+        )
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string(),
+                description: z.string().nullable(),
+                supervisor: z
+                    .object({
+                        id: z.string(),
+                        name: z.string().nullable(),
+                        email: z.string(),
+                    })
+                    .nullish(),
+                memberships: z.array(
+                    z.object({
+                        user: z.object({
+                            id: z.string(),
+                            name: z.string().nullable(),
+                            email: z.string(),
+                        }),
+                        roles: z.array(
+                            z.object({
+                                name: z.string(),
+                            }),
+                        ),
+                    }),
+                ),
+                breadcrumbs: z.array(
+                    z.object({
+                        id: z.string(),
+                        name: z.string(),
+                    }),
+                ),
+            }),
+        )
+        .query(async ({ input }) => {
+            const [group, memberships, breadcrumbs] = await Promise.all([
+                groupMethods.getById(input.id),
+                groupMethods.getMemberships(input.id),
+                groupMethods.getBreadcrumbs(input.id),
+            ]);
+            return { ...group, memberships, breadcrumbs };
+        }),
+
+    getGroupList: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/groups/list',
+            },
+        })
+        .input(getGroupListSchema)
+        .output(
+            z.array(
+                z.object({
+                    id: z.string(),
+                    name: z.string(),
+                    description: z.string().nullable(),
+                }),
+            ),
+        )
+        .query(({ input }) => {
+            return groupMethods.getList(input);
         }),
 });

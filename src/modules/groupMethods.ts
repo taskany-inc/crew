@@ -12,7 +12,15 @@ import { MembershipInfo } from './userTypes';
 import { GroupMeta, GroupParent, GroupSupervisor } from './groupTypes';
 import { groupAccess } from './groupAccess';
 
-export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser: SessionUser): T & GroupMeta => {
+export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser?: SessionUser): T & GroupMeta => {
+    if (!sessionUser) {
+        return {
+            ...group,
+            meta: {
+                isEditable: false,
+            },
+        };
+    }
     return {
         ...group,
         meta: {
@@ -89,7 +97,7 @@ export const groupMethods = {
 
     getById: async (
         id: string,
-        sessionUser: SessionUser,
+        sessionUser?: SessionUser,
     ): Promise<Group & GroupMeta & GroupParent & GroupSupervisor> => {
         const group = await prisma.group.findUnique({
             where: { id, archived: false },
@@ -104,14 +112,15 @@ export const groupMethods = {
         return prisma.group.findMany({ where: { parentId: id, archived: false } });
     },
 
-    getList: (data: GetGroupList) => {
+    getList: ({ search, filter, take = 10, skip }: GetGroupList) => {
         return prisma.group.findMany({
             where: {
-                name: { contains: data.search, mode: 'insensitive' },
+                name: { contains: search, mode: 'insensitive' },
                 archived: false,
-                id: { notIn: [...(data.filter || [])] },
+                id: { notIn: [...(filter || [])] },
             },
-            take: data.take,
+            take,
+            skip,
         });
     },
 

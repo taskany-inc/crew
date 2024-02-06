@@ -28,6 +28,7 @@ export const getGroupListSchema = z.object({
         .number()
         .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
         .optional(),
+    skip: z.number().optional(),
 });
 export type GetGroupList = z.infer<typeof getGroupListSchema>;
 
