@@ -42,7 +42,7 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
             <Head>
                 <title>{fullTitle}</title>
             </Head>
-            <OfflineBanner />
+            {typeof window !== 'undefined' && <OfflineBanner />}
 
             <GlobalStyle />
             <PageHeader />
