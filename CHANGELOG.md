@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.28.1](https://github.com/taskany-inc/crew/compare/v0.28.0...v0.28.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* **rest api:** find user by email, not id ([157805d](https://github.com/taskany-inc/crew/commit/157805d4df2a816ac7eb9f8fb32d4e2c3682a921))
+
 ## [0.28.0](https://github.com/taskany-inc/crew/compare/v0.27.1...v0.28.0) (2024-02-05)
 
 
