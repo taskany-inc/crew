@@ -13,8 +13,8 @@ import { groupMethods } from '../../modules/groupMethods';
 import { groupAccess } from '../../modules/groupAccess';
 
 export const groupRouter = router({
-    add: protectedProcedure.input(createGroupSchema).mutation(({ input }) => {
-        return groupMethods.add(input);
+    create: protectedProcedure.input(createGroupSchema).mutation(({ input }) => {
+        return groupMethods.create(input);
     }),
 
     edit: protectedProcedure.input(editGroupSchema).mutation(({ input, ctx }) => {

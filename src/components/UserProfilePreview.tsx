@@ -1,4 +1,5 @@
 import { ModalPreview, nullable } from '@taskany/bricks';
+import styled from 'styled-components';
 
 import { pages } from '../hooks/useRouter';
 import { trpc } from '../trpc/trpcClient';
@@ -14,6 +15,11 @@ type UserProps = {
     userId: string;
 };
 
+const StyledModalPreview = styled(ModalPreview)`
+    display: flex;
+    flex-direction: column;
+`;
+
 const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const userQuery = trpc.user.getById.useQuery(userId);
@@ -25,7 +31,7 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
     return (
         <>
             {nullable(userQuery.data, (user) => (
-                <ModalPreview visible onClose={hidePreview}>
+                <StyledModalPreview visible onClose={hidePreview}>
                     <PreviewHeader
                         preTitle={orgStructureRoles}
                         user={user}
@@ -40,7 +46,7 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
 
                         <UserContacts user={user} />
                     </PreviewContent>
-                </ModalPreview>
+                </StyledModalPreview>
             ))}
         </>
     );

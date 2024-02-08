@@ -1,0 +1,10 @@
+{
+    "Create team": "Создать команду",
+    "Name": "Название",
+    "Required field": "Обязательное поле",
+    "Cancel": "Отмена",
+    "Create": "Создать",
+    "Parent team:": "Родительская команда",
+    "Virtual group:": "Виртуальная группа",
+    "Group without parent will show up as the top-level group": "Если родительская группа не указана, то будет создана новая группа верхнего уровня"
+}

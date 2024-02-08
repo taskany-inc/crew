@@ -144,6 +144,8 @@ model Group {
 
   archived Boolean @default(false)
 
+  virtual Boolean @default(false)
+
   parent   Group?  @relation("GroupChildren", fields: [parentId], references: [id])
   parentId String?
 
