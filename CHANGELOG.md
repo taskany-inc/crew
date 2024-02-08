@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.29.0](https://github.com/taskany-inc/crew/compare/v0.28.1...v0.29.0) (2024-02-08)
+
+
+### Features
+
+* create team dialog ([2110e94](https://github.com/taskany-inc/crew/commit/2110e9445d4f574a27b195fdd021ef9ba0501856))
+* **rest api:** group by id, group list ([f41911b](https://github.com/taskany-inc/crew/commit/f41911b8ec681a6a882d03262f3078b3c1664b25))
+
+
+### Bug Fixes
+
+* **create group modal:** correct ui messages ([03ce48a](https://github.com/taskany-inc/crew/commit/03ce48aa809c3779a55d278c49857b03a971f0b1))
+
 ## [0.28.1](https://github.com/taskany-inc/crew/compare/v0.28.0...v0.28.1) (2024-02-06)
 
 
