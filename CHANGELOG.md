@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.29.0](https://github.com/taskany-inc/crew/compare/v0.28.1...v0.29.0) (2024-02-08)
+
+
+### Features
+
+* **rest api:** group by id, group list ([f41911b](https://github.com/taskany-inc/crew/commit/f41911b8ec681a6a882d03262f3078b3c1664b25))
+
 ## [0.28.1](https://github.com/taskany-inc/crew/compare/v0.28.0...v0.28.1) (2024-02-06)
 
 
