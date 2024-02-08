@@ -21,6 +21,11 @@ type UserProps = {
     groupId: string;
 };
 
+const StyledModalPreview = styled(ModalPreview)`
+    display: flex;
+    flex-direction: column;
+`;
+
 const StyledSupervisorText = styled(Text)`
     display: flex;
     gap: ${gapS};
@@ -34,7 +39,7 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
     return (
         <>
             {nullable(groupQuery.data, (group) => (
-                <ModalPreview visible onClose={hidePreview}>
+                <StyledModalPreview visible onClose={hidePreview}>
                     <PreviewHeader subtitle={group.parent?.name} title={group?.name} link={pages.team(group.id)} />
                     <PreviewContent>
                         {nullable(group.supervisor, (supervisor) => (
@@ -55,7 +60,7 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                             <InlineTrigger icon={<IconBinOutline size="xs" />} text={tr('Archive group')} disabled />
                         </NarrowSection>
                     </PreviewContent>
-                </ModalPreview>
+                </StyledModalPreview>
             ))}
         </>
     );

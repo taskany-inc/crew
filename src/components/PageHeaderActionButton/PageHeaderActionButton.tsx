@@ -4,6 +4,7 @@ import { Button, Dropdown, MenuItem } from '@taskany/bricks';
 import { IconDownSmallSolid, IconUpSmallSolid } from '@taskany/icons';
 
 import { CreateUserModal } from '../CreateUserModal/CreateUserModal';
+import { CreateGroupModal } from '../CreateGroupModal/CreateGroupModal';
 import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './PageHeaderActionButton.i18n';
@@ -12,10 +13,14 @@ export const PageHeaderActionButton = () => {
     const { data } = useSession();
 
     const createUserModalVisibility = useBoolean(false);
+    const createGroupModalVisibility = useBoolean(false);
 
     if (data?.user.role !== UserRole.ADMIN) return null;
 
-    const items = [{ title: tr('User'), action: createUserModalVisibility.setTrue }];
+    const items = [
+        { title: tr('User'), action: createUserModalVisibility.setTrue },
+        { title: tr('Team'), action: createGroupModalVisibility.setTrue },
+    ];
 
     return (
         <>
@@ -53,6 +58,10 @@ export const PageHeaderActionButton = () => {
             />
 
             <CreateUserModal visible={createUserModalVisibility.value} onClose={createUserModalVisibility.setFalse} />
+            <CreateGroupModal
+                visible={createGroupModalVisibility.value}
+                onClose={createGroupModalVisibility.setFalse}
+            />
         </>
     );
 };

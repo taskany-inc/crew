@@ -6,7 +6,7 @@ import { CreateGroup, EditGroup, MoveGroup } from './groupSchemas';
 export const useGroupMutations = () => {
     const utils = trpc.useContext();
 
-    const addGroup = trpc.group.add.useMutation({
+    const createGroup = trpc.group.create.useMutation({
         onSuccess: () => {
             utils.group.invalidate();
         },
@@ -31,7 +31,7 @@ export const useGroupMutations = () => {
     });
 
     return {
-        addGroup: (data: CreateGroup) => notifyPromise(addGroup.mutateAsync(data), 'groupCreate'),
+        createGroup: (data: CreateGroup) => notifyPromise(createGroup.mutateAsync(data), 'groupCreate'),
 
         editGroup: (data: EditGroup) => notifyPromise(editGroup.mutateAsync(data), 'groupUpdate'),
 

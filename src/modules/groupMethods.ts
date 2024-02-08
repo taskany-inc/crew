@@ -30,7 +30,7 @@ export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser?
 };
 
 export const groupMethods = {
-    add: (data: CreateGroup) => {
+    create: (data: CreateGroup) => {
         return prisma.group.create({ data });
     },
 
