@@ -112,7 +112,7 @@ export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) =>
                                 <GroupComboBox onChange={(group) => setValue('parentId', group?.id)} />
                             </StyledInputContainer>
                             <StyledTip icon={<IconInfoCircleOutline size="s" />}>
-                                {tr('Group without parent will show up as the top-level group')}
+                                {tr('Group without a parent will show up as the top-level group')}
                             </StyledTip>
                         </>
                     ))}

@@ -6,5 +6,5 @@
     "Create": "Создать",
     "Parent team:": "Родительская команда",
     "Virtual group:": "Виртуальная группа",
-    "Group without parent will show up as the top-level group": "Если родительская группа не указана, то будет создана новая группа верхнего уровня"
+    "Group without a parent will show up as the top-level group": "Если не указать родителя, группа будет показана на верхнем уровне"
 }
