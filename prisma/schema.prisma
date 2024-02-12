@@ -177,6 +177,8 @@ model Membership {
 
   roles Role[]
 
+  percentage Int?
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 

@@ -28,5 +28,11 @@
     "Hire stream is required": "",
     "Only admins can create vacancies": "",
     "Only admins can edit vacancies": "",
-    "No api token for hire": ""
+    "No api token for hire": "",
+    "User is required": "",
+    "Percentage must be a number": "",
+    "Percentage must be an integer": "",
+    "Minimum value is {min}": "",
+    "Maximum value is {max}": "",
+    "Maximum available percentage is {max}": ""
 }

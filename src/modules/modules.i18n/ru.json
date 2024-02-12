@@ -28,5 +28,11 @@
     "Hire stream is required": "Поток найма обязателен",
     "Only admins can create vacancies": "Только администраторы могут создавать вакансии",
     "Only admins can edit vacancies": "Только администраторы могут редактировать вакансии",
-    "No api token for hire": "Отсутствует токен для Hire"
+    "No api token for hire": "Отсутствует токен для Hire",
+    "User is required": "Укажите пользователя",
+    "Percentage must be a number": "Процент должен быть числом",
+    "Percentage must be an integer": "Процент должен быть целым числом",
+    "Minimum value is {min}": "Минимальное значение - {min}",
+    "Maximum value is {max}": "Максимальное значение - {max}",
+    "Maximum available percentage is {max}": "Максимальный доступный процент участия - {max}"
 }

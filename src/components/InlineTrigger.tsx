@@ -17,6 +17,8 @@ const StyledInlineTrigger = styled(Text)<{ disabled?: boolean }>`
     align-items: center;
     gap: ${gapS};
 
+    width: max-content;
+
     transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
     transition-property: color;
 
