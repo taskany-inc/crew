@@ -18,8 +18,15 @@ export const createUserSchema = z.object({
 export type CreateUser = z.infer<typeof createUserSchema>;
 
 export const addUserToGroupSchema = z.object({
-    userId: z.string(),
+    userId: z.string({ required_error: tr('User is required') }),
     groupId: z.string(),
+    percentage: z.optional(
+        z
+            .number({ invalid_type_error: tr('Percentage must be a number') })
+            .int(tr('Percentage must be an integer'))
+            .min(1, tr('Minimum value is {min}', { min: 1 }))
+            .max(100, tr('Maximum value is {max}', { max: 100 })),
+    ),
 });
 export type AddUserToGroup = z.infer<typeof addUserToGroupSchema>;
 

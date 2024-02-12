@@ -62,6 +62,10 @@ export const userRouter = router({
         return userMethods.editActiveState(input);
     }),
 
+    getAvailableMembershipPercentage: protectedProcedure.input(z.string()).query(({ input }) => {
+        return userMethods.getAvailableMembershipPercentage(input);
+    }),
+
     suggestions: protectedProcedure.input(getUserSuggestionsSchema).query(({ input }) => {
         return userMethods.suggestions(input);
     }),

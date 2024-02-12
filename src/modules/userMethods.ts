@@ -138,9 +138,18 @@ export const userMethods = {
     },
 
     addToGroup: async (data: AddUserToGroup) => {
-        const membership = await prisma.membership.findUnique({ where: { userId_groupId: data } });
+        const membership = await prisma.membership.findUnique({
+            where: { userId_groupId: { userId: data.userId, groupId: data.groupId } },
+        });
         if (membership?.archived) {
             throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived membership') });
+        }
+        const availablePercentage = await userMethods.getAvailableMembershipPercentage(data.userId);
+        if (data.percentage && data.percentage > availablePercentage) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: tr('Maximum available percentage is {max}', { max: availablePercentage }),
+            });
         }
         return prisma.membership.create({ data });
     },
@@ -237,6 +246,12 @@ export const userMethods = {
             where: { id: data.id },
             data: { active: data.active, deactivatedAt: data.active ? null : new Date() },
         });
+    },
+
+    getAvailableMembershipPercentage: async (userId: string): Promise<number> => {
+        const memberships = await prisma.membership.findMany({ where: { userId, percentage: { not: null } } });
+        const total = memberships.reduce((prev, curr) => prev + (curr.percentage ?? 0), 0);
+        return 100 - Math.min(Math.max(total, 0), 100);
     },
 
     suggestions: async ({ query, include, take = suggestionsTake }: GetUserSuggestions) => {

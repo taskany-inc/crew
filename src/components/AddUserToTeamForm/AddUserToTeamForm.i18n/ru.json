@@ -1,4 +1,7 @@
 {
     "Add participant": "Добавить участника",
-    "Add": "Добавить"
+    "Add": "Добавить",
+    "Membership percentage": "Процент участия",
+    "Maximum value is {max}": "Максимальное значение - {max}",
+    "Available: {max}": "Доступно: {max}"
 }
