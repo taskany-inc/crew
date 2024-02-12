@@ -14,7 +14,7 @@ export const createVacancySchema = z.object({
                 })
                 .join(''),
         }),
-    hireStream: z.string({
+    hireStreamId: z.string({
         required_error: tr('Hire stream is required'),
     }),
     groupId: z.string(),
@@ -25,7 +25,8 @@ export const getVacancyListSchema = z.object({
     search: z.string().optional(),
     archived: z.boolean().optional(),
     groupId: z.string().optional(),
-    hireStream: z.string().optional(),
+    hireStreamId: z.string().optional(),
+    searchByTeam: z.string().optional(),
 });
 export type GetVacancyList = z.infer<typeof getVacancyListSchema>;
 
@@ -33,6 +34,6 @@ export const editVacancySchema = z.object({
     id: z.string(),
     name: z.string().optional(),
     groupId: z.string().optional(),
-    hireStream: z.string().optional(),
+    hireStreamId: z.string().optional(),
 });
 export type EditVacancy = z.infer<typeof editVacancySchema>;

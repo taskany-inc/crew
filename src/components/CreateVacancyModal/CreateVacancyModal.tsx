@@ -22,7 +22,6 @@ import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { useVacancyMutations } from '../../modules/vacancyHooks';
 import { CreateVacancy, createVacancySchema } from '../../modules/vacancySchemas';
 import { HireStreamComboBox } from '../HireStreamComboBox/HireStreamComboBox';
-import { constructLinkToHireStream } from '../../utils/hireIntegration';
 
 import { tr } from './CreateVacancyModal.i18n';
 
@@ -93,9 +92,7 @@ export const CreateVacancyModal = ({ visible, onClose }: CreateVacancyModalProps
                                 {tr('Hire stream:')}
                             </Text>
                             <HireStreamComboBox
-                                onChange={(hireStream) =>
-                                    hireStream && setValue('hireStream', constructLinkToHireStream(hireStream.id))
-                                }
+                                onChange={(hireStream) => hireStream && setValue('hireStreamId', String(hireStream.id))}
                             />
                         </StyledInputContainer>
                         <StyledInputContainer>
