@@ -24,5 +24,9 @@
     "Choose a device": "Выберите девайс",
     "Cannot unarchive group with archived parent": "Нельзя разахивировать группу с заархивированным родителем",
     "Minimum {min} symbols": "Минимум {min} символов",
-    "Only admins can activate or deactivate profiles": "Только администраторы могут активировать или деактивировать профили"
+    "Only admins can activate or deactivate profiles": "Только администраторы могут активировать или деактивировать профили",
+    "Hire stream is required": "Поток найма обязателен",
+    "Only admins can create vacancies": "Только администраторы могут создавать вакансии",
+    "Only admins can edit vacancies": "Только администраторы могут редактировать вакансии",
+    "No api token for hire": "Отсутствует токен для Hire"
 }

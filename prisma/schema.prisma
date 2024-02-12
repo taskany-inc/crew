@@ -88,6 +88,8 @@ model User {
 
   deactivatedAt DateTime?
 
+  vacancy   Vacancy? @relation("vacancyUser")
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
@@ -155,6 +157,8 @@ model Group {
   supervisorId String?
 
   memberships Membership[]
+
+  vacancies Vacancy[] @relation("groupVacancy")
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -241,4 +245,21 @@ model UserDevice {
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 
   @@unique([deviceName, deviceId])
+}
+
+model Vacancy {
+  id          String  @id @default(nanoid())
+  name        String
+
+  hireStream  String
+
+  user        User?   @relation("vacancyUser", fields: [userId], references: [id])
+  userId      String?
+
+  group       Group   @relation("groupVacancy", fields: [groupId], references: [id])
+  groupId     String
+
+  archived    Boolean @default(false)
+
+  @@unique([userId])
 }

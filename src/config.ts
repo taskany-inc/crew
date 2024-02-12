@@ -19,4 +19,8 @@ export const config = {
         apiUrlUpdate: process.env.EXTERNAL_SERVICE_UPDATE_PROFILE_API_URL,
         apiToken: process.env.EXTERNAL_SERVICE_API_TOKEN,
     },
+    hireIntegration: {
+        apiUrl: process.env.HIRE_INTEGRATION_API_URL,
+        apiToken: process.env.HIRE_INTEGRATION_API_TOKEN,
+    },
 };

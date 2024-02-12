@@ -11,6 +11,7 @@ type NamespacedAction<T extends string, A extends string> = `${T}${A}`;
 export type NotificationNamespaces =
     | NamespacedAction<'user', 'Create' | 'Update' | 'AddToGroup' | 'RemoveFromGroup' | 'EditSettings'>
     | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move'>
+    | NamespacedAction<'vacancy', 'Create' | 'Update' | 'Archive'>
     | NamespacedAction<'role', 'AddToMembership' | 'RemoveFromMembership'>
     | NamespacedAction<'service', 'AddToUser'>
     | NamespacedAction<'device', 'AddToUser'>
@@ -86,6 +87,18 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         sendFeedback: {
             success: tr('Feedback is sent 🎉'),
             loading: tr('Feedback is formed'),
+        },
+        vacancyCreate: {
+            success: tr('Voila! Vacancy is here 🎉'),
+            loading: tr('Creating the vacancy...'),
+        },
+        vacancyUpdate: {
+            success: tr('Vacancy is updated'),
+            loading: tr('Updating the vacancy...'),
+        },
+        vacancyArchive: {
+            success: tr('Vacancy is archived'),
+            loading: tr('Archiving the vacancy...'),
         },
     };
 
