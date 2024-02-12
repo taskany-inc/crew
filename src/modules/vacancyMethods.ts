@@ -1,4 +1,4 @@
-import { Vacancy } from 'prisma/prisma-client';
+import { Vacancy, Prisma } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
 
@@ -10,7 +10,24 @@ export const vacancyMethods = {
     },
 
     getList: (data: GetVacancyList) => {
-        return prisma.vacancy.findMany({ where: data, include: { group: true } });
+        const { searchByTeam, search, ...restData } = data;
+
+        const where: Prisma.VacancyWhereInput = { ...restData };
+
+        if (searchByTeam) {
+            where.group = {
+                name: {
+                    contains: searchByTeam,
+                    mode: 'insensitive',
+                },
+            };
+        }
+
+        if (search) {
+            where.name = { contains: search, mode: 'insensitive' };
+        }
+
+        return prisma.vacancy.findMany({ where, include: { group: true } });
     },
 
     getById: (id: string) => prisma.vacancy.findFirstOrThrow({ where: { id }, include: { group: true, user: true } }),

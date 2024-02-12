@@ -5,7 +5,9 @@ import { userMethods } from '../../modules/userMethods';
 import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
 import { groupMethods } from '../../modules/groupMethods';
-import { getGroupListSchema } from '../../modules/groupSchemas';
+import { vacancyMethods } from '../../modules/vacancyMethods';
+
+import { tr } from './router.i18n';
 
 export const restRouter = router({
     getUserByEmail: restProcedure
@@ -176,7 +178,16 @@ export const restRouter = router({
                 path: '/groups/list',
             },
         })
-        .input(getGroupListSchema)
+        .input(
+            z.object({
+                search: z.string().optional(),
+                take: z
+                    .number()
+                    .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
+                    .optional(),
+                skip: z.number().optional(),
+            }),
+        )
         .output(
             z.array(
                 z.object({
@@ -189,4 +200,51 @@ export const restRouter = router({
         .query(({ input }) => {
             return groupMethods.getList(input);
         }),
+
+    getVacancyById: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/vacancy/{id}',
+            },
+        })
+        .input(
+            z.object({
+                id: z.string(),
+            }),
+        )
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string(),
+                hireStreamId: z.string(),
+                archived: z.boolean(),
+            }),
+        )
+        .query(({ input }) => vacancyMethods.getById(input.id)),
+
+    getVacancyList: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/vacancies/list',
+            },
+        })
+        .input(
+            z.object({
+                hireStreamId: z.string(),
+                searchByTeam: z.string().optional(),
+            }),
+        )
+        .output(
+            z.array(
+                z.object({
+                    id: z.string(),
+                    name: z.string(),
+                    group: z.object({ id: z.string(), name: z.string() }),
+                    hireStreamId: z.string(),
+                }),
+            ),
+        )
+        .query(({ input }) => vacancyMethods.getList(input)),
 });

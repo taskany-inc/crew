@@ -250,18 +250,18 @@ model UserDevice {
 }
 
 model Vacancy {
-  id          String  @id @default(nanoid())
-  name        String
+  id            String  @id @default(nanoid())
+  name          String
 
-  hireStream  String
+  hireStreamId  String
 
-  user        User?   @relation("vacancyUser", fields: [userId], references: [id])
-  userId      String?
+  user          User?   @relation("vacancyUser", fields: [userId], references: [id])
+  userId        String?
 
-  group       Group   @relation("groupVacancy", fields: [groupId], references: [id])
-  groupId     String
+  group         Group   @relation("groupVacancy", fields: [groupId], references: [id])
+  groupId       String
 
-  archived    Boolean @default(false)
+  archived      Boolean @default(false)
 
   @@unique([userId])
 }
