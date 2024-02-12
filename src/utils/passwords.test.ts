@@ -1,3 +1,6 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+
 import { hashPassword, verifyPassword } from './passwords';
 
 describe('Password hashing', () => {
@@ -6,7 +9,7 @@ describe('Password hashing', () => {
         const hashed = await hashPassword(password);
         const verifiedFalse = await verifyPassword('wrong input', hashed);
         const verifiedTrue = await verifyPassword(password, hashed);
-        expect(verifiedFalse).toBe(false);
-        expect(verifiedTrue).toBe(true);
+        assert.equal(verifiedFalse, false);
+        assert.equal(verifiedTrue, true);
     });
 });
