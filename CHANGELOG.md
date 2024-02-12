@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.30.0](https://github.com/taskany-inc/crew/compare/v0.29.0...v0.30.0) (2024-02-12)
+
+
+### Features
+
+* partial team membership ([69ceb66](https://github.com/taskany-inc/crew/commit/69ceb66135af92bae3eb8a16254879654a369db7))
+* vacancies in crew ([5795780](https://github.com/taskany-inc/crew/commit/5795780a7be61ededd42cb3622f10100bf46ef44))
+
 ## [0.29.0](https://github.com/taskany-inc/crew/compare/v0.28.1...v0.29.0) (2024-02-08)
 
 
