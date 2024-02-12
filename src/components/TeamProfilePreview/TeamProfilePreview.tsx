@@ -14,6 +14,7 @@ import { usePreviewContext } from '../../contexts/previewContext';
 import { TeamChildren } from '../TeamChildren/TeamChildren';
 import { TransferGroupForm } from '../TransferGroupForm/TransferGroupForm';
 import { TeamPeople } from '../TeamPeople/TeamPeople';
+import { TeamVacancies } from '../TeamVacancies/TeamVacancies';
 
 import { tr } from './TeamProfilePreview.i18n';
 
@@ -54,6 +55,7 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                         <TeamChildren groupId={group.id} groupChildren={childrenQuery.data ?? []} />
 
                         <TeamPeople groupId={group.id} />
+                        <TeamVacancies groupId={group.id} />
 
                         <NarrowSection>
                             <TransferGroupForm group={group} />

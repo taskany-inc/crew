@@ -9,6 +9,8 @@ import { roleRouter } from './roleRouter';
 import { deviceRouter } from './deviceRouter';
 import { organizationUnitRouter } from './organizationUnitRouter';
 import { bonusPointsRouter } from './bonusPointsRouter';
+import { vacancyRouter } from './vacancyRouter';
+import { hireIntegrationRouter } from './hireIntegrationRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -20,6 +22,8 @@ export const trpcRouter = router({
     device: deviceRouter,
     organizationUnit: organizationUnitRouter,
     bonusPoints: bonusPointsRouter,
+    vacancy: vacancyRouter,
+    hireIntegration: hireIntegrationRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;
