@@ -1,4 +1,5 @@
-import assert from 'assert';
+import { describe, it, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert/strict';
 
 import { prisma } from '../utils/prisma';
 import {
@@ -27,33 +28,33 @@ describe('groups', () => {
 
     it('creates test groups', async () => {
         const hierarchy = await groupMethods.getHierarchy(testRootGroup);
-        expect(Object.keys(hierarchy.dict).length).toBe(11);
+        assert.equal(Object.keys(hierarchy.dict).length, 11);
     });
 
     it('moves group', async () => {
         const groupBefore = await groupMethods.getById('barracuda');
-        expect(groupBefore.parentId).not.toBe('wildcat');
+        assert.notEqual(groupBefore.parentId, 'wildcat');
         const group = await groupMethods.move({ id: 'barracuda', newParentId: 'wildcat' });
-        expect(group.parentId).toBe('wildcat');
+        assert.equal(group.parentId, 'wildcat');
     });
 
     it('removes group parent', async () => {
         const groupBefore = await groupMethods.getById('barracuda');
-        expect(groupBefore.parentId).not.toBeNull();
+        assert.notEqual(groupBefore.parentId, null);
         const group = await groupMethods.move({ id: 'barracuda', newParentId: null });
-        expect(group.parentId).toBeNull();
+        assert.equal(group.parentId, null);
         await groupMethods.move({ id: 'barracuda', newParentId: testRootGroup });
     });
 
     it('archives/unarchives group memberships on user active state edit', async () => {
         const membershipsBefore = await userMethods.getMemberships('charmander');
-        expect(membershipsBefore.length).toBe(1);
+        assert.equal(membershipsBefore.length, 1);
         await userMethods.editActiveState({ id: 'charmander', active: false });
         const membershipsDeactivated = await userMethods.getMemberships('charmander');
-        expect(membershipsDeactivated.length).toBe(0);
+        assert.equal(membershipsDeactivated.length, 0);
         await userMethods.editActiveState({ id: 'charmander', active: true });
         const membershipsActivated = await userMethods.getMemberships('charmander');
-        expect(membershipsActivated.length).toBe(1);
+        assert.equal(membershipsActivated.length, 1);
     });
 
     it("archives/unarchives group and it's memberships", async () => {
@@ -62,112 +63,112 @@ describe('groups', () => {
             where: { id: 'goldfinch' },
             include: { memberships: true },
         });
-        expect(archivedGroup?.archived).toBe(true);
-        expect(archivedGroup?.memberships.length).toBeGreaterThan(0);
-        expect(archivedGroup?.memberships[0].archived).toBe(true);
+        assert.equal(archivedGroup?.archived, true);
+        assert.equal(archivedGroup.memberships.length > 0, true);
+        assert.equal(archivedGroup.memberships[0].archived, true);
         await groupMethods.unarchive('goldfinch');
         const unarchivedGroup = await prisma.group.findUnique({
             where: { id: 'goldfinch' },
             include: { memberships: true },
         });
-        expect(unarchivedGroup?.archived).toBe(false);
-        expect(unarchivedGroup?.memberships[0].archived).toBe(false);
+        assert.equal(unarchivedGroup?.archived, false);
+        assert.equal(unarchivedGroup.memberships[0].archived, false);
     });
 
     it('archives group with archived children', async () => {
         const children = await groupMethods.getChildren('porpoise');
-        expect(children.length).toBe(1);
+        assert.equal(children.length, 1);
         await groupMethods.archive(children[0].id);
         const groupAfter = await groupMethods.archive('porpoise');
-        expect(groupAfter.archived).toBe(true);
+        assert.equal(groupAfter.archived, true);
     });
 
     it('cannot get archived groups or memberships', async () => {
         const groupBefore = await groupMethods.getById('barracuda');
-        expect(groupBefore).toBeTruthy();
+        assert.ok(groupBefore);
         const membershipsBefore = await groupMethods.getMemberships('barracuda');
-        expect(membershipsBefore.length).toBeGreaterThan(0);
+        assert.equal(membershipsBefore.length > 0, true);
         assert(groupBefore.parentId);
         const childrenBefore = await groupMethods.getChildren(groupBefore.parentId);
         await groupMethods.archive('barracuda');
         const getByIdCheck = () => groupMethods.getById('barracuda');
-        await expect(getByIdCheck).rejects.toThrowErrorMatchingInlineSnapshot('"No group with id barracuda"');
+        await assert.rejects(getByIdCheck, { message: 'No group with id barracuda' });
         const membershipsAfter = await groupMethods.getMemberships('barracuda');
-        expect(membershipsAfter.length).toBe(0);
+        assert.equal(membershipsAfter.length, 0);
         const childrenAfter = await groupMethods.getChildren(groupBefore.parentId);
-        expect(childrenAfter.length).toBe(childrenBefore.length - 1);
+        assert.equal(childrenAfter.length, childrenBefore.length - 1);
         const getListResult = await groupMethods.getList({ search: 'barracuda' });
-        expect(getListResult.length).toBe(0);
+        assert.equal(getListResult.length, 0);
         const getHierarchyFromRootResult = await groupMethods.getHierarchy(testRootGroup);
-        expect(getHierarchyFromRootResult.dict.barracuda).toBeUndefined();
+        assert.equal(getHierarchyFromRootResult.dict.barracuda, undefined);
         const getHierarchyResult = await groupMethods.getHierarchy('barracuda');
-        expect(Object.keys(getHierarchyResult.dict).length).toBe(0);
+        assert.equal(Object.keys(getHierarchyResult.dict).length, 0);
     });
 
     it('cannot get archived group from search', async () => {
         await groupMethods.archive('barracuda');
         const search = await searchMethods.global('barracuda');
-        expect(search.groups.length).toBe(0);
+        assert.equal(search.groups.length, 0);
     });
 
     it('cannot move archived group', async () => {
         await groupMethods.archive('barracuda');
         const check = () => groupMethods.move({ id: 'barracuda', newParentId: 'zebra' });
-        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot move archived group"');
+        await assert.rejects(check, { message: 'Cannot move archived group' });
     });
 
     it('cannot move group into archived group', async () => {
         await groupMethods.archive('barracuda');
         const check = () => groupMethods.move({ id: 'goldfinch', newParentId: 'barracuda' });
-        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot move group into archived group"');
+        await assert.rejects(check, { message: 'Cannot move group into archived group' });
     });
 
     it('cannot edit archived group', async () => {
         await groupMethods.archive('barracuda');
         const check = () => groupMethods.edit({ groupId: 'barracuda', description: 'New description' });
-        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot edit archived group"');
+        await assert.rejects(check, { message: 'Cannot edit archived group' });
     });
 
     it('cannot edit archived membership', async () => {
         const memberships = await groupMethods.getMemberships('goldfinch');
         const membership = memberships[0];
-        expect(membership).toBeTruthy();
+        assert.ok(membership);
         await groupMethods.archive('goldfinch');
         const checkAdd = () => userMethods.addToGroup({ userId: membership.userId, groupId: membership.groupId });
-        expect(checkAdd).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot edit archived membership"');
+        await assert.rejects(checkAdd, { message: 'Cannot edit archived membership' });
         const checkRemove = () =>
             userMethods.removeFromGroup({ userId: membership.userId, groupId: membership.groupId });
-        await expect(checkRemove).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot edit archived membership"');
+        await assert.rejects(checkRemove, { message: 'Cannot edit archived membership' });
         const checkAddRole = () => roleMethods.addToMembership({ membershipId: membership.id, roleId: 'boss' });
-        await expect(checkAddRole).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot edit archived membership"');
+        await assert.rejects(checkAddRole, { message: 'Cannot edit archived membership' });
         const checkRemoveRole = () => roleMethods.removeFromMembership({ membershipId: membership.id, roleId: 'boss' });
-        await expect(checkRemoveRole).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot edit archived membership"');
+        await assert.rejects(checkRemoveRole, { message: 'Cannot edit archived membership' });
     });
 
     it('cannot archive group with children', async () => {
         const check = () => groupMethods.archive('zebra');
-        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot archive group with children"');
+        await assert.rejects(check, { message: 'Cannot archive group with children' });
     });
 
     it('cannot unarchive group with archived parent', async () => {
         await groupMethods.archive('duck');
         await groupMethods.archive('porpoise');
         const check = () => groupMethods.unarchive('duck');
-        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot unarchive group with archived parent"');
+        await assert.rejects(check, { message: 'Cannot unarchive group with archived parent' });
     });
 
     it('cannot delete group with children', async () => {
         const check = () => groupMethods.delete('zebra');
-        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot delete group with children"');
+        await assert.rejects(check, { message: 'Cannot delete group with children' });
     });
 
     it('cannot move group inside itself', async () => {
         const check = () => groupMethods.move({ id: 'grouse', newParentId: 'grouse' });
-        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot move group inside itself"');
+        await assert.rejects(check, { message: 'Cannot move group inside itself' });
     });
 
     it('cannot move group inside its child', async () => {
         const check = () => groupMethods.move({ id: 'grouse', newParentId: 'wildcat' });
-        await expect(check).rejects.toThrowErrorMatchingInlineSnapshot('"Cannot move group inside its child"');
+        await assert.rejects(check, { message: 'Cannot move group inside its child' });
     });
 });
