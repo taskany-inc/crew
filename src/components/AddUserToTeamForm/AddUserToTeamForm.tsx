@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback } from 'react';
+import { ChangeEvent, useCallback, useMemo } from 'react';
 import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
@@ -51,11 +51,14 @@ export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
 
     const popupVisibility = useBoolean(false);
 
-    const defaultValues = {
-        userId: undefined,
-        groupId,
-        percentage: undefined,
-    };
+    const defaultValues = useMemo(
+        () => ({
+            userId: undefined,
+            groupId,
+            percentage: undefined,
+        }),
+        [groupId],
+    );
 
     const {
         reset,
@@ -81,10 +84,10 @@ export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
                 setValue('userId', user.id);
                 trigger('userId');
             } else {
-                reset({ userId: undefined });
+                reset({ ...defaultValues, userId: undefined });
             }
         },
-        [reset, setValue, trigger],
+        [reset, setValue, trigger, defaultValues],
     );
 
     const onPercentageChange = useCallback(
