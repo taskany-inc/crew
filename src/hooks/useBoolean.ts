@@ -7,5 +7,5 @@ export const useBoolean = (initialValue: boolean) => {
     const setFalse = useCallback(() => setValue(false), []);
     const toggle = useCallback(() => setValue((v) => !v), []);
 
-    return { value, setTrue, setFalse, toggle };
+    return { value, setTrue, setFalse, toggle, setValue };
 };
