@@ -23,6 +23,7 @@ import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { AddUserToGroup, addUserToGroupSchema } from '../../modules/userSchemas';
 import { trpc } from '../../trpc/trpcClient';
 import { Nullish } from '../../utils/types';
+import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './AddUserToTeamForm.i18n';
 
@@ -47,6 +48,8 @@ const StyledSubmitButton = styled(Button)`
 
 export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
     const { addUserToGroup } = useUserMutations();
+
+    const popupVisibility = useBoolean(false);
 
     const defaultValues = {
         userId: undefined,
@@ -100,6 +103,7 @@ export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
     const onSubmit = handleSubmit(async (data) => {
         await addUserToGroup(data);
         reset(defaultValues);
+        popupVisibility.setFalse();
     });
 
     return (
@@ -108,6 +112,8 @@ export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
             renderTrigger={(props) => (
                 <InlineTrigger text={tr('Add participant')} icon={<IconPlusCircleSolid size="s" />} {...props} />
             )}
+            visible={popupVisibility.value}
+            setVisible={popupVisibility.setValue}
             onCancel={() => reset(defaultValues)}
             width={450}
         >
