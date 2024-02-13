@@ -16,7 +16,7 @@ interface UserComboBoxProps {
 }
 
 export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
-    const [search, setSearch] = useState('');
+    const [search, setSearch] = useState(user?.name || '');
     const suggestionsVisibility = useBoolean(false);
     const [selectedUser, setSelectedUser] = useState<Nullish<User>>(user);
     const userListQuery = trpc.user.getList.useQuery({ search, take: 10 }, { keepPreviousData: true });

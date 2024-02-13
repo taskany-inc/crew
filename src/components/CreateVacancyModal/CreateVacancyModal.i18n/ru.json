@@ -1,10 +1,17 @@
 {
-    "Create vacancy": "Создать вакансию",
-    "Name": "Название",
+    "Create vacancy for team {teamName}": "Создать вакансию для команды {teamName}",
+    "Vacancy status:": "Статус вакансии",
+    "Name:": "Название",
     "Cancel": "Отмена",
     "Create": "Создать",
     "Description": "Описание",
-    "Team:": "Команда",
+    "Team:": "Команда:",
     "Required field": "Обязательное поле",
-    "Hire stream:": "Поток найма"
+    "Hire stream:": "Поток найма:",
+    "Hiring manager:": "Нанимающий менеджер:",
+    "HR:": "",
+    "Grade:": "Грейд:",
+    "Unit:": "ПШЕ:",
+    "Enter the grade value": "Укажите грейд",
+    "Enter the unit value": "Укажите ПШЕ"
 }

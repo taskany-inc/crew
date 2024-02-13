@@ -25,7 +25,7 @@
     "Cannot unarchive group with archived parent": "Нельзя разахивировать группу с заархивированным родителем",
     "Minimum {min} symbols": "Минимум {min} символов",
     "Only admins can activate or deactivate profiles": "Только администраторы могут активировать или деактивировать профили",
-    "Hire stream is required": "Поток найма обязателен",
+    "Hire stream is required": "Выберите поток найма",
     "Only admins can create vacancies": "Только администраторы могут создавать вакансии",
     "Only admins can edit vacancies": "Только администраторы могут редактировать вакансии",
     "No api token for hire": "Отсутствует токен для Hire",
@@ -34,5 +34,10 @@
     "Percentage must be an integer": "Процент должен быть целым числом",
     "Minimum value is {min}": "Минимальное значение - {min}",
     "Maximum value is {max}": "Максимальное значение - {max}",
-    "Maximum available percentage is {max}": "Максимальный доступный процент участия - {max}"
+    "Maximum available percentage is {max}": "Максимальный доступный процент участия - {max}",
+    "Name is required": "Выберите название",
+    "Team is required": "Выберите команду",
+    "Hiring manager is required": "Выберите нанимающего менеджера",
+    "HR is required": "Выберите HR",
+    "Vacancy status is required": "Выберите статус вакансии"
 }
