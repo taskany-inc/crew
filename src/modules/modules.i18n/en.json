@@ -34,5 +34,10 @@
     "Percentage must be an integer": "",
     "Minimum value is {min}": "",
     "Maximum value is {max}": "",
-    "Maximum available percentage is {max}": ""
+    "Maximum available percentage is {max}": "",
+    "Name is required": "",
+    "Team is required": "",
+    "Hiring manager is required": "",
+    "HR is required": "",
+    "Vacancy status is required": ""
 }

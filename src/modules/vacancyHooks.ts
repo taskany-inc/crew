@@ -8,7 +8,7 @@ export const useVacancyMutations = () => {
 
     const createVacancy = trpc.vacancy.create.useMutation({
         onSuccess: () => {
-            utils.group.invalidate();
+            utils.vacancy.invalidate();
         },
     });
 
@@ -18,7 +18,7 @@ export const useVacancyMutations = () => {
         },
     });
 
-    const archiveVacancy = trpc.group.archive.useMutation({
+    const archiveVacancy = trpc.vacancy.archive.useMutation({
         onSuccess: () => {
             utils.vacancy.invalidate();
         },

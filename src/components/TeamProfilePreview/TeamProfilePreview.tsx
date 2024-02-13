@@ -55,7 +55,7 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                         <TeamChildren groupId={group.id} groupChildren={childrenQuery.data ?? []} />
 
                         <TeamPeople groupId={group.id} />
-                        <TeamVacancies groupId={group.id} />
+                        <TeamVacancies group={group} />
 
                         <NarrowSection>
                             <TransferGroupForm group={group} />

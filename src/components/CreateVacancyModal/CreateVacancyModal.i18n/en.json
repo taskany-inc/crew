@@ -1,6 +1,7 @@
 {
-    "Create vacancy": "",
-    "Name": "",
+    "Create vacancy for team {teamName}": "",
+    "Vacancy status:": "",
+    "Name:": "",
     "Cancel": "",
     "Create": "",
     "Description": "",
@@ -9,5 +10,11 @@
     "Required field": "",
     "Phone": "",
     "Login": "",
-    "Hire stream:": ""
+    "Hire stream:": "",
+    "Hiring manager:": "",
+    "HR:": "",
+    "Grade:": "",
+    "Unit:": "",
+    "Enter the grade value": "",
+    "Enter the unit value": ""
 }
