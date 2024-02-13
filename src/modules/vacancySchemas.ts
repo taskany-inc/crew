@@ -1,23 +1,29 @@
 import { z } from 'zod';
+import { VacancyStatus } from '@prisma/client';
 
 import { tr } from './modules.i18n';
 
 export const createVacancySchema = z.object({
-    name: z
-        .string({
-            required_error: tr('Title is required'),
-        })
-        .min(1, {
-            message: tr
-                .raw('Title must be longer than {upTo} symbol', {
-                    upTo: 1,
-                })
-                .join(''),
-        }),
+    name: z.string({
+        required_error: tr('Name is required'),
+    }),
     hireStreamId: z.string({
         required_error: tr('Hire stream is required'),
     }),
-    groupId: z.string(),
+    groupId: z.string({
+        required_error: tr('Team is required'),
+    }),
+    hiringManagerId: z.string({
+        required_error: tr('Hiring manager is required'),
+    }),
+    hrId: z.string({
+        required_error: tr('HR is required'),
+    }),
+    grade: z.number().optional(),
+    unit: z.number().optional(),
+    status: z.nativeEnum(VacancyStatus, {
+        required_error: tr('Vacancy status is required'),
+    }),
 });
 export type CreateVacancy = z.infer<typeof createVacancySchema>;
 
