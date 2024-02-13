@@ -19,7 +19,7 @@
     "type-check": "npx tsc"
   },
   "prisma": {
-    "seed": "tsx -r dotenv/config --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "tsx -r dotenv/config prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "3.3.4",
