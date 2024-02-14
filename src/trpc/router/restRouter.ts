@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { VacancyStatus } from 'prisma/prisma-client';
 
 import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
@@ -220,6 +221,12 @@ export const restRouter = router({
                 name: z.string(),
                 hireStreamId: z.string(),
                 archived: z.boolean(),
+                group: z.object({ name: z.string(), id: z.string() }),
+                hr: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
+                hiringManager: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
+                status: z.nativeEnum(VacancyStatus),
+                unit: z.number().nullable(),
+                grade: z.number().nullable(),
             }),
         )
         .query(({ input }) => vacancyMethods.getById(input.id)),
@@ -227,14 +234,18 @@ export const restRouter = router({
     getVacancyList: restProcedure
         .meta({
             openapi: {
-                method: 'GET',
+                method: 'POST',
                 path: '/vacancies/list',
             },
         })
         .input(
             z.object({
-                hireStreamId: z.string(),
+                hireStreamIds: z.array(z.string()).optional(),
                 searchByTeam: z.string().optional(),
+                status: z.nativeEnum(VacancyStatus).optional(),
+                archived: z.boolean().optional(),
+                take: z.number().optional(),
+                skip: z.number().optional(),
             }),
         )
         .output(
@@ -242,10 +253,46 @@ export const restRouter = router({
                 z.object({
                     id: z.string(),
                     name: z.string(),
-                    group: z.object({ id: z.string(), name: z.string() }),
                     hireStreamId: z.string(),
+                    archived: z.boolean(),
+                    group: z.object({ name: z.string(), id: z.string() }),
+                    hr: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
+                    hiringManager: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
+                    status: z.nativeEnum(VacancyStatus),
+                    unit: z.number().nullable(),
+                    grade: z.number().nullable(),
                 }),
             ),
         )
         .query(({ input }) => vacancyMethods.getList(input)),
+
+    updateVacancy: restProcedure
+        .meta({
+            openapi: {
+                method: 'POST',
+                path: '/vacancy',
+            },
+        })
+        .input(
+            z.object({
+                id: z.string(),
+                unit: z.number().optional(),
+                status: z.nativeEnum(VacancyStatus).optional(),
+            }),
+        )
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string(),
+                hireStreamId: z.string(),
+                archived: z.boolean(),
+                group: z.object({ name: z.string(), id: z.string() }),
+                hr: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
+                hiringManager: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
+                status: z.nativeEnum(VacancyStatus),
+                unit: z.number().nullable(),
+                grade: z.number().nullable(),
+            }),
+        )
+        .query(({ input }) => vacancyMethods.edit(input)),
 });

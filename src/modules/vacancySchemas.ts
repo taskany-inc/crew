@@ -31,15 +31,21 @@ export const getVacancyListSchema = z.object({
     search: z.string().optional(),
     archived: z.boolean().optional(),
     groupId: z.string().optional(),
-    hireStreamId: z.string().optional(),
+    hireStreamIds: z.array(z.string()).optional(),
     searchByTeam: z.string().optional(),
+    status: z.nativeEnum(VacancyStatus).optional(),
+    take: z.number().optional(),
+    skip: z.number().optional(),
 });
 export type GetVacancyList = z.infer<typeof getVacancyListSchema>;
 
 export const editVacancySchema = z.object({
     id: z.string(),
     name: z.string().optional(),
-    groupId: z.string().optional(),
-    hireStreamId: z.string().optional(),
+    unit: z.number().optional(),
+    grade: z.number().optional(),
+    status: z.nativeEnum(VacancyStatus).optional(),
+    hrId: z.string().optional(),
+    hiringManagerId: z.string().optional(),
 });
 export type EditVacancy = z.infer<typeof editVacancySchema>;

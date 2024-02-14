@@ -1,16 +1,30 @@
-import { Vacancy, Prisma } from 'prisma/prisma-client';
+import { Vacancy, Prisma, VacancyStatus } from 'prisma/prisma-client';
+import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
 
 import { CreateVacancy, GetVacancyList, EditVacancy } from './vacancySchemas';
+import { tr } from './modules.i18n';
+
+const defaultTake = 20;
 
 export const vacancyMethods = {
-    create: (data: CreateVacancy) => {
+    create: (input: CreateVacancy) => {
+        const { hiringManagerId, hrId, groupId, ...restInput } = input;
+        const data: Prisma.VacancyCreateInput = {
+            ...restInput,
+            group: { connect: { id: groupId } },
+            hr: { connect: { id: hrId } },
+            hiringManager: { connect: { id: hiringManagerId } },
+        };
+
+        if (input.status === VacancyStatus.ACTIVE) data.activeSince = new Date();
+
         return prisma.vacancy.create({ data });
     },
 
     getList: (data: GetVacancyList) => {
-        const { searchByTeam, search, ...restData } = data;
+        const { searchByTeam, search, hireStreamIds, take, skip, ...restData } = data;
 
         const where: Prisma.VacancyWhereInput = { ...restData };
 
@@ -27,18 +41,72 @@ export const vacancyMethods = {
             where.name = { contains: search, mode: 'insensitive' };
         }
 
-        return prisma.vacancy.findMany({ where, include: { group: true } });
+        if (hireStreamIds && hireStreamIds.length) {
+            where.hireStreamId = { in: hireStreamIds };
+        }
+
+        return prisma.vacancy.findMany({
+            where,
+            include: { group: { include: { supervisor: true } }, hr: true, hiringManager: true },
+            take: take || defaultTake,
+            skip: skip || 0,
+        });
     },
 
-    getById: (id: string) => prisma.vacancy.findFirstOrThrow({ where: { id }, include: { group: true, user: true } }),
+    getById: async (id: string) => {
+        const vacancy = await prisma.vacancy.findFirst({
+            where: { id },
+            include: { group: true, user: true, hr: true, hiringManager: true },
+        });
 
-    edit: (data: EditVacancy): Promise<Vacancy> => {
-        const { id, ...restData } = data;
-        return prisma.vacancy.update({ where: { id }, data: restData });
+        if (!vacancy) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: tr('No vacancy with id {vacancyId}', { vacancyId: id }),
+            });
+        }
+
+        return vacancy;
     },
 
-    archive: (id: string): Promise<Vacancy> => {
-        return prisma.vacancy.update({ where: { id }, data: { archived: true } });
+    edit: async (input: EditVacancy) => {
+        const { id, ...restInput } = input;
+        const data: Prisma.VacancyUpdateInput = restInput;
+
+        if (restInput.status) {
+            const previousVacancy = await prisma.vacancy.findFirstOrThrow({
+                where: { id },
+            });
+
+            if (previousVacancy.status === VacancyStatus.ACTIVE && restInput.status !== VacancyStatus.ACTIVE) {
+                const today = new Date();
+                const activeSince = previousVacancy.activeSince || new Date();
+                data.timeAtWork = previousVacancy.timeAtWork || 0 + today.getTime() - activeSince.getTime();
+                data.activeSince = null;
+            }
+
+            if (previousVacancy.status !== VacancyStatus.ACTIVE && restInput.status === VacancyStatus.ACTIVE) {
+                data.activeSince = new Date();
+            }
+
+            if (previousVacancy.status !== VacancyStatus.CLOSED && restInput.status === VacancyStatus.CLOSED) {
+                data.closedAt = new Date();
+            }
+
+            if (previousVacancy.status === VacancyStatus.CLOSED && restInput.status !== VacancyStatus.CLOSED) {
+                data.closedAt = null;
+            }
+        }
+
+        return prisma.vacancy.update({
+            where: { id },
+            data,
+            include: { group: true, user: true, hr: true, hiringManager: true },
+        });
+    },
+
+    archive: (id: string) => {
+        return prisma.vacancy.update({ where: { id }, data: { archived: true, archivedAt: new Date() } });
     },
 
     unarchive: (id: string): Promise<Vacancy> => {
