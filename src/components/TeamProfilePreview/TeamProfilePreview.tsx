@@ -15,6 +15,7 @@ import { TeamChildren } from '../TeamChildren/TeamChildren';
 import { TransferGroupForm } from '../TransferGroupForm/TransferGroupForm';
 import { TeamPeople } from '../TeamPeople/TeamPeople';
 import { TeamVacancies } from '../TeamVacancies/TeamVacancies';
+import { ExportTeamMembers } from '../ExportTeamMembers/ExportTeamMembers';
 
 import { tr } from './TeamProfilePreview.i18n';
 
@@ -60,6 +61,7 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                         <NarrowSection>
                             <TransferGroupForm group={group} />
                             <InlineTrigger icon={<IconBinOutline size="xs" />} text={tr('Archive group')} disabled />
+                            <ExportTeamMembers group={group} />
                         </NarrowSection>
                     </PreviewContent>
                 </StyledModalPreview>
