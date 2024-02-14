@@ -12,11 +12,12 @@ import { tr } from './RoleComboBox.i18n';
 
 interface RoleComboBoxProps {
     role?: Nullish<Role>;
+    roleName?: string;
     onChange: (role: Nullish<Role>) => void;
 }
 
-export const RoleComboBox = ({ role, onChange }: RoleComboBoxProps) => {
-    const [search, setSearch] = useState('');
+export const RoleComboBox = ({ role, onChange, roleName }: RoleComboBoxProps) => {
+    const [search, setSearch] = useState(role?.name || roleName || '');
     const suggestionsVisibility = useBoolean(false);
     const [selectedRole, setSelectedRole] = useState<Nullish<Role>>(role);
     const rolesQuery = trpc.role.getList.useQuery({ search, take: 10 });

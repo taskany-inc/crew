@@ -5,7 +5,7 @@ import { IconPlusCircleSolid } from '@taskany/icons';
 
 import { NarrowSection } from '../NarrowSection';
 import { trpc } from '../../trpc/trpcClient';
-import { VacancyListItemEditable } from '../VacancyListItemEditable';
+import { VacancyListItemEditable } from '../VacancyListItemEditable/VacancyListItemEditable';
 import { InlineTrigger } from '../InlineTrigger';
 import { CreateVacancyModal } from '../CreateVacancyModal/CreateVacancyModal';
 import { useBoolean } from '../../hooks/useBoolean';

@@ -1,0 +1,14 @@
+{
+    "Update vacancy {vacancyName} for team {teamName}": "Обновить вакансию {vacancyName} для команды {teamName}",
+    "Vacancy status:": "Статус вакансии",
+    "Name:": "Название",
+    "Cancel": "Отмена",
+    "Save": "Сохранить",
+    "Required field": "Обязательное поле",
+    "Hiring manager:": "Нанимающий менеджер:",
+    "HR:": "",
+    "Grade:": "Грейд:",
+    "Unit:": "ПШЕ:",
+    "Enter the grade value": "Укажите грейд",
+    "Enter the unit value": "Укажите ПШЕ"
+}
