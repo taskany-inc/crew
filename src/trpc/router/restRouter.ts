@@ -152,6 +152,7 @@ export const restRouter = router({
                                 name: z.string(),
                             }),
                         ),
+                        percentage: z.number().nullable(),
                     }),
                 ),
                 breadcrumbs: z.array(
