@@ -39,5 +39,6 @@
     "Team is required": "",
     "Hiring manager is required": "",
     "HR is required": "",
-    "Vacancy status is required": ""
+    "Vacancy status is required": "",
+    "No vacancy with id {vacancyId}": ""
 }

@@ -39,5 +39,6 @@
     "Team is required": "Выберите команду",
     "Hiring manager is required": "Выберите нанимающего менеджера",
     "HR is required": "Выберите HR",
-    "Vacancy status is required": "Выберите статус вакансии"
+    "Vacancy status is required": "Выберите статус вакансии",
+    "No vacancy with id {vacancyId}": "Нет вакансии с id {vacancyId}"
 }
