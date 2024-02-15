@@ -32,7 +32,7 @@ export const TeamVacancies = ({ group }: TeamVacanciesProps) => {
     return (
         <NarrowSection title={tr('Vacancies')}>
             <StyledVacancyList>
-                {vacanciesQuery.data?.map((vacancy) => (
+                {vacanciesQuery.data?.vacancies.map((vacancy) => (
                     <VacancyListItemEditable key={vacancy.id} vacancy={vacancy} />
                 ))}
             </StyledVacancyList>

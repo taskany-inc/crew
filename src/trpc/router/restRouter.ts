@@ -241,20 +241,23 @@ export const restRouter = router({
             }),
         )
         .output(
-            z.array(
-                z.object({
-                    id: z.string(),
-                    name: z.string(),
-                    hireStreamId: z.string(),
-                    archived: z.boolean(),
-                    group: z.object({ name: z.string(), id: z.string() }),
-                    hr: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
-                    hiringManager: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
-                    status: z.nativeEnum(VacancyStatus),
-                    unit: z.number().nullable(),
-                    grade: z.number().nullable(),
-                }),
-            ),
+            z.object({
+                vacancies: z.array(
+                    z.object({
+                        id: z.string(),
+                        name: z.string(),
+                        hireStreamId: z.string(),
+                        archived: z.boolean(),
+                        group: z.object({ name: z.string(), id: z.string() }),
+                        hr: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
+                        hiringManager: z.object({ name: z.string().nullable(), id: z.string(), email: z.string() }),
+                        status: z.nativeEnum(VacancyStatus),
+                        unit: z.number().nullable(),
+                        grade: z.number().nullable(),
+                    }),
+                ),
+                count: z.number(),
+            }),
         )
         .query(({ input }) => vacancyMethods.getList(input)),
 
