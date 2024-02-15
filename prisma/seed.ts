@@ -85,6 +85,10 @@ const main = async () => {
     await prisma.role.createMany({
         data: [{ name: 'CEO' }, { name: 'Manager' }, { name: 'Designer' }, { name: 'Programmer' }, { name: 'HR' }],
     });
+
+    await prisma.apiToken.create({
+        data: { id: '2c88d9e5-dcbf-44be-b377-1b5461a1f1e6', description: 'test-token' },
+    });
 };
 
 main();
