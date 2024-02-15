@@ -120,58 +120,49 @@ export const restRouter = router({
     getGroupById: restProcedure
         .meta({
             openapi: {
-                method: 'GET',
+                method: 'POST',
                 path: '/groups/info',
             },
         })
         .input(
             z.object({
-                id: z.string(),
+                ids: z.array(z.string()),
             }),
         )
         .output(
-            z.object({
-                id: z.string(),
-                name: z.string(),
-                description: z.string().nullable(),
-                supervisor: z
-                    .object({
-                        id: z.string(),
-                        name: z.string().nullable(),
-                        email: z.string(),
-                    })
-                    .nullish(),
-                memberships: z.array(
-                    z.object({
-                        user: z.object({
+            z.array(
+                z.object({
+                    id: z.string(),
+                    name: z.string(),
+                    description: z.string().nullable(),
+                    supervisor: z
+                        .object({
                             id: z.string(),
                             name: z.string().nullable(),
                             email: z.string(),
-                            image: z.string().nullable(),
-                        }),
-                        roles: z.array(
-                            z.object({
-                                name: z.string(),
+                        })
+                        .nullish(),
+                    memberships: z.array(
+                        z.object({
+                            user: z.object({
+                                id: z.string(),
+                                name: z.string().nullable(),
+                                email: z.string(),
+                                image: z.string().nullable(),
                             }),
-                        ),
-                        percentage: z.number().nullable(),
-                    }),
-                ),
-                breadcrumbs: z.array(
-                    z.object({
-                        id: z.string(),
-                        name: z.string(),
-                    }),
-                ),
-            }),
+                            roles: z.array(
+                                z.object({
+                                    name: z.string(),
+                                }),
+                            ),
+                            percentage: z.number().nullable(),
+                        }),
+                    ),
+                }),
+            ),
         )
-        .query(async ({ input }) => {
-            const [group, memberships, breadcrumbs] = await Promise.all([
-                groupMethods.getById(input.id),
-                groupMethods.getMemberships(input.id),
-                groupMethods.getBreadcrumbs(input.id),
-            ]);
-            return { ...group, memberships, breadcrumbs };
+        .mutation(async ({ input }) => {
+            return groupMethods.getByIds(input.ids);
         }),
 
     getGroupList: restProcedure
