@@ -38,3 +38,5 @@ next-env.d.ts
 
 # dev tools
 .release_bot
+
+/public/theme

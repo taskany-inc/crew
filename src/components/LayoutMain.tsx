@@ -41,6 +41,7 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
         <>
             <Head>
                 <title>{fullTitle}</title>
+                <link rel="stylesheet" id="themeVariables" href={`/theme/${theme}.css`} />
             </Head>
             <OfflineBanner />
 
