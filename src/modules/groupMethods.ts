@@ -95,6 +95,32 @@ export const groupMethods = {
         return prisma.group.findMany({ where: { parentId: null, archived: false } });
     },
 
+    getByIds: async (ids: string[], sessionUser?: SessionUser) => {
+        const groups = await prisma.group.findMany({
+            where: {
+                id: {
+                    in: ids,
+                },
+                archived: false,
+            },
+            include: {
+                parent: true,
+                supervisor: true,
+                memberships: {
+                    include: {
+                        group: true,
+                        user: true,
+                        roles: true,
+                    },
+                },
+            },
+        });
+
+        groups.forEach((group) => addCalculatedGroupFields(group, sessionUser));
+
+        return groups;
+    },
+
     getById: async (
         id: string,
         sessionUser?: SessionUser,
