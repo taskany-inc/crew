@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import { ThemeProvider } from 'next-themes';
 import type { AppProps } from 'next/app';
+import '@taskany/bricks/harmony/style.css';
 import { PageLoadProgress } from '@taskany/bricks';
 import { SessionProvider } from 'next-auth/react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
