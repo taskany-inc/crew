@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.32.0](https://github.com/taskany-inc/crew/compare/v0.31.0...v0.32.0) (2024-02-16)
+
+
+### Features
+
+* **Harmony:** update package and themes ([8145a94](https://github.com/taskany-inc/crew/commit/8145a941679c2d77c7005f4d8e38dde2ffd1b91f))
+
+
+### Bug Fixes
+
+* **vacancy list:** return total count of items ([b8fbd72](https://github.com/taskany-inc/crew/commit/b8fbd72823c06f566dc97ca53bd3d0dd16fed95b))
+
 ## [0.31.0](https://github.com/taskany-inc/crew/compare/v0.30.1...v0.31.0) (2024-02-15)
 
 
