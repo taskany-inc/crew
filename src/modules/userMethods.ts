@@ -86,7 +86,10 @@ const externalUserCreate = async (data: CreateUser) => {
     const response = await fetch(config.externalUserService.apiUrlCreate, {
         method: 'POST',
         body: JSON.stringify(body),
-        headers: { authorization: config.externalUserService.apiToken },
+        headers: {
+            'Content-Type': 'application/json',
+            authorization: config.externalUserService.apiToken,
+        },
     });
     if (!response.ok) {
         const text = await response.text();
@@ -101,7 +104,10 @@ const externalUserUpdate = async (userId: string, data: Omit<ExternalUserUpdate,
     const response = await fetch(config.externalUserService.apiUrlUpdate, {
         method: 'POST',
         body: JSON.stringify(fullData),
-        headers: { authorization: config.externalUserService.apiToken },
+        headers: {
+            'Content-Type': 'application/json',
+            authorization: config.externalUserService.apiToken,
+        },
     });
     if (!response.ok) {
         const text = await response.text();
