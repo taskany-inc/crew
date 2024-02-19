@@ -46,7 +46,7 @@
     "postcss-import": "16.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hook-form": "7.49.3",
+    "react-hook-form": "7.50.1",
     "react-hot-toast": "2.4.1",
     "styled-components": "5.3.11",
     "superjson": "1.13.1",
