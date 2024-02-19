@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.33.0](https://github.com/taskany-inc/crew/compare/v0.32.0...v0.33.0) (2024-02-19)
+
+
+### Features
+
+* **Harmony:** use offline bar from bricks ([7f2612f](https://github.com/taskany-inc/crew/commit/7f2612f37d27205b2656d8c274878264b3bac362))
+
+
+### Bug Fixes
+
+* add content type header for external operations ([8d13f9c](https://github.com/taskany-inc/crew/commit/8d13f9cb63e16de74675986457cbd28f53c9d386))
+
 ## [0.32.0](https://github.com/taskany-inc/crew/compare/v0.31.0...v0.32.0) (2024-02-16)
 
 
