@@ -33,7 +33,7 @@ export const getVacancyListSchema = z.object({
     groupId: z.string().optional(),
     hireStreamIds: z.array(z.string()).optional(),
     searchByTeam: z.string().optional(),
-    status: z.nativeEnum(VacancyStatus).optional(),
+    statuses: z.array(z.nativeEnum(VacancyStatus)).optional(),
     take: z.number().optional(),
     skip: z.number().optional(),
 });

@@ -24,7 +24,7 @@ export const vacancyMethods = {
     },
 
     getList: async (data: GetVacancyList) => {
-        const { searchByTeam, search, hireStreamIds, take, skip, ...restData } = data;
+        const { searchByTeam, search, hireStreamIds, take, skip, statuses, ...restData } = data;
 
         const where: Prisma.VacancyWhereInput = { ...restData };
 
@@ -45,6 +45,10 @@ export const vacancyMethods = {
             where.hireStreamId = { in: hireStreamIds };
         }
 
+        if (statuses && statuses.length) {
+            where.status = { in: statuses };
+        }
+
         const vacancies = await prisma.vacancy.findMany({
             where,
             include: { group: { include: { supervisor: true } }, hr: true, hiringManager: true },
@@ -53,8 +57,9 @@ export const vacancyMethods = {
         });
 
         const count = await prisma.vacancy.count({ where });
+        const total = await prisma.vacancy.count();
 
-        return { vacancies, count };
+        return { vacancies, count, total };
     },
 
     getById: async (id: string) => {
