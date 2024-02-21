@@ -7,6 +7,7 @@ import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
 import { groupMethods } from '../../modules/groupMethods';
 import { vacancyMethods } from '../../modules/vacancyMethods';
+import { getVacancyListSchema } from '../../modules/vacancySchemas';
 
 import { tr } from './router.i18n';
 
@@ -230,16 +231,7 @@ export const restRouter = router({
                 path: '/vacancies/list',
             },
         })
-        .input(
-            z.object({
-                hireStreamIds: z.array(z.string()).optional(),
-                searchByTeam: z.string().optional(),
-                status: z.nativeEnum(VacancyStatus).optional(),
-                archived: z.boolean().optional(),
-                take: z.number().optional(),
-                skip: z.number().optional(),
-            }),
-        )
+        .input(getVacancyListSchema)
         .output(
             z.object({
                 vacancies: z.array(
@@ -257,6 +249,7 @@ export const restRouter = router({
                     }),
                 ),
                 count: z.number(),
+                total: z.number(),
             }),
         )
         .query(({ input }) => vacancyMethods.getList(input)),
