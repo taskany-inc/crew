@@ -53,9 +53,11 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
             <ComboBox
                 value={selectedRole ? undefined : search}
                 visible={!selectedRole}
-                onChange={(value: Role) => {
-                    setSearch(value.name);
-                    setSelectedRole(value);
+                onChange={(value?: Role) => {
+                    if (value) {
+                        setSearch(value.name);
+                        setSelectedRole(value);
+                    }
                 }}
                 items={roleListQuery.data}
                 maxWidth={550}
