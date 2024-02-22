@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.35.0](https://github.com/taskany-inc/crew/compare/v0.34.0...v0.35.0) (2024-02-22)
+
+
+### Features
+
+* update offlinebanner from bricks ([b90ad10](https://github.com/taskany-inc/crew/commit/b90ad1071e5fd3fdd54c7d9cf78f6a67d44862ec))
+
 ## [0.34.0](https://github.com/taskany-inc/crew/compare/v0.33.0...v0.34.0) (2024-02-22)
 
 
