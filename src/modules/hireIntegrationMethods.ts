@@ -11,7 +11,7 @@ export const hireIntegrationMethods = {
             throw new TRPCError({ code: 'FORBIDDEN', message: tr('No api token for hire') });
         }
 
-        const response = await fetch(`${config.hireIntegration.apiUrl}/api/rest/hire-streams`, {
+        const response = await fetch(`${config.hireIntegration.url}/api/rest/hire-streams`, {
             method: 'GET',
             headers: {
                 authorization: config.hireIntegration.apiToken,

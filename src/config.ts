@@ -20,7 +20,7 @@ export const config = {
         apiToken: process.env.EXTERNAL_SERVICE_API_TOKEN,
     },
     hireIntegration: {
-        apiUrl: process.env.HIRE_INTEGRATION_API_URL,
+        url: process.env.NEXT_PUBLIC_HIRE_INTEGRATION_URL,
         apiToken: process.env.HIRE_INTEGRATION_API_TOKEN,
     },
 };
