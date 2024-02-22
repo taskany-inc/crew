@@ -4,6 +4,10 @@ import { Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 import { IconSearchOutline } from '@taskany/icons';
 
+import { config } from '../config';
+
+import { Link } from './Link';
+
 type VacancyListItemProps = {
     vacancy: Vacancy;
 };
@@ -19,7 +23,9 @@ export const VacancyListItem = ({ vacancy }: VacancyListItemProps) => {
     return (
         <StyledWrapper>
             <IconSearchOutline size="s" color={gray9} />
-            <Text>{vacancy.name}</Text>
+            <Link href={`${config.hireIntegration.url}/candidates?vacancyId=${vacancy.id}`} target="_blank">
+                <Text>{vacancy.name}</Text>
+            </Link>
         </StyledWrapper>
     );
 };
