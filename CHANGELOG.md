@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.34.0](https://github.com/taskany-inc/crew/compare/v0.33.0...v0.34.0) (2024-02-22)
+
+
+### Features
+
+* **ESLint:** add rules for curly braces ([1144ec2](https://github.com/taskany-inc/crew/commit/1144ec2812db5662a5120ffb5ea4a606cc323ea7))
+* **rest api:** filter vacancies by multiple statuses ([13ec847](https://github.com/taskany-inc/crew/commit/13ec847fdb21cf3630bf5d06389eaa4c2c263a84))
+
 ## [0.33.0](https://github.com/taskany-inc/crew/compare/v0.32.0...v0.33.0) (2024-02-19)
 
 
