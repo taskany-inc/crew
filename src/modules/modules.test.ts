@@ -139,7 +139,8 @@ describe('groups', () => {
         const checkRemove = () =>
             userMethods.removeFromGroup({ userId: membership.userId, groupId: membership.groupId });
         await assert.rejects(checkRemove, { message: 'Cannot edit archived membership' });
-        const checkAddRole = () => roleMethods.addToMembership({ membershipId: membership.id, roleId: 'boss' });
+        const checkAddRole = () =>
+            roleMethods.addToMembership({ membershipId: membership.id, id: 'boss', type: 'existing' });
         await assert.rejects(checkAddRole, { message: 'Cannot edit archived membership' });
         const checkRemoveRole = () => roleMethods.removeFromMembership({ membershipId: membership.id, roleId: 'boss' });
         await assert.rejects(checkRemoveRole, { message: 'Cannot edit archived membership' });

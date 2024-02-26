@@ -2,15 +2,26 @@ import { z } from 'zod';
 
 import { tr } from './modules.i18n';
 
-export const createRoleSchema = z.object({
-    name: z.string(),
-});
-export type CreateRole = z.infer<typeof createRoleSchema>;
+export const addRoleToMembershipSchema = z
+    .object({
+        membershipId: z.string(),
+    })
+    .and(
+        z.discriminatedUnion('type', [
+            z.object({ type: z.literal('existing'), id: z.string() }),
+            z.object({
+                type: z.literal('new'),
+                name: z.string().min(1, {
+                    message: tr
+                        .raw('Title must be longer than {min} symbol', {
+                            min: 1,
+                        })
+                        .join(''),
+                }),
+            }),
+        ]),
+    );
 
-export const addRoleToMembershipSchema = z.object({
-    membershipId: z.string(),
-    roleId: z.string(),
-});
 export type AddRoleToMembership = z.infer<typeof addRoleToMembershipSchema>;
 
 export const removeRoleFromMembershipSchema = z.object({

@@ -44,5 +44,7 @@
     "Full name": "ФИО",
     "Roles": "Роли",
     "Membership percentage": "Процент участия",
-    "Team": "Команда"
+    "Team": "Команда",
+    "Only admins can create or add roles": "Только администраторы могут создавать и добавлять роли",
+    "Title must be longer than {min} symbol": "Название роли должно быть длиннее {min} символов"
 }
