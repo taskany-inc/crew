@@ -1,5 +1,6 @@
+import { ReactNode } from 'react';
 import styled from 'styled-components';
-import { useForm } from 'react-hook-form';
+import { FieldError, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Button,
@@ -37,17 +38,32 @@ const NoWrap = styled.div`
     white-space: nowrap;
 `;
 
-const StyledInputContainer = styled.div`
+const StyledInputsContainer = styled.div`
     display: grid;
-    grid-template-columns: 120px 1fr 1fr;
+    grid-template-columns: max-content 1fr;
     gap: ${gapS};
-    width: 100%;
     align-items: center;
     background-color: var(--gray3);
     padding-left: ${gapM};
     padding-bottom: ${gapS};
     background-color: ${gray3};
 `;
+
+const Field = (props: { name: string; error: FieldError | undefined; children: ReactNode }) => (
+    <>
+        <Text weight="bold" color={gray8}>
+            {props.name}
+        </Text>
+        <div>
+            {props.children}
+            {nullable(props.error, (e) => (
+                <Text size="xs" color={danger0}>
+                    {e.message}
+                </Text>
+            ))}
+        </div>
+    </>
+);
 
 export const UpdateVacancyModal = ({ visible, onClose, vacancy }: UpdateVacancyModalProps) => {
     const { editVacancy } = useVacancyMutations();
@@ -98,86 +114,59 @@ export const UpdateVacancyModal = ({ visible, onClose, vacancy }: UpdateVacancyM
             <ModalContent>
                 <Form onSubmit={onSubmit}>
                     <NoWrap>
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Name:')}
-                            </Text>
-                            <RoleComboBox
-                                roleName={vacancy.name}
-                                onChange={(role) => role && setValue('name', role.name)}
-                            />
-                            {nullable(errors.name, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
+                        <StyledInputsContainer>
+                            <Field name={tr('Name:')} error={errors.name}>
+                                <RoleComboBox
+                                    roleName={vacancy.name}
+                                    onChange={(role) => role && setValue('name', role.name)}
+                                />
+                            </Field>
 
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Vacancy status:')}
-                            </Text>
-                            <VacancyStatusComboBox
-                                status={statusesMap[vacancy.status]}
-                                onChange={(status) => status && setValue('status', status.id)}
-                            />
-                            {nullable(errors.status, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
+                            <Field name={tr('Vacancy status:')} error={errors.status}>
+                                <VacancyStatusComboBox
+                                    status={statusesMap[vacancy.status]}
+                                    onChange={(status) => status && setValue('status', status.id)}
+                                />
+                            </Field>
 
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Hiring manager:')}
-                            </Text>
-                            <UserComboBox
-                                user={vacancy.hiringManager}
-                                onChange={(user) => user && setValue('hiringManagerId', user?.id)}
-                            />
-                            {nullable(errors.hiringManagerId, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('HR:')}
-                            </Text>
-                            <UserComboBox user={vacancy.hr} onChange={(user) => user && setValue('hrId', user?.id)} />
-                            {nullable(errors.hrId, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Grade:')}
-                            </Text>
-                            <Input
-                                defaultValue={vacancy.grade!}
-                                placeholder={tr('Enter the grade value')}
-                                type="number"
-                                autoComplete="off"
-                                onChange={(e) => setValue('grade', e.target.value ? Number(e.target.value) : undefined)}
-                            />
-                        </StyledInputContainer>
+                            <Field name={tr('Hiring manager:')} error={errors.hiringManagerId}>
+                                <UserComboBox
+                                    user={vacancy.hiringManager}
+                                    onChange={(user) => user && setValue('hiringManagerId', user?.id)}
+                                />
+                            </Field>
 
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Unit:')}
-                            </Text>
-                            <Input
-                                defaultValue={vacancy.unit!}
-                                placeholder={tr('Enter the unit value')}
-                                type="number"
-                                autoComplete="off"
-                                onChange={(e) => setValue('unit', e.target.value ? Number(e.target.value) : undefined)}
-                            />
-                        </StyledInputContainer>
+                            <Field name={tr('HR:')} error={errors.hrId}>
+                                <UserComboBox
+                                    user={vacancy.hr}
+                                    onChange={(user) => user && setValue('hrId', user?.id)}
+                                />
+                            </Field>
+
+                            <Field name={tr('Grade:')} error={errors.grade}>
+                                <Input
+                                    defaultValue={vacancy.grade || undefined}
+                                    placeholder={tr('Enter the grade value')}
+                                    type="number"
+                                    autoComplete="off"
+                                    onChange={(e) =>
+                                        setValue('grade', e.target.value ? Number(e.target.value) : undefined)
+                                    }
+                                />
+                            </Field>
+
+                            <Field name={tr('Unit:')} error={errors.unit}>
+                                <Input
+                                    defaultValue={vacancy.unit || undefined}
+                                    placeholder={tr('Enter the unit value')}
+                                    type="number"
+                                    autoComplete="off"
+                                    onChange={(e) =>
+                                        setValue('unit', e.target.value ? Number(e.target.value) : undefined)
+                                    }
+                                />
+                            </Field>
+                        </StyledInputsContainer>
                     </NoWrap>
 
                     <FormActions>

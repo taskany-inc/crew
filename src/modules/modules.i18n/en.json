@@ -28,7 +28,6 @@
     "Hire stream is required": "",
     "Only admins can create vacancies": "",
     "Only admins can edit vacancies": "",
-    "No api token for hire": "",
     "User is required": "",
     "Percentage must be a number": "",
     "Percentage must be an integer": "",
@@ -40,5 +39,6 @@
     "Hiring manager is required": "",
     "HR is required": "",
     "Vacancy status is required": "",
-    "No vacancy with id {vacancyId}": ""
+    "No vacancy with id {vacancyId}": "",
+    "Hire integration is not configured": ""
 }

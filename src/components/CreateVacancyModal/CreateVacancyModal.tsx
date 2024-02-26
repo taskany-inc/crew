@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import styled from 'styled-components';
-import { useForm } from 'react-hook-form';
+import { FieldError, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Button,
@@ -26,6 +26,7 @@ import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { RoleComboBox } from '../RoleComboBox/RoleComboBox';
 import { VacancyStatusComboBox, statusesMap } from '../VacancyStatusComboBox/VacancyStatusComboBox';
 import { GroupSupervisor } from '../../modules/groupTypes';
+import { RecruiterComboBox } from '../RecruiterComboBox/RecruiterComboBox';
 
 import { tr } from './CreateVacancyModal.i18n';
 
@@ -39,17 +40,32 @@ const NoWrap = styled.div`
     white-space: nowrap;
 `;
 
-const StyledInputContainer = styled.div`
+const StyledInputsContainer = styled.div`
     display: grid;
-    grid-template-columns: 120px 1fr 1fr;
+    grid-template-columns: max-content 1fr;
     gap: ${gapS};
-    width: 100%;
     align-items: center;
     background-color: var(--gray3);
     padding-left: ${gapM};
     padding-bottom: ${gapS};
     background-color: ${gray3};
 `;
+
+const Field = (props: { name: string; error: FieldError | undefined; children: ReactNode }) => (
+    <>
+        <Text weight="bold" color={gray8}>
+            {props.name}
+        </Text>
+        <div>
+            {props.children}
+            {nullable(props.error, (e) => (
+                <Text size="xs" color={danger0}>
+                    {e.message}
+                </Text>
+            ))}
+        </div>
+    </>
+);
 
 export const CreateVacancyModal = ({ visible, onClose, group }: CreateVacancyModalProps) => {
     const { createVacancy } = useVacancyMutations();
@@ -58,6 +74,7 @@ export const CreateVacancyModal = ({ visible, onClose, group }: CreateVacancyMod
         handleSubmit,
         reset,
         setValue,
+        watch,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateVacancy>({
         defaultValues: {
@@ -67,6 +84,8 @@ export const CreateVacancyModal = ({ visible, onClose, group }: CreateVacancyMod
         },
         resolver: zodResolver(createVacancySchema),
     });
+
+    const hireStreamId = Number(watch('hireStreamId') ?? 0);
 
     const onSubmit = handleSubmit(async (data) => {
         await createVacancy(data);
@@ -92,95 +111,62 @@ export const CreateVacancyModal = ({ visible, onClose, group }: CreateVacancyMod
             <ModalContent>
                 <Form onSubmit={onSubmit}>
                     <NoWrap>
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Name:')}
-                            </Text>
-                            <RoleComboBox onChange={(role) => role && setValue('name', role.name)} />
-                            {nullable(errors.name, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
+                        <StyledInputsContainer>
+                            <Field name={tr('Name:')} error={errors.name}>
+                                <RoleComboBox onChange={(role) => role && setValue('name', role.name)} />
+                            </Field>
 
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Hire stream:')}
-                            </Text>
-                            <HireStreamComboBox
-                                onChange={(hireStream) => hireStream && setValue('hireStreamId', String(hireStream.id))}
-                            />
-                            {nullable(errors.hireStreamId, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
+                            <Field name={tr('Hire stream:')} error={errors.hireStreamId}>
+                                <HireStreamComboBox
+                                    onChange={(hireStream) =>
+                                        hireStream && setValue('hireStreamId', String(hireStream.id))
+                                    }
+                                />
+                            </Field>
 
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Vacancy status:')}
-                            </Text>
-                            <VacancyStatusComboBox
-                                status={statusesMap.ACTIVE}
-                                onChange={(status) => status && setValue('status', status.id)}
-                            />
-                            {nullable(errors.status, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
+                            <Field name={tr('Vacancy status:')} error={errors.status}>
+                                <VacancyStatusComboBox
+                                    status={statusesMap.ACTIVE}
+                                    onChange={(status) => status && setValue('status', status.id)}
+                                />
+                            </Field>
 
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Hiring manager:')}
-                            </Text>
-                            <UserComboBox
-                                user={group.supervisor}
-                                onChange={(user) => user && setValue('hiringManagerId', user?.id)}
-                            />
-                            {nullable(errors.hiringManagerId, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('HR:')}
-                            </Text>
-                            <UserComboBox onChange={(user) => user && setValue('hrId', user?.id)} />
-                            {nullable(errors.hrId, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Grade:')}
-                            </Text>
-                            <Input
-                                placeholder={tr('Enter the grade value')}
-                                type="number"
-                                autoComplete="off"
-                                onChange={(e) => setValue('grade', e.target.value ? Number(e.target.value) : undefined)}
-                            />
-                        </StyledInputContainer>
+                            <Field name={tr('Hiring manager:')} error={errors.hiringManagerId}>
+                                <UserComboBox
+                                    user={group.supervisor}
+                                    onChange={(user) => user && setValue('hiringManagerId', user?.id)}
+                                />
+                            </Field>
 
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Unit:')}
-                            </Text>
-                            <Input
-                                placeholder={tr('Enter the unit value')}
-                                type="number"
-                                autoComplete="off"
-                                onChange={(e) => setValue('unit', e.target.value ? Number(e.target.value) : undefined)}
-                            />
-                        </StyledInputContainer>
+                            <Field name={tr('HR:')} error={errors.hrId}>
+                                <RecruiterComboBox
+                                    hireStreamId={hireStreamId}
+                                    onChange={(user) => user && setValue('hrId', user?.id)}
+                                />
+                            </Field>
+
+                            <Field name={tr('Grade:')} error={errors.grade}>
+                                <Input
+                                    placeholder={tr('Enter the grade value')}
+                                    type="number"
+                                    autoComplete="off"
+                                    onChange={(e) =>
+                                        setValue('grade', e.target.value ? Number(e.target.value) : undefined)
+                                    }
+                                />
+                            </Field>
+
+                            <Field name={tr('Unit:')} error={errors.unit}>
+                                <Input
+                                    placeholder={tr('Enter the unit value')}
+                                    type="number"
+                                    autoComplete="off"
+                                    onChange={(e) =>
+                                        setValue('unit', e.target.value ? Number(e.target.value) : undefined)
+                                    }
+                                />
+                            </Field>
+                        </StyledInputsContainer>
                     </NoWrap>
 
                     <FormActions>
