@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.36.1](https://github.com/taskany-inc/crew/compare/v0.36.0...v0.36.1) (2024-02-26)
+
+
+### Bug Fixes
+
+* recruiters suggestion based on hire stream ([41ac6ee](https://github.com/taskany-inc/crew/commit/41ac6ee08ad36782dd6e7feac77b899b7e3b0696))
+
 ## [0.36.0](https://github.com/taskany-inc/crew/compare/v0.35.0...v0.36.0) (2024-02-22)
 
 
