@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Role } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { Button, ComboBox, InlineForm, Input, MenuItem } from '@taskany/bricks';
+import { Button, ComboBox, InlineForm, Input, MenuItem, nullable } from '@taskany/bricks';
 import { IconPlusCircleSolid } from '@taskany/icons';
 
 import { InlineTrigger } from '../InlineTrigger';
@@ -38,7 +38,13 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
         if (!selectedRole) {
             return;
         }
-        await addToMembership({ membershipId, roleId: selectedRole.id });
+
+        await addToMembership(
+            selectedRole.id
+                ? { membershipId, id: selectedRole.id, type: 'existing' }
+                : { membershipId, name: selectedRole.name, type: 'new' },
+        );
+
         onReset();
     };
 
@@ -59,7 +65,7 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
                         setSelectedRole(value);
                     }
                 }}
-                items={roleListQuery.data}
+                items={nullable(search, () => [{ name: search }, ...(roleListQuery.data || [])]) || roleListQuery.data}
                 maxWidth={550}
                 renderInput={({ value, ...restProps }) => (
                     <StyledRowWrapper>
@@ -74,19 +80,12 @@ export const AddRoleToMembershipForm = ({ membershipId }: AddRoleToMembershipFor
                             brick="right"
                             {...restProps}
                         />
-                        <Button
-                            brick="left"
-                            view="primary"
-                            text={tr('Add')}
-                            type="submit"
-                            disabled={!selectedRole}
-                            outline
-                        />
+                        <Button brick="left" view="primary" text={tr('Add')} type="submit" outline />
                     </StyledRowWrapper>
                 )}
                 renderItem={(props) => (
                     <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
-                        {props.item.name}
+                        {props.item.id ? props.item.name : `${tr('Create')} ${props.item.name}`}
                     </MenuItem>
                 )}
             />

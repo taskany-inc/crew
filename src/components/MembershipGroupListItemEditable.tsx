@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { Text } from '@taskany/bricks';
 import { gray9 } from '@taskany/colors';
+import { useSession } from 'next-auth/react';
+import { UserRole } from 'prisma/prisma-client';
 
 import { MembershipInfo } from '../modules/userTypes';
 
@@ -17,6 +19,9 @@ const StyledRow = styled.div`
 `;
 
 export const MembershipGroupListItemEditable = ({ membership }: MembershipGroupListItemEditableProps) => {
+    const session = useSession();
+    const user = session.data?.user;
+
     return (
         <StyledRow>
             <MembershipGroupListItem membership={membership} />
@@ -25,7 +30,7 @@ export const MembershipGroupListItemEditable = ({ membership }: MembershipGroupL
                 {membership.percentage}
             </Text>
 
-            <MembershipEditMenu membership={membership} />
+            {user?.role === UserRole.ADMIN && <MembershipEditMenu membership={membership} />}
         </StyledRow>
     );
 };

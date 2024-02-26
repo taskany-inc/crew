@@ -2,18 +2,16 @@ import { protectedProcedure, router } from '../trpcBackend';
 import { roleMethods } from '../../modules/roleMethods';
 import {
     addRoleToMembershipSchema,
-    createRoleSchema,
     getRoleListSchema,
     removeRoleFromMembershipSchema,
     getRoleSuggestionsSchema,
 } from '../../modules/roleSchemas';
+import { accessCheck } from '../../utils/access';
+import { roleAccess } from '../../modules/roleAccess';
 
 export const roleRouter = router({
-    add: protectedProcedure.input(createRoleSchema).mutation(({ input }) => {
-        return roleMethods.add(input);
-    }),
-
-    addToMembership: protectedProcedure.input(addRoleToMembershipSchema).mutation(({ input }) => {
+    addToMembership: protectedProcedure.input(addRoleToMembershipSchema).mutation(({ input, ctx }) => {
+        accessCheck(roleAccess.create(ctx.session.user));
         return roleMethods.addToMembership(input);
     }),
 
