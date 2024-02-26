@@ -28,7 +28,6 @@
     "Hire stream is required": "Выберите поток найма",
     "Only admins can create vacancies": "Только администраторы могут создавать вакансии",
     "Only admins can edit vacancies": "Только администраторы могут редактировать вакансии",
-    "No api token for hire": "Отсутствует токен для Hire",
     "User is required": "Укажите пользователя",
     "Percentage must be a number": "Процент должен быть числом",
     "Percentage must be an integer": "Процент должен быть целым числом",
@@ -40,5 +39,6 @@
     "Hiring manager is required": "Выберите нанимающего менеджера",
     "HR is required": "Выберите HR",
     "Vacancy status is required": "Выберите статус вакансии",
-    "No vacancy with id {vacancyId}": "Нет вакансии с id {vacancyId}"
+    "No vacancy with id {vacancyId}": "Нет вакансии с id {vacancyId}",
+    "Hire integration is not configured": "Интеграция с Hire не настроена"
 }
