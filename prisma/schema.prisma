@@ -293,3 +293,8 @@ enum VacancyStatus {
   CLOSED
   ON_CONFIRMATION
 }
+
+model AppConfig {
+  id   String @id @default(nanoid())
+  logo String?
+}

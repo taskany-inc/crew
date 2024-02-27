@@ -31,6 +31,7 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
     const fullTitle = pageTitle ? `${pageTitle} - Taskany Crew` : 'Taskany Crew';
 
     const userSettings = trpc.user.getSettings.useQuery();
+    const appConfig = trpc.appConfig.get.useQuery();
 
     const { resolvedTheme } = useTheme();
     const theme = (
@@ -41,6 +42,7 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
         <>
             <Head>
                 <title>{fullTitle}</title>
+                <link rel="icon" href={appConfig.data?.logo ?? '/favicon.png'} />
                 <link rel="stylesheet" id="themeVariables" href={`/theme/${theme}.css`} />
             </Head>
             <OfflineBanner />
