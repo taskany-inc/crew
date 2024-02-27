@@ -11,6 +11,7 @@ const main = async () => {
         data: {
             name: 'Admin',
             email: adminEmail,
+            title: 'Superuser',
             role: UserRole.ADMIN,
             accounts: {
                 create: {

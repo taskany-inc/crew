@@ -1,14 +1,11 @@
 import { Text, Button, nullable, Modal } from '@taskany/bricks';
-import { gapL, gapS, gapXl, gray10, gray6, gray8, textColor } from '@taskany/colors';
+import { gapL, gapS, gapXl, gray10, gray8, textColor } from '@taskany/colors';
 import styled from 'styled-components';
 import { useState } from 'react';
 
 import { PageSep } from '../PageSep';
-import { Link } from '../Link';
 import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../LayoutMain';
-import { usePreviewContext } from '../../contexts/previewContext';
-import { pages } from '../../hooks/useRouter';
 import { UserSummary } from '../UserSummary/UserSummary';
 import { UserContacts } from '../UserContacts/UserContacts';
 import { UserBonusPoints } from '../UserBonusPoints/UserBonusPoints';
@@ -32,12 +29,6 @@ const StyledUserNameWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${gapS};
-`;
-
-const StyledGroupLink = styled(Link)`
-    font-size: 21px;
-    color: ${gray10};
-    font-weight: 700;
 `;
 
 const StyledUserInfoWrapper = styled.div`
@@ -71,7 +62,6 @@ type UserPageProps = {
 };
 
 export const UserPage = ({ userId }: UserPageProps) => {
-    const { showGroupPreview } = usePreviewContext();
     const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);
     const [openDeactivateUserForm, setOpenDeactivateUserForm] = useState(false);
 
@@ -80,28 +70,17 @@ export const UserPage = ({ userId }: UserPageProps) => {
 
     if (!user) return null;
 
-    const groupMemberships = user.memberships;
-
-    // TODO: select real org group
-    const orgStructureMembership = groupMemberships[0];
-
     return (
         <LayoutMain pageTitle={user.name}>
             <StyledHeader>
                 <UserPic size={150} user={user} />
                 <StyledUserNameWrapper>
-                    <Text size="s" color={gray6} weight="bold">
-                        {!!orgStructureMembership && orgStructureMembership.roles.map((role) => role.name).join(', ')}
-                    </Text>
+                    {nullable(user.title, (t) => (
+                        <Text color={gray10} weight="bold">
+                            {t}
+                        </Text>
+                    ))}
 
-                    {!!orgStructureMembership && (
-                        <StyledGroupLink
-                            href={pages.team(orgStructureMembership.id)}
-                            onClick={() => showGroupPreview(orgStructureMembership.group.id)}
-                        >
-                            {orgStructureMembership.group.name}
-                        </StyledGroupLink>
-                    )}
                     <Text size="xxl" weight="bold" color={user.active ? textColor : gray8}>
                         {user.name}
                         {!user.active && tr(' [inactive]')}

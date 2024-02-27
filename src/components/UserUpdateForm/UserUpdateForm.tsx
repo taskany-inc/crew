@@ -56,6 +56,7 @@ const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
             id: user.id,
             supervisorId: user.supervisorId,
             name: user.name || undefined,
+            title: user.title || undefined,
         },
         mode: 'onChange',
         resolver: zodResolver(editUserSchema),
@@ -79,6 +80,13 @@ const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                         <FormInput
                             label={tr('Full Name')}
                             {...register('name')}
+                            flat="bottom"
+                            brick="right"
+                            autoComplete="off"
+                        />
+                        <FormInput
+                            label={tr('Role')}
+                            {...register('title')}
                             flat="bottom"
                             brick="right"
                             autoComplete="off"

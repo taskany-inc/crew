@@ -241,6 +241,7 @@ export const userMethods = {
             data: {
                 name: data.name,
                 supervisorId: data.supervisorId,
+                title: data.title,
             },
         });
     },

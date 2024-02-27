@@ -80,6 +80,8 @@ model User {
 
   supervisorIn Group[]
 
+  title String?
+
   bonusPoints  Int            @default(0)
   bonusHistory BonusHistory[] @relation("bonusHistory")
   bonusChanges BonusHistory[] @relation("bonusChanges")
@@ -88,10 +90,10 @@ model User {
 
   deactivatedAt DateTime?
 
-  vacancy   Vacancy? @relation("vacancyUser")
+  vacancy Vacancy? @relation("vacancyUser")
 
-  vacanciesManaging  Vacancy[] @relation("hiringManager")
-  vacanciesHr        Vacancy[] @relation("vacancyHr")
+  vacanciesManaging Vacancy[] @relation("hiringManager")
+  vacanciesHr       Vacancy[] @relation("vacancyHr")
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -253,36 +255,36 @@ model UserDevice {
 }
 
 model Vacancy {
-  id              String  @id @default(nanoid())
-  name            String
+  id   String @id @default(nanoid())
+  name String
 
-  hireStreamId    String
+  hireStreamId String
 
-  user            User?   @relation("vacancyUser", fields: [userId], references: [id])
-  userId          String?
+  user   User?   @relation("vacancyUser", fields: [userId], references: [id])
+  userId String?
 
-  group           Group   @relation("groupVacancy", fields: [groupId], references: [id])
-  groupId         String
+  group   Group  @relation("groupVacancy", fields: [groupId], references: [id])
+  groupId String
 
-  archived        Boolean @default(false)
-  archivedAt      DateTime?
+  archived   Boolean   @default(false)
+  archivedAt DateTime?
 
-  status          VacancyStatus
-  unit            Int?
-  grade           Int?
+  status VacancyStatus
+  unit   Int?
+  grade  Int?
 
-  hiringManager   User @relation("hiringManager", fields: [hiringManagerId], references: [id])
+  hiringManager   User   @relation("hiringManager", fields: [hiringManagerId], references: [id])
   hiringManagerId String
 
-  hr              User @relation("vacancyHr", fields: [hrId], references: [id])
-  hrId            String
+  hr   User   @relation("vacancyHr", fields: [hrId], references: [id])
+  hrId String
 
-  closedAt        DateTime?
-  activeSince     DateTime?
-  timeAtWork      Int @default(0)
+  closedAt    DateTime?
+  activeSince DateTime?
+  timeAtWork  Int       @default(0)
 
-  createdAt       DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
-  updatedAt       DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 
   @@unique([userId])
 }

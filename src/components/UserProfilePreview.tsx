@@ -24,21 +24,11 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const userQuery = trpc.user.getById.useQuery(userId);
 
-    // TODO: select real org group
-    const orgStructureMembership = userQuery.data?.memberships[0];
-    const orgStructureRoles = orgStructureMembership?.roles.map((r) => r.name).join(', ');
-
     return (
         <>
             {nullable(userQuery.data, (user) => (
                 <StyledModalPreview visible onClose={hidePreview}>
-                    <PreviewHeader
-                        preTitle={orgStructureRoles}
-                        user={user}
-                        subtitle={orgStructureMembership?.group.name}
-                        title={user.name}
-                        link={pages.user(user.id)}
-                    />
+                    <PreviewHeader subtitle={user.title} user={user} title={user.name} link={pages.user(user.id)} />
                     <PreviewContent>
                         <UserSummary user={user} />
 

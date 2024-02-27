@@ -52,6 +52,7 @@ export type GetUserList = z.infer<typeof getUserListSchema>;
 export const editUserSchema = z.object({
     id: z.string(),
     name: z.string().optional(),
+    title: z.string().optional(),
     supervisorId: z.string().nullish(),
 });
 
