@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import { ThemeProvider } from 'next-themes';
 import type { AppProps } from 'next/app';
 import '@taskany/bricks/harmony/style.css';
@@ -18,21 +17,16 @@ const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
     const pageLoadRef = usePageLoad(router);
 
     return (
-        <>
-            <Head>
-                <link rel="icon" href="/favicon.png" />
-            </Head>
-            <SessionProvider session={pageProps.session} refetchOnWindowFocus={true}>
-                <ThemeProvider themes={['light', 'dark']}>
-                    <PreviewContextProvider>
-                        <PageLoadProgress height={2} ref={pageLoadRef} />
-                        <Component {...pageProps} />
-                        <Previews />
-                        <ReactQueryDevtools />
-                    </PreviewContextProvider>
-                </ThemeProvider>
-            </SessionProvider>
-        </>
+        <SessionProvider session={pageProps.session} refetchOnWindowFocus={true}>
+            <ThemeProvider themes={['light', 'dark']}>
+                <PreviewContextProvider>
+                    <PageLoadProgress height={2} ref={pageLoadRef} />
+                    <Component {...pageProps} />
+                    <Previews />
+                    <ReactQueryDevtools />
+                </PreviewContextProvider>
+            </ThemeProvider>
+        </SessionProvider>
     );
 };
 
