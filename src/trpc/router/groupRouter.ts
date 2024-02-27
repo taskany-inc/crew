@@ -64,6 +64,10 @@ export const groupRouter = router({
         return groupMethods.getHierarchy(input);
     }),
 
+    exportMembers: protectedProcedure.input(z.string()).mutation(({ input }) => {
+        return groupMethods.exportMembers(input);
+    }),
+
     suggestions: protectedProcedure.input(getGroupSuggestionsSchema).query(({ input }) => {
         return groupMethods.suggestions(input);
     }),

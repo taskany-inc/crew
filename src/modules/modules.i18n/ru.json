@@ -40,5 +40,9 @@
     "HR is required": "Выберите HR",
     "Vacancy status is required": "Выберите статус вакансии",
     "No vacancy with id {vacancyId}": "Нет вакансии с id {vacancyId}",
-    "Hire integration is not configured": "Интеграция с Hire не настроена"
+    "Hire integration is not configured": "Интеграция с Hire не настроена",
+    "Full name": "ФИО",
+    "Roles": "Роли",
+    "Membership percentage": "Процент участия",
+    "Team": "Команда"
 }

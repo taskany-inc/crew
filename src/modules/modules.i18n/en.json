@@ -40,5 +40,9 @@
     "HR is required": "",
     "Vacancy status is required": "",
     "No vacancy with id {vacancyId}": "",
-    "Hire integration is not configured": ""
+    "Hire integration is not configured": "",
+    "Full name": "",
+    "Roles": "",
+    "Membership percentage": "",
+    "Team": ""
 }
