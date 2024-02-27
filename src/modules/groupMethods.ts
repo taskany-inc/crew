@@ -2,9 +2,10 @@ import { Group, Prisma } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
-import { objByKey } from '../utils/objByKey';
+import { objByKey, objByKeyMulti } from '../utils/objByKey';
 import { SessionUser } from '../utils/auth';
 import { suggestionsTake } from '../utils/suggestions';
+import { createCsvDocument } from '../utils/csv';
 
 import { CreateGroup, EditGroup, GetGroupList, MoveGroup, GetGroupSuggestions } from './groupSchemas';
 import { tr } from './modules.i18n';
@@ -201,6 +202,56 @@ export const groupMethods = {
             }
         }
         return { adjacencyList, dict };
+    },
+
+    exportMembers: async (groupId: string): Promise<string> => {
+        const hierarchy = await groupMethods.getHierarchy(groupId);
+        const groupIds = Object.keys(hierarchy.dict);
+        const memberships = await prisma.membership.findMany({
+            where: { groupId: { in: groupIds } },
+            select: {
+                user: { select: { name: true, email: true } },
+                group: { select: { name: true } },
+                roles: { select: { name: true } },
+                groupId: true,
+                percentage: true,
+            },
+        });
+        const membershipsDict = objByKeyMulti(memberships, 'groupId');
+        const data: {
+            userName: string | null;
+            email: string;
+            roles: string;
+            percentage: number | string;
+            path: string;
+        }[] = [];
+
+        const processGroupsRecursively = (ids: string[], currentPath: string[]) => {
+            ids.forEach((id) => {
+                membershipsDict[id].forEach((m) => {
+                    data.push({
+                        userName: m.user.name,
+                        email: m.user.email,
+                        roles: m.roles.map((r) => r.name).join(', '),
+                        percentage: m.percentage === null ? '' : m.percentage,
+                        path: [...currentPath, m.group.name].join(' / '),
+                    });
+                });
+            });
+            ids.forEach((id) => {
+                processGroupsRecursively(hierarchy.adjacencyList[id], [...currentPath, hierarchy.dict[id].name]);
+            });
+        };
+
+        processGroupsRecursively([groupId], []);
+
+        return createCsvDocument(data, [
+            { key: 'userName', name: tr('Full name') },
+            { key: 'email', name: 'Email' },
+            { key: 'roles', name: tr('Roles') },
+            { key: 'percentage', name: tr('Membership percentage') },
+            { key: 'path', name: tr('Team') },
+        ]);
     },
 
     suggestions: async ({ query, include, take = suggestionsTake }: GetGroupSuggestions) => {
