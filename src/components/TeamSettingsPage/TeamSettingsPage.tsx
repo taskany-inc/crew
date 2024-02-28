@@ -44,7 +44,7 @@ const StyledGroupListItemWrapper = styled.div`
 const GroupListItemWithDelete = (props: { group: Group; onClick: VoidFunction }) => {
     return (
         <StyledGroupListItemWrapper>
-            <GroupListItem group={props.group} />
+            <GroupListItem groupName={props.group.name} groupId={props.group.id} />
             <IconXCircleSolid size="s" onClick={props.onClick} />
         </StyledGroupListItemWrapper>
     );

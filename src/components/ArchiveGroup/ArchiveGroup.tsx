@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import {
     Button,
     Form,
@@ -9,21 +10,20 @@ import {
     ModalCross,
     ModalHeader,
 } from '@taskany/bricks';
-import { gapS } from '@taskany/colors';
 import styled from 'styled-components';
+import { gapS } from '@taskany/colors';
 
-import { MembershipInfo } from '../../modules/userTypes';
-import { UserListItem } from '../UserListItem/UserListItem';
-import { useUserMutations } from '../../modules/userHooks';
+import { useGroupMutations } from '../../modules/groupHooks';
 import { GroupListItem } from '../GroupListItem';
 
-import { tr } from './RemoveUserFromGroupModal.i18n';
+import { tr } from './ArchiveGroup.i18n';
 
-type RemoveUserFromGroupModalProps = {
+interface ArchiveGroupModalProps {
     visible: boolean;
-    membership: MembershipInfo;
+    groupId: string;
+    groupName: string;
     onClose: VoidFunction;
-};
+}
 
 const StyledInfoWrapper = styled.div`
     display: flex;
@@ -31,32 +31,31 @@ const StyledInfoWrapper = styled.div`
     gap: ${gapS};
 `;
 
-export const RemoveUserFromGroupModal = ({ visible, membership, onClose }: RemoveUserFromGroupModalProps) => {
-    const { removeUserFromGroup } = useUserMutations();
+export const ArchiveGroupModal = ({ visible, groupId, groupName, onClose }: ArchiveGroupModalProps) => {
+    const { archiveGroup } = useGroupMutations();
 
-    const onRemoveClick = async () => {
-        await removeUserFromGroup({ userId: membership.userId, groupId: membership.groupId });
+    const onArchiveClick = useCallback(async () => {
+        await archiveGroup(groupId);
         onClose();
-    };
+    }, [archiveGroup, groupId, onClose]);
 
     return (
         <Modal visible={visible} onClose={onClose} width={500}>
             <ModalHeader>
-                <FormTitle>{tr('Remove user from group')}</FormTitle>
+                <FormTitle>{tr('Archive group {groupName}', { groupName })}</FormTitle>
                 <ModalCross onClick={onClose} />
             </ModalHeader>
 
             <ModalContent>
                 <StyledInfoWrapper>
-                    <UserListItem user={membership.user} />
-                    <GroupListItem groupName={membership.group.name} groupId={membership.group.id} />
+                    <GroupListItem groupName={groupName} groupId={groupId} />
                 </StyledInfoWrapper>
                 <Form>
                     <FormActions>
                         <FormAction left />
                         <FormAction right inline>
                             <Button size="m" text={tr('Cancel')} onClick={onClose} />
-                            <Button size="m" view="danger" onClick={onRemoveClick} text={tr('Remove')} />
+                            <Button size="m" view="danger" onClick={onArchiveClick} text={tr('Archive')} />
                         </FormAction>
                     </FormActions>
                 </Form>

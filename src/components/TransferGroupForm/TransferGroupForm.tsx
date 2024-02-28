@@ -90,7 +90,7 @@ export const TransferGroupForm = ({ group }: TransferGroupFormProps) => {
                             <Text>{tr('Current group path')}</Text>
                             <div>
                                 {oldBreadcrumbsQuery.data?.map((g) => (
-                                    <GroupListItem key={g.id} group={g} />
+                                    <GroupListItem key={g.id} groupName={g.name} groupId={g.id} />
                                 ))}
                             </div>
 
@@ -99,9 +99,9 @@ export const TransferGroupForm = ({ group }: TransferGroupFormProps) => {
                                     <Text>{tr('New group path')}</Text>
                                     <div>
                                         {newBreadcrumbsQuery.data?.map((g) => (
-                                            <GroupListItem key={g.id} group={g} />
+                                            <GroupListItem key={g.id} groupName={g.name} groupId={g.id} />
                                         ))}
-                                        <GroupListItem group={group} />
+                                        <GroupListItem groupName={group.name} groupId={group.id} />
                                     </div>
                                 </>
                             ))}

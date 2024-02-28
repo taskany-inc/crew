@@ -40,7 +40,7 @@ export const EditRolesModal = ({ membership, visible, onClose }: EditRolesModalP
             </ModalHeader>
 
             <StyledModalContent>
-                <GroupListItem group={membership.group} />
+                <GroupListItem groupId={membership.group.id} groupName={membership.group.name} />
                 <UserListItem user={membership.user} />
 
                 <div>

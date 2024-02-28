@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import styled from 'styled-components';
-import { Group } from 'prisma/prisma-client';
 import { Dropdown, MenuItem } from '@taskany/bricks';
 import { IconMoreVerticalOutline } from '@taskany/icons';
 
 import { GroupListItem } from './GroupListItem';
 
-type GroupListItemEditableProps = {
-    group: Group;
-};
+interface GroupListItemEditableProps {
+    groupId: string;
+    groupName: string;
+}
 
 const StyledRow = styled.div`
     display: grid;
@@ -16,12 +16,12 @@ const StyledRow = styled.div`
     width: 600px;
 `;
 
-export const GroupListItemEditable = ({ group }: GroupListItemEditableProps) => {
+export const GroupListItemEditable = ({ groupId, groupName }: GroupListItemEditableProps) => {
     const items = useMemo(() => [], []);
 
     return (
         <StyledRow>
-            <GroupListItem group={group} />
+            <GroupListItem groupId={groupId} groupName={groupName} />
 
             <Dropdown
                 onChange={(v) => v.action()}

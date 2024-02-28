@@ -46,5 +46,6 @@
     "Membership percentage": "",
     "Team": "",
     "Only admins can create or add roles": "",
-    "Title must be longer than {min} symbol": ""
+    "Title must be longer than {min} symbol": "",
+    "Only admins can create groups": ""
 }
