@@ -13,7 +13,7 @@ type MembershipGroupListItemProps = {
 export const MembershipGroupListItem = ({ membership }: MembershipGroupListItemProps) => {
     return (
         <div>
-            <GroupListItem group={membership.group} />
+            <GroupListItem groupName={membership.group.name} groupId={membership.group.id} />
 
             {nullable(membership.roles, (roles) => (
                 <div>

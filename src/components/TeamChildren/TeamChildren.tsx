@@ -32,7 +32,7 @@ export const TeamChildren = ({ groupId, groupChildren }: GroupTeamsProps) => {
         <NarrowSection title={tr('Teams')}>
             <StyledChildrenList>
                 {groupChildren.map((group) => (
-                    <GroupListItemEditable key={group.id} group={group} />
+                    <GroupListItemEditable key={group.id} groupName={group.name} groupId={group.id} />
                 ))}
             </StyledChildrenList>
 
