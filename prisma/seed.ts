@@ -91,7 +91,7 @@ const main = async () => {
         data: { id: '2c88d9e5-dcbf-44be-b377-1b5461a1f1e6', description: 'test-token' },
     });
 
-    await prisma.appConfig.create({});
+    await prisma.appConfig.create({ data: {} });
 };
 
 main();
