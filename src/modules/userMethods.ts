@@ -235,7 +235,7 @@ export const userMethods = {
     },
 
     edit: async (data: EditUser): Promise<User> => {
-        await externalUserUpdate(data.id, data);
+        await externalUserUpdate(data.id, { name: data.name, supervisorId: data.supervisorId });
         return prisma.user.update({
             where: { id: data.id },
             data: {
