@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.37.1](https://github.com/taskany-inc/crew/compare/v0.37.0...v0.37.1) (2024-02-28)
+
+
+### Bug Fixes
+
+* **user edit:** do not send excess properties to external service ([20b62e6](https://github.com/taskany-inc/crew/commit/20b62e60e3345b0fe25d22c11ff797cf9905dcfa))
+
 ## [0.37.0](https://github.com/taskany-inc/crew/compare/v0.36.1...v0.37.0) (2024-02-28)
 
 
