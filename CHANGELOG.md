@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.37.0](https://github.com/taskany-inc/crew/compare/v0.36.1...v0.37.0) (2024-02-28)
+
+
+### Features
+
+* custom logo via appConfig ([466c377](https://github.com/taskany-inc/crew/commit/466c37724dd636074da80c9b679c9776dbdc33ea))
+* user profile title ([4796ae9](https://github.com/taskany-inc/crew/commit/4796ae9879079a38b562c9836f4697944fe20c7e))
+
+
+### Bug Fixes
+
+* **csv export:** export with subgroups ([1f159f8](https://github.com/taskany-inc/crew/commit/1f159f8f8884e8f5d3e2727320e359bd33f4a25e))
+
 ## [0.36.1](https://github.com/taskany-inc/crew/compare/v0.36.0...v0.36.1) (2024-02-26)
 
 
