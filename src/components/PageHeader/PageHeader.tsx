@@ -40,7 +40,7 @@ const useHeaderMenu = (): UseHeaderMenuResult => {
     return { entityListMenuItems };
 };
 
-export const PageHeader: React.FC = () => {
+export const PageHeader: React.FC<{ logo?: string }> = ({ logo }) => {
     const { entityListMenuItems } = useHeaderMenu();
     const session = useSession();
 
@@ -48,7 +48,7 @@ export const PageHeader: React.FC = () => {
         <Header
             logo={
                 <HeaderLogo>
-                    <PageHeaderLogo />
+                    <PageHeaderLogo logo={logo} />
                 </HeaderLogo>
             }
             menu={
