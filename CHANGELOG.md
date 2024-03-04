@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.38.1](https://github.com/taskany-inc/crew/compare/v0.38.0...v0.38.1) (2024-03-04)
+
+
+### Bug Fixes
+
+* insensitive device search ([12d50ff](https://github.com/taskany-inc/crew/commit/12d50ffb8b6d5e8fb8223cb50574080d7fd209c9))
+
 ## [0.38.0](https://github.com/taskany-inc/crew/compare/v0.37.1...v0.38.0) (2024-03-01)
 
 
