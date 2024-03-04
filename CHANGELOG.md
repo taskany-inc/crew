@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.39.0](https://github.com/taskany-inc/crew/compare/v0.38.0...v0.39.0) (2024-03-04)
+
+
+### Features
+
+* filter vacancy update ([37f62a3](https://github.com/taskany-inc/crew/commit/37f62a363cd3f6b3b7b9485e1d1806497530c5e5))
+
+
+### Bug Fixes
+
+* insensitive device search ([12d50ff](https://github.com/taskany-inc/crew/commit/12d50ffb8b6d5e8fb8223cb50574080d7fd209c9))
+
 ## [0.38.0](https://github.com/taskany-inc/crew/compare/v0.37.1...v0.38.0) (2024-03-01)
 
 
