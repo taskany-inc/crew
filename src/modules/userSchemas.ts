@@ -42,6 +42,7 @@ export const getUserListSchema = z.object({
     rolesQuery: z.array(z.string()).optional(),
     supervisorsQuery: z.array(z.string()).optional(),
     activeQuery: z.boolean().optional(),
+    cursor: z.string().nullish(),
     take: z
         .number()
         .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
