@@ -246,6 +246,8 @@ export const restRouter = router({
                         status: z.nativeEnum(VacancyStatus),
                         unit: z.number().nullable(),
                         grade: z.number().nullable(),
+                        activeSince: z.date().nullable(),
+                        timeAtWork: z.number(),
                     }),
                 ),
                 count: z.number(),
