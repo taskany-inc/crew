@@ -37,5 +37,9 @@
     "Vacancy is updated": "",
     "Updating the vacancy...": "",
     "Vacancy is archived": "",
-    "Archiving the vacancy...": ""
+    "Archiving the vacancy...": "",
+    "Deleting the service...": "",
+    "Service is deleted": "",
+    "Device is deleted": "",
+    "Deleting the device...": ""
 }

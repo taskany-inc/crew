@@ -1,6 +1,6 @@
 import { prisma } from '../utils/prisma';
 
-import { GetServiceList, CreateService } from './serviceSchemas';
+import { GetServiceList, CreateService, DeleteUserService } from './serviceSchemas';
 import { UserServiceInfo } from './serviceTypes';
 
 export const serviceMethods = {
@@ -14,5 +14,11 @@ export const serviceMethods = {
 
     getUserServices: (id: string): Promise<UserServiceInfo[]> => {
         return prisma.userService.findMany({ where: { userId: id }, include: { service: true } });
+    },
+
+    deleteUserService: (data: DeleteUserService) => {
+        return prisma.userService.delete({
+            where: { serviceName_serviceId: { serviceName: data.serviceName, serviceId: data.serviceId } },
+        });
     },
 };

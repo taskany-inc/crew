@@ -1,6 +1,6 @@
 import { nullable } from '@taskany/bricks';
 import { gapM, gapS } from '@taskany/colors';
-import { User } from 'prisma/prisma-client';
+import { User, UserRole } from 'prisma/prisma-client';
 import styled from 'styled-components';
 
 import { NarrowSection } from '../NarrowSection';
@@ -8,6 +8,7 @@ import { AddDeviceToUserForm } from '../AddDeviceToUserForm/AddDeviceToUserForm'
 import { UserMeta } from '../../modules/userTypes';
 import { trpc } from '../../trpc/trpcClient';
 import { UserDeviceListItem } from '../UserDeviceListItem';
+import { UserDeviceMenu } from '../UserDeviceMenu/UserDeviceMenu';
 
 import { tr } from './UserDevices.i18n';
 
@@ -18,9 +19,14 @@ const StyleDevicesList = styled.div`
     margin-bottom: ${gapM};
 `;
 
-type UserDevicesProps = {
+const StyledRow = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 28px 28px;
+`;
+
+interface UserDevicesProps {
     user: User & UserMeta;
-};
+}
 
 export const UserDevices = ({ user }: UserDevicesProps) => {
     const userDeviceQuery = trpc.device.getUserDevices.useQuery(user.id);
@@ -29,10 +35,13 @@ export const UserDevices = ({ user }: UserDevicesProps) => {
         <NarrowSection title={tr('Corporate devices')}>
             <StyleDevicesList>
                 {userDeviceQuery.data?.map((userDevices) => (
-                    <UserDeviceListItem
-                        key={`${userDevices.deviceName}-${userDevices.userId}`}
-                        userDevice={userDevices}
-                    />
+                    <StyledRow key={userDevices.deviceId}>
+                        <UserDeviceListItem userDevice={userDevices} />
+
+                        {nullable(user?.role === UserRole.ADMIN, () => (
+                            <UserDeviceMenu device={userDevices} />
+                        ))}
+                    </StyledRow>
                 ))}
             </StyleDevicesList>
             {nullable(user.meta.isEditable, () => (

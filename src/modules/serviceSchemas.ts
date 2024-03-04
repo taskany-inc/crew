@@ -31,3 +31,10 @@ export const getServiceListSchema = z.object({
         .optional(),
 });
 export type GetServiceList = z.infer<typeof getServiceListSchema>;
+
+export const deleteUserServiceSchema = z.object({
+    serviceName: z.string(),
+    serviceId: z.string(),
+});
+
+export type DeleteUserService = z.infer<typeof deleteUserServiceSchema>;

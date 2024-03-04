@@ -37,5 +37,9 @@
     "Vacancy is updated": "Вакансия обновлена",
     "Updating the vacancy...": "Обновляем вакансию...",
     "Vacancy is archived": "Вакансия перенесена в архив",
-    "Archiving the vacancy...": "Архивируем вакансию..."
+    "Archiving the vacancy...": "Архивируем вакансию...",
+    "Deleting the service...": "Удаление сервиса...",
+    "Service is deleted": "Сервис удален",
+    "Device is deleted": "Устройство удалено",
+    "Deleting the device...": "Удаление устройства..."
 }
