@@ -6,6 +6,7 @@ import { SessionUser } from '../utils/auth';
 import { suggestionsTake } from '../utils/suggestions';
 import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
+import { defaultTake } from '../utils';
 
 import {
     ExternalUserUpdate,
@@ -208,19 +209,37 @@ export const userMethods = {
     },
 
     getList: async (data: GetUserList) => {
-        const where = usersWhere(data);
+        const { cursor, take, ...restData } = data;
+
+        const where = usersWhere(restData);
 
         const counter = await prisma.user.count({ where });
 
         const total = await prisma.user.count({});
 
+        if (!counter) {
+            return {
+                items: [],
+                counter,
+                total,
+            };
+        }
+
         const users = await prisma.user.findMany({
             where,
-            take: data.take,
+            take: (take || defaultTake) + 1,
             orderBy: { active: 'desc' },
+            cursor: cursor ? { id: cursor } : undefined,
         });
 
-        return { users, total, counter };
+        let nextCursor: typeof cursor | undefined;
+
+        if (users.length > (take || defaultTake)) {
+            const nextItem = users.pop();
+            nextCursor = nextItem?.id;
+        }
+
+        return { users, total, nextCursor, counter };
     },
 
     getMemberships: (id: string): Promise<MembershipInfo[]> => {

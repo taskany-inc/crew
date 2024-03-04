@@ -3,11 +3,10 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 import { prisma } from '../utils/prisma';
+import { defaultTake } from '../utils';
 
 import { CreateVacancy, GetVacancyList, EditVacancy } from './vacancySchemas';
 import { tr } from './modules.i18n';
-
-const defaultTake = 20;
 
 export const vacancyMethods = {
     create: (input: CreateVacancy) => {
