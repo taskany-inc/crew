@@ -1,6 +1,6 @@
 import { prisma } from '../utils/prisma';
 
-import { CreateDevice, GetDeviceList } from './deviceSchemas';
+import { CreateDevice, DeleteUserDevice, GetDeviceList } from './deviceSchemas';
 import { UserDeviceInfo } from './deviceTypes';
 
 export const deviceMethods = {
@@ -15,5 +15,10 @@ export const deviceMethods = {
     },
     getUserDevices: (id: string): Promise<UserDeviceInfo[]> => {
         return prisma.userDevice.findMany({ where: { userId: id }, include: { device: true } });
+    },
+    deleteUserDevice: (data: DeleteUserDevice) => {
+        return prisma.userDevice.delete({
+            where: { deviceName_deviceId: { deviceName: data.deviceName, deviceId: data.deviceId } },
+        });
     },
 };

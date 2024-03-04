@@ -1,7 +1,7 @@
 import { trpc } from '../trpc/trpcClient';
 import { notifyPromise } from '../utils/notifications/notifyPromise';
 
-import { CreateService } from './serviceSchemas';
+import { CreateService, DeleteUserService } from './serviceSchemas';
 
 export const useServiceMutations = () => {
     const utils = trpc.useContext();
@@ -13,8 +13,18 @@ export const useServiceMutations = () => {
         },
     });
 
+    const deleteUserService = trpc.service.deleteUserService.useMutation({
+        onSuccess: () => {
+            utils.user.getById.invalidate();
+            utils.service.invalidate();
+        },
+    });
+
     return {
         addServiceToUser: (data: CreateService) =>
             notifyPromise(addServiceToUser.mutateAsync(data), 'serviceAddToUser'),
+
+        deleteUserService: (data: DeleteUserService) =>
+            notifyPromise(deleteUserService.mutateAsync(data), 'serviceDelete'),
     };
 };

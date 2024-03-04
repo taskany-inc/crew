@@ -47,5 +47,7 @@
     "Team": "",
     "Only admins can create or add roles": "",
     "Title must be longer than {min} symbol": "",
-    "Only admins can create groups": ""
+    "Only admins can create groups": "",
+    "Only admins can delete devices": "",
+    "Only admins can delete services": ""
 }

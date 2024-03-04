@@ -13,8 +13,8 @@ export type NotificationNamespaces =
     | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move'>
     | NamespacedAction<'vacancy', 'Create' | 'Update' | 'Archive'>
     | NamespacedAction<'role', 'AddToMembership' | 'RemoveFromMembership'>
-    | NamespacedAction<'service', 'AddToUser'>
-    | NamespacedAction<'device', 'AddToUser'>
+    | NamespacedAction<'service', 'AddToUser' | 'Delete'>
+    | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'bonusPoints', 'Change'>
     | 'sendFeedback';
 
@@ -99,6 +99,14 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         vacancyArchive: {
             success: tr('Vacancy is archived'),
             loading: tr('Archiving the vacancy...'),
+        },
+        serviceDelete: {
+            success: tr('Service is deleted'),
+            loading: tr('Deleting the service...'),
+        },
+        deviceDelete: {
+            success: tr('Device is deleted'),
+            loading: tr('Deleting the device...'),
         },
     };
 
