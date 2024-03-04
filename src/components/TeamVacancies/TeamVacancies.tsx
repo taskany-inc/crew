@@ -25,7 +25,7 @@ type TeamVacanciesProps = {
 };
 
 export const TeamVacancies = ({ group }: TeamVacanciesProps) => {
-    const vacanciesQuery = trpc.vacancy.getList.useQuery({ groupId: group.id, archived: false });
+    const vacanciesQuery = trpc.vacancy.getList.useQuery({ teamIds: [group.id], archived: false });
 
     const createVacancyModalVisibility = useBoolean(false);
 

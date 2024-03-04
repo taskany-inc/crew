@@ -1,5 +1,6 @@
 import { Vacancy, Prisma, VacancyStatus } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
 
 import { prisma } from '../utils/prisma';
 
@@ -24,7 +25,19 @@ export const vacancyMethods = {
     },
 
     getList: async (data: GetVacancyList) => {
-        const { searchByTeam, search, hireStreamIds, take, skip, statuses, ...restData } = data;
+        const {
+            hiringManagerEmails,
+            hrEmails,
+            teamIds,
+            closedAt,
+            searchByTeam,
+            search,
+            hireStreamIds,
+            take,
+            skip,
+            statuses,
+            ...restData
+        } = data;
 
         const where: Prisma.VacancyWhereInput = { ...restData };
 
@@ -47,6 +60,34 @@ export const vacancyMethods = {
 
         if (statuses && statuses.length) {
             where.status = { in: statuses };
+        }
+
+        if (hiringManagerEmails && hiringManagerEmails.length) {
+            where.hiringManager = {
+                OR: [
+                    { email: { in: hiringManagerEmails } },
+                    { services: { some: { serviceName: 'Email', serviceId: { in: hiringManagerEmails } } } },
+                ],
+            };
+        }
+
+        if (hrEmails && hrEmails.length) {
+            where.hiringManager = {
+                OR: [
+                    { email: { in: hrEmails } },
+                    { services: { some: { serviceName: 'Email', serviceId: { in: hrEmails } } } },
+                ],
+            };
+        }
+
+        if (teamIds && teamIds.length) {
+            where.groupId = { in: teamIds };
+        }
+
+        if (closedAt) {
+            const datetime = z.string().datetime();
+
+            where.closedAt = { gte: datetime.parse(closedAt.startDate), lte: datetime.parse(closedAt.endDate) };
         }
 
         const vacancies = await prisma.vacancy.findMany({
