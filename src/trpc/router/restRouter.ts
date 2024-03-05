@@ -169,13 +169,15 @@ export const restRouter = router({
     getGroupList: restProcedure
         .meta({
             openapi: {
-                method: 'GET',
+                method: 'POST',
                 path: '/groups/list',
             },
         })
         .input(
             z.object({
                 search: z.string().optional(),
+                hasVacancies: z.boolean().optional(),
+                filter: z.array(z.string()).optional(),
                 take: z
                     .number()
                     .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })

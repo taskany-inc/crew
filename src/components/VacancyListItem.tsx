@@ -23,7 +23,7 @@ export const VacancyListItem = ({ vacancy }: VacancyListItemProps) => {
     return (
         <StyledWrapper>
             <IconSearchOutline size="s" color={gray9} />
-            <Link href={`${config.hireIntegration.url}/candidates?vacancyId=${vacancy.id}`} target="_blank">
+            <Link href={`${config.hireIntegration.url}/candidates?vacancyIds=${vacancy.id}`} target="_blank">
                 <Text>{vacancy.name}</Text>
             </Link>
         </StyledWrapper>
