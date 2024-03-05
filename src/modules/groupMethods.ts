@@ -141,13 +141,18 @@ export const groupMethods = {
         return prisma.group.findMany({ where: { parentId: id, archived: false } });
     },
 
-    getList: ({ search, filter, take = 10, skip }: GetGroupList) => {
+    getList: ({ search, filter, take = 10, skip, hasVacancies }: GetGroupList) => {
+        const where: Prisma.GroupWhereInput = {
+            name: { contains: search, mode: 'insensitive' },
+            archived: false,
+            id: { notIn: [...(filter || [])] },
+        };
+
+        if (hasVacancies) {
+            where.vacancies = { some: {} };
+        }
         return prisma.group.findMany({
-            where: {
-                name: { contains: search, mode: 'insensitive' },
-                archived: false,
-                id: { notIn: [...(filter || [])] },
-            },
+            where,
             take,
             skip,
         });

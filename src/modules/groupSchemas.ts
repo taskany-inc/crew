@@ -25,6 +25,7 @@ export type MoveGroup = z.infer<typeof moveGroupSchema>;
 export const getGroupListSchema = z.object({
     search: z.string().optional(),
     filter: z.array(z.string()).optional(),
+    hasVacancies: z.boolean().optional(),
     take: z
         .number()
         .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
