@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { NarrowSection } from '../NarrowSection';
 import { useGroupMutations } from '../../modules/groupHooks';
 import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
-import { GroupListItemEditable } from '../GroupListItemEditable';
+import { GroupListItem } from '../GroupListItem';
 
 import { tr } from './TeamChildren.i18n';
 
@@ -16,10 +16,10 @@ const StyledChildrenList = styled.div`
     margin-bottom: ${gapM};
 `;
 
-type GroupTeamsProps = {
+interface GroupTeamsProps {
     groupId: string;
     groupChildren: Group[];
-};
+}
 
 export const TeamChildren = ({ groupId, groupChildren }: GroupTeamsProps) => {
     const { moveGroup } = useGroupMutations();
@@ -32,7 +32,7 @@ export const TeamChildren = ({ groupId, groupChildren }: GroupTeamsProps) => {
         <NarrowSection title={tr('Teams')}>
             <StyledChildrenList>
                 {groupChildren.map((group) => (
-                    <GroupListItemEditable key={group.id} groupName={group.name} groupId={group.id} />
+                    <GroupListItem key={group.id} groupId={group.id} groupName={group.name} />
                 ))}
             </StyledChildrenList>
 
