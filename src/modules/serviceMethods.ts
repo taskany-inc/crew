@@ -18,7 +18,10 @@ export const serviceMethods = {
 
     deleteUserService: (data: DeleteUserService) => {
         return prisma.userService.delete({
-            where: { serviceName_serviceId: { serviceName: data.serviceName, serviceId: data.serviceId } },
+            where: {
+                userId: data.userId,
+                serviceName_serviceId: { serviceName: data.serviceName, serviceId: data.serviceId },
+            },
         });
     },
 };

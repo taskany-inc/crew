@@ -35,9 +35,9 @@ export const DeleteUserDeviceModal = ({ visible, device, onClose }: DeleteUserDe
     const { deleteUserDevice } = useDeviceMutations();
 
     const onDeleteClick = useCallback(async () => {
-        await deleteUserDevice({ deviceId: device.deviceId, deviceName: device.deviceName });
+        await deleteUserDevice({ userId: device.userId, deviceId: device.deviceId, deviceName: device.deviceName });
         onClose();
-    }, [deleteUserDevice, device.deviceId, device.deviceName, onClose]);
+    }, [deleteUserDevice, device.userId, device.deviceId, device.deviceName, onClose]);
 
     return (
         <Modal view="danger" visible={visible} onClose={onClose} width={500}>

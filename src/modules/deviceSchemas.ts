@@ -33,6 +33,7 @@ export const getDeviceListSchema = z.object({
 export type GetDeviceList = z.infer<typeof getDeviceListSchema>;
 
 export const deleteUserDeviceSchema = z.object({
+    userId: z.string(),
     deviceId: z.string(),
     deviceName: z.string(),
 });

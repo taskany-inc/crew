@@ -26,7 +26,6 @@ export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser?
     return {
         ...group,
         meta: {
-            create: groupAccess.create(sessionUser).allowed,
             isEditable: groupAccess.isEditable(sessionUser).allowed,
         },
     };

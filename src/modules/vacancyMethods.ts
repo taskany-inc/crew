@@ -4,9 +4,11 @@ import { z } from 'zod';
 
 import { prisma } from '../utils/prisma';
 import { defaultTake } from '../utils';
+import { SessionUser } from '../utils/auth';
 
 import { CreateVacancy, GetVacancyList, EditVacancy } from './vacancySchemas';
 import { tr } from './modules.i18n';
+import { addCalculatedGroupFields } from './groupMethods';
 
 export const vacancyMethods = {
     create: (input: CreateVacancy) => {
@@ -23,7 +25,7 @@ export const vacancyMethods = {
         return prisma.vacancy.create({ data });
     },
 
-    getList: async (data: GetVacancyList) => {
+    getList: async (data: GetVacancyList, sessionUser?: SessionUser) => {
         const {
             hiringManagerEmails,
             hrEmails,
@@ -99,7 +101,11 @@ export const vacancyMethods = {
         const count = await prisma.vacancy.count({ where });
         const total = await prisma.vacancy.count();
 
-        return { vacancies, count, total };
+        return {
+            vacancies: vacancies.map((v) => ({ ...v, group: addCalculatedGroupFields(v.group, sessionUser) })),
+            count,
+            total,
+        };
     },
 
     getById: async (id: string) => {

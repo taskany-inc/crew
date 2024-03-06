@@ -2,10 +2,10 @@ import { UserRole } from 'prisma/prisma-client';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import KeycloakProvider from 'next-auth/providers/keycloak';
 import CredentialsProvider from 'next-auth/providers/credentials';
-// eslint-disable-next-line camelcase
 import { type NextAuthOptions } from 'next-auth';
 
 import { config } from '../config';
+import { GlobalAccess, createGlobalAccessObject } from '../modules/globalAccess';
 
 import { prisma } from './prisma';
 import { verifyPassword } from './passwords';
@@ -104,6 +104,7 @@ export const authOptions: NextAuthOptions = {
             return {
                 ...session,
                 user: { id: dbUser.id, name: dbUser.name, email: dbUser.email, role: dbUser.role },
+                access: createGlobalAccessObject(dbUser.role),
             };
         },
 
@@ -129,5 +130,6 @@ export interface SessionUser {
 declare module 'next-auth' {
     interface Session {
         user: SessionUser;
+        access: GlobalAccess;
     }
 }

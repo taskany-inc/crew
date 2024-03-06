@@ -11,10 +11,11 @@ import {
 } from '../../modules/groupSchemas';
 import { groupMethods } from '../../modules/groupMethods';
 import { groupAccess } from '../../modules/groupAccess';
+import { globalAccess } from '../../modules/globalAccess';
 
 export const groupRouter = router({
     create: protectedProcedure.input(createGroupSchema).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+        accessCheck(globalAccess.group.create(ctx.session.user.role));
         return groupMethods.create(input);
     }),
 
@@ -33,7 +34,8 @@ export const groupRouter = router({
         return groupMethods.delete(input);
     }),
 
-    move: protectedProcedure.input(moveGroupSchema).mutation(({ input }) => {
+    move: protectedProcedure.input(moveGroupSchema).mutation(({ input, ctx }) => {
+        accessCheck(groupAccess.isEditable(ctx.session.user));
         return groupMethods.move(input);
     }),
 
