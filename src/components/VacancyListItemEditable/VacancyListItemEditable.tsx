@@ -12,9 +12,9 @@ import { UpdateVacancyModal } from '../UpdateVacancyModal/UpdateVacancyModal';
 
 import { tr } from './VacancyListItemEditable.i18n';
 
-type VacancyListItemEditableProps = {
+interface VacancyListItemEditableProps {
     vacancy: Vacancy & VacancyGroup & VacancyHr & VacancyHiringManager;
-};
+}
 
 const StyledRow = styled.div`
     display: grid;

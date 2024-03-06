@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-export type HireStream = {
+export interface HireStream {
     name: string;
     id: number;
-};
+}
 
 export interface HireUser {
     id: number;

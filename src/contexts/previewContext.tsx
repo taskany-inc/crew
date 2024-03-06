@@ -2,13 +2,13 @@ import { useMemo, createContext, useContext, useState, FC, PropsWithChildren } f
 
 export const noop = (): void => {};
 
-type PreviewContext = {
+interface PreviewContext {
     showUserPreview: (userId: string) => void;
     showGroupPreview: (groupId: string) => void;
     userId?: string;
     groupId?: string;
     hidePreview: () => void;
-};
+}
 
 export const previewContext = createContext<PreviewContext>({
     showUserPreview: noop,

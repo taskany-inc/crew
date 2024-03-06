@@ -9,9 +9,9 @@ import { pages } from '../hooks/useRouter';
 
 import { Link } from './Link';
 
-type GroupBreadcrumbListItemProps = {
+interface GroupBreadcrumbListItemProps {
     breadcrumb: Group;
-};
+}
 
 const StyledWrapper = styled.div`
     display: flex;

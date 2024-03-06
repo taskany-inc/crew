@@ -11,12 +11,12 @@ import { SearchFilter } from '../SearchFilter';
 
 import { tr } from './TeamPageFiltersPanel.i18n';
 
-type TeamPageFilterPanelProps = {
+interface TeamPageFilterPanelProps {
     children?: ReactNode;
     loading?: boolean;
     total?: number;
     counter?: number;
-};
+}
 
 export const TeamPageFiltersPanel = ({ children, loading, total = 0, counter = 0 }: TeamPageFilterPanelProps) => {
     return (

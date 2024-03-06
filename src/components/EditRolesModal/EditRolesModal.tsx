@@ -11,11 +11,11 @@ import { GroupListItem } from '../GroupListItem';
 
 import { tr } from './EditRolesModal.i18n';
 
-type EditRolesModalProps = {
+interface EditRolesModalProps {
     membership: MembershipInfo;
     visible: boolean;
     onClose: VoidFunction;
-};
+}
 
 export const StyledModalContent = styled(ModalContent)`
     display: flex;

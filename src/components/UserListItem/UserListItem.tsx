@@ -10,9 +10,9 @@ import { UserPic } from '../UserPic';
 
 import { tr } from './UserListItem.i18n';
 
-type UserListItemProps = {
+interface UserListItemProps {
     user: User;
-};
+}
 
 const StyledWrapper = styled.div`
     display: flex;

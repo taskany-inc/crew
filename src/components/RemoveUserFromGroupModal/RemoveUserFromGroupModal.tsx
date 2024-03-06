@@ -19,11 +19,11 @@ import { GroupListItem } from '../GroupListItem';
 
 import { tr } from './RemoveUserFromGroupModal.i18n';
 
-type RemoveUserFromGroupModalProps = {
+interface RemoveUserFromGroupModalProps {
     visible: boolean;
     membership: MembershipInfo;
     onClose: VoidFunction;
-};
+}
 
 const StyledInfoWrapper = styled.div`
     display: flex;

@@ -119,12 +119,12 @@ export const authOptions: NextAuthOptions = {
     },
 };
 
-export type SessionUser = {
+export interface SessionUser {
     id: string;
     name: string | null;
     email: string;
     role: UserRole;
-};
+}
 
 declare module 'next-auth' {
     interface Session {

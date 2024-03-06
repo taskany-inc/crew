@@ -23,9 +23,9 @@ import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './TeamProfilePreview.i18n';
 
-type UserProps = {
+interface UserProps {
     groupId: string;
-};
+}
 
 const StyledModalPreview = styled(ModalPreview)`
     display: flex;

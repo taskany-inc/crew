@@ -7,9 +7,9 @@ import { MembershipInfo } from '../modules/userTypes';
 import { UserListItem } from './UserListItem/UserListItem';
 import { MembershipEditMenu } from './MembershipEditMenu/MembershipEditMenu';
 
-type MembershipUserListItemEditableProps = {
+interface MembershipUserListItemEditableProps {
     membership: MembershipInfo;
-};
+}
 
 const StyledRow = styled.div`
     display: grid;

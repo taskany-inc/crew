@@ -15,9 +15,9 @@ const StyledUserList = styled.div`
     margin-bottom: ${gapM};
 `;
 
-type TeamPeopleProps = {
+interface TeamPeopleProps {
     groupId: string;
-};
+}
 
 export const TeamPeople = ({ groupId }: TeamPeopleProps) => {
     const membershipsQuery = trpc.group.getMemberships.useQuery(groupId);

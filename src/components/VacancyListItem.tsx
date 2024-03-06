@@ -8,9 +8,9 @@ import { config } from '../config';
 
 import { Link } from './Link';
 
-type VacancyListItemProps = {
+interface VacancyListItemProps {
     vacancy: Vacancy;
-};
+}
 
 const StyledWrapper = styled.div`
     display: flex;

@@ -4,18 +4,18 @@ import { Nullish } from '../utils/types';
 
 import { GroupSupervisor } from './groupTypes';
 
-export type VacancyGroup = {
+export interface VacancyGroup {
     group: Group & GroupSupervisor;
-};
+}
 
-export type VacancyUser = {
+export interface VacancyUser {
     user: Nullish<User>;
-};
+}
 
-export type VacancyHr = {
+export interface VacancyHr {
     hr: User;
-};
+}
 
-export type VacancyHiringManager = {
+export interface VacancyHiringManager {
     hiringManager: User;
-};
+}

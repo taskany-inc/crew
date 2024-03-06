@@ -8,9 +8,9 @@ import { UserServiceInfo } from '../modules/serviceTypes';
 
 import { Link } from './Link';
 
-type UserServiceListItemProps = {
+interface UserServiceListItemProps {
     userService: UserServiceInfo;
-};
+}
 
 const StyledWrapper = styled.div`
     display: flex;
