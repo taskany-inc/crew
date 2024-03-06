@@ -1,10 +1,6 @@
-import { useSession } from 'next-auth/react';
-import { UserRole } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { ModalPreview, Text, nullable } from '@taskany/bricks';
-import { Badge } from '@taskany/bricks/harmony';
-import { gapS, gray10, gray8, gray9 } from '@taskany/colors';
-import { IconBinOutline } from '@taskany/icons';
+import { gapS, gray9 } from '@taskany/colors';
 
 import { PreviewHeader } from '../PreviewHeader/PreviewHeader';
 import { PreviewContent } from '../PreviewContent';
@@ -18,8 +14,8 @@ import { TransferGroupForm } from '../TransferGroupForm/TransferGroupForm';
 import { TeamPeople } from '../TeamPeople/TeamPeople';
 import { TeamVacancies } from '../TeamVacancies/TeamVacancies';
 import { ExportTeamMembers } from '../ExportTeamMembers/ExportTeamMembers';
-import { ArchiveGroupModal } from '../ArchiveGroup/ArchiveGroup';
-import { useBoolean } from '../../hooks/useBoolean';
+import { ArchiveGroupForm } from '../ArchiveGroupForm/ArchiveGroupForm';
+import { Restricted } from '../Restricted';
 
 import { tr } from './TeamProfilePreview.i18n';
 
@@ -37,22 +33,10 @@ const StyledSupervisorText = styled(Text)`
     gap: ${gapS};
 `;
 
-const StyledBadge = styled(Badge)`
-    cursor: pointer;
-    &:hover {
-        color: ${gray10};
-    }
-    color: ${gray8};
-    padding: 0;
-`;
-
-const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
-    const session = useSession();
+export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const groupQuery = trpc.group.getById.useQuery(groupId);
     const childrenQuery = trpc.group.getChildren.useQuery(groupId);
-    const archiveGroupModalVisibility = useBoolean(false);
-    const user = session.data?.user;
 
     return (
         <>
@@ -69,28 +53,24 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                             </NarrowSection>
                         ))}
 
-                        <TeamChildren groupId={group.id} groupChildren={childrenQuery.data ?? []} />
+                        <TeamChildren
+                            groupId={group.id}
+                            groupChildren={childrenQuery.data ?? []}
+                            isEditable={group.meta.isEditable}
+                        />
 
-                        <TeamPeople groupId={group.id} />
+                        <TeamPeople groupId={group.id} isEditable={group.meta.isEditable} />
+
                         <TeamVacancies group={group} />
 
                         <NarrowSection>
-                            <TransferGroupForm group={group} />
+                            <Restricted visible={group.meta.isEditable}>
+                                <TransferGroupForm group={group} />
+                            </Restricted>
 
-                            <ArchiveGroupModal
-                                visible={archiveGroupModalVisibility.value}
-                                groupId={group.id}
-                                groupName={group.name}
-                                onClose={archiveGroupModalVisibility.setFalse}
-                            />
-                            {nullable(user?.role === UserRole.ADMIN && !childrenQuery.data?.length, () => (
-                                <StyledBadge
-                                    onClick={archiveGroupModalVisibility.setTrue}
-                                    iconLeft={<IconBinOutline size="xs" />}
-                                    text={tr('Archive group')}
-                                    weight="regular"
-                                />
-                            ))}
+                            <Restricted visible={group.meta.isEditable && !childrenQuery.data?.length}>
+                                <ArchiveGroupForm groupId={group.id} groupName={group.name} />
+                            </Restricted>
 
                             <ExportTeamMembers group={group} />
                         </NarrowSection>
@@ -100,5 +80,3 @@ const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
         </>
     );
 };
-
-export default TeamProfilePreview;

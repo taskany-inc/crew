@@ -1,5 +1,5 @@
+import { useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { UserRole } from 'prisma/prisma-client';
 import { Button, Dropdown, MenuItem } from '@taskany/bricks';
 import { IconDownSmallSolid, IconUpSmallSolid } from '@taskany/icons';
 
@@ -15,12 +15,18 @@ export const PageHeaderActionButton = () => {
     const createUserModalVisibility = useBoolean(false);
     const createGroupModalVisibility = useBoolean(false);
 
-    if (data?.user.role !== UserRole.ADMIN) return null;
+    const items: { title: string; action: VoidFunction }[] = useMemo(() => {
+        const result = [];
+        if (data?.access.user.create) {
+            result.push({ title: tr('User'), action: createUserModalVisibility.setTrue });
+        }
+        if (data?.access.group.create) {
+            result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
+        }
+        return result;
+    }, [data?.access, createGroupModalVisibility.setTrue, createUserModalVisibility.setTrue]);
 
-    const items = [
-        { title: tr('User'), action: createUserModalVisibility.setTrue },
-        { title: tr('Team'), action: createGroupModalVisibility.setTrue },
-    ];
+    if (items.length === 0) return null;
 
     return (
         <>

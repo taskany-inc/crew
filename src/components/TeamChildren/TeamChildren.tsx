@@ -6,6 +6,7 @@ import { NarrowSection } from '../NarrowSection';
 import { useGroupMutations } from '../../modules/groupHooks';
 import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 import { GroupListItem } from '../GroupListItem';
+import { Restricted } from '../Restricted';
 
 import { tr } from './TeamChildren.i18n';
 
@@ -19,9 +20,10 @@ const StyledChildrenList = styled.div`
 interface GroupTeamsProps {
     groupId: string;
     groupChildren: Group[];
+    isEditable: boolean;
 }
 
-export const TeamChildren = ({ groupId, groupChildren }: GroupTeamsProps) => {
+export const TeamChildren = ({ groupId, groupChildren, isEditable }: GroupTeamsProps) => {
     const { moveGroup } = useGroupMutations();
 
     const onSubmit = async (group: Group) => {
@@ -36,7 +38,9 @@ export const TeamChildren = ({ groupId, groupChildren }: GroupTeamsProps) => {
                 ))}
             </StyledChildrenList>
 
-            <InlineGroupSelectForm triggerText={tr('Add team')} actionText={tr('Add')} onSubmit={onSubmit} />
+            <Restricted visible={isEditable}>
+                <InlineGroupSelectForm triggerText={tr('Add team')} actionText={tr('Add')} onSubmit={onSubmit} />
+            </Restricted>
         </NarrowSection>
     );
 };

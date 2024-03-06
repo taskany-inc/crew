@@ -6,6 +6,7 @@ import { MembershipInfo } from '../modules/userTypes';
 
 import { UserListItem } from './UserListItem/UserListItem';
 import { MembershipEditMenu } from './MembershipEditMenu/MembershipEditMenu';
+import { Restricted } from './Restricted';
 
 interface MembershipUserListItemEditableProps {
     membership: MembershipInfo;
@@ -30,7 +31,9 @@ export const MembershipUserListItemEditable = ({ membership }: MembershipUserLis
                 {membership.percentage}
             </Text>
 
-            <MembershipEditMenu membership={membership} />
+            <Restricted visible={membership.group.meta.isEditable}>
+                <MembershipEditMenu membership={membership} />
+            </Restricted>
         </StyledRow>
     );
 };

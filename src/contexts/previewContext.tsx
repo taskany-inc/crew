@@ -1,4 +1,4 @@
-import { useMemo, createContext, useContext, useState, FC, PropsWithChildren } from 'react';
+import { useMemo, createContext, useContext, useState, FC, PropsWithChildren, useCallback } from 'react';
 
 export const noop = (): void => {};
 
@@ -20,6 +20,11 @@ export const PreviewContextProvider: FC<PropsWithChildren> = ({ children }) => {
     const [userId, setUserId] = useState<string>();
     const [groupId, setGroupId] = useState<string>();
 
+    const hidePreview = useCallback(() => {
+        setGroupId(undefined);
+        setUserId(undefined);
+    }, []);
+
     const value: PreviewContext = useMemo(
         () => ({
             showUserPreview: (id: string) => {
@@ -32,13 +37,10 @@ export const PreviewContextProvider: FC<PropsWithChildren> = ({ children }) => {
             },
             userId,
             groupId,
-            hidePreview: () => {
-                setGroupId(undefined);
-                setUserId(undefined);
-            },
+            hidePreview,
         }),
 
-        [userId, groupId],
+        [userId, groupId, hidePreview],
     );
 
     return <previewContext.Provider value={value}>{children}</previewContext.Provider>;

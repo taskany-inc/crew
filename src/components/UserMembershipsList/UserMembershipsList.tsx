@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { Group, User } from 'prisma/prisma-client';
+import { useSession } from 'next-auth/react';
+import { Group, User, UserRole } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { gapM, gapS } from '@taskany/colors';
 
@@ -8,6 +9,7 @@ import { UserMemberships } from '../../modules/userTypes';
 import { MembershipGroupListItemEditable } from '../MembershipGroupListItemEditable';
 import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 import { useUserMutations } from '../../modules/userHooks';
+import { Restricted } from '../Restricted';
 
 import { tr } from './UserMembershipsList.i18n';
 
@@ -24,6 +26,7 @@ interface UserMembershipsProps {
 }
 
 export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
+    const session = useSession();
     const { addUserToGroup } = useUserMutations();
 
     const onAddUserToTeam = async (group: Group) => {
@@ -41,12 +44,16 @@ export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
                 ))}
             </StyledMembershipList>
 
-            <InlineGroupSelectForm
-                triggerText={tr('Add team')}
-                actionText={tr('Add')}
-                filter={groupFilter}
-                onSubmit={onAddUserToTeam}
-            />
+            {/* TODO: show only groups that user can edit */}
+            {/* https://github.com/taskany-inc/crew/issues/596 */}
+            <Restricted visible={session.data?.user.role === UserRole.ADMIN}>
+                <InlineGroupSelectForm
+                    triggerText={tr('Add team')}
+                    actionText={tr('Add')}
+                    filter={groupFilter}
+                    onSubmit={onAddUserToTeam}
+                />
+            </Restricted>
         </NarrowSection>
     );
 };

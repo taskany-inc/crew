@@ -4,13 +4,14 @@ import { Nullish } from '../utils/types';
 import { Theme } from '../utils/theme';
 
 import { userAccess } from './userAccess';
+import { GroupMeta } from './groupTypes';
 
 export interface UserSettings {
     userId: string;
     theme: Theme;
 }
 
-export type MembershipInfo = Membership & { group: Group; user: User; roles: Role[] };
+export type MembershipInfo = Membership & { group: Group & GroupMeta; user: User; roles: Role[] };
 
 export interface UserMeta {
     meta: Record<keyof typeof userAccess, boolean>;

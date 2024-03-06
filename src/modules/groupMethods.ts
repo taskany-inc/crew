@@ -173,11 +173,12 @@ export const groupMethods = {
         return groups.reverse();
     },
 
-    getMemberships: (id: string): Promise<MembershipInfo[]> => {
-        return prisma.membership.findMany({
+    getMemberships: async (id: string, sessionUser?: SessionUser): Promise<MembershipInfo[]> => {
+        const memberships = await prisma.membership.findMany({
             where: { groupId: id, archived: false },
             include: { group: true, user: true, roles: true },
         });
+        return memberships.map((m) => ({ ...m, group: addCalculatedGroupFields(m.group, sessionUser) }));
     },
 
     getHierarchy: async (id: string) => {
