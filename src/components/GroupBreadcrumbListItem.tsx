@@ -18,6 +18,7 @@ const StyledWrapper = styled.div`
     gap: ${gapS};
     align-items: center;
     flex-wrap: nowrap;
+    margin: ${gapS};
 `;
 
 export const GroupBreadcrumbListItem = ({ breadcrumb }: GroupBreadcrumbListItemProps) => {

@@ -20,7 +20,7 @@ const StyledModalPreview = styled(ModalPreview)`
     flex-direction: column;
 `;
 
-const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
+export const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const userQuery = trpc.user.getById.useQuery(userId);
 
@@ -41,5 +41,3 @@ const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
         </>
     );
 };
-
-export default UserProfilePreview;

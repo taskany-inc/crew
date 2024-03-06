@@ -49,8 +49,8 @@ export const userRouter = router({
         return userMethods.getList(input);
     }),
 
-    getMemberships: protectedProcedure.input(z.string()).query(({ input }) => {
-        return userMethods.getMemberships(input);
+    getMemberships: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        return userMethods.getMemberships(input, ctx.session.user);
     }),
 
     getGroupMembers: protectedProcedure.input(z.string()).query(({ input }) => {

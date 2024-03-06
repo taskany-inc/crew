@@ -1,6 +1,6 @@
 import { nullable } from '@taskany/bricks';
 import { gapM, gapS } from '@taskany/colors';
-import { User, UserRole } from 'prisma/prisma-client';
+import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 
 import { NarrowSection } from '../NarrowSection';
@@ -9,6 +9,7 @@ import { UserMeta } from '../../modules/userTypes';
 import { trpc } from '../../trpc/trpcClient';
 import { UserDeviceListItem } from '../UserDeviceListItem';
 import { UserDeviceMenu } from '../UserDeviceMenu/UserDeviceMenu';
+import { Restricted } from '../Restricted';
 
 import { tr } from './UserDevices.i18n';
 
@@ -38,9 +39,9 @@ export const UserDevices = ({ user }: UserDevicesProps) => {
                     <StyledRow key={userDevices.deviceId}>
                         <UserDeviceListItem userDevice={userDevices} />
 
-                        {nullable(user?.role === UserRole.ADMIN, () => (
+                        <Restricted visible={user.meta.isEditable}>
                             <UserDeviceMenu device={userDevices} />
-                        ))}
+                        </Restricted>
                     </StyledRow>
                 ))}
             </StyleDevicesList>

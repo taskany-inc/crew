@@ -1,4 +1,4 @@
-import { User, UserRole } from 'prisma/prisma-client';
+import { User } from 'prisma/prisma-client';
 import { gapM, gapS } from '@taskany/colors';
 import { nullable } from '@taskany/bricks';
 import styled from 'styled-components';
@@ -11,6 +11,7 @@ import { UserMeta } from '../../modules/userTypes';
 import { trpc } from '../../trpc/trpcClient';
 import { UserServiceInfo } from '../../modules/serviceTypes';
 import { UserServiceMenu } from '../UserServiceMenu/UserServiceMenu';
+import { Restricted } from '../Restricted';
 
 import { tr } from './UserContacts.i18n';
 
@@ -60,9 +61,10 @@ export const UserContacts = ({ user }: UserContactsProps) => {
                 {userServiceQuery.data?.map((userServices) => (
                     <StyledRow key={userServices.serviceId}>
                         <UserServiceListItem userService={userServices} />
-                        {nullable(user?.role === UserRole.ADMIN, () => (
+
+                        <Restricted visible={user.meta.isEditable}>
                             <UserServiceMenu service={userServices} />
-                        ))}
+                        </Restricted>
                     </StyledRow>
                 ))}
             </StyledServicesList>

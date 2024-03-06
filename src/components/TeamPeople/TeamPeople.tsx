@@ -5,6 +5,7 @@ import { NarrowSection } from '../NarrowSection';
 import { trpc } from '../../trpc/trpcClient';
 import { MembershipUserListItemEditable } from '../MembershipUserListItemEditable';
 import { AddUserToTeamForm } from '../AddUserToTeamForm/AddUserToTeamForm';
+import { Restricted } from '../Restricted';
 
 import { tr } from './TeamPeople.i18n';
 
@@ -17,9 +18,10 @@ const StyledUserList = styled.div`
 
 interface TeamPeopleProps {
     groupId: string;
+    isEditable: boolean;
 }
 
-export const TeamPeople = ({ groupId }: TeamPeopleProps) => {
+export const TeamPeople = ({ groupId, isEditable }: TeamPeopleProps) => {
     const membershipsQuery = trpc.group.getMemberships.useQuery(groupId);
 
     return (
@@ -30,7 +32,9 @@ export const TeamPeople = ({ groupId }: TeamPeopleProps) => {
                 ))}
             </StyledUserList>
 
-            <AddUserToTeamForm groupId={groupId} />
+            <Restricted visible={isEditable}>
+                <AddUserToTeamForm groupId={groupId} />
+            </Restricted>
         </NarrowSection>
     );
 };

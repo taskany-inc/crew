@@ -9,6 +9,7 @@ import { ArchiveVacancyModal } from '../ArchiveVacancyModal/ArchiveVacancyModal'
 import { useBoolean } from '../../hooks/useBoolean';
 import { VacancyGroup, VacancyHr, VacancyHiringManager } from '../../modules/vacancyTypes';
 import { UpdateVacancyModal } from '../UpdateVacancyModal/UpdateVacancyModal';
+import { Restricted } from '../Restricted';
 
 import { tr } from './VacancyListItemEditable.i18n';
 
@@ -38,16 +39,20 @@ export const VacancyListItemEditable = ({ vacancy }: VacancyListItemEditableProp
         <StyledRow>
             <VacancyListItem vacancy={vacancy} />
 
-            <Dropdown
-                onChange={(v) => v.action()}
-                items={items}
-                renderTrigger={({ ref, onClick }) => <IconMoreVerticalOutline ref={ref} size="xs" onClick={onClick} />}
-                renderItem={({ item, cursor, index, onClick }) => (
-                    <MenuItem key={item.name} ghost focused={cursor === index} onClick={onClick}>
-                        {item.name}
-                    </MenuItem>
-                )}
-            />
+            <Restricted visible={vacancy.group.meta.isEditable}>
+                <Dropdown
+                    onChange={(v) => v.action()}
+                    items={items}
+                    renderTrigger={({ ref, onClick }) => (
+                        <IconMoreVerticalOutline ref={ref} size="xs" onClick={onClick} />
+                    )}
+                    renderItem={({ item, cursor, index, onClick }) => (
+                        <MenuItem key={item.name} ghost focused={cursor === index} onClick={onClick}>
+                            {item.name}
+                        </MenuItem>
+                    )}
+                />
+            </Restricted>
 
             <UpdateVacancyModal
                 visible={editVacancyModalVisibility.value}

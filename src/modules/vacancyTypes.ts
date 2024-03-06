@@ -2,10 +2,10 @@ import { Group, User } from 'prisma/prisma-client';
 
 import { Nullish } from '../utils/types';
 
-import { GroupSupervisor } from './groupTypes';
+import { GroupMeta, GroupSupervisor } from './groupTypes';
 
 export interface VacancyGroup {
-    group: Group & GroupSupervisor;
+    group: Group & GroupSupervisor & GroupMeta;
 }
 
 export interface VacancyUser {

@@ -9,7 +9,8 @@ import { VacancyListItemEditable } from '../VacancyListItemEditable/VacancyListI
 import { InlineTrigger } from '../InlineTrigger';
 import { CreateVacancyModal } from '../CreateVacancyModal/CreateVacancyModal';
 import { useBoolean } from '../../hooks/useBoolean';
-import { GroupSupervisor } from '../../modules/groupTypes';
+import { GroupMeta, GroupSupervisor } from '../../modules/groupTypes';
+import { Restricted } from '../Restricted';
 
 import { tr } from './TeamVacancies.i18n';
 
@@ -21,7 +22,7 @@ const StyledVacancyList = styled.div`
 `;
 
 interface TeamVacanciesProps {
-    group: Group & GroupSupervisor;
+    group: Group & GroupSupervisor & GroupMeta;
 }
 
 export const TeamVacancies = ({ group }: TeamVacanciesProps) => {
@@ -36,11 +37,15 @@ export const TeamVacancies = ({ group }: TeamVacanciesProps) => {
                     <VacancyListItemEditable key={vacancy.id} vacancy={vacancy} />
                 ))}
             </StyledVacancyList>
-            <InlineTrigger
-                text={tr('Create vacancy')}
-                icon={<IconPlusCircleSolid size="s" />}
-                onClick={createVacancyModalVisibility.setTrue}
-            />
+
+            <Restricted visible={group.meta.isEditable}>
+                <InlineTrigger
+                    text={tr('Create vacancy')}
+                    icon={<IconPlusCircleSolid size="s" />}
+                    onClick={createVacancyModalVisibility.setTrue}
+                />
+            </Restricted>
+
             <CreateVacancyModal
                 group={group}
                 visible={createVacancyModalVisibility.value}
