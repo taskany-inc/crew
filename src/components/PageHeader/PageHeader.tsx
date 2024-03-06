@@ -21,11 +21,14 @@ const HeaderSearch = styled.div`
     margin-left: ${gapM};
 `;
 
-type HeaderLink = { path: string; text: string };
+interface HeaderLink {
+    path: string;
+    text: string;
+}
 
-type UseHeaderMenuResult = {
+interface UseHeaderMenuResult {
     entityListMenuItems: HeaderLink[];
-};
+}
 
 const useHeaderMenu = (): UseHeaderMenuResult => {
     const entityListMenuItems = useMemo(() => {

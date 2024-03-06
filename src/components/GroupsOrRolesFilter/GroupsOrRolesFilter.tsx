@@ -3,10 +3,10 @@ import { useMemo } from 'react';
 
 import { tr } from './GroupsOrRolesFilter.i18n';
 
-type GroupOrRole = {
+interface GroupOrRole {
     id: string;
     name: string;
-};
+}
 
 interface GroupsOrRolesFilterAutoCompleteProps {
     text: string;

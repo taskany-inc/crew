@@ -14,13 +14,13 @@ const StyledRowWrapper = styled.div`
     grid-template-columns: minmax(calc(240px), 20%) max-content;
 `;
 
-type InlineGroupSelectFormProps = {
+interface InlineGroupSelectFormProps {
     triggerText?: string;
     icon?: ReactNode;
     actionText: string;
     onSubmit: (group: Group) => Promise<void>;
     filter?: string[];
-};
+}
 
 export const InlineGroupSelectForm = (props: InlineGroupSelectFormProps) => {
     const [search, setSearch] = useState('');

@@ -15,11 +15,11 @@ import { useVacancyMutations } from '../../modules/vacancyHooks';
 
 import { tr } from './ArchiveVacancyModal.i18n';
 
-type ArchiveVacancyModalProps = {
+interface ArchiveVacancyModalProps {
     visible: boolean;
     vacancy: Vacancy;
     onClose: VoidFunction;
-};
+}
 
 export const ArchiveVacancyModal = ({ visible, vacancy, onClose }: ArchiveVacancyModalProps) => {
     const { archiveVacancy } = useVacancyMutations();

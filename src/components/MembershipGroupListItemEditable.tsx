@@ -9,9 +9,9 @@ import { MembershipInfo } from '../modules/userTypes';
 import { MembershipGroupListItem } from './MembershipGroupListItem/MembershipGroupListItem';
 import { MembershipEditMenu } from './MembershipEditMenu/MembershipEditMenu';
 
-export type MembershipGroupListItemEditableProps = {
+export interface MembershipGroupListItemEditableProps {
     membership: MembershipInfo;
-};
+}
 
 const StyledRow = styled.div`
     display: grid;

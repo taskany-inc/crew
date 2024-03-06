@@ -57,9 +57,9 @@ const EditButtonsWrapper = styled.div`
     gap: ${gapS};
 `;
 
-type UserPageProps = {
+interface UserPageProps {
     userId: string;
-};
+}
 
 export const UserPage = ({ userId }: UserPageProps) => {
     const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);

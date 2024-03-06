@@ -5,9 +5,9 @@ import { gapSm, gray10 } from '@taskany/colors';
 
 import { UserDeviceInfo } from '../modules/deviceTypes';
 
-type UserDeviceListItemProps = {
+interface UserDeviceListItemProps {
     userDevice: UserDeviceInfo;
-};
+}
 
 const StyledWrapper = styled.div`
     display: flex;

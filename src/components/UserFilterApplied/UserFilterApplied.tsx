@@ -6,12 +6,12 @@ import { UserFilterQuery } from '../../modules/userTypes';
 
 import { tr } from './UserFilterApplied.i18n';
 
-type UserFilterAppliedProps = {
+interface UserFilterAppliedProps {
     filterState: UserFilterQuery;
     supervisors?: User[];
     groups?: Group[];
     roles?: Role[];
-};
+}
 
 export const UserFilterApplied = ({ filterState, supervisors, groups, roles }: UserFilterAppliedProps) => {
     let filterAppliedString = '';

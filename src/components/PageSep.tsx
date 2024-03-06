@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { gapM, gray4 } from '@taskany/colors';
 
-type PageSepProps = {
+interface PageSepProps {
     width?: number;
-};
+}
 
 export const PageSep = styled.div<PageSepProps>`
     border-top: 1px solid ${gray4};

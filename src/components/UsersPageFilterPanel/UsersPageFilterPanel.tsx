@@ -24,7 +24,7 @@ import { FilterRadio } from '../FilterRadio';
 
 import { tr } from './UsersPageFilterPanel.i18n';
 
-type UsersPageFilterPanelProps = {
+interface UsersPageFilterPanelProps {
     setSearchQuery: (searchQuery: string) => void;
     filterState: UserFilterQuery;
     children?: ReactNode;
@@ -32,7 +32,7 @@ type UsersPageFilterPanelProps = {
     total: number;
     counter: number;
     onFilterApply?: (filterQuery: UserFilterQuery) => void;
-};
+}
 
 const StyledFiltersMenuContainer = styled(FiltersMenuContainer)`
     display: flex;

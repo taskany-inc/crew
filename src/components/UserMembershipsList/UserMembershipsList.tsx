@@ -19,9 +19,9 @@ const StyledMembershipList = styled.div`
     width: 600px;
 `;
 
-type UserMembershipsProps = {
+interface UserMembershipsProps {
     user: User & UserMemberships;
-};
+}
 
 export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
     const { addUserToGroup } = useUserMutations();

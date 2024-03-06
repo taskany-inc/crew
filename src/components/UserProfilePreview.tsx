@@ -11,9 +11,9 @@ import { UserSummary } from './UserSummary/UserSummary';
 import { UserContacts } from './UserContacts/UserContacts';
 import { UserMembershipsList } from './UserMembershipsList/UserMembershipsList';
 
-type UserProps = {
+interface UserProps {
     userId: string;
-};
+}
 
 const StyledModalPreview = styled(ModalPreview)`
     display: flex;

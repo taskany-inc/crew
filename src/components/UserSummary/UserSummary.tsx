@@ -9,9 +9,9 @@ import { UserListItem } from '../UserListItem/UserListItem';
 
 import { tr } from './UserSummary.i18n';
 
-type UserSummaryProps = {
+interface UserSummaryProps {
     user: User & UserSupervisor;
-};
+}
 
 const StyledSupervisorText = styled(Text)`
     display: flex;

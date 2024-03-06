@@ -13,9 +13,9 @@ const StyledTreeContainer = styled.div`
     margin: ${gapM} ${gapL} 0 ${gapL};
 `;
 
-type TeamPageProps = {
+interface TeamPageProps {
     teamId: string;
-};
+}
 
 export const TeamPage = ({ teamId }: TeamPageProps) => {
     const groupQuery = trpc.group.getById.useQuery(teamId);

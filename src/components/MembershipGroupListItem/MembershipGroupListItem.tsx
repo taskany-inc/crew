@@ -6,9 +6,9 @@ import { GroupListItem } from '../GroupListItem';
 
 import { tr } from './MembershipGroupListItem.i18n';
 
-type MembershipGroupListItemProps = {
+interface MembershipGroupListItemProps {
     membership: MembershipInfo;
-};
+}
 
 export const MembershipGroupListItem = ({ membership }: MembershipGroupListItemProps) => {
     return (

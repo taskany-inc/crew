@@ -5,10 +5,10 @@ import { gapM, gapXs, gray9 } from '@taskany/colors';
 
 import { PageSep } from './PageSep';
 
-type NarrowSectionProps = {
+interface NarrowSectionProps {
     title?: string;
     children?: ReactNode;
-};
+}
 
 const StyledPageSep = styled(PageSep)`
     margin-top: ${gapXs};

@@ -18,9 +18,9 @@ import { GroupListItem } from '../GroupListItem';
 
 import { tr } from './TeamSettingsPage.i18n';
 
-type TeamSettingsPageProps = {
+interface TeamSettingsPageProps {
     teamId: string;
-};
+}
 
 const StyledFormSection = styled(Text)`
     margin: 0 ${gapM} ${gapS} ${gapM};
@@ -31,9 +31,9 @@ const StyledFormSection = styled(Text)`
     min-height: 28px;
 `;
 
-type TeamSettingsPageBaseProps = {
+interface TeamSettingsPageBaseProps {
     group: Group & GroupMeta & GroupParent;
-};
+}
 
 const StyledGroupListItemWrapper = styled.div`
     display: flex;

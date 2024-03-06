@@ -12,18 +12,24 @@ export interface UserSettings {
 
 export type MembershipInfo = Membership & { group: Group; user: User; roles: Role[] };
 
-export type UserMeta = { meta: Record<keyof typeof userAccess, boolean> };
+export interface UserMeta {
+    meta: Record<keyof typeof userAccess, boolean>;
+}
 
-export type UserMemberships = { memberships: MembershipInfo[] };
+export interface UserMemberships {
+    memberships: MembershipInfo[];
+}
 
-export type UserSupervisor = { supervisor: Nullish<User> };
+export interface UserSupervisor {
+    supervisor: Nullish<User>;
+}
 
-export type UserFilterQuery = {
+export interface UserFilterQuery {
     groupsQuery?: string[];
     rolesQuery?: string[];
     supervisorsQuery?: string[];
     activeQuery?: boolean;
-};
+}
 
 export interface ExternalUserUpdate {
     email: string;

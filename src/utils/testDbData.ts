@@ -6,7 +6,9 @@ import { groupMethods } from '../modules/groupMethods';
 
 import { prisma } from './prisma';
 
-type GroupTreeNode = { [key: string]: GroupTreeNode };
+interface GroupTreeNode {
+    [key: string]: GroupTreeNode;
+}
 
 const testGroupTree: GroupTreeNode = {
     zebra: {
@@ -76,7 +78,11 @@ export const deleteTestGroups = async () => {
 
 const testRoles = ['boss', 'chief', 'captain', 'baron', 'commander', 'honcho', 'principal'];
 
-type TestUserInfo = { user: string; groups: { name: string; roles: string[] }[]; supervisor?: string };
+interface TestUserInfo {
+    user: string;
+    groups: { name: string; roles: string[] }[];
+    supervisor?: string;
+}
 
 const testUsers: TestUserInfo[] = [
     {

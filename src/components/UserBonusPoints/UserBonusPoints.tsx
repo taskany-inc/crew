@@ -15,9 +15,9 @@ import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './UserBonusPoints.i18n';
 
-type UserBonusPointsProps = {
+interface UserBonusPointsProps {
     user: User & UserMeta;
-};
+}
 
 const StyledText = styled(Text)`
     margin-top: ${gapM};

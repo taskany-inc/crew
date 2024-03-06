@@ -8,9 +8,9 @@ import { RemoveUserFromGroupModal } from '../RemoveUserFromGroupModal/RemoveUser
 
 import { tr } from './MembershipEditMenu.i18n';
 
-type MembershipEditMenuProps = {
+interface MembershipEditMenuProps {
     membership: MembershipInfo;
-};
+}
 
 export const MembershipEditMenu = ({ membership }: MembershipEditMenuProps) => {
     const [editRolesModalVisible, setEditRolesModalVisible] = useState(false);

@@ -27,9 +27,9 @@ import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './AddUserToTeamForm.i18n';
 
-type AddUserToTeamFormProps = {
+interface AddUserToTeamFormProps {
     groupId: string;
-};
+}
 
 const StyledBottomRow = styled.div`
     margin-top: ${gapS};

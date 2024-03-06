@@ -10,9 +10,9 @@ import { useRoleMutations } from '../../modules/roleHooks';
 
 import { tr } from './AddRoleToMembershipForm.i18n';
 
-type AddRoleToMembershipFormProps = {
+interface AddRoleToMembershipFormProps {
     membershipId: string;
-};
+}
 
 const StyledRowWrapper = styled.div`
     display: grid;

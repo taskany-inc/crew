@@ -44,9 +44,9 @@ const BonusActionItem = ({ history }: { history: BonusHistory }) => {
     );
 };
 
-type BonusPointsHistoryProps = {
+interface BonusPointsHistoryProps {
     userId: string;
-};
+}
 
 export const BonusPointsHistory = ({ userId }: BonusPointsHistoryProps) => {
     const [modalVisible, setModalVisible] = useState(false);

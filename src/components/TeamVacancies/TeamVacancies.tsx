@@ -20,9 +20,9 @@ const StyledVacancyList = styled.div`
     margin-bottom: ${gapM};
 `;
 
-type TeamVacanciesProps = {
+interface TeamVacanciesProps {
     group: Group & GroupSupervisor;
-};
+}
 
 export const TeamVacancies = ({ group }: TeamVacanciesProps) => {
     const vacanciesQuery = trpc.vacancy.getList.useQuery({ teamIds: [group.id], archived: false });
