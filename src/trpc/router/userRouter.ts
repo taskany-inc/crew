@@ -14,17 +14,22 @@ import {
     editUserActiveStateSchema,
 } from '../../modules/userSchemas';
 import { userAccess } from '../../modules/userAccess';
+import { globalAccess } from '../../modules/globalAccess';
+import { groupAccess } from '../../modules/groupAccess';
 
 export const userRouter = router({
-    create: protectedProcedure.input(createUserSchema).mutation(({ input }) => {
+    create: protectedProcedure.input(createUserSchema).mutation(({ input, ctx }) => {
+        accessCheck(globalAccess.user.create(ctx.session.user.role));
         return userMethods.create(input);
     }),
 
-    addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(({ input }) => {
+    addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(({ input, ctx }) => {
+        accessCheck(groupAccess.isEditable(ctx.session.user));
         return userMethods.addToGroup(input);
     }),
 
-    removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(({ input }) => {
+    removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(({ input, ctx }) => {
+        accessCheck(groupAccess.isEditable(ctx.session.user));
         return userMethods.removeFromGroup(input);
     }),
 

@@ -26,8 +26,6 @@
     "Minimum {min} symbols": "Минимум {min} символов",
     "Only admins can activate or deactivate profiles": "Только администраторы могут активировать или деактивировать профили",
     "Hire stream is required": "Выберите поток найма",
-    "Only admins can create vacancies": "Только администраторы могут создавать вакансии",
-    "Only admins can edit vacancies": "Только администраторы могут редактировать вакансии",
     "User is required": "Укажите пользователя",
     "Percentage must be a number": "Процент должен быть числом",
     "Percentage must be an integer": "Процент должен быть целым числом",
@@ -45,9 +43,7 @@
     "Roles": "Роли",
     "Membership percentage": "Процент участия",
     "Team": "Команда",
-    "Only admins can create or add roles": "Только администраторы могут создавать и добавлять роли",
     "Title must be longer than {min} symbol": "Название роли должно быть длиннее {min} символов",
     "Only admins can create groups": "Только администраторы могут создавать группы",
-    "Only admins can delete devices": "Только администраторы могут удалять устройства",
-    "Only admins can delete services": "Только администраторы могут удалять сервисы"
+    "Only admins can create users": "Только администраторы могут создавать пользователей"
 }

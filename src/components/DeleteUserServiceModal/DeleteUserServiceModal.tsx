@@ -35,9 +35,13 @@ export const DeleteUserServiceModal = ({ visible, userService, onClose }: Delete
     const { deleteUserService } = useServiceMutations();
 
     const onDeleteClick = useCallback(async () => {
-        await deleteUserService({ serviceId: userService.serviceId, serviceName: userService.serviceName });
+        await deleteUserService({
+            userId: userService.userId,
+            serviceId: userService.serviceId,
+            serviceName: userService.serviceName,
+        });
         onClose();
-    }, [deleteUserService, userService.serviceId, userService.serviceName, onClose]);
+    }, [deleteUserService, userService.userId, userService.serviceId, userService.serviceName, onClose]);
 
     return (
         <Modal view="danger" visible={visible} onClose={onClose} width={500}>

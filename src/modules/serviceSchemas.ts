@@ -33,6 +33,7 @@ export const getServiceListSchema = z.object({
 export type GetServiceList = z.infer<typeof getServiceListSchema>;
 
 export const deleteUserServiceSchema = z.object({
+    userId: z.string(),
     serviceName: z.string(),
     serviceId: z.string(),
 });

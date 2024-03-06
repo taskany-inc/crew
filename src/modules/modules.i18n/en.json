@@ -26,8 +26,6 @@
     "Minimum {min} symbols": "",
     "Only admins can activate or deactivate profiles": "",
     "Hire stream is required": "",
-    "Only admins can create vacancies": "",
-    "Only admins can edit vacancies": "",
     "User is required": "",
     "Percentage must be a number": "",
     "Percentage must be an integer": "",
@@ -45,9 +43,7 @@
     "Roles": "",
     "Membership percentage": "",
     "Team": "",
-    "Only admins can create or add roles": "",
     "Title must be longer than {min} symbol": "",
     "Only admins can create groups": "",
-    "Only admins can delete devices": "",
-    "Only admins can delete services": ""
+    "Only admins can create users": ""
 }
