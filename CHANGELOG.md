@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.40.0](https://github.com/taskany-inc/crew/compare/v0.39.0...v0.40.0) (2024-03-06)
+
+
+### Features
+
+* **access model:** update model, add checks to all mutations ([21063e0](https://github.com/taskany-inc/crew/commit/21063e05b3c469dfb536043ee1512fe7acb9ba66))
+* filter for having vacancies in groupList ([bb9f337](https://github.com/taskany-inc/crew/commit/bb9f33747f1ada86b303296b777bc06c92090397))
+* hide unaccessible controls from ui ([1cf6959](https://github.com/taskany-inc/crew/commit/1cf6959d17538b585d8c2b6969e6929a96693f1a))
+* use eslint rules prefer-interface ([4e910e3](https://github.com/taskany-inc/crew/commit/4e910e30d8521fcc619b95ac680d08b57bfc6212))
+
+
+### Bug Fixes
+
+* pagination on users page ([71f900a](https://github.com/taskany-inc/crew/commit/71f900aeb9ea4be37225609c1c2ef615e470e066))
+* **TeamChildren:** drop burger ([f8843fb](https://github.com/taskany-inc/crew/commit/f8843fbb8c866d5e3c044ab9dd1fe6a35ff92c77))
+* **UserServicesAndDevices:** delete services and devices ([5013adb](https://github.com/taskany-inc/crew/commit/5013adb9b1a2c8c4165c0f4095f214650f5c5385))
+
 ## [0.39.0](https://github.com/taskany-inc/crew/compare/v0.38.0...v0.39.0) (2024-03-04)
 
 
