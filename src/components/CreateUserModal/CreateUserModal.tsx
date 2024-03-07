@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { ChangeEvent, useEffect } from 'react';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Button,
+    CheckboxInput,
     Form,
     FormAction,
     FormActions,
@@ -52,9 +53,19 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
         register,
         handleSubmit,
         reset,
+        watch,
         setValue,
         formState: { errors, isSubmitting, isSubmitSuccessful },
-    } = useForm<CreateUser>({ resolver: zodResolver(createUserSchema) });
+    } = useForm<CreateUser>({
+        resolver: zodResolver(createUserSchema),
+        defaultValues: { createExternalAccount: true },
+    });
+
+    const createExternalAccount = watch('createExternalAccount');
+
+    const onCreateExternalAccountClick = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue('createExternalAccount', e.target.checked);
+    };
 
     const onSubmit = handleSubmit(async (data) => {
         const newUser = await createUser(data);
@@ -148,6 +159,16 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                                     {e.message}
                                 </Text>
                             ))}
+                        </StyledInputContainer>
+                        <StyledInputContainer>
+                            <Text weight="bold" color={gray8}>
+                                {tr('Create external account:')}
+                            </Text>
+                            <CheckboxInput
+                                value="createExternalAccount"
+                                checked={createExternalAccount}
+                                onChange={onCreateExternalAccountClick}
+                            />
                         </StyledInputContainer>
                     </NoWrap>
 

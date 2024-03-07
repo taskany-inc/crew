@@ -14,6 +14,7 @@ export const createUserSchema = z.object({
     organizationUnitId: z.string(),
     groupId: z.string().nullish(),
     supervisorId: z.string().nullish(),
+    createExternalAccount: z.boolean().optional(),
 });
 export type CreateUser = z.infer<typeof createUserSchema>;
 
