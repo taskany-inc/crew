@@ -130,8 +130,9 @@ export const userMethods = {
         if (data.login && loginService) {
             servicesData.push({ serviceName: loginService.name, serviceId: data.login });
         }
-
-        await externalUserCreate(data);
+        if (data.createExternalAccount) {
+            await externalUserCreate(data);
+        }
 
         return prisma.user.create({
             data: {
