@@ -30,7 +30,7 @@ export type CreateVacancy = z.infer<typeof createVacancySchema>;
 export const getVacancyListSchema = z.object({
     search: z.string().optional(),
     archived: z.boolean().optional(),
-    hireStreamIds: z.array(z.string()).optional(),
+    hireStreamIds: z.array(z.number()).optional(),
     searchByTeam: z.string().optional(),
     statuses: z.array(z.nativeEnum(VacancyStatus)).optional(),
     hiringManagerEmails: z.array(z.string()).optional(),

@@ -249,6 +249,7 @@ export const restRouter = router({
                         unit: z.number().nullable(),
                         grade: z.number().nullable(),
                         activeSince: z.date().nullable(),
+                        closedAt: z.date().nullable(),
                         timeAtWork: z.number(),
                     }),
                 ),

@@ -55,15 +55,16 @@ export const vacancyMethods = {
             where.name = { contains: search, mode: 'insensitive' };
         }
 
-        if (hireStreamIds && hireStreamIds.length) {
-            where.hireStreamId = { in: hireStreamIds };
+        if (hireStreamIds?.length) {
+            // TODO migrate hireStreamId in Vacancy model to Int https://github.com/taskany-inc/crew/issues/600
+            where.hireStreamId = { in: hireStreamIds.map(String) };
         }
 
-        if (statuses && statuses.length) {
+        if (statuses?.length) {
             where.status = { in: statuses };
         }
 
-        if (hiringManagerEmails && hiringManagerEmails.length) {
+        if (hiringManagerEmails?.length) {
             where.hiringManager = {
                 OR: [
                     { email: { in: hiringManagerEmails } },
@@ -72,8 +73,8 @@ export const vacancyMethods = {
             };
         }
 
-        if (hrEmails && hrEmails.length) {
-            where.hiringManager = {
+        if (hrEmails?.length) {
+            where.hr = {
                 OR: [
                     { email: { in: hrEmails } },
                     { services: { some: { serviceName: 'Email', serviceId: { in: hrEmails } } } },
@@ -81,7 +82,7 @@ export const vacancyMethods = {
             };
         }
 
-        if (teamIds && teamIds.length) {
+        if (teamIds?.length) {
             where.groupId = { in: teamIds };
         }
 
