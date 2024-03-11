@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.41.0](https://github.com/taskany-inc/crew/compare/v0.40.0...v0.41.0) (2024-03-11)
+
+
+### Features
+
+* **CreateUserModal:** add checkbox to user create ([8a58e5b](https://github.com/taskany-inc/crew/commit/8a58e5b8257b157d89942a0507aad87c78fcfa2c))
+
+
+### Bug Fixes
+
+* hrs filtered in vacancy and hiringshreamid is number ([c19b97f](https://github.com/taskany-inc/crew/commit/c19b97fa560644c802eb414fa8f14d325828601b))
+
 ## [0.40.0](https://github.com/taskany-inc/crew/compare/v0.39.0...v0.40.0) (2024-03-06)
 
 
