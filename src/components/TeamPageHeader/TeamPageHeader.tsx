@@ -36,7 +36,7 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
     const breadcrumbs = breadcrumbsQuery.data ?? [];
 
     const tabsMenuOptions = useMemo<Options>(() => {
-        const options: Options = [[tr('Teams'), pages.team(group.id)]];
+        const options: Options = [[tr('Team'), pages.team(group.id)]];
         if (group.meta.isEditable) {
             options.push([tr('Settings'), pages.teamSettings(group.id)]);
         }
