@@ -8,6 +8,8 @@ import { LayoutMain } from './LayoutMain';
 import { GroupTreeViewNode } from './GroupTreeViewNode';
 import { TeamPageHeader } from './TeamPageHeader/TeamPageHeader';
 import { PageSep } from './PageSep';
+import { TeamVacancies } from './TeamVacancies/TeamVacancies';
+import { TeamPeople } from './TeamPeople/TeamPeople';
 
 const StyledTreeContainer = styled.div`
     margin: ${gapM} ${gapL} 0 ${gapL};
@@ -16,6 +18,13 @@ const StyledTreeContainer = styled.div`
 interface TeamPageProps {
     teamId: string;
 }
+
+export const StyledWrapper = styled.div`
+    padding-top: ${gapM};
+    display: flex;
+    flex-direction: column;
+    gap: ${gapL};
+`;
 
 export const TeamPage = ({ teamId }: TeamPageProps) => {
     const groupQuery = trpc.group.getById.useQuery(teamId);
@@ -36,6 +45,14 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
                         children.map((child) => <GroupTreeViewNode key={child.id} group={child} visible />),
                     )}
                 </TreeView>
+                <StyledWrapper>
+                    {nullable(groupQuery.data, (g) => (
+                        <>
+                            <TeamPeople groupId={g.id} isEditable={g.meta.isEditable} />
+                            <TeamVacancies group={g} />
+                        </>
+                    ))}
+                </StyledWrapper>
             </StyledTreeContainer>
         </LayoutMain>
     );
