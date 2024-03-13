@@ -46,5 +46,8 @@
     "Title must be longer than {min} symbol": "",
     "Only admins can create groups": "",
     "Only admins can create users": "",
-    "Cannot archive group with active vacancies": ""
+    "Cannot archive group with active vacancies": "",
+    "User already has organizational membership": "",
+    "User is already a member of the group": "",
+    "Multiple organizational memberships are forbidden": ""
 }

@@ -1,7 +1,8 @@
+import { ChangeEvent } from 'react';
 import { Group } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { Button, Fieldset, Form, FormAction, FormActions, FormInput, Text } from '@taskany/bricks';
-import { gapM, gapS, gray8, textColor } from '@taskany/colors';
+import { Button, CheckboxInput, Fieldset, Form, FormAction, FormActions, FormInput, Text } from '@taskany/bricks';
+import { gapM, gapS, gapXs, gray3, gray8, textColor } from '@taskany/colors';
 import { IconPlusCircleOutline, IconXCircleSolid } from '@taskany/icons';
 import { useForm } from 'react-hook-form';
 
@@ -41,6 +42,14 @@ const StyledGroupListItemWrapper = styled.div`
     align-items: center;
 `;
 
+const StyledInputContainer = styled.div`
+    display: flex;
+    gap: ${gapS};
+    align-items: center;
+    padding: ${gapXs} ${gapM};
+    background-color: ${gray3};
+`;
+
 const GroupListItemWithDelete = (props: { group: Group; onClick: VoidFunction }) => {
     return (
         <StyledGroupListItemWrapper>
@@ -76,14 +85,23 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
         register,
         handleSubmit,
         reset,
+        watch,
+        setValue,
         formState: { isDirty },
     } = useForm<EditGroup>({
         defaultValues: {
             groupId: group.id,
             name: group.name,
             description: group.description ?? '',
+            organizational: group.organizational,
         },
     });
+
+    const organizational = watch('organizational');
+
+    const onOrganizationalClick = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue('organizational', e.target.checked, { shouldDirty: true });
+    };
 
     const onSubmit = handleSubmit(async (data) => {
         const editedGroup = await editGroup(data);
@@ -91,6 +109,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
             groupId: editedGroup.id,
             name: editedGroup.name,
             description: editedGroup.description ?? '',
+            organizational: editedGroup.organizational,
         });
     });
 
@@ -112,6 +131,17 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                                 autoComplete="off"
                                 flat="top"
                             />
+
+                            <StyledInputContainer>
+                                <Text weight="bold" color={gray8}>
+                                    {tr('Organizational group:')}
+                                </Text>
+                                <CheckboxInput
+                                    value="organizational"
+                                    checked={organizational}
+                                    onChange={onOrganizationalClick}
+                                />
+                            </StyledInputContainer>
 
                             <FormActions flat="top">
                                 <FormAction left />

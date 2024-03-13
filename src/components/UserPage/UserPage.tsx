@@ -14,6 +14,9 @@ import UserUpdateForm from '../UserUpdateForm/UserUpdateForm';
 import { UserDevices } from '../UserDevices/UserDevices';
 import { UserPic } from '../UserPic';
 import { DeactivateProfileForm } from '../DeactivateProfileForm/DeactivateProvileForm';
+import { Link } from '../Link';
+import { pages } from '../../hooks/useRouter';
+import { usePreviewContext } from '../../contexts/previewContext';
 
 import { tr } from './UserPage.i18n';
 
@@ -62,6 +65,7 @@ interface UserPageProps {
 }
 
 export const UserPage = ({ userId }: UserPageProps) => {
+    const { showGroupPreview } = usePreviewContext();
     const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);
     const [openDeactivateUserForm, setOpenDeactivateUserForm] = useState(false);
 
@@ -70,15 +74,26 @@ export const UserPage = ({ userId }: UserPageProps) => {
 
     if (!user) return null;
 
+    const orgMembership = user.memberships.find((m) => m.group.organizational);
+    const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
+
     return (
         <LayoutMain pageTitle={user.name}>
             <StyledHeader>
                 <UserPic size={150} user={user} />
                 <StyledUserNameWrapper>
-                    {nullable(user.title, (t) => (
-                        <Text color={gray10} weight="bold">
-                            {t}
+                    {nullable(orgRoles, (r) => (
+                        <Text size="s" color={gray8} weight="bold">
+                            {r}
                         </Text>
+                    ))}
+
+                    {nullable(orgMembership, (m) => (
+                        <Link href={pages.team(m.groupId)} onClick={() => showGroupPreview(m.groupId)}>
+                            <Text size="l" color={gray10}>
+                                {m.group.name}
+                            </Text>
+                        </Link>
                     ))}
 
                     <Text size="xxl" weight="bold" color={user.active ? textColor : gray8}>
