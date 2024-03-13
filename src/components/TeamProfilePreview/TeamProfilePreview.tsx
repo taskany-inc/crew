@@ -68,7 +68,13 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                                 <TransferGroupForm group={group} />
                             </Restricted>
 
-                            <Restricted visible={group.meta.isEditable && !childrenQuery.data?.length}>
+                            <Restricted
+                                visible={
+                                    group.meta.isEditable &&
+                                    !childrenQuery.data?.length &&
+                                    !groupQuery.data?.vacancies.length
+                                }
+                            >
                                 <ArchiveGroupForm groupId={group.id} groupName={group.name} />
                             </Restricted>
 

@@ -5,8 +5,10 @@ import { prisma } from '../utils/prisma';
 import {
     createTestGroups,
     createTestUsers,
+    createTestVacancies,
     deleteTestGroups,
     deleteTestUsers,
+    deleteTestVacancies,
     testRootGroup,
 } from '../utils/testDbData';
 
@@ -14,14 +16,17 @@ import { groupMethods } from './groupMethods';
 import { userMethods } from './userMethods';
 import { roleMethods } from './roleMethods';
 import { searchMethods } from './searchMethods';
+import { vacancyMethods } from './vacancyMethods';
 
 describe('groups', () => {
     beforeEach(async () => {
         await createTestGroups();
         await createTestUsers();
+        await createTestVacancies();
     });
 
     afterEach(async () => {
+        await deleteTestVacancies();
         await deleteTestUsers();
         await deleteTestGroups();
     });
@@ -149,6 +154,17 @@ describe('groups', () => {
     it('cannot archive group with children', async () => {
         const check = () => groupMethods.archive('zebra');
         await assert.rejects(check, { message: 'Cannot archive group with children' });
+    });
+
+    it('cannot archive group with active vacancies', async () => {
+        const activeGroupVacancies = await vacancyMethods.getList({
+            teamIds: ['gorilla'],
+            archived: false,
+            statuses: ['ACTIVE', 'ON_HOLD', 'ON_CONFIRMATION'],
+        });
+        assert.ok(activeGroupVacancies.vacancies.length);
+        const check = () => groupMethods.archive('gorilla');
+        await assert.rejects(check, { message: 'Cannot archive group with active vacancies' });
     });
 
     it('cannot unarchive group with archived parent', async () => {

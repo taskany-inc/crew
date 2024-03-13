@@ -1,20 +1,22 @@
 import { useMemo } from 'react';
 import styled from 'styled-components';
-import { Vacancy } from 'prisma/prisma-client';
+import { Vacancy } from '@prisma/client';
 import { Dropdown, MenuItem } from '@taskany/bricks';
 import { IconMoreVerticalOutline } from '@taskany/icons';
 
 import { VacancyListItem } from '../VacancyListItem';
 import { ArchiveVacancyModal } from '../ArchiveVacancyModal/ArchiveVacancyModal';
 import { useBoolean } from '../../hooks/useBoolean';
-import { VacancyGroup, VacancyHr, VacancyHiringManager } from '../../modules/vacancyTypes';
+import { VacancyHr, VacancyHiringManager } from '../../modules/vacancyTypes';
 import { UpdateVacancyModal } from '../UpdateVacancyModal/UpdateVacancyModal';
 import { Restricted } from '../Restricted';
 
 import { tr } from './VacancyListItemEditable.i18n';
 
 interface VacancyListItemEditableProps {
-    vacancy: Vacancy & VacancyGroup & VacancyHr & VacancyHiringManager;
+    vacancy: Vacancy & VacancyHr & VacancyHiringManager;
+    groupName: string;
+    isEditable: boolean;
 }
 
 const StyledRow = styled.div`
@@ -23,7 +25,7 @@ const StyledRow = styled.div`
     width: 600px;
 `;
 
-export const VacancyListItemEditable = ({ vacancy }: VacancyListItemEditableProps) => {
+export const VacancyListItemEditable = ({ vacancy, groupName, isEditable }: VacancyListItemEditableProps) => {
     const editVacancyModalVisibility = useBoolean(false);
     const archiveVacancyModalVisibility = useBoolean(false);
 
@@ -39,7 +41,7 @@ export const VacancyListItemEditable = ({ vacancy }: VacancyListItemEditableProp
         <StyledRow>
             <VacancyListItem vacancy={vacancy} />
 
-            <Restricted visible={vacancy.group.meta.isEditable}>
+            <Restricted visible={isEditable}>
                 <Dropdown
                     onChange={(v) => v.action()}
                     items={items}
@@ -57,6 +59,7 @@ export const VacancyListItemEditable = ({ vacancy }: VacancyListItemEditableProp
             <UpdateVacancyModal
                 visible={editVacancyModalVisibility.value}
                 vacancy={vacancy}
+                groupName={groupName}
                 onClose={editVacancyModalVisibility.setFalse}
             />
 
