@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
@@ -49,8 +50,10 @@ const StyledTip = styled(Tip)`
 type GroupType = 'regular' | 'virtual' | 'organizational';
 
 export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) => {
+    const { data } = useSession();
     const { createGroup } = useGroupMutations();
     const router = useRouter();
+    const canCreateGroup = data?.access.group.create;
 
     const groupTypes = useMemo<{ type: GroupType; text: string }[]>(
         () => [
@@ -60,8 +63,7 @@ export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) =>
         ],
         [],
     );
-
-    const [type, setType] = useState<GroupType>('regular');
+    const [type, setType] = useState<GroupType>(canCreateGroup ? 'regular' : 'virtual');
 
     const {
         register,
@@ -74,13 +76,14 @@ export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) =>
         defaultValues: { name: '', parentId: undefined },
     });
 
-    const onSubmit = handleSubmit(async (data) => {
+    const onSubmit = handleSubmit(async (value) => {
         const newGroup = await createGroup({
-            ...data,
+            ...value,
             virtual: type === 'virtual',
             organizational: type === 'organizational',
         });
         router.team(newGroup.id);
+
         onClose();
     });
 
@@ -105,19 +108,19 @@ export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) =>
                         {...register('name', { required: tr('Required field') })}
                         error={errors.name}
                     />
-
-                    <FormRadio
-                        label={tr('Group type')}
-                        name="type"
-                        value={type}
-                        onChange={(v) => setType(v as GroupType)}
-                    >
-                        {groupTypes.map((t) => (
-                            <FormRadioInput key={t.type} value={t.type} label={t.text} />
-                        ))}
-                    </FormRadio>
-
-                    {nullable(type !== 'virtual', () => (
+                    {nullable(canCreateGroup, () => (
+                        <FormRadio
+                            label={tr('Group type')}
+                            name="type"
+                            value={type}
+                            onChange={(v) => setType(v as GroupType)}
+                        >
+                            {groupTypes.map((t) => (
+                                <FormRadioInput key={t.type} value={t.type} label={t.text} />
+                            ))}
+                        </FormRadio>
+                    ))}
+                    {nullable(type !== 'virtual' && canCreateGroup, () => (
                         <>
                             <StyledInputContainer>
                                 <Text weight="bold" color={gray8}>

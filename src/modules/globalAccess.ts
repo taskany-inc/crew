@@ -11,6 +11,9 @@ export const globalAccess = {
             if (userRole === UserRole.ADMIN) return allowed;
             return notAllowed(tr('Only admins can create groups'));
         },
+        createVirtual: (): AccessCheckResult => {
+            return allowed;
+        },
     },
     user: {
         create: (userRole: UserRole): AccessCheckResult => {

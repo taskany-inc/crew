@@ -70,6 +70,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
     const onSubmit = handleSubmit(async (data) => {
         const newUser = await createUser(data);
         router.user(newUser.id);
+
         onClose();
     });
 

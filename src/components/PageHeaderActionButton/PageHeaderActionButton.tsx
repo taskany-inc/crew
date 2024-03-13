@@ -20,9 +20,8 @@ export const PageHeaderActionButton = () => {
         if (data?.access.user.create) {
             result.push({ title: tr('User'), action: createUserModalVisibility.setTrue });
         }
-        if (data?.access.group.create) {
-            result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
-        }
+        result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
+
         return result;
     }, [data?.access, createGroupModalVisibility.setTrue, createUserModalVisibility.setTrue]);
 
