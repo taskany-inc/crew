@@ -15,7 +15,11 @@ import { globalAccess } from '../../modules/globalAccess';
 
 export const groupRouter = router({
     create: protectedProcedure.input(createGroupSchema).mutation(({ input, ctx }) => {
-        accessCheck(globalAccess.group.create(ctx.session.user.role));
+        if (input.virtual) {
+            accessCheck(globalAccess.group.createVirtual());
+        } else {
+            accessCheck(globalAccess.group.create(ctx.session.user.role));
+        }
         return groupMethods.create(input);
     }),
 
