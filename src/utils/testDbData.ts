@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import { Group } from 'prisma/prisma-client';
+import { Group, VacancyStatus } from 'prisma/prisma-client';
 import assert from 'assert';
 
 import { groupMethods } from '../modules/groupMethods';
@@ -135,4 +135,44 @@ export const deleteTestUsers = async () => {
     await prisma.role.deleteMany({ where: { id: { in: testRoles } } });
     await prisma.membership.deleteMany({ where: { userId: { in: userNames } } });
     await prisma.user.deleteMany({ where: { id: { in: userNames } } });
+};
+
+const testVacancies = [
+    {
+        name: 'Pokemon trainer',
+        hireStreamId: '1',
+        groupId: 'gorilla',
+        status: 'ACTIVE',
+        hiringManagerId: 'squirtle',
+        hrId: 'bulbasaur',
+    },
+    {
+        name: 'Pokemon doctor',
+        hireStreamId: '3',
+        groupId: 'zebra',
+        status: 'CLOSED',
+        hiringManagerId: 'pikachu',
+        hrId: 'bulbasaur',
+    },
+];
+
+export const createTestVacancies = async () => {
+    for (const vacancyData of testVacancies) {
+        await prisma.vacancy.create({
+            data: {
+                id: vacancyData.name,
+                name: vacancyData.name,
+                hireStreamId: vacancyData.hireStreamId,
+                group: { connect: { id: vacancyData.groupId } },
+                status: vacancyData.status as VacancyStatus,
+                hr: { connect: { id: vacancyData.hrId } },
+                hiringManager: { connect: { id: vacancyData.hiringManagerId } },
+            },
+        });
+    }
+};
+
+export const deleteTestVacancies = async () => {
+    const vacancyNames = testVacancies.map(({ name }) => name);
+    await prisma.vacancy.deleteMany({ where: { id: { in: vacancyNames } } });
 };

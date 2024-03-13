@@ -16,7 +16,7 @@ import {
     Text,
     nullable,
 } from '@taskany/bricks';
-import { Vacancy } from 'prisma/prisma-client';
+import { Vacancy } from '@prisma/client';
 import { danger0, gapM, gapS, gray3, gray8 } from '@taskany/colors';
 
 import { useVacancyMutations } from '../../modules/vacancyHooks';
@@ -24,14 +24,15 @@ import { EditVacancy, editVacancySchema } from '../../modules/vacancySchemas';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { RoleComboBox } from '../RoleComboBox/RoleComboBox';
 import { VacancyStatusComboBox, statusesMap } from '../VacancyStatusComboBox/VacancyStatusComboBox';
-import { VacancyGroup, VacancyHiringManager, VacancyHr } from '../../modules/vacancyTypes';
+import { VacancyHiringManager, VacancyHr } from '../../modules/vacancyTypes';
 
 import { tr } from './UpdateVacancyModal.i18n';
 
 interface UpdateVacancyModalProps {
     visible: boolean;
     onClose: VoidFunction;
-    vacancy: Vacancy & VacancyGroup & VacancyHr & VacancyHiringManager;
+    vacancy: Vacancy & VacancyHr & VacancyHiringManager;
+    groupName: string;
 }
 
 const NoWrap = styled.div`
@@ -65,7 +66,7 @@ const Field = (props: { name: string; error: FieldError | undefined; children: R
     </>
 );
 
-export const UpdateVacancyModal = ({ visible, onClose, vacancy }: UpdateVacancyModalProps) => {
+export const UpdateVacancyModal = ({ visible, onClose, vacancy, groupName }: UpdateVacancyModalProps) => {
     const { editVacancy } = useVacancyMutations();
 
     const {
@@ -105,7 +106,7 @@ export const UpdateVacancyModal = ({ visible, onClose, vacancy }: UpdateVacancyM
                 <FormTitle>
                     {tr('Update vacancy {vacancyName} for team {teamName}', {
                         vacancyName: vacancy.name,
-                        teamName: vacancy.group.name,
+                        teamName: groupName,
                     })}
                 </FormTitle>
                 <ModalCross onClick={closeAndReset} />

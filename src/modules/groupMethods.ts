@@ -1,4 +1,4 @@
-import { Group, Prisma } from 'prisma/prisma-client';
+import { Group, Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
@@ -10,7 +10,7 @@ import { createCsvDocument } from '../utils/csv';
 import { CreateGroup, EditGroup, GetGroupList, MoveGroup, GetGroupSuggestions } from './groupSchemas';
 import { tr } from './modules.i18n';
 import { MembershipInfo } from './userTypes';
-import { GroupMeta, GroupParent, GroupSupervisor } from './groupTypes';
+import { GroupMeta, GroupParent, GroupSupervisor, GroupVacancies } from './groupTypes';
 import { groupAccess } from './groupAccess';
 
 export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser?: SessionUser): T & GroupMeta => {
@@ -44,7 +44,15 @@ export const groupMethods = {
 
     archive: async (id: string): Promise<Group> => {
         const count = await prisma.group.count({ where: { parentId: id, archived: false } });
+        const activeVacancyNumber = await prisma.vacancy.count({
+            where: { groupId: id, archived: false, status: { not: 'CLOSED' } },
+        });
+
         if (count > 0) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with children') });
+
+        if (activeVacancyNumber > 0) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with active vacancies') });
+        }
         const [group] = await prisma.$transaction([
             prisma.group.update({ where: { id }, data: { archived: true } }),
             prisma.membership.updateMany({ where: { groupId: id }, data: { archived: true } }),
@@ -126,10 +134,17 @@ export const groupMethods = {
     getById: async (
         id: string,
         sessionUser?: SessionUser,
-    ): Promise<Group & GroupMeta & GroupParent & GroupSupervisor> => {
+    ): Promise<Group & GroupMeta & GroupParent & GroupSupervisor & GroupVacancies> => {
         const group = await prisma.group.findUnique({
             where: { id, archived: false },
-            include: { parent: true, supervisor: true },
+            include: {
+                parent: true,
+                supervisor: true,
+                vacancies: {
+                    where: { archived: false, status: { not: 'CLOSED' } },
+                    include: { hr: true, hiringManager: true },
+                },
+            },
         });
         if (!group) throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { id }) });
         if (group.archived) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Group is archived') });

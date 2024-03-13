@@ -45,5 +45,6 @@
     "Team": "",
     "Title must be longer than {min} symbol": "",
     "Only admins can create groups": "",
-    "Only admins can create users": ""
+    "Only admins can create users": "",
+    "Cannot archive group with active vacancies": ""
 }
