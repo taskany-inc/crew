@@ -6,6 +6,7 @@ export const createGroupSchema = z.object({
     name: z.string().min(3, { message: tr('Title must be longer than {upTo} symbol', { upTo: 3 }) }),
     parentId: z.string().optional(),
     virtual: z.boolean().optional(),
+    organizational: z.boolean().optional(),
 });
 export type CreateGroup = z.infer<typeof createGroupSchema>;
 
@@ -13,6 +14,7 @@ export const editGroupSchema = z.object({
     groupId: z.string(),
     name: z.string().optional(),
     description: z.string().optional(),
+    organizational: z.boolean().optional(),
 });
 export type EditGroup = z.infer<typeof editGroupSchema>;
 

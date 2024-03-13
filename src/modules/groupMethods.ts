@@ -38,26 +38,44 @@ export const groupMethods = {
 
     edit: async ({ groupId, ...data }: EditGroup) => {
         const group = await prisma.group.findUnique({ where: { id: groupId } });
-        if (group?.archived) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived group') });
+        if (!group) throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { groupId }) });
+        if (group.archived) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived group') });
+        if (data.organizational && !group.organizational) {
+            const memberships = await prisma.membership.findMany({
+                where: { groupId, user: { memberships: { some: { group: { organizational: true } } } } },
+            });
+            if (memberships.length > 0) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: tr('Multiple organizational memberships are forbidden'),
+                });
+            }
+        }
         return prisma.group.update({ where: { id: groupId, archived: false }, data });
     },
 
     archive: async (id: string): Promise<Group> => {
+        const group = await prisma.group.findUnique({ where: { id } });
+        if (!group) throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { id }) });
         const count = await prisma.group.count({ where: { parentId: id, archived: false } });
+        if (count > 0) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with children') });
         const activeVacancyNumber = await prisma.vacancy.count({
             where: { groupId: id, archived: false, status: { not: 'CLOSED' } },
         });
-
-        if (count > 0) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with children') });
-
         if (activeVacancyNumber > 0) {
             throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with active vacancies') });
         }
-        const [group] = await prisma.$transaction([
+        const children = await prisma.group.count({ where: { parentId: id, archived: false } });
+        if (children > 0) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot archive group with children') });
+        }
+        const [updatedGroup] = await prisma.$transaction([
             prisma.group.update({ where: { id }, data: { archived: true } }),
-            prisma.membership.updateMany({ where: { groupId: id }, data: { archived: true } }),
+            group.organizational
+                ? prisma.membership.deleteMany({ where: { groupId: id } })
+                : prisma.membership.updateMany({ where: { groupId: id }, data: { archived: true } }),
         ]);
-        return group;
+        return updatedGroup;
     },
 
     unarchive: async (id: string): Promise<Group> => {

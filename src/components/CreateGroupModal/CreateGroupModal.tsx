@@ -1,10 +1,9 @@
-import { ChangeEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import {
     Button,
-    CheckboxInput,
     Form,
     FormAction,
     FormActions,
@@ -17,6 +16,8 @@ import {
     FormInput,
     nullable,
     Tip,
+    FormRadio,
+    FormRadioInput,
 } from '@taskany/bricks';
 import { gapM, gapS, gapXs, gray3, gray8 } from '@taskany/colors';
 import { IconInfoCircleOutline } from '@taskany/icons';
@@ -45,31 +46,40 @@ const StyledTip = styled(Tip)`
     margin-left: ${gapM};
 `;
 
+type GroupType = 'regular' | 'virtual' | 'organizational';
+
 export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) => {
     const { createGroup } = useGroupMutations();
     const router = useRouter();
+
+    const groupTypes = useMemo<{ type: GroupType; text: string }[]>(
+        () => [
+            { type: 'regular', text: tr('Regular') },
+            { type: 'organizational', text: tr('Organizational') },
+            { type: 'virtual', text: tr('Virtual') },
+        ],
+        [],
+    );
+
+    const [type, setType] = useState<GroupType>('regular');
 
     const {
         register,
         handleSubmit,
         reset,
         setValue,
-        watch,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateGroup>({
         resolver: zodResolver(createGroupSchema),
-        defaultValues: { name: '', virtual: false, parentId: undefined },
+        defaultValues: { name: '', parentId: undefined },
     });
 
-    const virtual = watch('virtual');
-
-    const onVirtualClick = (e: ChangeEvent<HTMLInputElement>) => {
-        setValue('virtual', e.target.checked);
-        if (e.target.checked) setValue('parentId', undefined);
-    };
-
     const onSubmit = handleSubmit(async (data) => {
-        const newGroup = await createGroup(data);
+        const newGroup = await createGroup({
+            ...data,
+            virtual: type === 'virtual',
+            organizational: type === 'organizational',
+        });
         router.team(newGroup.id);
         onClose();
     });
@@ -96,14 +106,18 @@ export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) =>
                         error={errors.name}
                     />
 
-                    <StyledInputContainer>
-                        <Text weight="bold" color={gray8}>
-                            {tr('Virtual group:')}
-                        </Text>
-                        <CheckboxInput value="virtual" checked={!!virtual} onChange={onVirtualClick} />
-                    </StyledInputContainer>
+                    <FormRadio
+                        label={tr('Group type')}
+                        name="type"
+                        value={type}
+                        onChange={(v) => setType(v as GroupType)}
+                    >
+                        {groupTypes.map((t) => (
+                            <FormRadioInput key={t.type} value={t.type} label={t.text} />
+                        ))}
+                    </FormRadio>
 
-                    {nullable(!virtual, () => (
+                    {nullable(type !== 'virtual', () => (
                         <>
                             <StyledInputContainer>
                                 <Text weight="bold" color={gray8}>

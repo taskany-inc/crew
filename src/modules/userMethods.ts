@@ -150,8 +150,20 @@ export const userMethods = {
         const membership = await prisma.membership.findUnique({
             where: { userId_groupId: { userId: data.userId, groupId: data.groupId } },
         });
-        if (membership?.archived) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Cannot edit archived membership') });
+        if (membership) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('User is already a member of the group') });
+        }
+        const group = await prisma.group.findUnique({ where: { id: data.groupId } });
+        if (!group) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { id: data.groupId }) });
+        }
+        if (group.organizational) {
+            const orgMembership = await prisma.membership.findFirst({
+                where: { userId: data.userId, group: { organizational: true } },
+            });
+            if (orgMembership) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: tr('User already has organizational membership') });
+            }
         }
         const availablePercentage = await userMethods.getAvailableMembershipPercentage(data.userId);
         if (data.percentage && data.percentage > availablePercentage) {
@@ -274,6 +286,9 @@ export const userMethods = {
 
     editActiveState: async (data: EditUserActiveState): Promise<User> => {
         await externalUserUpdate(data.id, { active: data.active });
+        if (data.active === false) {
+            await prisma.membership.deleteMany({ where: { userId: data.id, group: { organizational: true } } });
+        }
         await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: !data.active } });
         return prisma.user.update({
             where: { id: data.id },

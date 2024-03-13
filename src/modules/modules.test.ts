@@ -88,6 +88,46 @@ describe('groups', () => {
         assert.equal(groupAfter.archived, true);
     });
 
+    it('kicks all users out of archived organizational group', async () => {
+        await prisma.group.update({ where: { id: 'goldfinch' }, data: { organizational: true } });
+        const membershipsBefore = await groupMethods.getMemberships('goldfinch');
+        assert.equal(membershipsBefore.length, 1);
+        await groupMethods.archive('goldfinch');
+        await groupMethods.unarchive('goldfinch');
+        const membershipsAfter = await groupMethods.getMemberships('goldfinch');
+        assert.equal(membershipsAfter.length, 0);
+    });
+
+    it('kicks archived user out of all organizational groups', async () => {
+        await prisma.group.update({ where: { id: 'goldfinch' }, data: { organizational: true } });
+        const membershipsBefore = await userMethods.getMemberships('charmander');
+        assert.equal(membershipsBefore.length, 1);
+        await userMethods.editActiveState({ id: 'charmander', active: false });
+        await userMethods.editActiveState({ id: 'charmander', active: true });
+        const membershipsAfter = await userMethods.getMemberships('charmander');
+        assert.equal(membershipsAfter.length, 0);
+    });
+
+    it('cannot add user to the same group twice', async () => {
+        const check = () => userMethods.addToGroup({ userId: 'charmander', groupId: 'goldfinch' });
+        await assert.rejects(check, { message: 'User is already a member of the group' });
+    });
+
+    it('cannot add user to multiple organizational groups', async () => {
+        await prisma.group.update({ where: { id: 'gorilla' }, data: { organizational: true } });
+        await prisma.group.update({ where: { id: 'goldfinch' }, data: { organizational: true } });
+        await userMethods.addToGroup({ userId: 'pikachu', groupId: 'gorilla' });
+        const check = () => userMethods.addToGroup({ userId: 'pikachu', groupId: 'goldfinch' });
+        await assert.rejects(check, { message: 'User already has organizational membership' });
+    });
+
+    it('cannot make a group organizational, if it violates single org membership invariant', async () => {
+        await groupMethods.edit({ groupId: 'goldfinch', organizational: true });
+        await userMethods.addToGroup({ groupId: 'gorilla', userId: 'charmander' });
+        const check = () => groupMethods.edit({ groupId: 'gorilla', organizational: true });
+        await assert.rejects(check, { message: 'Multiple organizational memberships are forbidden' });
+    });
+
     it('cannot get archived groups or memberships', async () => {
         const groupBefore = await groupMethods.getById('barracuda');
         assert.ok(groupBefore);
@@ -139,8 +179,6 @@ describe('groups', () => {
         const membership = memberships[0];
         assert.ok(membership);
         await groupMethods.archive('goldfinch');
-        const checkAdd = () => userMethods.addToGroup({ userId: membership.userId, groupId: membership.groupId });
-        await assert.rejects(checkAdd, { message: 'Cannot edit archived membership' });
         const checkRemove = () =>
             userMethods.removeFromGroup({ userId: membership.userId, groupId: membership.groupId });
         await assert.rejects(checkRemove, { message: 'Cannot edit archived membership' });

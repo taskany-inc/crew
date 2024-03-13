@@ -5,6 +5,9 @@
     "Cancel": "Отмена",
     "Create": "Создать",
     "Parent team:": "Родительская команда",
-    "Virtual group:": "Виртуальная группа",
-    "Group without a parent will show up as the top-level group": "Если не указать родителя, группа будет показана на верхнем уровне"
+    "Group without a parent will show up as the top-level group": "Если не указать родителя, группа будет показана на верхнем уровне",
+    "Regular": "Обычная",
+    "Organizational": "Организационная",
+    "Virtual": "Виртуальная",
+    "Group type": "Тип группы"
 }

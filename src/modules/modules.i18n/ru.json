@@ -46,5 +46,8 @@
     "Title must be longer than {min} symbol": "Название роли должно быть длиннее {min} символов",
     "Only admins can create groups": "Только администраторы могут создавать группы",
     "Only admins can create users": "Только администраторы могут создавать пользователей",
-    "Cannot archive group with active vacancies": "Нельзя заархивировать группу у которой есть активные вакансии"
+    "Cannot archive group with active vacancies": "Нельзя заархивировать группу у которой есть активные вакансии",
+    "User already has organizational membership": "Пользователь уже состоит в организационной группе",
+    "User is already a member of the group": "Пользователь уже состоит в группе",
+    "Multiple organizational memberships are forbidden": "Запрещено участие в нескольки организационных группах"
 }

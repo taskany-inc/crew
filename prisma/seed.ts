@@ -65,6 +65,7 @@ const main = async () => {
     await prisma.group.create({
         data: {
             name: 'taskany',
+            organizational: true,
             children: {
                 create: {
                     name: 'frontend',
