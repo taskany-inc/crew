@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.42.0](https://github.com/taskany-inc/crew/compare/v0.41.0...v0.42.0) (2024-03-14)
+
+
+### Features
+
+* **CreateGroupModal:** allow vTeam creation to everyone ([867f06f](https://github.com/taskany-inc/crew/commit/867f06fdd91000a23cf54fbe23df7d88f6cee246))
+* organizational groups ([7101656](https://github.com/taskany-inc/crew/commit/710165675cc60f5aee7cdfd05648fce1d6eb4ee5))
+* **TeamPage:** add people and vacancies ([e23b704](https://github.com/taskany-inc/crew/commit/e23b704a83fc4a110e4756f6990a3a4401286572))
+
+
+### Bug Fixes
+
+* do not allow to archive group with active vacancies ([65179b2](https://github.com/taskany-inc/crew/commit/65179b27e3e415084dc37983d02cfd2beeee450e))
+
 ## [0.41.0](https://github.com/taskany-inc/crew/compare/v0.40.0...v0.41.0) (2024-03-11)
 
 
