@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "18.6.1",
-    "@commitlint/config-conventional": "18.6.0",
+    "@commitlint/config-conventional": "19.1.0",
     "@next/bundle-analyzer": "14.1.0",
     "@svgr/webpack": "8.1.0",
     "@taskany/eslint-plugin-rules": "0.1.3",
