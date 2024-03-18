@@ -15,6 +15,7 @@ export const editGroupSchema = z.object({
     name: z.string().optional(),
     description: z.string().optional(),
     organizational: z.boolean().optional(),
+    supervisorId: z.string().nullish(),
 });
 export type EditGroup = z.infer<typeof editGroupSchema>;
 

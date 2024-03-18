@@ -11,11 +11,12 @@ import { PageSep } from '../PageSep';
 import { LayoutMain } from '../LayoutMain';
 import { SettingsCard, SettingsContainer } from '../Settings';
 import { EditGroup } from '../../modules/groupSchemas';
-import { GroupMeta, GroupParent } from '../../modules/groupTypes';
+import { GroupMeta, GroupParent, GroupSupervisor } from '../../modules/groupTypes';
 import { useGroupMutations } from '../../modules/groupHooks';
 import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { GroupListItem } from '../GroupListItem';
+import { UserComboBox } from '../UserComboBox/UserComboBox';
 
 import { tr } from './TeamSettingsPage.i18n';
 
@@ -33,7 +34,7 @@ const StyledFormSection = styled(Text)`
 `;
 
 interface TeamSettingsPageBaseProps {
-    group: Group & GroupMeta & GroupParent;
+    group: Group & GroupMeta & GroupParent & GroupSupervisor;
 }
 
 const StyledGroupListItemWrapper = styled.div`
@@ -94,6 +95,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
             name: group.name,
             description: group.description ?? '',
             organizational: group.organizational,
+            supervisorId: group.supervisorId,
         },
     });
 
@@ -110,6 +112,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
             name: editedGroup.name,
             description: editedGroup.description ?? '',
             organizational: editedGroup.organizational,
+            supervisorId: editedGroup.supervisorId,
         });
     });
 
@@ -140,6 +143,18 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                                     value="organizational"
                                     checked={organizational}
                                     onChange={onOrganizationalClick}
+                                />
+                            </StyledInputContainer>
+
+                            <StyledInputContainer>
+                                <Text weight="bold" color={gray8}>
+                                    {tr('Supervisor:')}
+                                </Text>
+                                <UserComboBox
+                                    user={group.supervisor}
+                                    onChange={(user) =>
+                                        setValue('supervisorId', user?.id || null, { shouldDirty: true })
+                                    }
                                 />
                             </StyledInputContainer>
 

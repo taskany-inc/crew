@@ -49,5 +49,6 @@
     "Cannot archive group with active vacancies": "",
     "User already has organizational membership": "",
     "User is already a member of the group": "",
-    "Multiple organizational memberships are forbidden": ""
+    "Multiple organizational memberships are forbidden": "",
+    "Only admins and supervisors can edit groups": ""
 }
