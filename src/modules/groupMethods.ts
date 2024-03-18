@@ -26,14 +26,14 @@ export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser?
     return {
         ...group,
         meta: {
-            isEditable: groupAccess.isEditable(sessionUser).allowed,
+            isEditable: groupAccess.isEditable(sessionUser, group.supervisorId).allowed,
         },
     };
 };
 
 export const groupMethods = {
-    create: (data: CreateGroup) => {
-        return prisma.group.create({ data });
+    create: (data: CreateGroup, sessionUser: SessionUser) => {
+        return prisma.group.create({ data: { supervisorId: sessionUser.id, name: data.name } });
     },
 
     edit: async ({ groupId, ...data }: EditGroup) => {

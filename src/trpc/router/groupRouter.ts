@@ -20,11 +20,14 @@ export const groupRouter = router({
         } else {
             accessCheck(globalAccess.group.create(ctx.session.user.role));
         }
-        return groupMethods.create(input);
+        return groupMethods.create(input, ctx.session.user);
     }),
 
-    edit: protectedProcedure.input(editGroupSchema).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+    edit: protectedProcedure.input(editGroupSchema).mutation(async ({ input, ctx }) => {
+        const group = await prisma?.group.findFirstOrThrow({
+            where: { id: input.groupId },
+        });
+        accessCheck(groupAccess.isEditable(ctx.session.user, group?.supervisorId));
         return groupMethods.edit(input);
     }),
 
