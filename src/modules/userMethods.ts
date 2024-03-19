@@ -33,6 +33,7 @@ import { addCalculatedGroupFields } from './groupMethods';
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: SessionUser): T & UserMeta => {
     return {
         ...user,
+        bonusPoints: userAccess.isBonusViewable(sessionUser, user.id).allowed ? user.bonusPoints : 0,
         meta: {
             isEditable: userAccess.isEditable(sessionUser, user.id).allowed,
             isActiveStateEditable: userAccess.isActiveStateEditable(sessionUser).allowed,
