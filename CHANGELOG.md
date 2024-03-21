@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.43.0](https://github.com/taskany-inc/crew/compare/v0.42.0...v0.43.0) (2024-03-21)
+
+
+### Features
+
+* **TeamSettingsPage:** use group owner in group access checks ([6a06a06](https://github.com/taskany-inc/crew/commit/6a06a06f4fbc51464656a6784e2efe094cb31a4b))
+
+
+### Bug Fixes
+
+* **userMethods:** hide user bonus points in responses ([62a6ebb](https://github.com/taskany-inc/crew/commit/62a6ebbbda5ae05b091be0cd996c0b9ad19f7f5a))
+
 ## [0.42.0](https://github.com/taskany-inc/crew/compare/v0.41.0...v0.42.0) (2024-03-14)
 
 
