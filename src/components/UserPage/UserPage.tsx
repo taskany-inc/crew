@@ -2,13 +2,13 @@ import { Text, Button, nullable, Modal } from '@taskany/bricks';
 import { gapL, gapS, gapXl, gray10, gray8, textColor } from '@taskany/colors';
 import styled from 'styled-components';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 import { PageSep } from '../PageSep';
 import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../LayoutMain';
 import { UserSummary } from '../UserSummary/UserSummary';
 import { UserContacts } from '../UserContacts/UserContacts';
-import { UserBonusPoints } from '../UserBonusPoints/UserBonusPoints';
 import { UserMembershipsList } from '../UserMembershipsList/UserMembershipsList';
 import UserUpdateForm from '../UserUpdateForm/UserUpdateForm';
 import { UserDevices } from '../UserDevices/UserDevices';
@@ -17,6 +17,8 @@ import { DeactivateProfileForm } from '../DeactivateProfileForm/DeactivateProvil
 import { Link } from '../Link';
 import { pages } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
+import { UserBonusPoints } from '../UserBonusPoints/UserBonusPoints';
+import { UserAchievementList } from '../UserAchievementList/UserAchievementList';
 
 import { tr } from './UserPage.i18n';
 
@@ -68,6 +70,7 @@ export const UserPage = ({ userId }: UserPageProps) => {
     const { showGroupPreview } = usePreviewContext();
     const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);
     const [openDeactivateUserForm, setOpenDeactivateUserForm] = useState(false);
+    const { data } = useSession();
 
     const userQuery = trpc.user.getById.useQuery(userId);
     const user = userQuery.data;
@@ -130,6 +133,7 @@ export const UserPage = ({ userId }: UserPageProps) => {
                     {nullable(user.meta.isBonusViewable, () => (
                         <UserBonusPoints user={user} />
                     ))}
+                    <UserAchievementList user={user} isEditable={!!data?.access.achievement.create} />
 
                     <UserContacts user={user} />
 
