@@ -10,8 +10,8 @@ export const createDeviceSchema = z.object({
         })
         .min(1, {
             message: tr
-                .raw('Title must be longer than {upTo} symbol', {
-                    upTo: 1,
+                .raw('Title must be longer than {min} symbol', {
+                    min: 1,
                 })
                 .join(''),
         }),

@@ -2,7 +2,6 @@
     "Cannot delete group with children": "",
     "Title is required": "",
     "Title must be a string": "",
-    "Title must be longer than {upTo} symbol": "",
     "Choose a service": "Choose a service",
     "Max {max} items in a single request": "",
     "Cannot move group inside its child": "",
@@ -12,7 +11,7 @@
     "Only admins can edit bonus points": "",
     "Amount should be greater than zero": "",
     "Description is required": "",
-    "Description must be longer than {upTo} symbol": "",
+    "Description must be longer than {min} symbol": "",
     "Cannot view another user bonus points": "",
     "Only admins can edit groups": "",
     "Cannot archive group with children": "",
@@ -50,5 +49,9 @@
     "User already has organizational membership": "",
     "User is already a member of the group": "",
     "Multiple organizational memberships are forbidden": "",
-    "Only admins and supervisors can edit groups": ""
+    "Only admins and supervisors can edit groups": "",
+    "Only admins can give achievement": "",
+    "New achievement!": "",
+    "Congratulations! You have new achievement: {achievement}": "",
+    "Icon URL is required": ""
 }

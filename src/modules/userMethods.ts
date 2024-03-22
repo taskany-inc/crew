@@ -11,6 +11,7 @@ import { defaultTake } from '../utils';
 import {
     ExternalUserUpdate,
     MembershipInfo,
+    UserAchievements,
     UserMemberships,
     UserMeta,
     UserSettings,
@@ -194,7 +195,7 @@ export const userMethods = {
     getById: async (
         id: string,
         sessionUser: SessionUser,
-    ): Promise<User & UserMeta & UserMemberships & UserSupervisor> => {
+    ): Promise<User & UserMeta & UserMemberships & UserSupervisor & UserAchievements> => {
         const user = await prisma.user.findUnique({
             where: { id },
             include: {
@@ -204,6 +205,7 @@ export const userMethods = {
                     orderBy: { group: { name: 'asc' } },
                 },
                 supervisor: true,
+                achievements: { include: { achievement: true } },
             },
         });
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });

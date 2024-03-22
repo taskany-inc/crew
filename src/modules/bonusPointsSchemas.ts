@@ -9,7 +9,7 @@ export const changeBonusPointsSchema = z.object({
     amount: z.number().positive({ message: tr('Amount should be greater than zero') }),
     description: z
         .string({ required_error: tr('Description is required') })
-        .min(1, { message: tr('Description must be longer than {upTo} symbol', { upTo: 1 }) }),
+        .min(1, { message: tr('Description must be longer than {min} symbol', { min: 1 }) }),
 });
 export type ChangeBonusPoints = z.infer<typeof changeBonusPointsSchema>;
 
