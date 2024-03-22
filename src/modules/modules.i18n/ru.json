@@ -2,7 +2,6 @@
     "Cannot delete group with children": "Нельзя удалить группу у которой есть вложенные группы",
     "Title is required": "Заголовок обязателен",
     "Title must be a string": "Заголовок должен быть строкой",
-    "Title must be longer than {upTo} symbol": "Заголовок должен быть длиннее {upTo} символов",
     "Choose a service": "Выберите сервис",
     "Max {max} items in a single request": "Максимум {max} объектов в одном запросе",
     "Cannot move group inside its child": "Нельзя перенести группу в ее потомка",
@@ -12,7 +11,7 @@
     "Only admins can edit bonus points": "Только администраторы могут редактировать бонусные очки",
     "Amount should be greater than zero": "Количество очков должно быть больше нуля",
     "Description is required": "Описание изменений обязательно",
-    "Description must be longer than {upTo} symbol": "Описание должно быть длинее {upTo} символа",
+    "Description must be longer than {min} symbol": "Описание должно быть длинее {min} символа",
     "Cannot view another user bonus points": "Нельзя смотреть бонусы другого пользователя",
     "Only admins can edit groups": "Только администраторы могут редактировать группы",
     "Cannot archive group with children": "Нельзя заархивировать группу у которой есть вложенные группы",
@@ -49,6 +48,10 @@
     "Cannot archive group with active vacancies": "Нельзя заархивировать группу у которой есть активные вакансии",
     "User already has organizational membership": "Пользователь уже состоит в организационной группе",
     "User is already a member of the group": "Пользователь уже состоит в группе",
-    "Multiple organizational memberships are forbidden": "Запрещено участие в нескольки организационных группах",
-    "Only admins and supervisors can edit groups": "Только администраторы и руководители могут редактировать группы"
+    "Only admins and supervisors can edit groups": "Только администраторы и руководители могут редактировать группы",
+    "Multiple organizational memberships are forbidden": "Запрещено участие в нескольких организационных группах",
+    "Only admins can give achievement": "Только администраторы могут раздавать награды",
+    "New achievement!": "Новое достижение!",
+    "Congratulations! You have new achievement: {achievement}": "Поздравляем! У вас новое достижение: {achievement}",
+    "Icon URL is required": "Ссылка на иконку обязательна"
 }

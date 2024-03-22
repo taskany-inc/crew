@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { tr } from './modules.i18n';
 
 export const createGroupSchema = z.object({
-    name: z.string().min(3, { message: tr('Title must be longer than {upTo} symbol', { upTo: 3 }) }),
+    name: z.string().min(3, { message: tr('Title must be longer than {min} symbol', { min: 3 }) }),
     parentId: z.string().optional(),
     virtual: z.boolean().optional(),
     organizational: z.boolean().optional(),

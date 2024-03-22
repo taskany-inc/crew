@@ -1,4 +1,4 @@
-import { Group, Membership, Role, User } from 'prisma/prisma-client';
+import { Group, Membership, UserAchievement, Achievement, Role, User } from '@prisma/client';
 
 import { Nullish } from '../utils/types';
 import { Theme } from '../utils/theme';
@@ -37,4 +37,8 @@ export interface ExternalUserUpdate {
     name?: string;
     supervisorId?: string | null;
     active?: boolean;
+}
+
+export interface UserAchievements {
+    achievements: Array<UserAchievement & { achievement: Achievement }>;
 }

@@ -15,6 +15,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'role', 'AddToMembership' | 'RemoveFromMembership'>
     | NamespacedAction<'service', 'AddToUser' | 'Delete'>
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
+    | NamespacedAction<'achievement', 'Give'>
     | NamespacedAction<'bonusPoints', 'Change'>
     | 'sendFeedback';
 
@@ -107,6 +108,10 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         deviceDelete: {
             success: tr('Device is deleted'),
             loading: tr('Deleting the device...'),
+        },
+        achievementGive: {
+            success: tr('Achievement is awarded!'),
+            loading: tr('Awarding an achievement...'),
         },
     };
 

@@ -21,6 +21,12 @@ export const globalAccess = {
             return notAllowed(tr('Only admins can create users'));
         },
     },
+    achievement: {
+        create: (userRole: UserRole): AccessCheckResult => {
+            if (userRole === UserRole.ADMIN) return allowed;
+            return notAllowed(tr('Only admins can give achievement'));
+        },
+    },
 };
 
 export type GlobalAccess = {

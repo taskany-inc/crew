@@ -12,6 +12,7 @@ import { bonusPointsRouter } from './bonusPointsRouter';
 import { vacancyRouter } from './vacancyRouter';
 import { hireIntegrationRouter } from './hireIntegrationRouter';
 import { appConfigRouter } from './appConfigRouter';
+import { achievementRouter } from './achievementRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -26,6 +27,7 @@ export const trpcRouter = router({
     vacancy: vacancyRouter,
     hireIntegration: hireIntegrationRouter,
     appConfig: appConfigRouter,
+    achievement: achievementRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

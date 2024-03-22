@@ -10,8 +10,8 @@ export const createFeedbackSchema = z.object({
         })
         .min(3, {
             message: tr
-                .raw('Title must be longer than {upTo} symbol', {
-                    upTo: 3,
+                .raw('Title must be longer than {min} symbol', {
+                    min: 3,
                 })
                 .join(''),
         }),
