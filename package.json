@@ -40,7 +40,7 @@
     "classnames": "2.5.1",
     "easy-typed-intl": "1.0.3",
     "next": "13.4.9",
-    "next-auth": "4.24.5",
+    "next-auth": "4.24.7",
     "next-themes": "0.2.1",
     "nodemailer": "6.9.12",
     "postcss-cli": "11.0.0",
