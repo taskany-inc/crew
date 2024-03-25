@@ -41,6 +41,7 @@ export const useUserMutations = () => {
                     ? {
                           userId: oldSettings.userId,
                           theme: newSettings.theme ?? oldSettings.theme,
+                          showAchievements: newSettings.showAchievements ?? oldSettings.showAchievements,
                       }
                     : undefined;
             });

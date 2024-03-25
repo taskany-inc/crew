@@ -21,7 +21,7 @@ export const UserAchievementList = ({ user, isEditable }: UserAchievementListPro
 
     return (
         <NarrowSection title={tr('Achievements')}>
-            {user.achievements.map(({ achievement }) => (
+            {user.achievements?.map(({ achievement }) => (
                 <AchievementListItem key={`achievement-${achievement.id}`} achievement={achievement} />
             ))}
             {nullable(isEditable, () => (

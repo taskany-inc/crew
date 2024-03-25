@@ -138,6 +138,8 @@ model UserSettings {
   userId String @unique
 
   theme String @default("system")
+
+  showAchievements Boolean @default(true)
 }
 
 model OrganizationUnit {
