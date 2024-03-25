@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.44.0](https://github.com/taskany-inc/crew/compare/v0.43.0...v0.44.0) (2024-03-25)
+
+
+### Features
+
+* achievements ([ac56c7b](https://github.com/taskany-inc/crew/commit/ac56c7b2085b9d05422ddc3381d8ed5e83c1e7b4))
+* achievements ui ([2fe6010](https://github.com/taskany-inc/crew/commit/2fe6010a438e84acceb1b3049ab4cef7414c4dcf))
+
+
+### Bug Fixes
+
+* **GroupMethods:** group.create method looses parentId ([115135f](https://github.com/taskany-inc/crew/commit/115135f55c64fa74f6f1dac0c683c73e09dc0061))
+
 ## [0.43.0](https://github.com/taskany-inc/crew/compare/v0.42.0...v0.43.0) (2024-03-21)
 
 
