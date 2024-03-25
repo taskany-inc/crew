@@ -1,9 +1,12 @@
 import { User } from 'prisma/prisma-client';
 import { useTheme } from 'next-themes';
-import { Fieldset, Form, FormRadio, FormRadioInput, Text } from '@taskany/bricks';
+import { CheckboxInput, Fieldset, Form, FormRadio, FormRadioInput, Text } from '@taskany/bricks';
+import styled from 'styled-components';
+import { gapM, gapS, gapXs, gray3, gray8 } from '@taskany/colors';
+import { ChangeEvent } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
-import { UserSettings } from '../../modules/userTypes';
+import { EditUserSettings } from '../../modules/userSchemas';
 import { SettingsCard, SettingsContainer } from '../Settings';
 import { useUserMutations } from '../../modules/userHooks';
 import { LayoutMain } from '../LayoutMain';
@@ -15,8 +18,16 @@ import { tr } from './UserSettingsPage.i18n';
 
 interface UserSettingPageBaseProps {
     user: User;
-    settings: UserSettings;
+    settings: EditUserSettings;
 }
+
+const StyledInputContainer = styled.div`
+    display: flex;
+    gap: ${gapS};
+    align-items: center;
+    padding: ${gapXs} ${gapM};
+    background-color: ${gray3};
+`;
 
 export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProps) => {
     const { setTheme } = useTheme();
@@ -26,6 +37,10 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
     const onThemeChange = (theme: Theme) => {
         editUserSettings({ theme });
         setTheme(theme);
+    };
+
+    const onShowAchievementsChange = (e: ChangeEvent<HTMLInputElement>) => {
+        editUserSettings({ showAchievements: e.target.checked });
     };
 
     return (
@@ -54,6 +69,17 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
                                     <FormRadioInput key={t} value={t} label={t} />
                                 ))}
                             </FormRadio>
+
+                            <StyledInputContainer>
+                                <Text weight="bold" color={gray8}>
+                                    {tr('Show achievements: ')}
+                                </Text>
+                                <CheckboxInput
+                                    value="createExternalAccount"
+                                    checked={settings.showAchievements}
+                                    onChange={onShowAchievementsChange}
+                                />
+                            </StyledInputContainer>
                         </Fieldset>
                     </Form>
                 </SettingsCard>

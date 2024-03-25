@@ -69,6 +69,7 @@ export type EditUserActiveState = z.infer<typeof editUserActiveStateSchema>;
 
 export const editUserSettingsSchema = z.object({
     theme: z.enum(themes).optional(),
+    showAchievements: z.boolean().optional(),
 });
 export type EditUserSettings = z.infer<typeof editUserSettingsSchema>;
 

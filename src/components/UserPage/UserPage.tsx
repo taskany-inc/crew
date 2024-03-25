@@ -133,7 +133,9 @@ export const UserPage = ({ userId }: UserPageProps) => {
                     {nullable(user.meta.isBonusViewable, () => (
                         <UserBonusPoints user={user} />
                     ))}
-                    <UserAchievementList user={user} isEditable={!!data?.access.achievement.create} />
+                    {nullable(user.achievements?.length || data?.access.achievement.create, () => (
+                        <UserAchievementList user={user} isEditable={!!data?.access.achievement.create} />
+                    ))}
 
                     <UserContacts user={user} />
 

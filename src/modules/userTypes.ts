@@ -1,4 +1,4 @@
-import { Group, Membership, UserAchievement, Achievement, Role, User } from '@prisma/client';
+import { Group, Membership, Role, User, UserAchievement, Achievement } from '@prisma/client';
 
 import { Nullish } from '../utils/types';
 import { Theme } from '../utils/theme';
@@ -9,6 +9,7 @@ import { GroupMeta } from './groupTypes';
 export interface UserSettings {
     userId: string;
     theme: Theme;
+    showAchievements: boolean;
 }
 
 export type MembershipInfo = Membership & { group: Group & GroupMeta; user: User; roles: Role[] };
@@ -40,5 +41,5 @@ export interface ExternalUserUpdate {
 }
 
 export interface UserAchievements {
-    achievements: Array<UserAchievement & { achievement: Achievement }>;
+    achievements?: Array<UserAchievement & { achievement: Achievement }>;
 }

@@ -1,4 +1,4 @@
-import { Prisma, User } from 'prisma/prisma-client';
+import { Prisma, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
@@ -14,8 +14,8 @@ import {
     UserAchievements,
     UserMemberships,
     UserMeta,
-    UserSettings,
     UserSupervisor,
+    UserSettings,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -188,7 +188,7 @@ export const userMethods = {
     editSettings: (userId: string, data: EditUserSettings) => {
         return prisma.userSettings.update({
             where: { userId },
-            data: { theme: data.theme },
+            data,
         });
     },
 
@@ -206,11 +206,18 @@ export const userMethods = {
                 },
                 supervisor: true,
                 achievements: { include: { achievement: true } },
+                settings: true,
             },
         });
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });
+
+        // TODO this should be in query https://github.com/taskany-inc/crew/issues/629
+        const showAchievements =
+            user.settings?.showAchievements || sessionUser.id === user.id || sessionUser.role === 'ADMIN';
+
         const userWithGroupMeta = {
             ...user,
+            achievements: showAchievements ? user.achievements : undefined,
             memberships: user.memberships.map((m) => ({ ...m, group: addCalculatedGroupFields(m.group, sessionUser) })),
         };
         return addCalculatedUserFields(userWithGroupMeta, sessionUser);
