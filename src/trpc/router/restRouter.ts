@@ -17,6 +17,8 @@ export const restRouter = router({
             openapi: {
                 method: 'GET',
                 path: '/users',
+                protect: true,
+                summary: 'Get user by email',
             },
         })
         .input(
@@ -41,6 +43,8 @@ export const restRouter = router({
             openapi: {
                 method: 'PUT',
                 path: '/users/edit',
+                protect: true,
+                summary: 'Update user by email',
             },
         })
         .input(
@@ -69,6 +73,8 @@ export const restRouter = router({
             openapi: {
                 method: 'PUT',
                 path: '/users/edit-active',
+                protect: true,
+                summary: 'Activate/deactivate user by email',
             },
         })
         .input(
@@ -95,6 +101,8 @@ export const restRouter = router({
             openapi: {
                 method: 'PUT',
                 path: '/users/bonus',
+                protect: true,
+                summary: 'Add/subtract bonus points from user',
             },
         })
         .input(
@@ -123,6 +131,8 @@ export const restRouter = router({
             openapi: {
                 method: 'POST',
                 path: '/groups/info',
+                protect: true,
+                summary: 'Get groups by ids',
             },
         })
         .input(
@@ -171,6 +181,8 @@ export const restRouter = router({
             openapi: {
                 method: 'POST',
                 path: '/groups/list',
+                protect: true,
+                summary: 'Get list of groups with filtering',
             },
         })
         .input(
@@ -203,6 +215,8 @@ export const restRouter = router({
             openapi: {
                 method: 'GET',
                 path: '/vacancy/{id}',
+                protect: true,
+                summary: 'Get vacancy by id',
             },
         })
         .input(
@@ -231,6 +245,8 @@ export const restRouter = router({
             openapi: {
                 method: 'POST',
                 path: '/vacancies/list',
+                protect: true,
+                summary: 'Get list of vacancies with filtering',
             },
         })
         .input(getVacancyListSchema)
@@ -264,6 +280,8 @@ export const restRouter = router({
             openapi: {
                 method: 'POST',
                 path: '/vacancy',
+                protect: true,
+                summary: 'Update vacancy by id',
             },
         })
         .input(
