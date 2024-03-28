@@ -105,10 +105,11 @@ model User {
 }
 
 model ExternalService {
-  name       String        @id @unique
-  icon       String
-  linkPrefix String?
-  users      UserService[]
+  name        String        @id @unique
+  displayName String?
+  icon        String
+  linkPrefix  String?
+  users       UserService[]
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt

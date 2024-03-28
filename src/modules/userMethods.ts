@@ -121,9 +121,10 @@ const externalUserUpdate = async (userId: string, data: Omit<ExternalUserUpdate,
 
 export const userMethods = {
     create: async (data: CreateUser) => {
-        const [phoneService, loginService] = await Promise.all([
+        const [phoneService, loginService, accountingService] = await Promise.all([
             prisma.externalService.findUnique({ where: { name: 'Phone' } }),
             prisma.externalService.findUnique({ where: { name: 'Login' } }),
+            prisma.externalService.findUnique({ where: { name: 'Accounting system' } }),
         ]);
         const servicesData = [];
         if (data.phone && phoneService) {
@@ -131,6 +132,9 @@ export const userMethods = {
         }
         if (data.login && loginService) {
             servicesData.push({ serviceName: loginService.name, serviceId: data.login });
+        }
+        if (data.accountingId && accountingService) {
+            servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
         }
         if (data.createExternalAccount) {
             await externalUserCreate(data);

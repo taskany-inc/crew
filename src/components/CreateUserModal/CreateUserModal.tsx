@@ -68,7 +68,11 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
     };
 
     const onSubmit = handleSubmit(async (data) => {
-        const newUser = await createUser(data);
+        const { accountingId, ...restData } = data;
+        const newUser = await createUser({
+            accountingId: accountingId || undefined,
+            ...restData,
+        });
         router.user(newUser.id);
 
         onClose();
@@ -134,6 +138,13 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             autoComplete="off"
                             {...register('phone')}
                             error={errors.phone}
+                        />
+                        <FormInput
+                            label={tr('Accounting id')}
+                            brick="right"
+                            autoComplete="off"
+                            {...register('accountingId')}
+                            error={errors.accountingId}
                         />
                         <StyledInputContainer>
                             <Text weight="bold" color={gray8}>
