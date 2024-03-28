@@ -71,8 +71,8 @@ model User {
 
   achievements UserAchievement[]
 
-  achievementsCreated Achievement[] @relation("achievementsCreated")
-  achievementsAwarded   UserAchievement[] @relation("achievementsAwarded")
+  achievementsCreated Achievement[]     @relation("achievementsCreated")
+  achievementsAwarded UserAchievement[] @relation("achievementsAwarded")
 
   organizationUnit   OrganizationUnit? @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId String?
@@ -198,6 +198,7 @@ model Membership {
 
   @@unique([userId, groupId])
 }
+
 model Role {
   id   String @id @default(nanoid())
   name String @unique
@@ -311,13 +312,13 @@ model AppConfig {
 }
 
 model Achievement {
-  id          String  @id @default(nanoid())
+  id          String @id @default(nanoid())
   description String
   title       String
   icon        String
 
-  creator        User?   @relation("achievementsCreated", fields: [creatorId], references: [id])
-  creatorId      String?
+  creator   User?   @relation("achievementsCreated", fields: [creatorId], references: [id])
+  creatorId String?
 
   achievements UserAchievement[]
 
@@ -327,15 +328,19 @@ model Achievement {
 model UserAchievement {
   id String @id @default(nanoid())
 
+  count Int @default(1)
+
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
   awarderId String
-  awarder User @relation("achievementsAwarded", fields: [awarderId], references: [id])
-  
+  awarder   User   @relation("achievementsAwarded", fields: [awarderId], references: [id])
+
   achievementId String
-  achievement Achievement @relation(fields: [achievementId], references: [id])
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+
+  @@unique([userId, achievementId])
 }
