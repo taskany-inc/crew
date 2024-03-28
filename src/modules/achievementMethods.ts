@@ -30,15 +30,24 @@ export const achievementMethods = {
 
     give: async (data: GiveAchievement, sessionUserId: string) => {
         const { achievementTitle, ...restData } = data;
-        const user = await prisma.user.findUnique({ where: { id: restData.userId } });
+        const user = await prisma.user.findUnique({ where: { id: restData.userId }, include: { achievements: true } });
 
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${restData.userId}` });
-
         await sendMail({
             to: user.email,
             subject: tr('New achievement!'),
             text: tr('Congratulations! You have new achievement: {achievement}', { achievement: achievementTitle }),
         });
+
+        const existingAchievement = user.achievements.find(
+            ({ achievementId }) => achievementId === restData.achievementId,
+        );
+        if (existingAchievement) {
+            return prisma.userAchievement.update({
+                where: { id: existingAchievement.id },
+                data: { count: { increment: 1 } },
+            });
+        }
 
         return prisma.userAchievement.create({ data: { ...restData, awarderId: sessionUserId } });
     },
