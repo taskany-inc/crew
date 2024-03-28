@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { VacancyStatus } from 'prisma/prisma-client';
+import { VacancyStatus } from '@prisma/client';
 
 import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
@@ -9,6 +9,8 @@ import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
 import { groupMethods } from '../../modules/groupMethods';
 import { vacancyMethods } from '../../modules/vacancyMethods';
 import { getVacancyListSchema } from '../../modules/vacancySchemas';
+import { getAchievementListSchema, giveAchievementSchema } from '../../modules/achievementSchemas';
+import { achievementMethods } from '../../modules/achievementMethods';
 
 import { tr } from './router.i18n';
 
@@ -328,4 +330,59 @@ export const restRouter = router({
             }),
         )
         .query(({ input }) => vacancyMethods.edit(input)),
+
+    getCrewAchievements: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/achievements/list',
+                protect: true,
+                summary: 'Get crew achievements',
+            },
+        })
+        .input(getAchievementListSchema)
+        .output(
+            z.array(
+                z.object({
+                    id: z.string(),
+                    title: z.string(),
+                    icon: z.string(),
+                    description: z.string(),
+                }),
+            ),
+        )
+        .query(({ input }) => achievementMethods.getList(input)),
+
+    giveCrewAchievement: restProcedure
+        .meta({
+            openapi: {
+                method: 'POST',
+                path: '/achievements/give',
+                protect: true,
+                summary: 'Give user crew achievement',
+            },
+        })
+        .input(
+            giveAchievementSchema.omit({ userId: true, achievementTitle: true }).extend({
+                targetUserEmail: z.string(),
+                actingUserEmail: z.string(),
+            }),
+        )
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string().nullable(),
+                email: z.string(),
+            }),
+        )
+        .query(async ({ input }) => {
+            const { actingUserEmail, targetUserEmail, achievementId, amount } = input;
+            const targetUser = await userMethods.getByEmail(targetUserEmail);
+            const actingUser = await userMethods.getByEmail(actingUserEmail);
+            const achievement = await achievementMethods.getById(achievementId);
+            return achievementMethods.give(
+                { achievementId, amount, userId: targetUser.id, achievementTitle: achievement.title },
+                actingUser.id,
+            );
+        }),
 });
