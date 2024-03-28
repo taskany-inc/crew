@@ -11,6 +11,7 @@ export const createUserSchema = z.object({
     email: z.string().min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
     phone: z.string().min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
     login: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 3 }) }),
+    accountingId: z.string().optional(),
     organizationUnitId: z.string(),
     groupId: z.string().nullish(),
     supervisorId: z.string().nullish(),

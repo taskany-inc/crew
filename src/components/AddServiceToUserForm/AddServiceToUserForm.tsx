@@ -57,7 +57,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
                 <ComboBox
                     value={selectedService ? undefined : search}
                     onChange={(value: ExternalService) => {
-                        setSearch(value.name);
+                        setSearch(value.displayName || value.name);
                         setSelectedService(value);
                     }}
                     visible={!selectedService}
@@ -85,7 +85,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
                             onClick={props.onClick}
                             color={gray10}
                         >
-                            {props.item.name}
+                            {props.item.displayName || props.item.name}
                         </MenuItem>
                     )}
                 />

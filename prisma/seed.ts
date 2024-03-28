@@ -31,6 +31,7 @@ const main = async () => {
         { name: 'Github', icon: 'IconGithubOutline', linkPrefix: 'https://github.com/' },
         { name: 'Gitlab', icon: 'IconGitlabOutline', linkPrefix: 'https://gitlab.com/' },
         { name: 'Telegram', icon: 'IconTelegramOutline', linkPrefix: 'https://t.me/' },
+        { name: 'accouting_system', displayName: 'Accounting system', icon: 'IconCalculatorOutline' },
     ];
 
     await prisma.externalService.createMany({ data: servicesData });

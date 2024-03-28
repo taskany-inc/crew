@@ -38,7 +38,7 @@ export const UserServiceListItem = ({ userService }: UserServiceListItemProps) =
             </StyledWrapper>
 
             <Popup reference={ref} placement="top">
-                <Text>{userService.service.name}</Text>
+                <Text>{userService.service.displayName || userService.service.name}</Text>
             </Popup>
         </>
     );

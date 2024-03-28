@@ -5,7 +5,15 @@ import { UserServiceInfo } from './serviceTypes';
 
 export const serviceMethods = {
     getList: (data: GetServiceList) => {
-        return prisma.externalService.findMany({ where: { name: { contains: data.search } }, take: data.take });
+        return prisma.externalService.findMany({
+            where: {
+                OR: [
+                    { name: { contains: data.search, mode: 'insensitive' } },
+                    { displayName: { contains: data.search, mode: 'insensitive' } },
+                ],
+            },
+            take: data.take,
+        });
     },
 
     addToUser: (data: CreateService) => {

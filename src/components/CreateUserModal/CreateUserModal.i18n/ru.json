@@ -12,5 +12,6 @@
     "Phone": "Телефон",
     "Login": "Логин",
     "Organization:": "Организация",
-    "Create external account:": "Создать внешнюю учетную запись"
+    "Create external account:": "Создать внешнюю учетную запись",
+    "Accounting id": "Id в бухгалтерской системе"
 }

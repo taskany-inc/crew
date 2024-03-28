@@ -44,6 +44,7 @@ export const UserContacts = ({ user }: UserContactsProps) => {
             updatedAt: new Date(),
             service: {
                 name: 'Email',
+                displayName: null,
                 icon: 'IconEnvelopeOutline',
                 linkPrefix: 'mailto:',
                 createdAt: new Date(),
