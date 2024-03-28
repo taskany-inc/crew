@@ -3,6 +3,7 @@ import { VacancyStatus } from 'prisma/prisma-client';
 
 import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
+import { createUserSchema } from '../../modules/userSchemas';
 import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
 import { groupMethods } from '../../modules/groupMethods';
@@ -36,6 +37,27 @@ export const restRouter = router({
         )
         .query(({ input }) => {
             return userMethods.getByEmail(input.email);
+        }),
+
+    createUser: restProcedure
+        .meta({
+            openapi: {
+                method: 'POST',
+                path: '/users/create',
+                protect: true,
+                summary: 'Create new user',
+            },
+        })
+        .input(createUserSchema)
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string().nullable(),
+                email: z.string(),
+            }),
+        )
+        .mutation(({ input }) => {
+            return userMethods.create(input);
         }),
 
     editUser: restProcedure
