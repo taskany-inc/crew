@@ -52,6 +52,13 @@ export const getUserListSchema = z.object({
 });
 export type GetUserList = z.infer<typeof getUserListSchema>;
 
+export const getUserByFieldSchema = z.discriminatedUnion('field', [
+    z.object({ field: z.literal('id'), value: z.string() }),
+    z.object({ field: z.literal('email'), value: z.string() }),
+    z.object({ field: z.literal('service'), serviceName: z.string(), serviceId: z.string() }),
+]);
+export type GetUserByField = z.infer<typeof getUserByFieldSchema>;
+
 export const editUserSchema = z.object({
     id: z.string(),
     name: z.string().optional(),

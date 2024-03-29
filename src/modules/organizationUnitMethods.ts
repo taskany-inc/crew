@@ -12,6 +12,7 @@ export const organizationUnitMethods = {
                 ],
             },
             take: data.take,
+            skip: data.skip,
         });
     },
 };

@@ -71,7 +71,16 @@ module.exports = {
         'arrow-body-style': 'off',
         'padding-line-between-statements': 'off',
         'no-unused-expressions': 'off',
-        '@typescript-eslint/no-unused-vars': ['error', { vars: 'all', args: 'after-used', ignoreRestSiblings: true }],
+        '@typescript-eslint/no-unused-vars': [
+            'error',
+            {
+                vars: 'all',
+                argsIgnorePattern: '^_',
+                varsIgnorePattern: '^_',
+                args: 'after-used',
+                ignoreRestSiblings: true,
+            },
+        ],
         camelcase: 'off',
         'no-underscore-dangle': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',

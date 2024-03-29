@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { VacancyStatus } from '@prisma/client';
 
+import { prisma } from '../../utils/prisma';
 import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
-import { createUserSchema } from '../../modules/userSchemas';
+import { createUserSchema, getUserByFieldSchema } from '../../modules/userSchemas';
 import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
 import { groupMethods } from '../../modules/groupMethods';
@@ -11,8 +12,28 @@ import { vacancyMethods } from '../../modules/vacancyMethods';
 import { getVacancyListSchema } from '../../modules/vacancySchemas';
 import { getAchievementListSchema, giveAchievementSchema } from '../../modules/achievementSchemas';
 import { achievementMethods } from '../../modules/achievementMethods';
+import { getOrganizationUnitListSchema } from '../../modules/organizationUnitSchemas';
+import { organizationUnitMethods } from '../../modules/organizationUnitMethods';
+import { getServiceListSchema } from '../../modules/serviceSchemas';
+import { serviceMethods } from '../../modules/serviceMethods';
 
 import { tr } from './router.i18n';
+
+const getUserByFieldFlatSchema = z.object({
+    field: z.string(),
+    value: z.string().optional(),
+    serviceName: z.string().optional(),
+    serviceId: z.string().optional(),
+});
+
+const userSchema = z.object({
+    id: z.string(),
+    name: z.string().nullable(),
+    email: z.string(),
+    active: z.boolean(),
+    supervisorId: z.string().nullable(),
+    bonusPoints: z.number(),
+});
 
 export const restRouter = router({
     getUserByEmail: restProcedure
@@ -22,6 +43,7 @@ export const restRouter = router({
                 path: '/users',
                 protect: true,
                 summary: 'Get user by email',
+                deprecated: true,
             },
         })
         .input(
@@ -29,16 +51,65 @@ export const restRouter = router({
                 email: z.string(),
             }),
         )
+        .output(userSchema)
+        .query(({ input }) => {
+            return userMethods.getUserByField({ field: 'email', value: input.email });
+        }),
+
+    getUserByField: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/users/get-by-field',
+                protect: true,
+                summary: 'Get user by chosen field',
+                description:
+                    'https://github.com/taskany-inc/crew/blob/main/src/modules/userSchemas.ts#:~:text=getUserByFieldSchema',
+            },
+        })
+        .input(getUserByFieldFlatSchema)
         .output(
-            z.object({
-                id: z.string(),
-                name: z.string().nullable(),
-                email: z.string(),
-                bonusPoints: z.number(),
+            userSchema.extend({
+                organizationalGroupMembership: z
+                    .object({
+                        group: z.object({
+                            id: z.string(),
+                            name: z.string(),
+                        }),
+                        roles: z.array(
+                            z.object({
+                                name: z.string(),
+                            }),
+                        ),
+                    })
+                    .nullable(),
+                achievements: z.array(
+                    z.object({
+                        count: z.number(),
+                        achievement: z.object({
+                            id: z.string(),
+                            description: z.string(),
+                            title: z.string(),
+                            icon: z.string(),
+                        }),
+                    }),
+                ),
             }),
         )
-        .query(({ input }) => {
-            return userMethods.getByEmail(input.email);
+        .query(async ({ input }) => {
+            const validatedInput = await getUserByFieldSchema.parseAsync(input);
+            const user = await userMethods.getUserByField(validatedInput);
+            const [achievements, organizationalGroupMembership] = await Promise.all([
+                prisma.userAchievement.findMany({
+                    where: { userId: user.id },
+                    include: { achievement: true },
+                }),
+                prisma.membership.findFirst({
+                    where: { userId: user.id, group: { organizational: true } },
+                    select: { roles: true, group: true },
+                }),
+            ]);
+            return { ...user, achievements, organizationalGroupMembership };
         }),
 
     createUser: restProcedure
@@ -51,13 +122,7 @@ export const restRouter = router({
             },
         })
         .input(createUserSchema)
-        .output(
-            z.object({
-                id: z.string(),
-                name: z.string().nullable(),
-                email: z.string(),
-            }),
-        )
+        .output(userSchema)
         .mutation(({ input }) => {
             return userMethods.create(input);
         }),
@@ -69,6 +134,7 @@ export const restRouter = router({
                 path: '/users/edit',
                 protect: true,
                 summary: 'Update user by email',
+                deprecated: true,
             },
         })
         .input(
@@ -78,18 +144,36 @@ export const restRouter = router({
                 supervisorId: z.string().nullish(),
             }),
         )
-        .output(
-            z.object({
-                id: z.string(),
-                name: z.string().nullable(),
-                email: z.string(),
-                supervisorId: z.string().nullable(),
-            }),
-        )
+        .output(userSchema)
         .mutation(async ({ input }) => {
             const { email, ...restInput } = input;
-            const user = await userMethods.getByEmail(email);
+            const user = await userMethods.getUserByField({ field: 'email', value: email });
             return userMethods.edit({ id: user.id, ...restInput });
+        }),
+
+    editUserByField: restProcedure
+        .meta({
+            openapi: {
+                method: 'PUT',
+                path: '/users/edit-by-field',
+                protect: true,
+                summary: 'Update user by chosen field',
+            },
+        })
+        .input(
+            z.object({
+                user: getUserByFieldFlatSchema,
+                data: z.object({
+                    name: z.string().optional(),
+                    supervisorId: z.string().nullish(),
+                }),
+            }),
+        )
+        .output(userSchema)
+        .query(async ({ input }) => {
+            const validatedUserInput = await getUserByFieldSchema.parseAsync(input.user);
+            const user = await userMethods.getUserByField(validatedUserInput);
+            return userMethods.edit({ id: user.id, ...input.data });
         }),
 
     editUserActiveState: restProcedure
@@ -107,16 +191,9 @@ export const restRouter = router({
                 active: z.boolean(),
             }),
         )
-        .output(
-            z.object({
-                id: z.string(),
-                name: z.string().nullable(),
-                email: z.string(),
-                active: z.boolean(),
-            }),
-        )
+        .output(userSchema)
         .mutation(async ({ input }) => {
-            const user = await userMethods.getByEmail(input.email);
+            const user = await userMethods.getUserByField({ field: 'email', value: input.email });
             return userMethods.editActiveState({ id: user.id, active: input.active });
         }),
 
@@ -135,18 +212,11 @@ export const restRouter = router({
                 actingUserEmail: z.string(),
             }),
         )
-        .output(
-            z.object({
-                id: z.string(),
-                name: z.string().nullable(),
-                email: z.string(),
-                bonusPoints: z.number(),
-            }),
-        )
+        .output(userSchema)
         .mutation(async ({ input }) => {
             const { actingUserEmail, targetUserEmail, ...restInput } = input;
-            const targetUser = await userMethods.getByEmail(targetUserEmail);
-            const actingUser = await userMethods.getByEmail(actingUserEmail);
+            const targetUser = await userMethods.getUserByField({ field: 'email', value: targetUserEmail });
+            const actingUser = await userMethods.getUserByField({ field: 'email', value: actingUserEmail });
             return bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser);
         }),
 
@@ -379,8 +449,8 @@ export const restRouter = router({
             const { actingUserEmail, targetUserEmail, achievementId, amount } = input;
 
             const [targetUser, actingUser, achievement] = await Promise.all([
-                userMethods.getByEmail(targetUserEmail),
-                userMethods.getByEmail(actingUserEmail),
+                userMethods.getUserByField({ field: 'email', value: targetUserEmail }),
+                userMethods.getUserByField({ field: 'email', value: actingUserEmail }),
                 achievementMethods.getById(achievementId),
             ]);
 
@@ -388,5 +458,52 @@ export const restRouter = router({
                 { achievementId, amount, userId: targetUser.id, achievementTitle: achievement.title },
                 actingUser.id,
             );
+        }),
+
+    getServiceList: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/service/list',
+                protect: true,
+                summary: 'Get list of services with filtering',
+            },
+        })
+        .input(getServiceListSchema)
+        .output(
+            z.array(
+                z.object({
+                    name: z.string(),
+                    displayName: z.string().nullable(),
+                    linkPrefix: z.string().nullable(),
+                }),
+            ),
+        )
+        .query(({ input }) => {
+            return serviceMethods.getList(input);
+        }),
+
+    getOrganizationUnitList: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/org-unit/list',
+                protect: true,
+                summary: 'Get list of organizational units with filtering',
+            },
+        })
+        .input(getOrganizationUnitListSchema)
+        .output(
+            z.array(
+                z.object({
+                    id: z.string(),
+                    name: z.string(),
+                    country: z.string(),
+                    description: z.string().nullable(),
+                }),
+            ),
+        )
+        .query(({ input }) => {
+            return organizationUnitMethods.getList(input);
         }),
 });
