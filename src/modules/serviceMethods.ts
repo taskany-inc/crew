@@ -13,6 +13,7 @@ export const serviceMethods = {
                 ],
             },
             take: data.take,
+            skip: data.skip,
         });
     },
 

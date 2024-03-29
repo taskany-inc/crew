@@ -7,6 +7,7 @@ import { suggestionsTake } from '../utils/suggestions';
 import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import { defaultTake } from '../utils';
+import { assertNever } from '../utils/assertNever';
 
 import {
     ExternalUserUpdate,
@@ -26,6 +27,7 @@ import {
     GetUserSuggestions,
     CreateUser,
     EditUserActiveState,
+    GetUserByField,
 } from './userSchemas';
 import { userAccess } from './userAccess';
 import { tr } from './modules.i18n';
@@ -227,8 +229,22 @@ export const userMethods = {
         return addCalculatedUserFields(userWithGroupMeta, sessionUser);
     },
 
-    getByEmail: (email: string) => {
-        return prisma.user.findUniqueOrThrow({ where: { email } });
+    getUserByField: async (data: GetUserByField) => {
+        const where = {} as Prisma.UserWhereUniqueInput;
+        if (data.field === 'id') {
+            where.id = data.value;
+        } else if (data.field === 'email') {
+            where.email = data.value;
+        } else if (data.field === 'service') {
+            where.services = { some: { serviceName: data.serviceName, serviceId: data.serviceId } };
+        } else {
+            assertNever(data);
+        }
+        const user = await prisma.user.findUnique({ where });
+        if (!user) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `Cannot find user by ${JSON.stringify(data)}` });
+        }
+        return user;
     },
 
     getSettings: async (id: string): Promise<UserSettings> => {
