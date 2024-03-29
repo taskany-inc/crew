@@ -1,1 +1,1 @@
-export const defaultTake = 20;
+export const defaultTake = 25;
