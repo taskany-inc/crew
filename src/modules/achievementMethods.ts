@@ -29,7 +29,7 @@ export const achievementMethods = {
     },
 
     give: async (data: GiveAchievement, sessionUserId: string) => {
-        const { achievementTitle, ...restData } = data;
+        const { achievementTitle, amount = 1, ...restData } = data;
         const user = await prisma.user.findUnique({ where: { id: restData.userId }, include: { achievements: true } });
 
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${restData.userId}` });
@@ -43,13 +43,16 @@ export const achievementMethods = {
             ({ achievementId }) => achievementId === restData.achievementId,
         );
         if (existingAchievement) {
-            return prisma.userAchievement.update({
+            await prisma.userAchievement.update({
                 where: { id: existingAchievement.id },
-                data: { count: { increment: 1 } },
+                data: { count: { increment: amount } },
             });
+            return user;
         }
 
-        return prisma.userAchievement.create({ data: { ...restData, awarderId: sessionUserId } });
+        await prisma.userAchievement.create({ data: { ...restData, awarderId: sessionUserId, count: amount } });
+
+        return user;
     },
 
     getList: (data: GetAchievementList) => {
@@ -62,5 +65,13 @@ export const achievementMethods = {
             },
             take: data.take || defaultTake,
         });
+    },
+
+    getById: async (id: string) => {
+        const achievement = await prisma.achievement.findUnique({ where: { id } });
+
+        if (!achievement) throw new TRPCError({ code: 'NOT_FOUND', message: `No achievement with id ${id}` });
+
+        return achievement;
     },
 };
