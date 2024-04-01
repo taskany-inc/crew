@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.46.0](https://github.com/taskany-inc/crew/compare/v0.45.0...v0.46.0) (2024-04-01)
+
+
+### Features
+
+* achievements api ([e057ed1](https://github.com/taskany-inc/crew/commit/e057ed1cf324d787040bbdd6447b85431b68ac93))
+
 ## [0.45.0](https://github.com/taskany-inc/crew/compare/v0.44.0...v0.45.0) (2024-03-28)
 
 
