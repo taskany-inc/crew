@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { prisma } from '../../utils/prisma';
 import { accessCheck } from '../../utils/access';
 import { router, protectedProcedure } from '../trpcBackend';
 import {
@@ -24,7 +25,7 @@ export const groupRouter = router({
     }),
 
     edit: protectedProcedure.input(editGroupSchema).mutation(async ({ input, ctx }) => {
-        const group = await prisma?.group.findFirstOrThrow({
+        const group = await prisma.group.findFirstOrThrow({
             where: { id: input.groupId },
         });
         accessCheck(groupAccess.isEditable(ctx.session.user, group?.supervisorId));
