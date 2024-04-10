@@ -19,6 +19,9 @@ import { pages } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
 import { UserBonusPoints } from '../UserBonusPoints/UserBonusPoints';
 import { UserAchievementList } from '../UserAchievementList/UserAchievementList';
+import { UserListItem } from '../UserListItem/UserListItem';
+import { NarrowSection } from '../NarrowSection';
+import { GroupListItem } from '../GroupListItem';
 
 import { tr } from './UserPage.i18n';
 
@@ -60,6 +63,10 @@ const StyledRightPanel = styled.div`
 const EditButtonsWrapper = styled.div`
     display: flex;
     gap: ${gapS};
+`;
+
+const StyledUserListWrapper = styled.div`
+    margin-bottom: ${gapS};
 `;
 
 interface UserPageProps {
@@ -146,6 +153,24 @@ export const UserPage = ({ userId }: UserPageProps) => {
                     <UserSummary user={user} />
 
                     <UserMembershipsList user={user} />
+
+                    {nullable(user.supervisorOf?.length, () => (
+                        <NarrowSection title={tr('Supervisor of users')}>
+                            {user.supervisorOf?.map((u) => (
+                                <StyledUserListWrapper key={u.id}>
+                                    <UserListItem user={u} />
+                                </StyledUserListWrapper>
+                            ))}
+                        </NarrowSection>
+                    ))}
+
+                    {nullable(user.supervisorIn?.length, () => (
+                        <NarrowSection title={tr('Supervisor in teams')}>
+                            {user.supervisorIn?.map((group) => (
+                                <GroupListItem groupId={group.id} groupName={group.name} key={group.id} />
+                            ))}
+                        </NarrowSection>
+                    ))}
                 </StyledRightPanel>
             </StyledUserInfoWrapper>
         </LayoutMain>

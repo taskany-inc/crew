@@ -17,6 +17,8 @@ import {
     UserMeta,
     UserSupervisor,
     UserSettings,
+    UserSupervisorOf,
+    UserSupervisorIn,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -201,7 +203,9 @@ export const userMethods = {
     getById: async (
         id: string,
         sessionUser: SessionUser,
-    ): Promise<User & UserMeta & UserMemberships & UserSupervisor & UserAchievements> => {
+    ): Promise<
+        User & UserMeta & UserMemberships & UserSupervisor & UserAchievements & UserSupervisorOf & UserSupervisorIn
+    > => {
         const user = await prisma.user.findUnique({
             where: { id },
             include: {
@@ -213,6 +217,8 @@ export const userMethods = {
                 supervisor: true,
                 achievements: { include: { achievement: true } },
                 settings: true,
+                supervisorOf: { where: { active: true } },
+                supervisorIn: { where: { archived: false } },
             },
         });
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });

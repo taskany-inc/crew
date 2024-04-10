@@ -26,6 +26,14 @@ export interface UserSupervisor {
     supervisor: Nullish<User>;
 }
 
+export interface UserSupervisorOf {
+    supervisorOf: Nullish<User[]>;
+}
+
+export interface UserSupervisorIn {
+    supervisorIn: Nullish<Group[]>;
+}
+
 export interface UserFilterQuery {
     groupsQuery?: string[];
     rolesQuery?: string[];
