@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.47.0](https://github.com/taskany-inc/crew/compare/v0.46.0...v0.47.0) (2024-04-11)
+
+
+### Features
+
+* **UserPage:** list of supervised users and groups ([2a03fb1](https://github.com/taskany-inc/crew/commit/2a03fb15b3513f59b4bf8b7da750118f4b77e870))
+
 ## [0.46.0](https://github.com/taskany-inc/crew/compare/v0.45.0...v0.46.0) (2024-04-01)
 
 
