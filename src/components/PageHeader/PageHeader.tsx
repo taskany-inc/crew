@@ -9,6 +9,7 @@ import { pages } from '../../hooks/useRouter';
 import { GlobalSearch } from '../GlobalSearch/GlobalSearch';
 import { PageHeaderLogo } from '../PageHeaderLogo';
 import { PageHeaderActionButton } from '../PageHeaderActionButton/PageHeaderActionButton';
+import { UserSettings } from '../../modules/userTypes';
 
 import { tr } from './PageHeader.i18n';
 
@@ -26,11 +27,7 @@ interface HeaderLink {
     text: string;
 }
 
-interface UseHeaderMenuResult {
-    entityListMenuItems: HeaderLink[];
-}
-
-const useHeaderMenu = (): UseHeaderMenuResult => {
+export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ logo, userSettings }) => {
     const entityListMenuItems = useMemo(() => {
         const items: HeaderLink[] = [
             { path: pages.teams, text: tr('Teams') },
@@ -38,13 +35,7 @@ const useHeaderMenu = (): UseHeaderMenuResult => {
         ];
 
         return items;
-    }, []);
-
-    return { entityListMenuItems };
-};
-
-export const PageHeader: React.FC<{ logo?: string }> = ({ logo }) => {
-    const { entityListMenuItems } = useHeaderMenu();
+    }, [userSettings]);
     const session = useSession();
 
     return (
@@ -75,7 +66,7 @@ export const PageHeader: React.FC<{ logo?: string }> = ({ logo }) => {
             }
         >
             <HeaderContent>
-                <PageHeaderActionButton />
+                <PageHeaderActionButton userSettings={userSettings} />
             </HeaderContent>
         </Header>
     );

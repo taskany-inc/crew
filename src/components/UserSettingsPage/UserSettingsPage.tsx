@@ -12,6 +12,7 @@ import { useUserMutations } from '../../modules/userHooks';
 import { LayoutMain } from '../LayoutMain';
 import { PageSep } from '../PageSep';
 import { CommonHeader } from '../CommonHeader';
+import { languages } from '../../utils/getLang';
 import { Theme, themes } from '../../utils/theme';
 
 import { tr } from './UserSettingsPage.i18n';
@@ -37,6 +38,10 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
     const onThemeChange = (theme: Theme) => {
         editUserSettings({ theme });
         setTheme(theme);
+    };
+
+    const onLocaleChange = (locale: string) => {
+        editUserSettings({ locale });
     };
 
     const onShowAchievementsChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +72,17 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
                             >
                                 {themes.map((t) => (
                                     <FormRadioInput key={t} value={t} label={t} />
+                                ))}
+                            </FormRadio>
+
+                            <FormRadio
+                                label={tr('Locale')}
+                                name="locale"
+                                value={settings.locale}
+                                onChange={(v) => onLocaleChange(v)}
+                            >
+                                {languages.map((language) => (
+                                    <FormRadioInput key={language} value={language} label={language} />
                                 ))}
                             </FormRadio>
 

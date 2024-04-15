@@ -42,6 +42,7 @@ export const useUserMutations = () => {
                           userId: oldSettings.userId,
                           theme: newSettings.theme ?? oldSettings.theme,
                           showAchievements: newSettings.showAchievements ?? oldSettings.showAchievements,
+                          locale: newSettings.locale ?? oldSettings.locale,
                       }
                     : undefined;
             });
