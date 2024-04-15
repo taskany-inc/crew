@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.48.0](https://github.com/taskany-inc/crew/compare/v0.47.0...v0.48.0) (2024-04-15)
+
+
+### Features
+
+* change locale in settings ([9de0f5e](https://github.com/taskany-inc/crew/commit/9de0f5e87c97d258fc3c8ef059f167f9186925ea))
+
+
+### Bug Fixes
+
+* **UserContacts:** correct key for list ([f232277](https://github.com/taskany-inc/crew/commit/f232277b666d9aa94cbc0a92033e302c3b4f96be))
+
 ## [0.47.0](https://github.com/taskany-inc/crew/compare/v0.46.0...v0.47.0) (2024-04-11)
 
 
