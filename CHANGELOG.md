@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.47.1](https://github.com/taskany-inc/crew/compare/v0.47.0...v0.47.1) (2024-04-15)
+
+
+### Bug Fixes
+
+* **UserContacts:** correct key for list ([f232277](https://github.com/taskany-inc/crew/commit/f232277b666d9aa94cbc0a92033e302c3b4f96be))
+
 ## [0.47.0](https://github.com/taskany-inc/crew/compare/v0.46.0...v0.47.0) (2024-04-11)
 
 
