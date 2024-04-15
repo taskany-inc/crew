@@ -14,7 +14,6 @@ import {
     MembershipInfo,
     UserAchievements,
     UserMemberships,
-    UserMeta,
     UserSupervisor,
     UserSettings,
     UserSupervisorOf,
@@ -31,22 +30,8 @@ import {
     EditUserActiveState,
     GetUserByField,
 } from './userSchemas';
-import { userAccess } from './userAccess';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
-
-export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: SessionUser): T & UserMeta => {
-    return {
-        ...user,
-        bonusPoints: userAccess.isBonusViewable(sessionUser, user.id).allowed ? user.bonusPoints : 0,
-        meta: {
-            isEditable: userAccess.isEditable(sessionUser, user.id).allowed,
-            isActiveStateEditable: userAccess.isActiveStateEditable(sessionUser).allowed,
-            isBonusEditable: userAccess.isBonusEditable(sessionUser).allowed,
-            isBonusViewable: userAccess.isBonusViewable(sessionUser, user.id).allowed,
-        },
-    };
-};
 
 const usersWhere = (data: GetUserList) => {
     const where: Prisma.UserWhereInput = {};
@@ -203,9 +188,7 @@ export const userMethods = {
     getById: async (
         id: string,
         sessionUser: SessionUser,
-    ): Promise<
-        User & UserMeta & UserMemberships & UserSupervisor & UserAchievements & UserSupervisorOf & UserSupervisorIn
-    > => {
+    ): Promise<User & UserMemberships & UserSupervisor & UserAchievements & UserSupervisorOf & UserSupervisorIn> => {
         const user = await prisma.user.findUnique({
             where: { id },
             include: {
@@ -225,14 +208,17 @@ export const userMethods = {
 
         // TODO this should be in query https://github.com/taskany-inc/crew/issues/629
         const showAchievements =
-            user.settings?.showAchievements || sessionUser.id === user.id || sessionUser.role === 'ADMIN';
+            user.settings?.showAchievements ||
+            sessionUser.id === user.id ||
+            sessionUser.role?.editUserAchievements ||
+            sessionUser.role?.viewUserExtendedInfo;
 
         const userWithGroupMeta = {
             ...user,
             achievements: showAchievements ? user.achievements : undefined,
             memberships: user.memberships.map((m) => ({ ...m, group: addCalculatedGroupFields(m.group, sessionUser) })),
         };
-        return addCalculatedUserFields(userWithGroupMeta, sessionUser);
+        return userWithGroupMeta;
     },
 
     getUserByField: async (data: GetUserByField) => {
@@ -315,7 +301,6 @@ export const userMethods = {
             data: {
                 name: data.name,
                 supervisorId: data.supervisorId,
-                title: data.title,
             },
         });
     },

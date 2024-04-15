@@ -1,4 +1,7 @@
 {
     "Invalid numeric parameter {key} in address": "Invalid numeric parameter {key} in address",
-    "Invalid string parameter {key} in address": "Invalid string parameter {key} in address"
+    "Invalid string parameter {key} in address": "Invalid string parameter {key} in address",
+    "All operations are forbidden:": "",
+    "Operation": "",
+    "is forbidden": ""
 }

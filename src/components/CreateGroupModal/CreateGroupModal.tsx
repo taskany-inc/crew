@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
@@ -27,6 +26,7 @@ import { CreateGroup, createGroupSchema } from '../../modules/groupSchemas';
 import { useGroupMutations } from '../../modules/groupHooks';
 import { useRouter } from '../../hooks/useRouter';
 import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './CreateGroupModal.i18n';
 
@@ -50,10 +50,10 @@ const StyledTip = styled(Tip)`
 type GroupType = 'regular' | 'virtual' | 'organizational';
 
 export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) => {
-    const { data } = useSession();
+    const sessionUser = useSessionUser();
     const { createGroup } = useGroupMutations();
     const router = useRouter();
-    const canCreateGroup = data?.access.group.create;
+    const canCreateGroup = sessionUser.role?.editFullGroupTree;
 
     const groupTypes = useMemo<{ type: GroupType; text: string }[]>(
         () => [

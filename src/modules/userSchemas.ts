@@ -62,7 +62,6 @@ export type GetUserByField = z.infer<typeof getUserByFieldSchema>;
 export const editUserSchema = z.object({
     id: z.string(),
     name: z.string().optional(),
-    title: z.string().optional(),
     supervisorId: z.string().nullish(),
 });
 

@@ -7,11 +7,11 @@ import { useMemo } from 'react';
 import { AddServiceToUserForm } from '../AddServiceToUserForm/AddServiceToUserForm';
 import { UserServiceListItem } from '../UserServiceListItem';
 import { NarrowSection } from '../NarrowSection';
-import { UserMeta } from '../../modules/userTypes';
 import { trpc } from '../../trpc/trpcClient';
 import { UserServiceInfo } from '../../modules/serviceTypes';
 import { UserServiceMenu } from '../UserServiceMenu/UserServiceMenu';
 import { Restricted } from '../Restricted';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './UserContacts.i18n';
 
@@ -28,11 +28,12 @@ const StyledRow = styled.div`
 `;
 
 interface UserContactsProps {
-    user: User & UserMeta;
+    user: User;
 }
 
 export const UserContacts = ({ user }: UserContactsProps) => {
     const userServiceQuery = trpc.service.getUserServices.useQuery(user.id);
+    const sessionUser = useSessionUser();
 
     const emailStubService = useMemo<UserServiceInfo>(() => {
         const item = {
@@ -63,14 +64,14 @@ export const UserContacts = ({ user }: UserContactsProps) => {
                     <StyledRow key={`${userServices.serviceName}-${userServices.serviceId}-${userServices.userId}`}>
                         <UserServiceListItem userService={userServices} />
 
-                        <Restricted visible={user.meta.isEditable}>
+                        <Restricted visible={!!sessionUser.role?.editUser}>
                             <UserServiceMenu service={userServices} />
                         </Restricted>
                     </StyledRow>
                 ))}
             </StyledServicesList>
 
-            {nullable(user.meta.isEditable, () => (
+            {nullable(sessionUser.role?.editUser, () => (
                 <AddServiceToUserForm userId={user.id} />
             ))}
         </NarrowSection>

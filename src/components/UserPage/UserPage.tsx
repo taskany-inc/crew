@@ -2,7 +2,6 @@ import { Text, Button, nullable, Modal } from '@taskany/bricks';
 import { gapL, gapS, gapXl, gray10, gray8, textColor } from '@taskany/colors';
 import styled from 'styled-components';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 
 import { PageSep } from '../PageSep';
 import { trpc } from '../../trpc/trpcClient';
@@ -10,7 +9,7 @@ import { LayoutMain } from '../LayoutMain';
 import { UserSummary } from '../UserSummary/UserSummary';
 import { UserContacts } from '../UserContacts/UserContacts';
 import { UserMembershipsList } from '../UserMembershipsList/UserMembershipsList';
-import UserUpdateForm from '../UserUpdateForm/UserUpdateForm';
+import { UserUpdateForm } from '../UserUpdateForm/UserUpdateForm';
 import { UserDevices } from '../UserDevices/UserDevices';
 import { UserPic } from '../UserPic';
 import { DeactivateProfileForm } from '../DeactivateProfileForm/DeactivateProvileForm';
@@ -22,6 +21,8 @@ import { UserAchievementList } from '../UserAchievementList/UserAchievementList'
 import { UserListItem } from '../UserListItem/UserListItem';
 import { NarrowSection } from '../NarrowSection';
 import { GroupListItem } from '../GroupListItem';
+import { useSessionUser } from '../../hooks/useSessionUser';
+import { Restricted } from '../Restricted';
 
 import { tr } from './UserPage.i18n';
 
@@ -77,7 +78,7 @@ export const UserPage = ({ userId }: UserPageProps) => {
     const { showGroupPreview } = usePreviewContext();
     const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);
     const [openDeactivateUserForm, setOpenDeactivateUserForm] = useState(false);
-    const { data } = useSession();
+    const sessionUser = useSessionUser();
 
     const userQuery = trpc.user.getById.useQuery(userId);
     const user = userQuery.data;
@@ -118,10 +119,10 @@ export const UserPage = ({ userId }: UserPageProps) => {
                     <DeactivateProfileForm user={user} onClose={() => setOpenDeactivateUserForm(false)} />
                 </Modal>
                 <EditButtonsWrapper>
-                    {nullable(user.meta.isEditable, () => (
+                    {nullable(sessionUser.role?.editUser, () => (
                         <Button onClick={() => setOpenUpdateUserForm(true)} text={tr('Edit')} size="s" />
                     ))}
-                    {nullable(user.meta.isActiveStateEditable, () => (
+                    {nullable(sessionUser.role?.editUserActiveState, () => (
                         <Button
                             onClick={() => setOpenDeactivateUserForm(true)}
                             text={user.active ? tr('Deactivate') : tr('Reactivate')}
@@ -137,11 +138,18 @@ export const UserPage = ({ userId }: UserPageProps) => {
 
             <StyledUserInfoWrapper>
                 <StyledLeftPanel>
-                    {nullable(user.meta.isBonusViewable, () => (
+                    <Restricted
+                        visible={
+                            sessionUser.role?.viewUserBonuses ||
+                            sessionUser.role?.editUserBonuses ||
+                            user.id === sessionUser.id
+                        }
+                    >
                         <UserBonusPoints user={user} />
-                    ))}
-                    {nullable(user.achievements?.length || data?.access.achievement.create, () => (
-                        <UserAchievementList user={user} isEditable={!!data?.access.achievement.create} />
+                    </Restricted>
+
+                    {nullable(user.achievements?.length || sessionUser.role?.editUserAchievements, () => (
+                        <UserAchievementList user={user} isEditable={!!sessionUser.role?.editUserAchievements} />
                     ))}
 
                     <UserContacts user={user} />

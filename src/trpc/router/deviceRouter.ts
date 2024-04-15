@@ -2,13 +2,12 @@ import { z } from 'zod';
 
 import { deviceMethods } from '../../modules/deviceMethods';
 import { createDeviceSchema, deleteUserDeviceSchema, getDeviceListSchema } from '../../modules/deviceSchemas';
-import { userAccess } from '../../modules/userAccess';
-import { accessCheck } from '../../utils/access';
+import { accessCheck, checkRoleForAccess } from '../../utils/access';
 import { protectedProcedure, router } from '../trpcBackend';
 
 export const deviceRouter = router({
     addToUser: protectedProcedure.input(createDeviceSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isEditable(ctx.session.user, input.userId));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
         return deviceMethods.addToUser(input);
     }),
 
@@ -21,7 +20,7 @@ export const deviceRouter = router({
     }),
 
     deleteUserDevice: protectedProcedure.input(deleteUserDeviceSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isEditable(ctx.session.user, input.userId));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
         return deviceMethods.deleteUserDevice(input);
     }),
 });

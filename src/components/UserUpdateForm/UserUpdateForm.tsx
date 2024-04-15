@@ -19,12 +19,12 @@ import { gapM, gray8 } from '@taskany/colors';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { EditUser, editUserSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
-import { UserMeta, UserSupervisor } from '../../modules/userTypes';
+import { UserSupervisor } from '../../modules/userTypes';
 
 import { tr } from './UserUpdateForm.i18n';
 
 interface UserDataFormProps {
-    user: User & UserMeta & UserSupervisor;
+    user: User & UserSupervisor;
     onClose: () => void;
 }
 
@@ -43,7 +43,7 @@ const StyledTextSupervisor = styled(Text)`
 `;
 
 /* TODO: Add coordinator field https://github.com/taskany-inc/crew/issues/278*/
-const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
+export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
     const { editUser } = useUserMutations();
 
     const {
@@ -56,7 +56,6 @@ const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
             id: user.id,
             supervisorId: user.supervisorId,
             name: user.name || undefined,
-            title: user.title || undefined,
         },
         mode: 'onChange',
         resolver: zodResolver(editUserSchema),
@@ -80,13 +79,6 @@ const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                         <FormInput
                             label={tr('Full Name')}
                             {...register('name')}
-                            flat="bottom"
-                            brick="right"
-                            autoComplete="off"
-                        />
-                        <FormInput
-                            label={tr('Role')}
-                            {...register('title')}
                             flat="bottom"
                             brick="right"
                             autoComplete="off"
@@ -123,5 +115,3 @@ const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
         </>
     );
 };
-
-export default UserUpdateForm;

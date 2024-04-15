@@ -6,17 +6,17 @@ import { gapS, gapM } from '@taskany/colors';
 
 import { NarrowSection } from '../NarrowSection';
 import { InlineTrigger } from '../InlineTrigger';
-import { UserMeta } from '../../modules/userTypes';
 import { BonusPointsHistory } from '../BonusPointsHistory/BonusPointsHistory';
 import { config } from '../../config';
 import { Link } from '../Link';
 import { BonusPointsBalanceModal } from '../BonusPointsBalanceModal/BonusPointsBalanceModal';
 import { useBoolean } from '../../hooks/useBoolean';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './UserBonusPoints.i18n';
 
 interface UserBonusPointsProps {
-    user: User & UserMeta;
+    user: User;
 }
 
 const StyledText = styled(Text)`
@@ -29,15 +29,16 @@ const StyledBagIcon = styled(IconBagPlusOutline)`
 
 export const UserBonusPoints = ({ user }: UserBonusPointsProps) => {
     const modalVisibility = useBoolean(false);
+    const sessionUser = useSessionUser();
 
     return (
         <NarrowSection title={tr('Achievements and bonuses')}>
             <Text size="m">
-                {tr('My bonuses')}: {user.bonusPoints}
+                {sessionUser.id === user.id ? tr('My bonuses') : tr('Bonuses')}: {user.bonusPoints}
             </Text>
             <BonusPointsHistory userId={user.id} />
 
-            {nullable(user.meta.isBonusEditable, () => (
+            {nullable(sessionUser.role?.editUserBonuses, () => (
                 <InlineTrigger
                     text={tr('Add / Subtract')}
                     icon={<IconEditSolid size="s" />}

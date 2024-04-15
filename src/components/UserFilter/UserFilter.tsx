@@ -1,7 +1,8 @@
 /* eslint-disable no-nested-ternary */
 import { useMemo } from 'react';
 import { UserPic, Tab, FilterBase, FilterCheckbox, FilterTabLabel, FilterAutoCompleteInput } from '@taskany/bricks';
-import { useSession } from 'next-auth/react';
+
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './UserFilter.i18n';
 
@@ -34,9 +35,7 @@ export const UserFilter: React.FC<UserFilterProps> = ({
     onChange,
     onSearchChange,
 }) => {
-    const session = useSession();
-
-    const user = session.data?.user;
+    const sessionUser = useSessionUser();
 
     const values = useMemo(() => {
         return users.filter((u) => value.includes(getId(u)));
@@ -56,7 +55,7 @@ export const UserFilter: React.FC<UserFilterProps> = ({
                 renderItem={({ item, checked, onItemClick }) => {
                     let label = item.name || item.email;
 
-                    if (user && item.id === user.id) {
+                    if (item.id === sessionUser.id) {
                         label += ` (${tr('You')})`;
                     }
 

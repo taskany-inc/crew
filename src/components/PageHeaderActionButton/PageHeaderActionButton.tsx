@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useSession } from 'next-auth/react';
 import { Button, Dropdown, MenuItem } from '@taskany/bricks';
 import { IconDownSmallSolid, IconUpSmallSolid } from '@taskany/icons';
 
@@ -7,36 +6,32 @@ import { CreateUserModal } from '../CreateUserModal/CreateUserModal';
 import { CreateGroupModal } from '../CreateGroupModal/CreateGroupModal';
 import { useBoolean } from '../../hooks/useBoolean';
 import { UserSettings } from '../../modules/userTypes';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './PageHeaderActionButton.i18n';
 
 export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ userSettings }) => {
-    const { data } = useSession();
+    const sessionUser = useSessionUser();
 
     const createUserModalVisibility = useBoolean(false);
     const createGroupModalVisibility = useBoolean(false);
 
     const items: { title: string; action: VoidFunction }[] = useMemo(() => {
         const result = [];
-        if (data?.access.user.create) {
+        if (sessionUser.role?.createUser) {
             result.push({ title: tr('User'), action: createUserModalVisibility.setTrue });
         }
-        result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
-
+        if (sessionUser.role?.editFullGroupTree || sessionUser.role?.editAdministratedGroupTree) {
+            result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
+        }
         return result;
-    }, [data?.access, createGroupModalVisibility.setTrue, createUserModalVisibility.setTrue, userSettings]);
+    }, [sessionUser.role, createGroupModalVisibility.setTrue, createUserModalVisibility.setTrue, userSettings]);
 
     if (items.length === 0) return null;
 
     return (
         <>
-            <Button
-                text={tr('Create')}
-                view="primary"
-                outline
-                brick="right"
-                onClick={createUserModalVisibility.setTrue}
-            />
+            <Button text={tr('Create')} view="primary" outline brick="right" onClick={items[0].action} />
             <Dropdown
                 onChange={(item) => item.action()}
                 items={items}
