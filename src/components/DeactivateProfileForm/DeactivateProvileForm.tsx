@@ -56,7 +56,7 @@ export const DeactivateProfileForm = ({ onClose, user }: DeactivateProfileFormPr
             <ModalContent>
                 <Form onSubmit={handleSubmit(updateUser)}>
                     <StyledFormCard>
-                        {tr('Are You sure?')}
+                        {tr('Are you sure?')}
                         <FormActions flat="top">
                             <FormAction left />
                             <FormAction right inline>

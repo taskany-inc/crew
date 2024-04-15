@@ -5,7 +5,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { type NextAuthOptions } from 'next-auth';
 
 import { config } from '../config';
-import { GlobalAccess, createGlobalAccessObject } from '../modules/globalAccess';
 
 import { prisma } from './prisma';
 import { verifyPassword } from './passwords';
@@ -97,15 +96,14 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         session: async ({ session, token, user }) => {
             const id = (session.user.id || token?.id || user.id) as string;
-            const dbUser = await prisma.user.findUnique({ where: { id } });
+            const dbUser = await prisma.user.findUnique({
+                where: { id },
+                select: { id: true, name: true, email: true, role: true },
+            });
 
             if (!dbUser) throw new Error(`No user with id ${id}`);
 
-            return {
-                ...session,
-                user: { id: dbUser.id, name: dbUser.name, email: dbUser.email, role: dbUser.role },
-                access: createGlobalAccessObject(dbUser.role),
-            };
+            return { ...session, user: dbUser };
         },
 
         jwt: async ({ token, user }) => {
@@ -124,12 +122,11 @@ export interface SessionUser {
     id: string;
     name: string | null;
     email: string;
-    role: UserRole;
+    role: UserRole | null;
 }
 
 declare module 'next-auth' {
     interface Session {
         user: SessionUser;
-        access: GlobalAccess;
     }
 }

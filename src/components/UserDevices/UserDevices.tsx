@@ -5,11 +5,11 @@ import styled from 'styled-components';
 
 import { NarrowSection } from '../NarrowSection';
 import { AddDeviceToUserForm } from '../AddDeviceToUserForm/AddDeviceToUserForm';
-import { UserMeta } from '../../modules/userTypes';
 import { trpc } from '../../trpc/trpcClient';
 import { UserDeviceListItem } from '../UserDeviceListItem';
 import { UserDeviceMenu } from '../UserDeviceMenu/UserDeviceMenu';
 import { Restricted } from '../Restricted';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './UserDevices.i18n';
 
@@ -26,11 +26,12 @@ const StyledRow = styled.div`
 `;
 
 interface UserDevicesProps {
-    user: User & UserMeta;
+    user: User;
 }
 
 export const UserDevices = ({ user }: UserDevicesProps) => {
     const userDeviceQuery = trpc.device.getUserDevices.useQuery(user.id);
+    const sessionUser = useSessionUser();
 
     return (
         <NarrowSection title={tr('Corporate devices')}>
@@ -39,13 +40,13 @@ export const UserDevices = ({ user }: UserDevicesProps) => {
                     <StyledRow key={userDevices.deviceId}>
                         <UserDeviceListItem userDevice={userDevices} />
 
-                        <Restricted visible={user.meta.isEditable}>
+                        <Restricted visible={!!sessionUser.role?.editUser}>
                             <UserDeviceMenu device={userDevices} />
                         </Restricted>
                     </StyledRow>
                 ))}
             </StyleDevicesList>
-            {nullable(user.meta.isEditable, () => (
+            {nullable(sessionUser.role?.editUser, () => (
                 <AddDeviceToUserForm userId={user.id} />
             ))}
         </NarrowSection>

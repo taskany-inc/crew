@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { accessCheck } from '../../utils/access';
+import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 import { protectedProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
 import {
@@ -13,23 +13,26 @@ import {
     createUserSchema,
     editUserActiveStateSchema,
 } from '../../modules/userSchemas';
-import { userAccess } from '../../modules/userAccess';
-import { globalAccess } from '../../modules/globalAccess';
-import { groupAccess } from '../../modules/groupAccess';
 
 export const userRouter = router({
     create: protectedProcedure.input(createUserSchema).mutation(({ input, ctx }) => {
-        accessCheck(globalAccess.user.create(ctx.session.user.role));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
         return userMethods.create(input);
     }),
 
     addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return userMethods.addToGroup(input);
     }),
 
     removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return userMethods.removeFromGroup(input);
     }),
 
@@ -58,12 +61,12 @@ export const userRouter = router({
     }),
 
     edit: protectedProcedure.input(editUserSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isEditable(ctx.session.user, input.id));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
         return userMethods.edit(input);
     }),
 
     editActiveState: protectedProcedure.input(editUserActiveStateSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isActiveStateEditable(ctx.session.user));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
         return userMethods.editActiveState(input);
     }),
 

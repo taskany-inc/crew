@@ -217,7 +217,7 @@ export const restRouter = router({
             const { actingUserEmail, targetUserEmail, ...restInput } = input;
             const targetUser = await userMethods.getUserByField({ field: 'email', value: targetUserEmail });
             const actingUser = await userMethods.getUserByField({ field: 'email', value: actingUserEmail });
-            return bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser);
+            return bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser.id);
         }),
 
     getGroupById: restProcedure

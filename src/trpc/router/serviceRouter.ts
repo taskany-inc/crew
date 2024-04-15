@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
-import { accessCheck } from '../../utils/access';
+import { accessCheck, checkRoleForAccess } from '../../utils/access';
 import { protectedProcedure, router } from '../trpcBackend';
 import { serviceMethods } from '../../modules/serviceMethods';
-import { userAccess } from '../../modules/userAccess';
 import { createServiceSchema, deleteUserServiceSchema, getServiceListSchema } from '../../modules/serviceSchemas';
 
 export const serviceRouter = router({
@@ -12,7 +11,7 @@ export const serviceRouter = router({
     }),
 
     addToUser: protectedProcedure.input(createServiceSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isEditable(ctx.session.user, input.userId));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
         return serviceMethods.addToUser(input);
     }),
 
@@ -21,7 +20,7 @@ export const serviceRouter = router({
     }),
 
     deleteUserService: protectedProcedure.input(deleteUserServiceSchema).mutation(({ input, ctx }) => {
-        accessCheck(userAccess.isEditable(ctx.session.user, input.userId));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
         return serviceMethods.deleteUserService(input);
     }),
 });

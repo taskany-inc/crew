@@ -1,4 +1,4 @@
-import { UserRole } from 'prisma/prisma-client';
+import { UserRoleDeprecated } from 'prisma/prisma-client';
 
 import { hashPassword } from '../src/utils/passwords';
 import { prisma } from '../src/utils/prisma';
@@ -7,18 +7,69 @@ const main = async () => {
     const adminEmail = 'admin@taskany.org';
     const adminPassword = await hashPassword('admin');
 
+    await prisma.userRole.createMany({
+        data: [
+            {
+                code: 'admin',
+                name: 'Administrator',
+                createUser: true,
+                editUser: true,
+                editUserActiveState: true,
+                editUserAchievements: true,
+                editUserBonuses: true,
+                viewUserBonuses: true,
+                viewUserExtendedInfo: true,
+                editFullGroupTree: true,
+                editAdministratedGroupTree: true,
+            },
+            {
+                code: 'hr_lead',
+                name: 'HR lead',
+                editUser: true,
+                editUserAchievements: true,
+                editUserBonuses: true,
+                viewUserBonuses: true,
+                viewUserExtendedInfo: true,
+                editFullGroupTree: true,
+                editAdministratedGroupTree: true,
+            },
+            {
+                code: 'hr',
+                name: 'HR',
+                editUser: true,
+                editUserAchievements: true,
+                viewUserBonuses: true,
+                viewUserExtendedInfo: true,
+                editFullGroupTree: true,
+                editAdministratedGroupTree: true,
+            },
+            {
+                code: 'project_owner',
+                name: 'Project owner',
+                viewUserExtendedInfo: true,
+                editAdministratedGroupTree: true,
+            },
+        ],
+    });
+
     const user = await prisma.user.create({
         data: {
             name: 'Admin',
             email: adminEmail,
             title: 'Superuser',
-            role: UserRole.ADMIN,
+            roleCode: 'admin',
+            roleDeprecated: UserRoleDeprecated.ADMIN,
             accounts: {
                 create: {
                     type: 'credentials',
                     provider: 'seed',
                     providerAccountId: 'credentials',
                     password: adminPassword,
+                },
+            },
+            settings: {
+                create: {
+                    showAchievements: true,
                 },
             },
         },

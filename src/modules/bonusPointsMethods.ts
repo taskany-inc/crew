@@ -1,6 +1,5 @@
 import { BonusAction, User } from 'prisma/prisma-client';
 
-import { SessionUser } from '../utils/auth';
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
 
@@ -8,7 +7,7 @@ import { ChangeBonusPoints, GetAchievements } from './bonusPointsSchemas';
 import { BonusPointsAchievement } from './bonusPointsTypes';
 
 export const bonusPointsMethods = {
-    change: async (data: ChangeBonusPoints, sessionUser: SessionUser): Promise<User> => {
+    change: async (data: ChangeBonusPoints, sessionUserId: string): Promise<User> => {
         const bonusPoints = data.action === BonusAction.ADD ? { increment: data.amount } : { decrement: data.amount };
         const [user] = await prisma.$transaction([
             prisma.user.update({ where: { id: data.userId }, data: { bonusPoints } }),
@@ -17,7 +16,7 @@ export const bonusPointsMethods = {
                     action: data.action,
                     amount: data.amount,
                     targetUserId: data.userId,
-                    actingUserId: sessionUser.id,
+                    actingUserId: sessionUserId,
                     description: data.description,
                 },
             }),

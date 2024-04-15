@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { prisma } from '../../utils/prisma';
-import { accessCheck } from '../../utils/access';
+import { accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 import { router, protectedProcedure } from '../trpcBackend';
 import {
     createGroupSchema,
@@ -11,39 +10,45 @@ import {
     getGroupSuggestionsSchema,
 } from '../../modules/groupSchemas';
 import { groupMethods } from '../../modules/groupMethods';
-import { groupAccess } from '../../modules/groupAccess';
-import { globalAccess } from '../../modules/globalAccess';
 
 export const groupRouter = router({
     create: protectedProcedure.input(createGroupSchema).mutation(({ input, ctx }) => {
-        if (input.virtual) {
-            accessCheck(globalAccess.group.createVirtual());
-        } else {
-            accessCheck(globalAccess.group.create(ctx.session.user.role));
-        }
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return groupMethods.create(input, ctx.session.user);
     }),
 
     edit: protectedProcedure.input(editGroupSchema).mutation(async ({ input, ctx }) => {
-        const group = await prisma.group.findFirstOrThrow({
-            where: { id: input.groupId },
-        });
-        accessCheck(groupAccess.isEditable(ctx.session.user, group?.supervisorId));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return groupMethods.edit(input);
     }),
 
     archive: protectedProcedure.input(z.string()).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return groupMethods.archive(input);
     }),
 
     delete: protectedProcedure.input(z.string()).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return groupMethods.delete(input);
     }),
 
     move: protectedProcedure.input(moveGroupSchema).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return groupMethods.move(input);
     }),
 

@@ -80,12 +80,12 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
         resolver: zodResolver(createAndGiveAchievementSchema),
     });
 
-    const hideModal = () => {
+    const hideModal = useCallback(() => {
         onClose();
         setSearch('');
         suggestionsVisibility.setFalse();
         reset();
-    };
+    }, [onClose, reset, suggestionsVisibility]);
 
     const sendAchievement = useCallback(
         async (achievement: Achievement) => {

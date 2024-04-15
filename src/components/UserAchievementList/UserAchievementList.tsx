@@ -5,7 +5,7 @@ import { IconEditSolid } from '@taskany/icons';
 
 import { NarrowSection } from '../NarrowSection';
 import { InlineTrigger } from '../InlineTrigger';
-import { UserAchievements, UserMeta } from '../../modules/userTypes';
+import { UserAchievements } from '../../modules/userTypes';
 import { useBoolean } from '../../hooks/useBoolean';
 import { AddAchievementModal } from '../AddAchievementModal/AddAchievementModal';
 import { AchievementGridItem } from '../AchievementGridItem';
@@ -13,7 +13,7 @@ import { AchievementGridItem } from '../AchievementGridItem';
 import { tr } from './UserAchievementList.i18n';
 
 interface UserAchievementListProps {
-    user: User & UserMeta & UserAchievements;
+    user: User & UserAchievements;
     isEditable: boolean;
 }
 

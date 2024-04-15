@@ -6,17 +6,22 @@ import {
     removeRoleFromMembershipSchema,
     getRoleSuggestionsSchema,
 } from '../../modules/roleSchemas';
-import { accessCheck } from '../../utils/access';
-import { groupAccess } from '../../modules/groupAccess';
+import { accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 
 export const roleRouter = router({
     addToMembership: protectedProcedure.input(addRoleToMembershipSchema).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return roleMethods.addToMembership(input);
     }),
 
     removeFromMembership: protectedProcedure.input(removeRoleFromMembershipSchema).mutation(({ input, ctx }) => {
-        accessCheck(groupAccess.isEditable(ctx.session.user));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
+            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
+        );
         return roleMethods.removeFromMembership(input);
     }),
 

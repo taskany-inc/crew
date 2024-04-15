@@ -1,15 +1,28 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import NextLink from 'next/link';
 import { gapM } from '@taskany/colors';
-import { useSession } from 'next-auth/react';
-import { UserMenu, Header, HeaderContent, HeaderLogo, HeaderNav, HeaderNavLink, HeaderMenu } from '@taskany/bricks';
+import {
+    UserMenu,
+    Header,
+    HeaderContent,
+    HeaderLogo,
+    HeaderNav,
+    HeaderNavLink,
+    HeaderMenu,
+    Text,
+    nullable,
+} from '@taskany/bricks';
+import { Popup } from '@taskany/bricks/harmony';
 
 import { pages } from '../../hooks/useRouter';
 import { GlobalSearch } from '../GlobalSearch/GlobalSearch';
 import { PageHeaderLogo } from '../PageHeaderLogo';
 import { PageHeaderActionButton } from '../PageHeaderActionButton/PageHeaderActionButton';
 import { UserSettings } from '../../modules/userTypes';
+import { useSessionUser } from '../../hooks/useSessionUser';
+import { AccessOperation } from '../../utils/access';
+import { objKeys } from '../../utils/objKeys';
 
 import { tr } from './PageHeader.i18n';
 
@@ -20,6 +33,11 @@ const StyledNav = styled(HeaderNav)`
 
 const HeaderSearch = styled.div`
     margin-left: ${gapM};
+`;
+
+const StyledList = styled.ul`
+    margin: 0;
+    padding-left: ${gapM};
 `;
 
 interface HeaderLink {
@@ -36,7 +54,29 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
 
         return items;
     }, [userSettings]);
-    const session = useSession();
+
+    const sessionUser = useSessionUser();
+    const avatarRef = useRef<HTMLAnchorElement>(null);
+
+    const roleDescriptions = useMemo(() => {
+        const { role } = sessionUser;
+        if (!role) return;
+        const allDescriptions: Record<AccessOperation, string> = {
+            createUser: tr('creating users'),
+            editUser: tr('editing users'),
+            editUserActiveState: tr('deactivating users'),
+            editUserAchievements: tr('giving out achievements'),
+            editUserBonuses: tr('editing user bonus points'),
+            viewUserBonuses: tr('viewing user bonus points'),
+            viewUserExtendedInfo: tr('viewing user extended info'),
+
+            editFullGroupTree: tr('editing any team'),
+            editAdministratedGroupTree: tr('editing administrated teams'),
+        };
+        return objKeys(allDescriptions)
+            .filter((name) => role[name])
+            .map((name) => allDescriptions[name]);
+    }, [sessionUser]);
 
     return (
         <Header
@@ -47,9 +87,28 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             }
             menu={
                 <HeaderMenu>
-                    <NextLink href={pages.userSettings}>
-                        <UserMenu email={session.data?.user.email} />
+                    <NextLink ref={avatarRef} href={pages.userSettings}>
+                        <UserMenu name={sessionUser.name} email={sessionUser.email} />
                     </NextLink>
+                    <Popup reference={avatarRef} interactive>
+                        <Text>{sessionUser.name}</Text>
+                        {nullable(sessionUser.role, (r) => (
+                            <>
+                                <Text size="s">
+                                    {tr('User role')}: {r.name}
+                                </Text>
+                                {nullable(roleDescriptions, (descriptions) => (
+                                    <StyledList>
+                                        {descriptions.map((d) => (
+                                            <Text size="xs" key={d} as="li">
+                                                {d}
+                                            </Text>
+                                        ))}
+                                    </StyledList>
+                                ))}
+                            </>
+                        ))}
+                    </Popup>
                 </HeaderMenu>
             }
             nav={

@@ -3,7 +3,6 @@ import { Group, Membership, Role, User, UserAchievement, Achievement } from '@pr
 import { Nullish } from '../utils/types';
 import { Theme } from '../utils/theme';
 
-import { userAccess } from './userAccess';
 import { GroupMeta } from './groupTypes';
 
 export interface UserSettings {
@@ -14,10 +13,6 @@ export interface UserSettings {
 }
 
 export type MembershipInfo = Membership & { group: Group & GroupMeta; user: User; roles: Role[] };
-
-export interface UserMeta {
-    meta: Record<keyof typeof userAccess, boolean>;
-}
 
 export interface UserMemberships {
     memberships: MembershipInfo[];

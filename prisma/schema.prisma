@@ -91,7 +91,11 @@ model User {
   bonusHistory BonusHistory[] @relation("bonusHistory")
   bonusChanges BonusHistory[] @relation("bonusChanges")
 
-  role UserRole @default(USER)
+  // TODO: delete issues/690
+  roleDeprecated UserRoleDeprecated @default(USER) @map("role")
+
+  roleCode String?
+  role     UserRole? @relation(fields: [roleCode], references: [code])
 
   deactivatedAt DateTime?
 
@@ -102,6 +106,28 @@ model User {
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+model UserRole {
+  code String @id @unique
+  name String
+
+  users  User[]
+  tokens ApiToken[]
+
+  createUser           Boolean @default(false)
+  editUser             Boolean @default(false)
+  editUserActiveState  Boolean @default(false)
+  editUserAchievements Boolean @default(false)
+  editUserBonuses      Boolean @default(false)
+  viewUserBonuses      Boolean @default(false)
+  viewUserExtendedInfo Boolean @default(false)
+
+  editFullGroupTree          Boolean @default(false)
+  editAdministratedGroupTree Boolean @default(false)
+
+  // TODO: rename to UserRole issues/690
+  @@map("UserRoleModel")
 }
 
 model ExternalService {
@@ -229,11 +255,17 @@ model BonusHistory {
 model ApiToken {
   id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   description String
+
+  roleCode String?
+  role     UserRole? @relation(fields: [roleCode], references: [code])
 }
 
-enum UserRole {
+// TODO: delete issues/690
+enum UserRoleDeprecated {
   ADMIN
   USER
+
+  @@map("UserRole")
 }
 
 enum BonusAction {
