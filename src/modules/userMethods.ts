@@ -236,7 +236,7 @@ export const userMethods = {
     },
 
     getUserByField: async (data: GetUserByField) => {
-        const where = {} as Prisma.UserWhereUniqueInput;
+        const where = {} as Prisma.UserWhereInput;
         if (data.field === 'id') {
             where.id = data.value;
         } else if (data.field === 'email') {
@@ -246,7 +246,7 @@ export const userMethods = {
         } else {
             assertNever(data);
         }
-        const user = await prisma.user.findUnique({ where });
+        const user = await prisma.user.findFirst({ where });
         if (!user) {
             throw new TRPCError({ code: 'NOT_FOUND', message: `Cannot find user by ${JSON.stringify(data)}` });
         }
