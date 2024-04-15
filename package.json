@@ -58,7 +58,7 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "18.6.1",
+    "@commitlint/cli": "19.2.2",
     "@commitlint/config-conventional": "18.6.0",
     "@next/bundle-analyzer": "14.1.0",
     "@svgr/webpack": "8.1.0",
