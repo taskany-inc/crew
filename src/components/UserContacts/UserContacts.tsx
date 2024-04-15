@@ -60,7 +60,7 @@ export const UserContacts = ({ user }: UserContactsProps) => {
                 <UserServiceListItem userService={emailStubService} />
 
                 {userServiceQuery.data?.map((userServices) => (
-                    <StyledRow key={userServices.serviceId}>
+                    <StyledRow key={`${userServices.serviceName}-${userServices.serviceId}-${userServices.userId}`}>
                         <UserServiceListItem userService={userServices} />
 
                         <Restricted visible={user.meta.isEditable}>
