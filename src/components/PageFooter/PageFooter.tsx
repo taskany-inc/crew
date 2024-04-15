@@ -1,8 +1,11 @@
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { Footer, FooterItem, Modal } from '@taskany/bricks';
+import { useRouter } from 'next/router';
 
 import FeedbackCreateForm from '../FeedbackCreateForm/FeedbackCreateForm';
 import { Link } from '../Link';
+import { defaultLocale, languages } from '../../utils/getLang';
+import { useUserMutations } from '../../modules/userHooks';
 
 import { tr } from './PageFooter.i18n';
 
@@ -17,6 +20,17 @@ export const PageFooter: FC = () => {
         { title: tr('About'), url: '/about' },
     ];
 
+    const router = useRouter();
+    const { locale } = router;
+
+    const { editUserSettings } = useUserMutations();
+
+    const onLocaleChange = useCallback(async () => {
+        const newLocale = locale === defaultLocale ? languages[1] : defaultLocale;
+
+        await editUserSettings({ locale: newLocale });
+    }, [editUserSettings, locale]);
+
     return (
         <Footer>
             <Modal visible={openFeedbackForm} onClose={() => setOpenFeedbackForm(false)}>
@@ -30,6 +44,10 @@ export const PageFooter: FC = () => {
                     <FooterItem>{title}</FooterItem>
                 </Link>
             ))}
+
+            <Link inline onClick={onLocaleChange}>
+                <FooterItem>{tr('Locale change title')}</FooterItem>
+            </Link>
         </Footer>
     );
 };

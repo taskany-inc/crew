@@ -6,10 +6,11 @@ import { IconDownSmallSolid, IconUpSmallSolid } from '@taskany/icons';
 import { CreateUserModal } from '../CreateUserModal/CreateUserModal';
 import { CreateGroupModal } from '../CreateGroupModal/CreateGroupModal';
 import { useBoolean } from '../../hooks/useBoolean';
+import { UserSettings } from '../../modules/userTypes';
 
 import { tr } from './PageHeaderActionButton.i18n';
 
-export const PageHeaderActionButton = () => {
+export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ userSettings }) => {
     const { data } = useSession();
 
     const createUserModalVisibility = useBoolean(false);
@@ -23,7 +24,7 @@ export const PageHeaderActionButton = () => {
         result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
 
         return result;
-    }, [data?.access, createGroupModalVisibility.setTrue, createUserModalVisibility.setTrue]);
+    }, [data?.access, createGroupModalVisibility.setTrue, createUserModalVisibility.setTrue, userSettings]);
 
     if (items.length === 0) return null;
 

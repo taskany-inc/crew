@@ -10,6 +10,7 @@ export interface UserSettings {
     userId: string;
     theme: Theme;
     showAchievements: boolean;
+    locale: string;
 }
 
 export type MembershipInfo = Membership & { group: Group & GroupMeta; user: User; roles: Role[] };
