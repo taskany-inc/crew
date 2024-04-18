@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.48.1](https://github.com/taskany-inc/crew/compare/v0.48.0...v0.48.1) (2024-04-18)
+
+
+### Bug Fixes
+
+* don't throw errors on get user by service ([f3dc677](https://github.com/taskany-inc/crew/commit/f3dc6777bd32801b01d8d55ea1026cc7a1644f00))
+
 ## [0.48.0](https://github.com/taskany-inc/crew/compare/v0.47.0...v0.48.0) (2024-04-15)
 
 
