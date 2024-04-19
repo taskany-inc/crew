@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.49.0](https://github.com/taskany-inc/crew/compare/v0.48.1...v0.49.0) (2024-04-19)
+
+
+### Features
+
+* customizable role-based access model ([408b642](https://github.com/taskany-inc/crew/commit/408b6429ed5a5804a63aaf64fc90484fb2ea5d53))
+
 ## [0.48.1](https://github.com/taskany-inc/crew/compare/v0.48.0...v0.48.1) (2024-04-18)
 
 
