@@ -6,5 +6,8 @@ export interface BonusPointsAchievement {
         title: string;
         description: Nullish<string>;
         bonus: number;
+        achievment_category?: {
+            data: { id: number; attributes: { title: string } };
+        };
     };
 }

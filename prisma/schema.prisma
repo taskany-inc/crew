@@ -249,6 +249,9 @@ model BonusHistory {
   actingUser   User   @relation("bonusChanges", fields: [actingUserId], references: [id])
   actingUserId String
 
+  achievementId       String?
+  achievementCategory String?
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
 }
 
