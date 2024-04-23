@@ -18,6 +18,8 @@ export const bonusPointsMethods = {
                     targetUserId: data.userId,
                     actingUserId: sessionUserId,
                     description: data.description,
+                    achievementId: data.achievementId,
+                    achievementCategory: data.achievementCategory,
                 },
             }),
         ]);
@@ -33,6 +35,7 @@ export const bonusPointsMethods = {
 
     getAchievements: async (data: GetAchievements): Promise<BonusPointsAchievement[]> => {
         const params = new URLSearchParams({
+            'populate[0]': 'achievment_category',
             'pagination[page]': '1',
             'pagination[pageSize]': '5',
             'filters[$or][0][title][$containsi]': data.search,
