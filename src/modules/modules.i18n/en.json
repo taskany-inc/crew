@@ -45,5 +45,6 @@
     "Only admins and supervisors can edit groups": "",
     "New achievement!": "",
     "Congratulations! You have new achievement: {achievement}": "",
-    "Icon URL is required": ""
+    "Icon URL is required": "",
+    "Cannot edit another user": ""
 }

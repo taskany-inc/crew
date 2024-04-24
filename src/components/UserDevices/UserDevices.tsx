@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import { NarrowSection } from '../NarrowSection';
 import { AddDeviceToUserForm } from '../AddDeviceToUserForm/AddDeviceToUserForm';
+import { UserMeta } from '../../modules/userTypes';
 import { trpc } from '../../trpc/trpcClient';
 import { UserDeviceListItem } from '../UserDeviceListItem';
 import { UserDeviceMenu } from '../UserDeviceMenu/UserDeviceMenu';
@@ -26,7 +27,7 @@ const StyledRow = styled.div`
 `;
 
 interface UserDevicesProps {
-    user: User;
+    user: User & UserMeta;
 }
 
 export const UserDevices = ({ user }: UserDevicesProps) => {
@@ -46,7 +47,7 @@ export const UserDevices = ({ user }: UserDevicesProps) => {
                     </StyledRow>
                 ))}
             </StyleDevicesList>
-            {nullable(sessionUser.role?.editUser, () => (
+            {nullable(user.meta.isEditable, () => (
                 <AddDeviceToUserForm userId={user.id} />
             ))}
         </NarrowSection>

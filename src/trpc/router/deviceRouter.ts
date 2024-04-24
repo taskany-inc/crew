@@ -4,10 +4,11 @@ import { deviceMethods } from '../../modules/deviceMethods';
 import { createDeviceSchema, deleteUserDeviceSchema, getDeviceListSchema } from '../../modules/deviceSchemas';
 import { accessCheck, checkRoleForAccess } from '../../utils/access';
 import { protectedProcedure, router } from '../trpcBackend';
+import { userAccess } from '../../modules/userAccess';
 
 export const deviceRouter = router({
     addToUser: protectedProcedure.input(createDeviceSchema).mutation(({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
+        accessCheck(userAccess.isEditable(ctx.session.user, input.userId));
         return deviceMethods.addToUser(input);
     }),
 
