@@ -18,7 +18,6 @@ export type CreateAndGiveAchievement = z.infer<typeof createAndGiveAchievementSc
 export const giveAchievementSchema = z.object({
     userId: z.string(),
     achievementId: z.string(),
-    achievementTitle: z.string(),
     amount: z
         .number()
         .positive({ message: tr('Amount should be greater than zero') })

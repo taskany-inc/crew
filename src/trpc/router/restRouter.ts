@@ -16,6 +16,8 @@ import { getOrganizationUnitListSchema } from '../../modules/organizationUnitSch
 import { organizationUnitMethods } from '../../modules/organizationUnitMethods';
 import { getServiceListSchema } from '../../modules/serviceSchemas';
 import { serviceMethods } from '../../modules/serviceMethods';
+import { historyEventMethods } from '../../modules/historyEventMethods';
+import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 
 import { tr } from './router.i18n';
 
@@ -123,8 +125,24 @@ export const restRouter = router({
         })
         .input(createUserSchema)
         .output(userSchema)
-        .mutation(({ input }) => {
-            return userMethods.create(input);
+        .mutation(async ({ input, ctx }) => {
+            const result = await userMethods.create(input);
+            await historyEventMethods.create({ token: ctx.apiToken }, 'createUser', {
+                groupId: undefined,
+                userId: result.id,
+                before: undefined,
+                after: {
+                    name: result.name || undefined,
+                    email: result.email,
+                    phone: input.phone,
+                    login: input.login,
+                    organizationalUnitId: result.organizationUnitId || input.organizationUnitId,
+                    accountingId: input.accountingId,
+                    supervisorId: result.supervisorId || undefined,
+                    createExternalAccount: input.createExternalAccount,
+                },
+            });
+            return result;
         }),
 
     editUser: restProcedure
@@ -145,10 +163,21 @@ export const restRouter = router({
             }),
         )
         .output(userSchema)
-        .mutation(async ({ input }) => {
+        .mutation(async ({ input, ctx }) => {
             const { email, ...restInput } = input;
-            const user = await userMethods.getUserByField({ field: 'email', value: email });
-            return userMethods.edit({ id: user.id, ...restInput });
+            const userBefore = await userMethods.getUserByField({ field: 'email', value: email });
+            const result = await userMethods.edit({ id: userBefore.id, ...restInput });
+            const { before, after } = dropUnchangedValuesFromEvent(
+                { name: userBefore.name, supervisorId: userBefore.supervisorId },
+                { name: result.name, supervisorId: result.supervisorId },
+            );
+            await historyEventMethods.create({ token: ctx.apiToken }, 'editUser', {
+                groupId: undefined,
+                userId: result.id,
+                before,
+                after,
+            });
+            return result;
         }),
 
     editUserByField: restProcedure
@@ -192,9 +221,18 @@ export const restRouter = router({
             }),
         )
         .output(userSchema)
-        .mutation(async ({ input }) => {
-            const user = await userMethods.getUserByField({ field: 'email', value: input.email });
-            return userMethods.editActiveState({ id: user.id, active: input.active });
+        .mutation(async ({ input, ctx }) => {
+            const userBefore = await userMethods.getUserByField({ field: 'email', value: input.email });
+            const result = await userMethods.editActiveState({ id: userBefore.id, active: input.active });
+            if (userBefore.active !== result.active) {
+                await historyEventMethods.create({ token: ctx.apiToken }, 'editUserActiveState', {
+                    userId: result.id,
+                    groupId: undefined,
+                    before: userBefore.active,
+                    after: result.active,
+                });
+            }
+            return result;
         }),
 
     changeUserBonusPoints: restProcedure
@@ -213,11 +251,18 @@ export const restRouter = router({
             }),
         )
         .output(userSchema)
-        .mutation(async ({ input }) => {
+        .mutation(async ({ input, ctx }) => {
             const { actingUserEmail, targetUserEmail, ...restInput } = input;
             const targetUser = await userMethods.getUserByField({ field: 'email', value: targetUserEmail });
             const actingUser = await userMethods.getUserByField({ field: 'email', value: actingUserEmail });
-            return bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser.id);
+            const result = await bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser.id);
+            await historyEventMethods.create({ token: ctx.apiToken }, 'editUserBonuses', {
+                groupId: undefined,
+                userId: result.id,
+                before: { amount: targetUser.bonusPoints },
+                after: { amount: result.bonusPoints, description: input.description },
+            });
+            return result;
         }),
 
     getGroupById: restProcedure
@@ -399,7 +444,33 @@ export const restRouter = router({
                 grade: z.number().nullable(),
             }),
         )
-        .query(({ input }) => vacancyMethods.edit(input)),
+        .query(async ({ input, ctx }) => {
+            const vacancyBefore = await vacancyMethods.getByIdOrThrow(input.id);
+            const result = await vacancyMethods.edit(input);
+            const { before, after } = dropUnchangedValuesFromEvent(
+                {
+                    status: vacancyBefore.status,
+                    hiringManagerId: vacancyBefore.hiringManagerId,
+                    hrId: vacancyBefore.hrId,
+                    grade: vacancyBefore.grade,
+                    unit: vacancyBefore.unit,
+                },
+                {
+                    status: result.status,
+                    hiringManagerId: result.hiringManagerId,
+                    hrId: result.hrId,
+                    grade: result.grade,
+                    unit: result.unit,
+                },
+            );
+            await historyEventMethods.create({ token: ctx.apiToken }, 'editVacancy', {
+                groupId: result.groupId,
+                userId: undefined,
+                before: { id: result.id, name: vacancyBefore.name, ...before },
+                after: { id: result.id, name: result.name, ...after },
+            });
+            return result;
+        }),
 
     getAchievementList: restProcedure
         .meta({
@@ -441,23 +512,28 @@ export const restRouter = router({
         .output(
             z.object({
                 id: z.string(),
-                name: z.string().nullable(),
-                email: z.string(),
+                title: z.string(),
+                description: z.string(),
             }),
         )
-        .query(async ({ input }) => {
+        .query(async ({ input, ctx }) => {
             const { actingUserEmail, targetUserEmail, achievementId, amount } = input;
-
             const [targetUser, actingUser, achievement] = await Promise.all([
                 userMethods.getUserByField({ field: 'email', value: targetUserEmail }),
                 userMethods.getUserByField({ field: 'email', value: actingUserEmail }),
                 achievementMethods.getById(achievementId),
             ]);
-
-            return achievementMethods.give(
-                { achievementId, amount, userId: targetUser.id, achievementTitle: achievement.title },
+            const result = await achievementMethods.give(
+                { achievementId, amount, userId: targetUser.id },
                 actingUser.id,
             );
+            await historyEventMethods.create({ token: ctx.apiToken }, 'giveAchievementToUser', {
+                groupId: undefined,
+                userId: targetUser.id,
+                before: undefined,
+                after: { id: achievement.id, title: achievement.title, amount: input.amount },
+            });
+            return result;
         }),
 
     getServiceList: restProcedure

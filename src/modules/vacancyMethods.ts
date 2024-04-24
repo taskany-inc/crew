@@ -11,6 +11,17 @@ import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
 
 export const vacancyMethods = {
+    getByIdOrThrow: async (id: string) => {
+        const vacancy = await prisma.vacancy.findUnique({ where: { id } });
+        if (!vacancy) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: tr('No vacancy with id {vacancyId}', { vacancyId: id }),
+            });
+        }
+        return vacancy;
+    },
+
     create: (input: CreateVacancy) => {
         const { hiringManagerId, hrId, groupId, ...restInput } = input;
         const data: Prisma.VacancyCreateInput = {

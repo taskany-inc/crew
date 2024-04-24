@@ -8,6 +8,12 @@ import { GetRoleList, RemoveRoleFromMembership, GetRoleSuggestions, AddRoleToMem
 import { tr } from './modules.i18n';
 
 export const roleMethods = {
+    getByIdOrThrow: async (id: string) => {
+        const role = await prisma.role.findUnique({ where: { id } });
+        if (!role) throw new TRPCError({ code: 'NOT_FOUND', message: `No role with id ${id}` });
+        return role;
+    },
+
     addToMembership: async (data: AddRoleToMembership) => {
         const membership = await prisma.membership.findUnique({ where: { id: data.membershipId } });
         if (membership?.archived) {

@@ -120,6 +120,12 @@ const externalUserUpdate = async (userId: string, data: Omit<ExternalUserUpdate,
 };
 
 export const userMethods = {
+    getByIdOrThrow: async (id: string): Promise<User> => {
+        const user = await prisma.user.findUnique({ where: { id } });
+        if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });
+        return user;
+    },
+
     create: async (data: CreateUser) => {
         const [phoneService, accountingService] = await Promise.all([
             prisma.externalService.findUnique({ where: { name: 'Phone' } }),

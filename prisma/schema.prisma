@@ -105,6 +105,9 @@ model User {
   vacanciesManaging Vacancy[] @relation("hiringManager")
   vacanciesHr       Vacancy[] @relation("vacancyHr")
 
+  historyEvents  HistoryEvent[] @relation("historyEvents")
+  historyChanges HistoryEvent[] @relation("historyChanges")
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
@@ -203,6 +206,8 @@ model Group {
 
   vacancies Vacancy[] @relation("groupVacancy")
 
+  historyEvents HistoryEvent[] @relation("historyEvents")
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
@@ -281,6 +286,8 @@ model ApiToken {
 
   roleCode String?
   role     UserRole? @relation(fields: [roleCode], references: [code])
+
+  historyChanges HistoryEvent[] @relation("historyChanges")
 }
 
 // TODO: delete issues/690
@@ -406,4 +413,27 @@ model UserAchievement {
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 
   @@unique([userId, achievementId])
+}
+
+model HistoryEvent {
+  id String @id @default(nanoid())
+
+  actingUserId String?
+  actingUser   User?   @relation("historyChanges", fields: [actingUserId], references: [id])
+
+  actingTokenId String?   @db.Uuid
+  actingToken   ApiToken? @relation("historyChanges", fields: [actingTokenId], references: [id])
+
+  user   User?   @relation("historyEvents", fields: [userId], references: [id])
+  userId String?
+
+  group   Group?  @relation("historyEvents", fields: [groupId], references: [id])
+  groupId String?
+
+  action String
+
+  before Json?
+  after  Json?
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
 }
