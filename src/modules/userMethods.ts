@@ -18,6 +18,7 @@ import {
     UserSettings,
     UserSupervisorOf,
     UserSupervisorIn,
+    UserMeta,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -32,6 +33,16 @@ import {
 } from './userSchemas';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
+import { userAccess } from './userAccess';
+
+export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: SessionUser): T & UserMeta => {
+    return {
+        ...user,
+        meta: {
+            isEditable: userAccess.isEditable(sessionUser, user.id).allowed,
+        },
+    };
+};
 
 const usersWhere = (data: GetUserList) => {
     const where: Prisma.UserWhereInput = {};
@@ -188,7 +199,9 @@ export const userMethods = {
     getById: async (
         id: string,
         sessionUser: SessionUser,
-    ): Promise<User & UserMemberships & UserSupervisor & UserAchievements & UserSupervisorOf & UserSupervisorIn> => {
+    ): Promise<
+        User & UserMeta & UserMemberships & UserSupervisor & UserAchievements & UserSupervisorOf & UserSupervisorIn
+    > => {
         const user = await prisma.user.findUnique({
             where: { id },
             include: {
@@ -218,7 +231,7 @@ export const userMethods = {
             achievements: showAchievements ? user.achievements : undefined,
             memberships: user.memberships.map((m) => ({ ...m, group: addCalculatedGroupFields(m.group, sessionUser) })),
         };
-        return userWithGroupMeta;
+        return addCalculatedUserFields(userWithGroupMeta, sessionUser);
     },
 
     getUserByField: async (data: GetUserByField) => {

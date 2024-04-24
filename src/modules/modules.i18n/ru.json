@@ -45,5 +45,6 @@
     "Multiple organizational memberships are forbidden": "Запрещено участие в нескольких организационных группах",
     "New achievement!": "Новое достижение!",
     "Congratulations! You have new achievement: {achievement}": "Поздравляем! У вас новое достижение: {achievement}",
-    "Icon URL is required": "Ссылка на иконку обязательна"
+    "Icon URL is required": "Ссылка на иконку обязательна",
+    "Cannot edit another user": "Нельзя редактировать другого пользователя"
 }
