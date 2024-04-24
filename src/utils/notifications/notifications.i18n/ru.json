@@ -43,5 +43,8 @@
     "Device is deleted": "Устройство удалено",
     "Deleting the device...": "Удаление устройства...",
     "Achievement is awarded!": "Дали ачивку!",
-    "Awarding an achievement...": "Даем достижение..."
+    "Awarding an achievement...": "Даем достижение...",
+    "Successfully copied": "Успешно скопировано",
+    "An error occurred while copying": "Произошла ошибка при копировании",
+    "Copying...": "Копируем..."
 }

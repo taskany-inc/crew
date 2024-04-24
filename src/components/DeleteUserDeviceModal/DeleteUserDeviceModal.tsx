@@ -48,7 +48,7 @@ export const DeleteUserDeviceModal = ({ visible, device, onClose }: DeleteUserDe
 
             <ModalContent>
                 <StyledInfoWrapper>
-                    <UserDeviceListItem userDevice={device} />
+                    <UserDeviceListItem deviceName={device.deviceName} />
                 </StyledInfoWrapper>
                 <Form>
                     <FormActions>

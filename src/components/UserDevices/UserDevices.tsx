@@ -38,7 +38,7 @@ export const UserDevices = ({ user }: UserDevicesProps) => {
             <StyleDevicesList>
                 {userDeviceQuery.data?.map((userDevices) => (
                     <StyledRow key={userDevices.deviceId}>
-                        <UserDeviceListItem userDevice={userDevices} />
+                        <UserDeviceListItem deviceName={userDevices.deviceName} />
 
                         <Restricted visible={!!sessionUser.role?.editUser}>
                             <UserDeviceMenu device={userDevices} />

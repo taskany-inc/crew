@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Dropdown, MenuItem } from '@taskany/bricks';
+import { Dropdown, MenuItem, useCopyToClipboard } from '@taskany/bricks';
 import { IconMoreVerticalOutline } from '@taskany/icons';
 
 import { DeleteUserDeviceModal } from '../DeleteUserDeviceModal/DeleteUserDeviceModal';
 import { UserDeviceInfo } from '../../modules/deviceTypes';
+import { notifyPromise } from '../../utils/notifications/notifyPromise';
 
 import { tr } from './UserDeviceMenu.i18n';
 
@@ -13,8 +14,15 @@ interface UserDeviceMenuProps {
 
 export const UserDeviceMenu = ({ device }: UserDeviceMenuProps) => {
     const [removeModalVisible, setRemoveModalVisible] = useState(false);
+    const [, copy] = useCopyToClipboard();
 
-    const items = useMemo(() => [{ name: tr('Delete'), action: () => setRemoveModalVisible(true) }], []);
+    const items = useMemo(() => {
+        return [
+            { name: tr('Delete'), action: () => setRemoveModalVisible(true) },
+            { name: tr('Copy device name'), action: () => notifyPromise(copy(device.deviceName), 'copy') },
+            { name: tr('Copy device id'), action: () => notifyPromise(copy(device.deviceId), 'copy') },
+        ];
+    }, [copy, device]);
 
     return (
         <>
