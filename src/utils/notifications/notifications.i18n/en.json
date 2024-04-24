@@ -43,5 +43,8 @@
     "Device is deleted": "",
     "Deleting the device...": "",
     "Achievement is awarded!": "",
-    "Awarding an achievement...": ""
+    "Awarding an achievement...": "",
+    "Successfully copied": "",
+    "An error occurred while copying": "",
+    "Copying...": ""
 }

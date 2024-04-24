@@ -17,7 +17,8 @@ export type NotificationNamespaces =
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'achievement', 'Give'>
     | NamespacedAction<'bonusPoints', 'Change'>
-    | 'sendFeedback';
+    | 'sendFeedback'
+    | 'copy';
 
 export type NotificationMap = Record<NotificationNamespaces, Partial<NotificationEvents>>;
 
@@ -112,6 +113,11 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         achievementGive: {
             success: tr('Achievement is awarded!'),
             loading: tr('Awarding an achievement...'),
+        },
+        copy: {
+            success: 'Successfully copied',
+            loading: 'Copying...',
+            error: 'An error occurred while copying',
         },
     };
 
