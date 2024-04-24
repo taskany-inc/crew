@@ -6,7 +6,7 @@ import { gapSm, gray10 } from '@taskany/colors';
 import { UserDeviceInfo } from '../modules/deviceTypes';
 
 interface UserDeviceListItemProps {
-    deviceName: UserDeviceInfo['deviceName'];
+    userDevice: UserDeviceInfo;
 }
 
 const StyledWrapper = styled.div`
@@ -18,19 +18,21 @@ const StyledWrapper = styled.div`
     overflow: auto;
 `;
 
-export const UserDeviceListItem = ({ deviceName }: UserDeviceListItemProps) => {
+export const UserDeviceListItem = ({ userDevice }: UserDeviceListItemProps) => {
     const ref = useRef<HTMLDivElement>(null);
 
     return (
         <>
             <StyledWrapper ref={ref}>
                 <Text color={gray10} ellipsis>
-                    {deviceName}
+                    {userDevice.deviceName} {userDevice.deviceId}
                 </Text>
             </StyledWrapper>
 
             <Popup reference={ref} placement="top">
-                <Text>{deviceName}</Text>
+                <Text>
+                    {userDevice.deviceName} {userDevice.deviceId}
+                </Text>
             </Popup>
         </>
     );
