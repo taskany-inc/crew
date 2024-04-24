@@ -62,7 +62,6 @@ export const bonusPointsMethods = {
                         {
                             achievementId: achievement.id,
                             userId: data.userId,
-                            achievementTitle: achievement.title,
                             amount: achievementAmount,
                         },
                         techAdmin.id,

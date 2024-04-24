@@ -13,27 +13,67 @@ import {
     createUserSchema,
     editUserActiveStateSchema,
 } from '../../modules/userSchemas';
+import { historyEventMethods } from '../../modules/historyEventMethods';
+import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 
 export const userRouter = router({
-    create: protectedProcedure.input(createUserSchema).mutation(({ input, ctx }) => {
+    create: protectedProcedure.input(createUserSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
-        return userMethods.create(input);
+        const result = await userMethods.create(input);
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'createUser', {
+            groupId: undefined,
+            userId: result.id,
+            before: undefined,
+            after: {
+                name: result.name || undefined,
+                email: result.email,
+                phone: input.phone,
+                login: input.login,
+                organizationalUnitId: result.organizationUnitId || input.organizationUnitId,
+                accountingId: input.accountingId,
+                supervisorId: result.supervisorId || undefined,
+                createExternalAccount: input.createExternalAccount,
+            },
+        });
+        if (input.groupId) {
+            await historyEventMethods.create({ user: ctx.session.user.id }, 'addUserToGroup', {
+                groupId: input.groupId,
+                userId: result.id,
+                before: undefined,
+                after: {},
+            });
+        }
+        return result;
     }),
 
-    addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(({ input, ctx }) => {
+    addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(async ({ input, ctx }) => {
         accessCheckAnyOf(
             checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
             checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
         );
-        return userMethods.addToGroup(input);
+        const result = await userMethods.addToGroup(input);
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'addUserToGroup', {
+            groupId: result.groupId,
+            userId: result.userId,
+            before: undefined,
+            after: { percentage: result.percentage || undefined },
+        });
+        return result;
     }),
 
-    removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(({ input, ctx }) => {
+    removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(async ({ input, ctx }) => {
         accessCheckAnyOf(
             checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
             checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
         );
-        return userMethods.removeFromGroup(input);
+        const result = await userMethods.removeFromGroup(input);
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'removeUserFromGroup', {
+            groupId: result.groupId,
+            userId: result.userId,
+            before: undefined,
+            after: undefined,
+        });
+        return result;
     }),
 
     editSettings: protectedProcedure.input(editUserSettingsSchema).mutation(({ input, ctx }) => {
@@ -64,14 +104,34 @@ export const userRouter = router({
         return userMethods.getGroupMembers(input);
     }),
 
-    edit: protectedProcedure.input(editUserSchema).mutation(({ input, ctx }) => {
+    edit: protectedProcedure.input(editUserSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
-        return userMethods.edit(input);
+        const userBefore = await userMethods.getByIdOrThrow(input.id);
+        const result = await userMethods.edit(input);
+        const { before, after } = dropUnchangedValuesFromEvent(
+            { name: userBefore.name, supervisorId: userBefore.supervisorId },
+            { name: result.name, supervisorId: result.supervisorId },
+        );
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'editUser', {
+            groupId: undefined,
+            userId: result.id,
+            before,
+            after,
+        });
+        return result;
     }),
 
-    editActiveState: protectedProcedure.input(editUserActiveStateSchema).mutation(({ input, ctx }) => {
+    editActiveState: protectedProcedure.input(editUserActiveStateSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
-        return userMethods.editActiveState(input);
+        const userBefore = await userMethods.getByIdOrThrow(input.id);
+        const result = await userMethods.editActiveState(input);
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'editUserActiveState', {
+            userId: result.id,
+            groupId: undefined,
+            before: userBefore.active,
+            after: result.active,
+        });
+        return result;
     }),
 
     getAvailableMembershipPercentage: protectedProcedure.input(z.string()).query(({ input }) => {

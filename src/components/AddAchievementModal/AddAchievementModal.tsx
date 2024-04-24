@@ -100,7 +100,6 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
             await giveAchievement({
                 userId,
                 achievementId: achievement.id,
-                achievementTitle: achievement.title,
             });
             hideModal();
         },

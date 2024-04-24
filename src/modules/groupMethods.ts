@@ -31,6 +31,12 @@ export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser?
 };
 
 export const groupMethods = {
+    getByIdOrThrow: async (id: string): Promise<Group> => {
+        const group = await prisma.group.findUnique({ where: { id } });
+        if (!group) throw new TRPCError({ code: 'NOT_FOUND', message: tr('No group with id {id}', { id }) });
+        return group;
+    },
+
     create: (data: CreateGroup, sessionUser: SessionUser) => {
         return prisma.group.create({ data: { supervisorId: sessionUser.id, ...data } });
     },

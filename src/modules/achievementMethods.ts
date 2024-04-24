@@ -20,14 +20,11 @@ export const achievementMethods = {
             data: { icon, creatorId: sessionUserId, title, description, hidden },
         });
 
-        return achievementMethods.give(
-            { achievementTitle: newAchievement.title, achievementId: newAchievement.id, userId },
-            sessionUserId,
-        );
+        return achievementMethods.give({ achievementId: newAchievement.id, userId }, sessionUserId);
     },
 
     give: async (data: GiveAchievement, sessionUserId: string) => {
-        const { achievementTitle, amount = 1, ...restData } = data;
+        const { amount = 1, ...restData } = data;
         const user = await prisma.user.findUnique({ where: { id: restData.userId }, include: { achievements: true } });
 
         const achievement = await prisma.achievement.findUnique({
@@ -40,14 +37,6 @@ export const achievementMethods = {
         }
 
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${restData.userId}` });
-
-        if (!achievement.hidden) {
-            await sendMail({
-                to: user.email,
-                subject: tr('New achievement!'),
-                text: tr('Congratulations! You have new achievement: {achievement}', { achievement: achievementTitle }),
-            });
-        }
 
         const existingAchievement = user.achievements.find(
             ({ achievementId }) => achievementId === restData.achievementId,
@@ -67,7 +56,7 @@ export const achievementMethods = {
 
             if (!techAdmin) {
                 Sentry.captureException(`No tech admin with id ${config.techAdminId} from config`);
-                return user;
+                return achievement;
             }
             await prisma.$transaction([
                 prisma.user.update({
@@ -89,7 +78,17 @@ export const achievementMethods = {
             ]);
         }
 
-        return user;
+        if (!achievement.hidden) {
+            await sendMail({
+                to: user.email,
+                subject: tr('New achievement!'),
+                text: tr('Congratulations! You have new achievement: {achievement}', {
+                    achievement: achievement.title,
+                }),
+            });
+        }
+
+        return achievement;
     },
 
     getList: (data: GetAchievementList) => {

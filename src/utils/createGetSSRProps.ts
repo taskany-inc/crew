@@ -81,7 +81,7 @@ export const createGetServerSideProps =
 
         const ssgHelper = createServerSideHelpers({
             router: trpcRouter,
-            ctx: { session, headers: context.req.headers },
+            ctx: { session, headers: context.req.headers, apiToken: undefined },
             transformer: superjson,
         });
 
