@@ -71,17 +71,23 @@ const StyledUserListWrapper = styled.div`
 `;
 
 interface UserPageProps {
-    userId: string;
+    userId?: string;
+    userLogin?: string;
 }
 
-export const UserPage = ({ userId }: UserPageProps) => {
+export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
     const { showGroupPreview } = usePreviewContext();
     const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);
     const [openDeactivateUserForm, setOpenDeactivateUserForm] = useState(false);
     const sessionUser = useSessionUser();
 
-    const userQuery = trpc.user.getById.useQuery(userId);
-    const user = userQuery.data;
+    const userByLogin = trpc.user.getByLogin.useQuery(userLogin, {
+        enabled: Boolean(userLogin),
+    });
+    const userById = trpc.user.getById.useQuery(userId, {
+        enabled: Boolean(userId),
+    });
+    const user = userByLogin.data || userById.data;
 
     if (!user) return null;
 
