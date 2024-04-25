@@ -121,17 +121,13 @@ const externalUserUpdate = async (userId: string, data: Omit<ExternalUserUpdate,
 
 export const userMethods = {
     create: async (data: CreateUser) => {
-        const [phoneService, loginService, accountingService] = await Promise.all([
+        const [phoneService, accountingService] = await Promise.all([
             prisma.externalService.findUnique({ where: { name: 'Phone' } }),
-            prisma.externalService.findUnique({ where: { name: 'Login' } }),
             prisma.externalService.findUnique({ where: { name: 'Accounting system' } }),
         ]);
         const servicesData = [];
         if (data.phone && phoneService) {
             servicesData.push({ serviceName: phoneService.name, serviceId: data.phone });
-        }
-        if (data.login && loginService) {
-            servicesData.push({ serviceName: loginService.name, serviceId: data.login });
         }
         if (data.accountingId && accountingService) {
             servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
@@ -145,6 +141,7 @@ export const userMethods = {
                 name: trimAndJoin([data.surname, data.firstName, data.middleName]),
                 email: data.email,
                 supervisorId: data.supervisorId,
+                login: data.login,
                 memberships: data.groupId ? { create: { groupId: data.groupId } } : undefined,
                 organizationUnitId: data.organizationUnitId,
                 services: { createMany: { data: servicesData } },
@@ -194,6 +191,14 @@ export const userMethods = {
             where: { userId },
             data,
         });
+    },
+
+    getByLogin: async (login: string, sessionUser: SessionUser) => {
+        const user = await prisma.user.findUnique({ where: { login }, select: { id: true } });
+
+        if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with login ${login}` });
+
+        return userMethods.getById(user.id, sessionUser);
     },
 
     getById: async (

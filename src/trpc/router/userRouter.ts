@@ -44,6 +44,10 @@ export const userRouter = router({
         return userMethods.getById(input, ctx.session.user);
     }),
 
+    getByLogin: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        return userMethods.getByLogin(input, ctx.session.user);
+    }),
+
     getSettings: protectedProcedure.query(({ ctx }) => {
         return userMethods.getSettings(ctx.session.user.id);
     }),

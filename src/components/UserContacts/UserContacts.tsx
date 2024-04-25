@@ -31,33 +31,60 @@ interface UserContactsProps {
     user: User;
 }
 
+const getStubData = (userId: string) => {
+    return {
+        userId,
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        service: {
+            displayName: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        },
+    };
+};
+
 export const UserContacts = ({ user }: UserContactsProps) => {
     const userServiceQuery = trpc.service.getUserServices.useQuery(user.id);
     const sessionUser = useSessionUser();
 
-    const emailStubService = useMemo<UserServiceInfo>(() => {
-        const item = {
-            userId: user.id,
+    const [emailStubService, loginStubService] = useMemo<UserServiceInfo[]>(() => {
+        const data = getStubData(user.id);
+
+        const emailService = {
+            ...data,
             serviceName: 'Email',
             serviceId: user.email,
-            active: true,
-            createdAt: new Date(),
-            updatedAt: new Date(),
             service: {
+                ...data.service,
                 name: 'Email',
-                displayName: null,
                 icon: 'IconEnvelopeOutline',
                 linkPrefix: 'mailto:',
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
         };
-        return item;
-    }, [user.email, user.id]);
+
+        const loginService = {
+            ...data,
+            serviceName: 'Login',
+            serviceId: user.login || '',
+            service: {
+                ...data.service,
+                name: 'Login',
+                icon: 'IconUserSquareOutline',
+                linkPrefix: null,
+            },
+        };
+
+        return [emailService, loginService];
+    }, [user]);
 
     return (
         <NarrowSection title={tr('Contacts')}>
             <StyledServicesList>
+                {nullable(user.login, () => (
+                    <UserServiceListItem userService={loginStubService} />
+                ))}
                 <UserServiceListItem userService={emailStubService} />
 
                 {userServiceQuery.data?.map((userServices) => (

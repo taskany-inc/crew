@@ -78,7 +78,6 @@ const main = async () => {
     const servicesData = [
         { name: 'Email', icon: 'IconEnvelopeOutline', linkPrefix: 'mailto:' },
         { name: 'Phone', icon: 'IconPhoneOutline', linkPrefix: 'tel:' },
-        { name: 'Login', icon: 'IconUserSquareOutline' },
         { name: 'Github', icon: 'IconGithubOutline', linkPrefix: 'https://github.com/' },
         { name: 'Gitlab', icon: 'IconGitlabOutline', linkPrefix: 'https://gitlab.com/' },
         { name: 'Telegram', icon: 'IconTelegramOutline', linkPrefix: 'https://t.me/' },
