@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.50.0](https://github.com/taskany-inc/crew/compare/v0.49.0...v0.50.0) (2024-04-25)
+
+
+### Features
+
+* achievement cathegory and id in bonus history ([9a9a1c6](https://github.com/taskany-inc/crew/commit/9a9a1c68c519bc15fcd78e56a7541a912017ff0e))
+
+
+### Bug Fixes
+
+* hide devices name & id to dropdown menu ([413b001](https://github.com/taskany-inc/crew/commit/413b001eac78a35542e83680b57349801d5743be))
+* return deviceId ([5c36b94](https://github.com/taskany-inc/crew/commit/5c36b940d98c8424c2396a3c2007843c0c3fcb86))
+
 ## [0.49.0](https://github.com/taskany-inc/crew/compare/v0.48.1...v0.49.0) (2024-04-19)
 
 
