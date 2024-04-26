@@ -6,8 +6,8 @@ import { tr } from './modules.i18n';
 export const changeBonusPointsSchema = z.object({
     userId: z.string(),
     action: z.nativeEnum(BonusAction),
-    achievementId: z.string().optional(),
-    achievementCategory: z.string().optional(),
+    externalAchievementId: z.string().optional(),
+    externalAchievementCategoryId: z.string().optional(),
     amount: z.number().positive({ message: tr('Amount should be greater than zero') }),
     description: z
         .string({ required_error: tr('Description is required') })
