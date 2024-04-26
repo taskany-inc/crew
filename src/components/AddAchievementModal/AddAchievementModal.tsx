@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
@@ -65,6 +65,7 @@ const Grid = styled.div`
 export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievementModalProps) => {
     const { giveAchievement, createAndGiveAchievement } = useAchievmentMutations();
     const suggestionsVisibility = useBoolean(false);
+    const errorDescriptionVisible = useBoolean(false);
 
     const [search, setSearch] = useState('');
     const achievementsQuery = trpc.achievement.getList.useQuery({ search });
@@ -103,7 +104,6 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
         await createAndGiveAchievement(data);
         hideModal();
     });
-    const popupRef = useRef<HTMLInputElement>(null);
 
     return (
         <Modal visible={visible} onClose={hideModal} width={500}>
@@ -116,7 +116,6 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
                 <StyledTabs layout="horizontal" active="choose">
                     <Tab label={<StyledTabLabel>{tr('Choose')}</StyledTabLabel>} name="choose">
                         <FormInput
-                            ref={popupRef}
                             placeholder={tr('Choose achievement')}
                             autoComplete="off"
                             onFocus={suggestionsVisibility.setTrue}
@@ -156,15 +155,25 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
                                 error={errors.icon}
                                 {...register('icon')}
                             />
-                            <FormTextarea
-                                minHeight={180}
-                                autoComplete="off"
-                                placeholder={tr('Description')}
-                                {...register('description')}
-                            />
-                            {errors.description && (
-                                <ErrorPopup placement="left">{errors.description.message}</ErrorPopup>
-                            )}
+                            <div style={{ position: 'relative' }}>
+                                <FormTextarea
+                                    minHeight={180}
+                                    autoComplete="off"
+                                    placeholder={tr('Description')}
+                                    {...register('description')}
+                                    onFocus={errorDescriptionVisible.setTrue}
+                                    onBlur={errorDescriptionVisible.setFalse}
+                                />
+                                {nullable(errors.description, ({ message }) => (
+                                    <ErrorPopup
+                                        visible={errorDescriptionVisible.value}
+                                        dotPlacement="top"
+                                        placement="left"
+                                    >
+                                        {message}
+                                    </ErrorPopup>
+                                ))}
+                            </div>
 
                             <FormActions>
                                 <FormAction left />
