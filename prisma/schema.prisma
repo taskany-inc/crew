@@ -237,6 +237,13 @@ model Role {
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
 
+model BonusRule {
+  id                        String        @id @default(nanoid())
+  bonusAmountForAchievement Int
+  categoryId                String
+  achievement               Achievement[]
+}
+
 model BonusHistory {
   id          String      @id @default(nanoid())
   action      BonusAction
@@ -358,6 +365,9 @@ model Achievement {
   creatorId String?
 
   achievements UserAchievement[]
+
+  bonusRule   BonusRule? @relation(fields: [bonusRuleId], references: [id])
+  bonusRuleId String?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
 }

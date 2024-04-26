@@ -30,4 +30,5 @@ export const config = {
         authUser: process.env.MAIL_USER,
         enabled: process.env.MAIL_ENABLE,
     },
+    techAdminId: process.env.TECH_ADMIN_ID,
 };
