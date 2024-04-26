@@ -20,12 +20,12 @@ export const bonusPointsMethods = {
                     targetUserId: data.userId,
                     actingUserId: sessionUserId,
                     description: data.description,
-                    achievementId: data.achievementId,
-                    achievementCategory: data.achievementCategory,
+                    externalAchievementId: data.externalAchievementId,
+                    externalAchievementCategoryId: data.externalAchievementCategoryId,
                 },
             }),
         ]);
-        if (data.achievementCategory && config.techAdminId) {
+        if (data.externalAchievementId && config.techAdminId) {
             const techAdmin = await prisma.user.findUnique({ where: { id: config.techAdminId } });
 
             if (!techAdmin) {
@@ -33,12 +33,14 @@ export const bonusPointsMethods = {
                 return user;
             }
             const bonusesInCategory = await prisma.$queryRaw<Array<{ sum: number }>>`
-                SELECT SUM(amount) FROM public."BonusHistory" WHERE "achievementCategory" = ${data.achievementCategory}
+                SELECT SUM(amount) FROM public."BonusHistory" WHERE "achievementCategory" = ${data.externalAchievementCategoryId}
             `;
 
             const bonusesAmount = Number(bonusesInCategory[0].sum);
 
-            const bonusRules = await prisma.bonusRule.findMany({ where: { categoryId: data.achievementCategory } });
+            const bonusRules = await prisma.bonusRule.findMany({
+                where: { categoryId: data.externalAchievementCategoryId },
+            });
             const achievements = await prisma.achievement.findMany({
                 where: { bonusRuleId: { in: bonusRules.map(({ id }) => id) } },
                 include: { bonusRule: true },

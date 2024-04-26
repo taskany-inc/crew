@@ -1,7 +1,9 @@
 import { TRPCError } from '@trpc/server';
+import * as Sentry from '@sentry/nextjs';
 
 import { defaultTake } from '../utils';
 import { prisma } from '../utils/prisma';
+import { config } from '../config';
 
 import { CreateAndGiveAchievement, GetAchievementList, GiveAchievement } from './achievementSchemas';
 import { tr } from './modules.i18n';
@@ -32,6 +34,15 @@ export const achievementMethods = {
         const { achievementTitle, amount = 1, ...restData } = data;
         const user = await prisma.user.findUnique({ where: { id: restData.userId }, include: { achievements: true } });
 
+        const achievement = await prisma.achievement.findUnique({
+            where: { id: restData.achievementId },
+            include: { bonusForAchievementRule: true },
+        });
+
+        if (!achievement) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `No achievement with id ${restData.achievementId}` });
+        }
+
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${restData.userId}` });
         await sendMail({
             to: user.email,
@@ -51,6 +62,33 @@ export const achievementMethods = {
         }
 
         await prisma.userAchievement.create({ data: { ...restData, awarderId: sessionUserId, count: amount } });
+
+        if (achievement.bonusForAchievementRule && config.techAdminId) {
+            const techAdmin = await prisma.user.findUnique({ where: { id: config.techAdminId } });
+
+            if (!techAdmin) {
+                Sentry.captureException(`No tech admin with id ${config.techAdminId} from config`);
+                return user;
+            }
+            await prisma.$transaction([
+                prisma.user.update({
+                    where: { id: data.userId },
+                    data: { bonusPoints: { increment: achievement.bonusForAchievementRule.bonusesPerCrewAchievement } },
+                }),
+                prisma.bonusHistory.create({
+                    data: {
+                        action: 'ADD',
+                        amount: achievement.bonusForAchievementRule.bonusesPerCrewAchievement,
+                        targetUserId: data.userId,
+                        actingUserId: techAdmin.id,
+                        description: achievement.bonusForAchievementRule.description,
+                        externalAchievementId: achievement.bonusForAchievementRule.externalAchievementId,
+                        externalAchievementCategoryId:
+                            achievement.bonusForAchievementRule.externalAchievementCategoryId,
+                    },
+                }),
+            ]);
+        }
 
         return user;
     },

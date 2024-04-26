@@ -244,6 +244,18 @@ model BonusRule {
   achievement               Achievement[]
 }
 
+model BonusForAchievementRule {
+  id                            String      @id @default(nanoid())
+  bonusesPerCrewAchievement     Int
+  description                   String
+  achievementId                 String
+  achievement                   Achievement @relation(fields: [achievementId], references: [id])
+  externalAchievementId         String?
+  externalAchievementCategoryId String?
+
+  @@unique([achievementId])
+}
+
 model BonusHistory {
   id          String      @id @default(nanoid())
   action      BonusAction
@@ -256,8 +268,8 @@ model BonusHistory {
   actingUser   User   @relation("bonusChanges", fields: [actingUserId], references: [id])
   actingUserId String
 
-  achievementId       String?
-  achievementCategory String?
+  externalAchievementId         String? @map("achievementId")
+  externalAchievementCategoryId String? @map("achievementCategory")
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
 }
@@ -368,6 +380,8 @@ model Achievement {
 
   bonusRule   BonusRule? @relation(fields: [bonusRuleId], references: [id])
   bonusRuleId String?
+
+  bonusForAchievementRule BonusForAchievementRule?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
 }
