@@ -1,10 +1,12 @@
 import { BonusAction, User } from 'prisma/prisma-client';
+import * as Sentry from '@sentry/nextjs';
 
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
 
 import { ChangeBonusPoints, GetAchievements } from './bonusPointsSchemas';
 import { BonusPointsAchievement } from './bonusPointsTypes';
+import { achievementMethods } from './achievementMethods';
 
 export const bonusPointsMethods = {
     change: async (data: ChangeBonusPoints, sessionUserId: string): Promise<User> => {
@@ -23,6 +25,46 @@ export const bonusPointsMethods = {
                 },
             }),
         ]);
+        if (data.achievementCategory && config.techAdminId) {
+            const techAdmin = await prisma.user.findUnique({ where: { id: config.techAdminId } });
+
+            if (!techAdmin) {
+                Sentry.captureException(`No tech admin with id ${config.techAdminId} from config`);
+                return user;
+            }
+            const bonusesInCategory = await prisma.$queryRaw<Array<{ sum: number }>>`
+                SELECT SUM(amount) FROM public."BonusHistory" WHERE "achievementCategory" = ${data.achievementCategory}
+            `;
+
+            const bonusesAmount = Number(bonusesInCategory[0].sum);
+
+            const bonusRules = await prisma.bonusRule.findMany({ where: { categoryId: data.achievementCategory } });
+            const achievements = await prisma.achievement.findMany({
+                where: { bonusRuleId: { in: bonusRules.map(({ id }) => id) } },
+                include: { bonusRule: true },
+            });
+
+            Promise.all(
+                achievements.map(async (achievement) => {
+                    if (!achievement.bonusRule) return;
+                    const userAchievement = await prisma.userAchievement.findFirst({
+                        where: { userId: data.userId, achievementId: achievement.id },
+                    });
+                    const achievementAmount =
+                        Math.floor(bonusesAmount / achievement.bonusRule.bonusAmountForAchievement) -
+                        (userAchievement?.count || 0);
+                    return achievementMethods.give(
+                        {
+                            achievementId: achievement.id,
+                            userId: data.userId,
+                            achievementTitle: achievement.title,
+                            amount: achievementAmount,
+                        },
+                        techAdmin.id,
+                    );
+                }),
+            );
+        }
         return user;
     },
 
