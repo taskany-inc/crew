@@ -62,6 +62,13 @@ const Grid = styled.div`
     overflow-y: auto;
 `;
 
+const StyledInputContainer = styled.div`
+    display: flex;
+    gap: ${gapS};
+    align-items: center;
+    padding: ${gapS} ${gapM};
+`;
+
 export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievementModalProps) => {
     const { giveAchievement, createAndGiveAchievement } = useAchievmentMutations();
     const suggestionsVisibility = useBoolean(false);
@@ -77,7 +84,7 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
         reset,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateAndGiveAchievement>({
-        defaultValues: { userId },
+        defaultValues: { userId, hidden: false },
         resolver: zodResolver(createAndGiveAchievementSchema),
     });
 
@@ -112,7 +119,7 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
                 <ModalCross onClick={hideModal} />
             </ModalHeader>
 
-            <ModalContent style={{ height: 350 }}>
+            <ModalContent style={{ height: 385 }}>
                 <StyledTabs layout="horizontal" active="choose">
                     <Tab label={<StyledTabLabel>{tr('Choose')}</StyledTabLabel>} name="choose">
                         <FormInput
@@ -155,6 +162,12 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
                                 error={errors.icon}
                                 {...register('icon')}
                             />
+                            <StyledInputContainer>
+                                <Text weight="bold" color={gray9}>
+                                    {tr('Hidden')}
+                                </Text>
+                                <input type="checkbox" {...register('hidden')} />
+                            </StyledInputContainer>
                             <div style={{ position: 'relative' }}>
                                 <FormTextarea
                                     minHeight={180}

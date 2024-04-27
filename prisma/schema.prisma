@@ -373,6 +373,7 @@ model Achievement {
   description String
   title       String
   icon        String
+  hidden      Boolean  @default(false)
 
   creator   User?   @relation("achievementsCreated", fields: [creatorId], references: [id])
   creatorId String?
