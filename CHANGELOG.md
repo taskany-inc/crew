@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.51.2](https://github.com/taskany-inc/crew/compare/v0.51.1...v0.51.2) (2024-04-27)
+
+
+### Bug Fixes
+
+* do not give achievement if bonuses amount not enough ([f442335](https://github.com/taskany-inc/crew/commit/f442335ecf6032e86e63fe20d20112472f0ca20c))
+
 ## [0.51.1](https://github.com/taskany-inc/crew/compare/v0.51.0...v0.51.1) (2024-04-27)
 
 
