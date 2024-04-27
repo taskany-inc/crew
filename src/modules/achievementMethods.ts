@@ -53,15 +53,15 @@ export const achievementMethods = {
         const existingAchievement = user.achievements.find(
             ({ achievementId }) => achievementId === restData.achievementId,
         );
+
         if (existingAchievement) {
             await prisma.userAchievement.update({
                 where: { id: existingAchievement.id },
                 data: { count: { increment: amount } },
             });
-            return user;
+        } else {
+            await prisma.userAchievement.create({ data: { ...restData, awarderId: sessionUserId, count: amount } });
         }
-
-        await prisma.userAchievement.create({ data: { ...restData, awarderId: sessionUserId, count: amount } });
 
         if (achievement.bonusForAchievementRule && config.techAdminId) {
             const techAdmin = await prisma.user.findUnique({ where: { id: config.techAdminId } });
