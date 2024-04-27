@@ -33,7 +33,7 @@ export const bonusPointsMethods = {
                 return user;
             }
             const bonusesInCategory = await prisma.$queryRaw<Array<{ sum: number }>>`
-                SELECT SUM(amount) FROM public."BonusHistory" WHERE "achievementCategory" = ${data.externalAchievementCategoryId}
+                SELECT SUM(amount) FROM public."BonusHistory" WHERE "achievementCategory" = ${data.externalAchievementCategoryId} AND "targetUserId" = ${data.userId}
             `;
 
             const bonusesAmount = Number(bonusesInCategory[0].sum);
