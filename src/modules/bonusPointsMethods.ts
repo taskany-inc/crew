@@ -55,6 +55,9 @@ export const bonusPointsMethods = {
                     const achievementAmount =
                         Math.floor(bonusesAmount / achievement.bonusRule.bonusAmountForAchievement) -
                         (userAchievement?.count || 0);
+
+                    if (!achievementAmount) return;
+
                     return achievementMethods.give(
                         {
                             achievementId: achievement.id,
