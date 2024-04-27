@@ -11,23 +11,19 @@ import { sendMail } from './nodemailer';
 
 export const achievementMethods = {
     createAndGive: async (data: CreateAndGiveAchievement, sessionUserId: string) => {
-        const { icon, title, description, userId } = data;
+        const { icon, title, description, hidden, userId } = data;
         const user = await prisma.user.findUnique({ where: { id: userId } });
 
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${userId}` });
 
         const newAchievement = await prisma.achievement.create({
-            data: { icon, creatorId: sessionUserId, title, description },
-        });
-        await sendMail({
-            to: user.email,
-            subject: tr('New achievement!'),
-            text: tr('Congratulations! You have new achievement: {achievement}', { achievement: title }),
+            data: { icon, creatorId: sessionUserId, title, description, hidden },
         });
 
-        return prisma.userAchievement.create({
-            data: { achievementId: newAchievement.id, awarderId: sessionUserId, userId },
-        });
+        return achievementMethods.give(
+            { achievementTitle: newAchievement.title, achievementId: newAchievement.id, userId },
+            sessionUserId,
+        );
     },
 
     give: async (data: GiveAchievement, sessionUserId: string) => {
@@ -44,11 +40,14 @@ export const achievementMethods = {
         }
 
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${restData.userId}` });
-        await sendMail({
-            to: user.email,
-            subject: tr('New achievement!'),
-            text: tr('Congratulations! You have new achievement: {achievement}', { achievement: achievementTitle }),
-        });
+
+        if (!achievement.hidden) {
+            await sendMail({
+                to: user.email,
+                subject: tr('New achievement!'),
+                text: tr('Congratulations! You have new achievement: {achievement}', { achievement: achievementTitle }),
+            });
+        }
 
         const existingAchievement = user.achievements.find(
             ({ achievementId }) => achievementId === restData.achievementId,

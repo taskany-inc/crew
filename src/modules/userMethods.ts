@@ -216,7 +216,7 @@ export const userMethods = {
                     orderBy: { group: { name: 'asc' } },
                 },
                 supervisor: true,
-                achievements: { include: { achievement: true } },
+                achievements: { include: { achievement: true }, where: { achievement: { hidden: false } } },
                 settings: true,
                 supervisorOf: { where: { active: true } },
                 supervisorIn: { where: { archived: false } },
