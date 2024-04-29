@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.52.0](https://github.com/taskany-inc/crew/compare/v0.51.2...v0.52.0) (2024-04-29)
+
+
+### Features
+
+* **achievements:** option to hide achievements ([d27258e](https://github.com/taskany-inc/crew/commit/d27258e82a55867900550eaa76309fc8b91abfe9))
+
 ## [0.51.2](https://github.com/taskany-inc/crew/compare/v0.51.1...v0.51.2) (2024-04-27)
 
 
