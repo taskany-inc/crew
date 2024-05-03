@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { Text } from '@taskany/bricks';
-import { gapS, gray8, textColor } from '@taskany/colors';
-import { User } from 'prisma/prisma-client';
+import { Text } from '@taskany/bricks/harmony';
+import { gray8, textColor } from '@taskany/colors';
 
 import { pages } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
@@ -11,13 +10,13 @@ import { UserPic } from '../UserPic';
 import { tr } from './UserListItem.i18n';
 
 interface UserListItemProps {
-    user: User;
+    user: { id: string; name: string | null; email: string; active: boolean };
 }
 
 const StyledWrapper = styled.div`
     display: flex;
     flex-wrap: nowrap;
-    gap: ${gapS};
+    gap: 0.5ch;
     align-items: center;
 `;
 

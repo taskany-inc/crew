@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { Text } from '@taskany/bricks';
-import { gapS, gray9 } from '@taskany/colors';
+import { Text } from '@taskany/bricks/harmony';
+import { gray9 } from '@taskany/colors';
 import { IconUsersOutline } from '@taskany/icons';
 
 import { usePreviewContext } from '../contexts/previewContext';
@@ -15,7 +15,7 @@ interface GroupListItemProps {
 
 const StyledWrapper = styled.div`
     display: flex;
-    gap: ${gapS};
+    gap: 0.5ch;
     align-items: center;
     flex-wrap: nowrap;
 `;

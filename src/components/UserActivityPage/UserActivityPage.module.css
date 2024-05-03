@@ -1,0 +1,12 @@
+.PageTitle {
+    margin: var(--gap-m) 0 var(--gap-l) 0;
+}
+
+.PageContainer {
+    margin: 0 var(--gap-l);
+    max-width: 750px
+}
+
+.LoadMoreButton {
+    margin-top: var(--gap-m);
+}
