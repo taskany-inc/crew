@@ -1,5 +1,4 @@
 import { UserPic as TaskanyUserPic } from '@taskany/bricks';
-import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 
 const StyledUserPic = styled(TaskanyUserPic)<{ deactivated: boolean }>`
@@ -7,7 +6,7 @@ const StyledUserPic = styled(TaskanyUserPic)<{ deactivated: boolean }>`
 `;
 
 interface UserPicProps {
-    user: User;
+    user: { name: string | null; image?: string | null; email: string; active: boolean };
     size: number;
 }
 

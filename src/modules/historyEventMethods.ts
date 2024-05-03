@@ -1,5 +1,7 @@
+import { defaultTake } from '../utils';
 import { prisma } from '../utils/prisma';
 
+import { GetUserActivity } from './historyEventSchemas';
 import { CreateHistoryEventData, HistoryAction } from './historyEventTypes';
 
 export const historyEventMethods = {
@@ -19,5 +21,26 @@ export const historyEventMethods = {
                 after: data.after,
             },
         });
+    },
+
+    getUserActivity: async ({ userId, cursor }: GetUserActivity) => {
+        const events = await prisma.historyEvent.findMany({
+            where: { actingUserId: userId },
+            include: {
+                group: { select: { id: true, name: true } },
+                user: { select: { id: true, name: true, email: true, active: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: defaultTake + 1,
+            cursor: cursor ? { id: cursor } : undefined,
+        });
+
+        let nextCursor: string | undefined;
+        if (events.length > defaultTake) {
+            const nextEvent = events.pop();
+            nextCursor = nextEvent?.id;
+        }
+
+        return { events, nextCursor };
     },
 };

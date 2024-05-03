@@ -1,3 +1,4 @@
+import { type inferRouterOutputs } from '@trpc/server';
 import { TRPCClientError, httpBatchLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import superjson from 'superjson';
@@ -73,3 +74,5 @@ export const trpc = createTRPCNext<TrpcRouter>({
     },
     ssr: false,
 });
+
+export type TrpcRouterOutput = inferRouterOutputs<TrpcRouter>;
