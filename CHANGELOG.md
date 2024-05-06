@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.53.0](https://github.com/taskany-inc/crew/compare/v0.52.0...v0.53.0) (2024-05-06)
+
+
+### Features
+
+* history items ([df5b5fc](https://github.com/taskany-inc/crew/commit/df5b5fcc2e6b262e9cd7e5f92981766773a576c5))
+* user activity page ([83ed87e](https://github.com/taskany-inc/crew/commit/83ed87ec6564b57db025992b8475d4fc586d219c))
+
 ## [0.52.0](https://github.com/taskany-inc/crew/compare/v0.51.2...v0.52.0) (2024-05-02)
 
 
