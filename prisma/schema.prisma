@@ -175,10 +175,11 @@ model UserSettings {
 }
 
 model OrganizationUnit {
-  id          String  @id @default(nanoid())
+  id          String     @id @default(nanoid())
   name        String
   country     String
   description String?
+  apiToken    ApiToken[]
 
   users User[]
 }
@@ -288,6 +289,9 @@ model ApiToken {
   role     UserRole? @relation(fields: [roleCode], references: [code])
 
   historyChanges HistoryEvent[] @relation("historyChanges")
+
+  organizationUnit   OrganizationUnit? @relation(fields: [organizationUnitId], references: [id])
+  organizationUnitId String?
 }
 
 // TODO: delete issues/690
@@ -376,11 +380,11 @@ model AppConfig {
 }
 
 model Achievement {
-  id          String @id @default(nanoid())
+  id          String  @id @default(nanoid())
   description String
   title       String
   icon        String
-  hidden      Boolean  @default(false)
+  hidden      Boolean @default(false)
 
   creator   User?   @relation("achievementsCreated", fields: [creatorId], references: [id])
   creatorId String?
