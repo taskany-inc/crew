@@ -8,6 +8,7 @@ interface CommonHeaderProps {
     subtitle?: React.ReactNode;
     preTitle?: React.ReactNode;
     description?: React.ReactNode;
+    className?: string;
     children?: React.ReactNode;
 }
 
@@ -39,11 +40,18 @@ const StyledDescription = styled(Text)<{ truncate: boolean }>`
         `}
 `;
 
-export const CommonHeader: React.FC<CommonHeaderProps> = ({ preTitle, title, subtitle, description, children }) => {
+export const CommonHeader: React.FC<CommonHeaderProps> = ({
+    preTitle,
+    title,
+    subtitle,
+    description,
+    className,
+    children,
+}) => {
     const [truncateDescription, toggleDescription] = useReducer((v) => !v, true);
 
     return (
-        <StyledCommonHeader>
+        <StyledCommonHeader className={className}>
             {nullable(preTitle, (pT) => (
                 <Text size="m" weight="bold" color={gray6}>
                     {pT}

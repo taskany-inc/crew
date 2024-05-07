@@ -23,9 +23,14 @@ export const historyEventMethods = {
         });
     },
 
-    getUserActivity: async ({ userId, cursor }: GetUserActivity) => {
+    getUserActivity: async ({ userId, from, to, cursor }: GetUserActivity) => {
+        to?.setUTCHours(23, 59, 59, 999);
+        const where = {
+            actingUserId: userId,
+            createdAt: { gte: from, lte: to },
+        };
         const events = await prisma.historyEvent.findMany({
-            where: { actingUserId: userId },
+            where,
             include: {
                 group: { select: { id: true, name: true } },
                 user: { select: { id: true, name: true, email: true, active: true } },
@@ -35,12 +40,14 @@ export const historyEventMethods = {
             cursor: cursor ? { id: cursor } : undefined,
         });
 
+        const [count, total] = await Promise.all([prisma.historyEvent.count({ where }), prisma.historyEvent.count()]);
+
         let nextCursor: string | undefined;
         if (events.length > defaultTake) {
             const nextEvent = events.pop();
             nextCursor = nextEvent?.id;
         }
 
-        return { events, nextCursor };
+        return { events, count, total, nextCursor };
     },
 };

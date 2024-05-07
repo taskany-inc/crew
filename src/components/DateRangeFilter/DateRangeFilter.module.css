@@ -1,0 +1,9 @@
+.RangeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-s);
+}
+
+.Warning {
+    color: var(--warn0);
+}

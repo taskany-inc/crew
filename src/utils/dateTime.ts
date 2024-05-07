@@ -37,3 +37,5 @@ export const dateAgo = (pastDate: Date, locale: TLocale): string | undefined => 
         duration /= division.amount;
     }
 };
+
+export const stripTimezone = (d?: string) => d?.split('T')[0];
