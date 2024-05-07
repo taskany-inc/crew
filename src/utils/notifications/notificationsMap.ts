@@ -115,9 +115,9 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             loading: tr('Awarding an achievement...'),
         },
         copy: {
-            success: 'Successfully copied',
-            loading: 'Copying...',
-            error: 'An error occurred while copying',
+            success: tr('Successfully copied'),
+            loading: tr('Copying...'),
+            error: tr('An error occurred while copying'),
         },
     };
 
