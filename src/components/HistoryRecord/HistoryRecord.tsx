@@ -84,10 +84,17 @@ const componentMap: {
                 {nullable(visible, () => (
                     <>
                         <ChangeListItem title={tr('Name')} before={event.before.name} after={event.after.name} />
+                        <ChangeListItem title={tr('Email')} before={event.before.email} after={event.after.email} />
+                        <ChangeListItem title={tr('Phone')} before={event.before.phone} after={event.after.phone} />
                         <ChangeListItem
                             title={tr('Supervisor id')}
                             before={event.before.supervisorId}
                             after={event.after.supervisorId}
+                        />
+                        <ChangeListItem
+                            title={tr('Organization id')}
+                            before={event.before.organizationalUnitId}
+                            after={event.after.organizationalUnitId}
                         />
                     </>
                 ))}
