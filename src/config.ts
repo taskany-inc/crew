@@ -31,4 +31,5 @@ export const config = {
         enabled: process.env.MAIL_ENABLE,
     },
     techAdminId: process.env.TECH_ADMIN_ID,
+    corporateEmailDomain: process.env.CORPORATE_EMAIL_DOMAIN,
 };

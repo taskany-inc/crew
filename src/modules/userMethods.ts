@@ -35,7 +35,15 @@ import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
 import { userAccess } from './userAccess';
 
-export const addCalculatedUserFields = <T extends User>(user: T, sessionUser: SessionUser): T & UserMeta => {
+export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
+    if (!sessionUser) {
+        return {
+            ...user,
+            meta: {
+                isEditable: false,
+            },
+        };
+    }
     return {
         ...user,
         meta: {
@@ -199,7 +207,7 @@ export const userMethods = {
         });
     },
 
-    getByLogin: async (login: string, sessionUser: SessionUser) => {
+    getByLogin: async (login: string, sessionUser?: SessionUser) => {
         const user = await prisma.user.findUnique({ where: { login }, select: { id: true } });
 
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with login ${login}` });
@@ -209,7 +217,7 @@ export const userMethods = {
 
     getById: async (
         id: string,
-        sessionUser: SessionUser,
+        sessionUser?: SessionUser,
     ): Promise<
         User & UserMeta & UserMemberships & UserSupervisor & UserAchievements & UserSupervisorOf & UserSupervisorIn
     > => {
@@ -233,9 +241,9 @@ export const userMethods = {
         // TODO this should be in query https://github.com/taskany-inc/crew/issues/629
         const showAchievements =
             user.settings?.showAchievements ||
-            sessionUser.id === user.id ||
-            sessionUser.role?.editUserAchievements ||
-            sessionUser.role?.viewUserExtendedInfo;
+            sessionUser?.id === user.id ||
+            sessionUser?.role?.editUserAchievements ||
+            sessionUser?.role?.viewUserExtendedInfo;
 
         const userWithGroupMeta = {
             ...user,

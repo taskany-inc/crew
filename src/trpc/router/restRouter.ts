@@ -18,8 +18,14 @@ import { getServiceListSchema } from '../../modules/serviceSchemas';
 import { serviceMethods } from '../../modules/serviceMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
+import { config } from '../../config';
 
 import { tr } from './router.i18n';
+
+const getCorporateEmail = (login: string | null) => {
+    const domain = config.corporateEmailDomain || '@taskany.org';
+    return `${login}${domain}`;
+};
 
 const getUserByFieldFlatSchema = z.object({
     field: z.string(),
@@ -31,6 +37,7 @@ const getUserByFieldFlatSchema = z.object({
 const userSchema = z.object({
     id: z.string(),
     name: z.string().nullable(),
+    login: z.string().nullable(),
     email: z.string(),
     active: z.boolean(),
     supervisorId: z.string().nullable(),
@@ -123,26 +130,67 @@ export const restRouter = router({
                 summary: 'Create new user',
             },
         })
-        .input(createUserSchema)
-        .output(userSchema)
+        .input(
+            createUserSchema
+                .omit({
+                    firstName: true,
+                    middleName: true,
+                    surname: true,
+                })
+                .extend({
+                    name: z
+                        .string()
+                        .refine(
+                            (s) => s.trim().split(' ').length > 1,
+                            'Name should include surname and firstName, middleName is optional',
+                        ),
+                }),
+        )
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string().nullable(),
+                login: z.string().nullable(),
+                registrationEmail: z.string(),
+                corporateEmail: z.string(),
+                active: z.boolean(),
+                supervisorLogin: z.string().nullish(),
+            }),
+        )
         .mutation(async ({ input, ctx }) => {
-            const result = await userMethods.create(input);
+            const [surname, firstName, middleName = ''] = input.name.split(' ');
+            const user = await userMethods.create({ ...input, surname, firstName, middleName });
+
+            let supervisor: { login: string | null } | null = null;
+            if (user.supervisorId) {
+                supervisor = await prisma.user.findUnique({
+                    where: { id: user.supervisorId },
+                    select: { login: true },
+                });
+            }
+
             await historyEventMethods.create({ token: ctx.apiToken }, 'createUser', {
                 groupId: undefined,
-                userId: result.id,
+                userId: user.id,
                 before: undefined,
                 after: {
-                    name: result.name || undefined,
-                    email: result.email,
+                    name: user.name || undefined,
+                    email: user.email,
                     phone: input.phone,
                     login: input.login,
-                    organizationalUnitId: result.organizationUnitId || input.organizationUnitId,
+                    organizationalUnitId: user.organizationUnitId || input.organizationUnitId,
                     accountingId: input.accountingId,
-                    supervisorId: result.supervisorId || undefined,
+                    supervisorId: user.supervisorId || undefined,
                     createExternalAccount: input.createExternalAccount,
                 },
             });
-            return result;
+
+            return {
+                ...user,
+                registrationEmail: user.email,
+                corporateEmail: getCorporateEmail(user.login),
+                supervisorLogin: supervisor?.login,
+            };
         }),
 
     editUser: restProcedure
@@ -203,6 +251,251 @@ export const restRouter = router({
             const validatedUserInput = await getUserByFieldSchema.parseAsync(input.user);
             const user = await userMethods.getUserByField(validatedUserInput);
             return userMethods.edit({ id: user.id, ...input.data });
+        }),
+
+    editUserByLogin: restProcedure
+        .meta({
+            openapi: {
+                method: 'PUT',
+                path: '/users/{login}',
+                protect: true,
+                summary: 'Update user by login',
+            },
+        })
+        .input(
+            z.object({
+                login: z.string(),
+                data: z.object({
+                    name: z.string().optional(),
+                    registrationEmail: z.string().optional(),
+                    phone: z.string().optional(),
+                    organizationUnitId: z.string().optional(),
+                    supervisorLogin: z.string().optional(),
+                }),
+            }),
+        )
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string().nullable(),
+                login: z.string().nullable(),
+                registrationEmail: z.string(),
+                corporateEmail: z.string(),
+                active: z.boolean(),
+                supervisorLogin: z.string().nullish(),
+            }),
+        )
+        .query(async ({ input, ctx }) => {
+            const user = await userMethods.getByLogin(input.login);
+            let newSupervisor: Awaited<ReturnType<typeof userMethods.getByLogin>> | null = null;
+
+            if (input.data.supervisorLogin && user.supervisor?.login !== input.data.supervisorLogin) {
+                newSupervisor = await userMethods.getByLogin(input.data.supervisorLogin);
+            }
+
+            const fieldsToUpdate: Record<string, string> = {};
+
+            if (input.data.organizationUnitId && input.data.organizationUnitId !== user.organizationUnitId) {
+                const newOrganization = await prisma.organizationUnit.findUnique({
+                    where: {
+                        id: input.data.organizationUnitId,
+                    },
+                });
+
+                if (newOrganization) {
+                    fieldsToUpdate.organizationUnitId = newOrganization.id;
+                }
+            }
+
+            if (input.data.name && input.data.name !== user.name) {
+                fieldsToUpdate.name = input.data.name;
+            }
+            if (newSupervisor?.id && newSupervisor?.id !== user.supervisorId) {
+                fieldsToUpdate.supervisorId = newSupervisor.id;
+            }
+            if (input.data.registrationEmail && input.data.registrationEmail !== user.email) {
+                fieldsToUpdate.email = input.data.registrationEmail;
+            }
+
+            const { supervisorId, email, ...rest } = await prisma.user.update({
+                where: { id: user.id },
+                data: fieldsToUpdate,
+            });
+
+            const phoneService = await prisma.userService.findFirst({
+                where: {
+                    userId: user.id,
+                    serviceName: 'Phone',
+                },
+            });
+
+            if (input.data.phone && phoneService?.serviceId !== input.data.phone) {
+                if (phoneService) {
+                    await prisma.userService.update({
+                        where: {
+                            serviceName_serviceId: {
+                                serviceName: 'Phone',
+                                serviceId: phoneService.serviceId,
+                            },
+                        },
+                        data: {
+                            serviceName: 'Phone',
+                            serviceId: input.data.phone,
+                        },
+                    });
+                } else {
+                    await prisma.userService.create({
+                        data: {
+                            userId: user.id,
+                            serviceName: 'Phone',
+                            serviceId: input.data.phone,
+                        },
+                    });
+                }
+            }
+
+            const { before, after } = dropUnchangedValuesFromEvent(
+                {
+                    name: user.name,
+                    email: user.email,
+                    phone: phoneService?.serviceId,
+                    organizationalUnitId: user.organizationUnitId,
+                    supervisorId: user.supervisorId,
+                },
+                {
+                    name: input.data.name,
+                    email: input.data.registrationEmail,
+                    phone: input.data.phone,
+                    organizationalUnitId: input.data.organizationUnitId,
+                    supervisorId: newSupervisor?.id,
+                },
+            );
+            await historyEventMethods.create({ token: ctx.apiToken }, 'editUser', {
+                groupId: undefined,
+                userId: user.id,
+                before,
+                after,
+            });
+
+            return {
+                ...rest,
+                registrationEmail: email,
+                corporateEmail: getCorporateEmail(user.login),
+                supervisorLogin: newSupervisor?.login,
+            };
+        }),
+
+    getUserByLogin: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/users/{login}',
+                protect: true,
+                summary: 'Get user by login',
+            },
+        })
+        .input(z.object({ login: z.string() }))
+        .output(
+            z.object({
+                id: z.string(),
+                surname: z.string(),
+                firstName: z.string(),
+                middleName: z.string().optional(),
+                registrationEmail: z.string().nullish(),
+                corporateEmail: z.string(),
+                phone: z.string().nullish(),
+                login: z.string().nullable(),
+                accountingId: z.string().nullish(),
+                organizationUnitId: z.string().nullable(),
+                groupId: z.string().array(),
+                supervisorLogin: z.string().nullish(),
+                active: z.boolean(),
+            }),
+        )
+        .query(async ({ input }) => {
+            const user = await userMethods.getByLogin(input.login);
+            const [surname, firstName, middleName] = (user.name || '').split(' ');
+
+            const [phoneService, accountingService] = await Promise.all([
+                prisma.userService.findFirst({
+                    where: {
+                        userId: user.id,
+                        serviceName: 'Phone',
+                    },
+                }),
+                prisma.userService.findFirst({
+                    where: {
+                        userId: user.id,
+                        serviceName: 'AccountingId',
+                    },
+                }),
+            ]);
+
+            // TODO: https://github.com/taskany-inc/crew/issues/737
+
+            return {
+                ...user,
+                id: user.id,
+                surname,
+                firstName,
+                middleName,
+                registrationEmail: user.email,
+                corporateEmail: getCorporateEmail(user.login),
+                phone: phoneService?.serviceId,
+                login: user.login,
+                accountingId: accountingService?.serviceId,
+                organizationUnitId: user.organizationUnitId,
+                groupId: user.memberships.map((m) => m.groupId),
+                supervisorLogin: user.supervisor?.login,
+                active: user.active,
+            };
+        }),
+
+    editActiveByLogin: restProcedure
+        .meta({
+            openapi: {
+                method: 'PUT',
+                path: '/users/{login}/edit-active',
+                protect: true,
+                summary: 'Activate/deactivate user by email',
+            },
+        })
+        .input(z.object({ login: z.string(), data: z.object({ active: z.boolean() }) }))
+        .output(
+            z.object({
+                id: z.string(),
+                name: z.string().nullable(),
+                login: z.string().nullable(),
+                registrationEmail: z.string(),
+                corporateEmail: z.string(),
+                active: z.boolean(),
+                supervisorLogin: z.string().nullish(),
+            }),
+        )
+        .query(async ({ input, ctx }) => {
+            const user = await userMethods.getByLogin(input.login);
+
+            let updatedUser: Awaited<ReturnType<typeof userMethods.editActiveState>> = user;
+            if (user.active !== input.data.active) {
+                updatedUser = await userMethods.editActiveState({ id: user.id, active: input.data.active });
+
+                await historyEventMethods.create({ token: ctx.apiToken }, 'editUserActiveState', {
+                    groupId: undefined,
+                    userId: user.id,
+                    before: user.active,
+                    after: input.data.active,
+                });
+            }
+
+            return {
+                id: updatedUser.id,
+                name: updatedUser.name,
+                login: updatedUser.login,
+                registrationEmail: updatedUser.email,
+                corporateEmail: getCorporateEmail(updatedUser.login),
+                active: updatedUser.active,
+                supervisorLogin: user.supervisor?.login,
+            };
         }),
 
     editUserActiveState: restProcedure
