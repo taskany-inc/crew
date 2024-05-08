@@ -18,7 +18,13 @@ interface HistoryEventsData {
         requireGroupId: false;
         requireUserId: true;
         requireBefore: true;
-        data: { name?: string; supervisorId?: string };
+        data: {
+            name?: string;
+            supervisorId?: string;
+            email?: string;
+            phone?: string;
+            organizationalUnitId?: string;
+        };
     };
     editUserActiveState: {
         requireGroupId: false;
