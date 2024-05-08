@@ -46,5 +46,6 @@
     "New achievement!": "",
     "Congratulations! You have new achievement: {achievement}": "",
     "Icon URL is required": "",
-    "Cannot edit another user": ""
+    "Cannot edit another user": "",
+    "Cannot view activity of another user": ""
 }

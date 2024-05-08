@@ -130,6 +130,8 @@ model UserRole {
   editFullGroupTree          Boolean @default(false)
   editAdministratedGroupTree Boolean @default(false)
 
+  viewHistoryEvents Boolean @default(false)
+
   // TODO: rename to UserRole issues/690
   @@map("UserRoleModel")
 }
