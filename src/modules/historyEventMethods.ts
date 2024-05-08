@@ -40,7 +40,10 @@ export const historyEventMethods = {
             cursor: cursor ? { id: cursor } : undefined,
         });
 
-        const [count, total] = await Promise.all([prisma.historyEvent.count({ where }), prisma.historyEvent.count()]);
+        const [count, total] = await Promise.all([
+            prisma.historyEvent.count({ where }),
+            prisma.historyEvent.count({ where: { actingUserId: userId } }),
+        ]);
 
         let nextCursor: string | undefined;
         if (events.length > defaultTake) {

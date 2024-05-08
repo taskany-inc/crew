@@ -21,6 +21,7 @@ const main = async () => {
                 viewUserExtendedInfo: true,
                 editFullGroupTree: true,
                 editAdministratedGroupTree: true,
+                viewHistoryEvents: true,
             },
             {
                 code: 'hr_lead',

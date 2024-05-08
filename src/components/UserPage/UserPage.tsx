@@ -161,6 +161,10 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
                     <UserContacts user={user} />
 
                     <UserDevices user={user} />
+
+                    <Restricted visible={user.meta.isActivityViewable}>
+                        <Link href={pages.userActivity(user.id)}>{tr('History of activity')}</Link>
+                    </Restricted>
                 </StyledLeftPanel>
 
                 <StyledRightPanel>

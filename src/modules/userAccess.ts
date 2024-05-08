@@ -8,4 +8,9 @@ export const userAccess = {
         if (sessionUser.role?.editUser || userId === sessionUser.id) return allowed;
         return notAllowed(tr('Cannot edit another user'));
     },
+
+    isActivityViewable: (sessionUser: SessionUser, userId: string): AccessCheckResult => {
+        if (sessionUser.role?.viewHistoryEvents || userId === sessionUser.id) return allowed;
+        return notAllowed(tr('Cannot view activity of another user'));
+    },
 };

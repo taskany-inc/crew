@@ -41,6 +41,7 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: S
             ...user,
             meta: {
                 isEditable: false,
+                isActivityViewable: false,
             },
         };
     }
@@ -48,6 +49,7 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: S
         ...user,
         meta: {
             isEditable: userAccess.isEditable(sessionUser, user.id).allowed,
+            isActivityViewable: userAccess.isActivityViewable(sessionUser, user.id).allowed,
         },
     };
 };
