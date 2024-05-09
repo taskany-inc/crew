@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.54.0](https://github.com/taskany-inc/crew/compare/v0.53.0...v0.54.0) (2024-05-09)
+
+
+### Features
+
+* add relation between ApiToken & OrganizationUnit models ([daf0825](https://github.com/taskany-inc/crew/commit/daf082574c3bca0eb938bddc7d639b701b364f8e))
+* **HistoryRecord:** add new edited fields ([51f231f](https://github.com/taskany-inc/crew/commit/51f231f32b558121954510114831ae00a8e7e180))
+* update external api ([83a2d14](https://github.com/taskany-inc/crew/commit/83a2d14213078358627a2811f7a72928b922dd6f))
+
 ## [0.53.0](https://github.com/taskany-inc/crew/compare/v0.52.0...v0.53.0) (2024-05-06)
 
 
