@@ -136,6 +136,7 @@ export const restRouter = router({
                     firstName: true,
                     middleName: true,
                     surname: true,
+                    supervisorId: true,
                 })
                 .extend({
                     name: z
@@ -144,6 +145,8 @@ export const restRouter = router({
                             (s) => s.trim().split(' ').length > 1,
                             'Name should include surname and firstName, middleName is optional',
                         ),
+                    serviceNumber: z.string(),
+                    supervisorLogin: z.string(),
                 }),
         )
         .output(
@@ -158,14 +161,34 @@ export const restRouter = router({
             }),
         )
         .mutation(async ({ input, ctx }) => {
+            const apiToken = await prisma.apiToken.findUnique({
+                where: {
+                    id: ctx.apiToken,
+                },
+                select: { organizationUnit: true },
+            });
             const [surname, firstName, middleName = ''] = input.name.split(' ');
-            const user = await userMethods.create({ ...input, surname, firstName, middleName });
 
-            let supervisor: { login: string | null } | null = null;
-            if (user.supervisorId) {
-                supervisor = await prisma.user.findUnique({
-                    where: { id: user.supervisorId },
-                    select: { login: true },
+            const supervisor = await userMethods.getByLogin(input.supervisorLogin);
+
+            const user = await userMethods.create({
+                ...input,
+                supervisorId: supervisor.id,
+                surname,
+                firstName,
+                middleName,
+            });
+
+            if (apiToken?.organizationUnit) {
+                const { organizationUnit } = apiToken;
+
+                await prisma.userService.create({
+                    data: {
+                        userId: user.id,
+                        serviceName: 'ServiceNumber',
+                        serviceId: input.serviceNumber,
+                        organizationUnitId: organizationUnit.id,
+                    },
                 });
             }
 
@@ -189,7 +212,7 @@ export const restRouter = router({
                 ...user,
                 registrationEmail: user.email,
                 corporateEmail: getCorporateEmail(user.login),
-                supervisorLogin: supervisor?.login,
+                supervisorLogin: supervisor.login,
             };
         }),
 
@@ -405,6 +428,7 @@ export const restRouter = router({
                 corporateEmail: z.string(),
                 phone: z.string().nullish(),
                 login: z.string().nullable(),
+                serviceNumber: z.string().nullish(),
                 accountingId: z.string().nullish(),
                 organizationUnitId: z.string().nullable(),
                 groupId: z.string().array(),
@@ -415,6 +439,14 @@ export const restRouter = router({
         .query(async ({ input }) => {
             const user = await userMethods.getByLogin(input.login);
             const [surname, firstName, middleName] = (user.name || '').split(' ');
+
+            const serviceNumberService = await prisma.userService.findFirst({
+                where: {
+                    userId: user.id,
+                    serviceName: 'ServiceNumber',
+                    organizationUnitId: user.organizationUnitId ?? undefined,
+                },
+            });
 
             const [phoneService, accountingService] = await Promise.all([
                 prisma.userService.findFirst({
@@ -431,8 +463,6 @@ export const restRouter = router({
                 }),
             ]);
 
-            // TODO: https://github.com/taskany-inc/crew/issues/737
-
             return {
                 ...user,
                 id: user.id,
@@ -443,6 +473,7 @@ export const restRouter = router({
                 corporateEmail: getCorporateEmail(user.login),
                 phone: phoneService?.serviceId,
                 login: user.login,
+                serviceNumber: serviceNumberService?.serviceId,
                 accountingId: accountingService?.serviceId,
                 organizationUnitId: user.organizationUnitId,
                 groupId: user.memberships.map((m) => m.groupId),
@@ -457,7 +488,7 @@ export const restRouter = router({
                 method: 'PUT',
                 path: '/users/{login}/edit-active',
                 protect: true,
-                summary: 'Activate/deactivate user by email',
+                summary: 'Activate/deactivate user by login',
             },
         })
         .input(z.object({ login: z.string(), data: z.object({ active: z.boolean() }) }))

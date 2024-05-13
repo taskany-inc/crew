@@ -154,6 +154,9 @@ model UserService {
   service     ExternalService @relation(fields: [serviceName], references: [name])
   serviceName String
 
+  organizationUnit   OrganizationUnit? @relation(fields: [organizationUnitId], references: [id])
+  organizationUnitId String?
+
   serviceId String
   active    Boolean @default(true)
 
@@ -183,7 +186,8 @@ model OrganizationUnit {
   description String?
   apiToken    ApiToken[]
 
-  users User[]
+  users        User[]
+  userServices UserService[]
 }
 
 model Group {
