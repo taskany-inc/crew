@@ -111,6 +111,8 @@ model User {
 
   scheduledDeactivations        ScheduledDeactivation[] @relation("scheduledDeactivation")
   scheduledDeactivationsCreated ScheduledDeactivation[] @relation("scheduledDeactivationCreated")
+  
+  groupAdmins GroupAdmin[]
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -269,6 +271,8 @@ model Group {
   vacancies Vacancy[] @relation("groupVacancy")
 
   historyEvents HistoryEvent[] @relation("historyEvents")
+
+  groupAdmins GroupAdmin[]
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -508,4 +512,17 @@ model HistoryEvent {
   after  Json?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+}
+
+model GroupAdmin {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  group   Group  @relation(fields: [groupId], references: [id])
+  groupId String
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+
+  @@unique([userId, groupId])
 }

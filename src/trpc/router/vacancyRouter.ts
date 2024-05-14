@@ -6,6 +6,7 @@ import { createVacancySchema, editVacancySchema, getVacancyListSchema } from '..
 import { vacancyMethods } from '../../modules/vacancyMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
+import { accessToFullGroupAndAdministratedGroup } from '../../modules/groupAccess';
 
 export const vacancyRouter = router({
     create: protectedProcedure.input(createVacancySchema).mutation(async ({ input, ctx }) => {
@@ -69,10 +70,8 @@ export const vacancyRouter = router({
     }),
 
     archive: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
-            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-        );
+        const vacancy = await vacancyMethods.getById(input);
+        await accessToFullGroupAndAdministratedGroup(ctx.session.user, vacancy.groupId);
         const result = await vacancyMethods.archive(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'archiveVacancy', {
             groupId: result.groupId,
@@ -84,10 +83,8 @@ export const vacancyRouter = router({
     }),
 
     unarchive: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
-            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-        );
+        const vacancy = await vacancyMethods.getById(input);
+        await accessToFullGroupAndAdministratedGroup(ctx.session.user, vacancy.groupId);
         const result = await vacancyMethods.unarchive(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'unarchiveVacancy', {
             groupId: result.groupId,
@@ -99,10 +96,8 @@ export const vacancyRouter = router({
     }),
 
     delete: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
-            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-        );
+        const vacancy = await vacancyMethods.getById(input);
+        await accessToFullGroupAndAdministratedGroup(ctx.session.user, vacancy.groupId);
         const result = await vacancyMethods.delete(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'deleteVacancy', {
             groupId: result.groupId,

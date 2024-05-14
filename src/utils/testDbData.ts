@@ -80,7 +80,7 @@ const testRoles = ['boss', 'chief', 'captain', 'baron', 'commander', 'honcho', '
 
 interface TestUserInfo {
     user: string;
-    groups: { name: string; roles: string[] }[];
+    groups: { name: string; roles: string[]; groupAdmin?: boolean }[];
     supervisor?: string;
 }
 
@@ -88,7 +88,7 @@ const testUsers: TestUserInfo[] = [
     {
         user: 'bulbasaur',
         groups: [
-            { name: 'zebra', roles: ['boss'] },
+            { name: 'zebra', roles: ['boss'], groupAdmin: true },
             { name: 'wildcat', roles: ['chief', 'captain'] },
         ],
     },
@@ -126,6 +126,15 @@ export const createTestUsers = async () => {
                     roles: { connect: group.roles.map((role) => ({ id: role })) },
                 },
             });
+
+            if (group.groupAdmin) {
+                await prisma.groupAdmin.create({
+                    data: {
+                        groupId: group.name,
+                        userId: userData.user,
+                    },
+                });
+            }
         }
     }
 };
@@ -134,6 +143,7 @@ export const deleteTestUsers = async () => {
     const userNames = testUsers.map((userData) => userData.user);
     await prisma.role.deleteMany({ where: { id: { in: testRoles } } });
     await prisma.membership.deleteMany({ where: { userId: { in: userNames } } });
+    await prisma.groupAdmin.deleteMany({ where: { userId: { in: userNames } } });
     await prisma.user.deleteMany({ where: { id: { in: userNames } } });
 };
 

@@ -44,3 +44,9 @@ export const getGroupSuggestionsSchema = z.object({
 });
 
 export type GetGroupSuggestions = z.infer<typeof getGroupSuggestionsSchema>;
+
+export const addOrRemoveUserFromGroupAdminsSchema = z.object({
+    userId: z.string(),
+    groupId: z.string(),
+});
+export type AddOrRemoveUserFromGroupAdmins = z.infer<typeof addOrRemoveUserFromGroupAdminsSchema>;

@@ -246,4 +246,8 @@ describe('groups', () => {
         const treeMembershipsCountWithMember = await groupMethods.getTreeMembershipsCount(rootGroup.id);
         assert.equal(treeMembershipsCountWithMember, 5);
     });
+    it('cannot add user to the same groupAdmin twice', async () => {
+        const check = () => groupMethods.addUserToGroupAdmins({ userId: 'bulbasaur', groupId: 'zebra' });
+        await assert.rejects(check, { message: 'User is already in group administrators' });
+    });
 });
