@@ -10,7 +10,7 @@ type NamespacedAction<T extends string, A extends string> = `${T}${A}`;
 
 export type NotificationNamespaces =
     | NamespacedAction<'user', 'Create' | 'Update' | 'AddToGroup' | 'RemoveFromGroup' | 'EditSettings'>
-    | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move'>
+    | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move' | 'AddAdmin' | 'RemoveAdmin'>
     | NamespacedAction<'vacancy', 'Create' | 'Update' | 'Archive'>
     | NamespacedAction<'role', 'AddToMembership' | 'RemoveFromMembership'>
     | NamespacedAction<'service', 'AddToUser' | 'Delete'>
@@ -125,6 +125,14 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             success: tr('Profile deactivated is scheduled!'),
             loading: tr('Scheduling profile deactivation...'),
             error: tr('An error occurred while scheduling profile deactivation'),
+        },
+        groupAddAdmin: {
+            success: tr('Voila! User is added to group administrators 🎉'),
+            loading: tr('Adding the user...'),
+        },
+        groupRemoveAdmin: {
+            success: tr('Voila! User is removed from group administrators 🎉'),
+            loading: tr('Removing the user...'),
         },
     };
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
+import { accessCheck, checkRoleForAccess } from '../../utils/access';
 import { protectedProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
 import {
@@ -15,6 +15,7 @@ import {
 } from '../../modules/userSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
+import { accessToFullGroupAndAdministratedGroup } from '../../modules/groupAccess';
 
 export const userRouter = router({
     create: protectedProcedure.input(createUserSchema).mutation(async ({ input, ctx }) => {
@@ -47,10 +48,8 @@ export const userRouter = router({
     }),
 
     addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(async ({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
-            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-        );
+        await accessToFullGroupAndAdministratedGroup(ctx.session.user, input.groupId);
+
         const result = await userMethods.addToGroup(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'addUserToGroup', {
             groupId: result.groupId,
@@ -62,10 +61,8 @@ export const userRouter = router({
     }),
 
     removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(async ({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
-            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-        );
+        await accessToFullGroupAndAdministratedGroup(ctx.session.user, input.groupId);
+
         const result = await userMethods.removeFromGroup(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'removeUserFromGroup', {
             groupId: result.groupId,

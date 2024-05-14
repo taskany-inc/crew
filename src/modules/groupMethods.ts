@@ -7,13 +7,23 @@ import { SessionUser } from '../utils/auth';
 import { suggestionsTake } from '../utils/suggestions';
 import { createCsvDocument } from '../utils/csv';
 
-import { CreateGroup, EditGroup, GetGroupList, MoveGroup, GetGroupSuggestions } from './groupSchemas';
+import {
+    CreateGroup,
+    EditGroup,
+    GetGroupList,
+    MoveGroup,
+    GetGroupSuggestions,
+    AddOrRemoveUserFromGroupAdmins,
+} from './groupSchemas';
 import { tr } from './modules.i18n';
-import { MembershipInfo } from './userTypes';
 import { GroupMeta, GroupParent, GroupSupervisor, GroupVacancies } from './groupTypes';
 import { groupAccess } from './groupAccess';
+import { MembershipInfo } from './userTypes';
 
-export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser?: SessionUser): T & GroupMeta => {
+export const addCalculatedGroupFields = async <T extends Group>(
+    group: T,
+    sessionUser?: SessionUser,
+): Promise<T & GroupMeta> => {
     if (!sessionUser) {
         return {
             ...group,
@@ -25,7 +35,7 @@ export const addCalculatedGroupFields = <T extends Group>(group: T, sessionUser?
     return {
         ...group,
         meta: {
-            isEditable: groupAccess.isEditable(sessionUser).allowed,
+            isEditable: (await groupAccess.isEditable(sessionUser, group.id)).allowed,
         },
     };
 };
@@ -216,7 +226,10 @@ export const groupMethods = {
             where: { groupId: id, archived: false },
             include: { group: true, user: true, roles: true },
         });
-        return memberships.map((m) => ({ ...m, group: addCalculatedGroupFields(m.group, sessionUser) }));
+
+        const isEditable = sessionUser ? (await groupAccess.isEditable(sessionUser, id)).allowed : false;
+
+        return memberships.map((m) => ({ ...m, group: { ...m.group, meta: { isEditable } } }));
     },
 
     getTreeMembershipsCount: async (id: string) => {
@@ -344,5 +357,32 @@ export const groupMethods = {
         }
 
         return suggestions;
+    },
+
+    addUserToGroupAdmins: async (data: AddOrRemoveUserFromGroupAdmins) => {
+        const groupAdmin = await prisma.groupAdmin.findUnique({
+            where: { userId_groupId: { userId: data.userId, groupId: data.groupId } },
+        });
+        if (groupAdmin) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: tr('User is already in group administrators') });
+        }
+
+        return prisma.groupAdmin.create({ data });
+    },
+    getGroupAdmins: async (groupId: string) => {
+        const groupAdmins = await prisma.groupAdmin.findMany({
+            where: { groupId },
+            include: { user: true },
+        });
+        return groupAdmins;
+    },
+
+    removeUserFromGroupAdmins: async (data: AddOrRemoveUserFromGroupAdmins) => {
+        return prisma.groupAdmin.delete({
+            where: {
+                userId: data.userId,
+                userId_groupId: { userId: data.userId, groupId: data.groupId },
+            },
+        });
     },
 };

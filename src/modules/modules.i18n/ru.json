@@ -70,5 +70,6 @@
     "Transfer from, role": "Откуда переходит, роль",
     "Transfer to, role": "Куда переходит, роль",
     "Unit": "Ставка",
-    "Obligatory field": "Обязательное поле"
+    "Obligatory field": "Обязательное поле",
+    "User is already in group administrators": "Пользователь уже является администратором группы"
 }

@@ -246,6 +246,7 @@ export const userMethods = {
                 supervisorOf: { where: { active: true } },
                 supervisorIn: { where: { archived: false } },
                 organizationUnit: true,
+                groupAdmins: true,
             },
         });
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });
@@ -260,7 +261,12 @@ export const userMethods = {
         const userWithGroupMeta = {
             ...user,
             achievements: showAchievements ? user.achievements : undefined,
-            memberships: user.memberships.map((m) => ({ ...m, group: addCalculatedGroupFields(m.group, sessionUser) })),
+            memberships: await Promise.all(
+                user.memberships.map(async (m) => ({
+                    ...m,
+                    group: await addCalculatedGroupFields(m.group, sessionUser),
+                })),
+            ),
         };
         return addCalculatedUserFields(userWithGroupMeta, sessionUser);
     },
@@ -330,7 +336,10 @@ export const userMethods = {
             where: { userId: id, archived: false },
             include: { group: true, user: true, roles: true },
         });
-        return memberships.map((m) => ({ ...m, group: addCalculatedGroupFields(m.group, sessionUser) }));
+
+        return Promise.all(
+            memberships.map(async (m) => ({ ...m, group: await addCalculatedGroupFields(m.group, sessionUser) })),
+        );
     },
 
     getGroupMembers: (groupId: string): Promise<User[]> => {

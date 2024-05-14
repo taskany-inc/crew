@@ -3,5 +3,6 @@
     "Invalid string parameter {key} in address": "Invalid string parameter {key} in address",
     "All operations are forbidden:": "",
     "Operation": "",
-    "is forbidden": ""
+    "is forbidden": "",
+    "Some operations are forbidden:": ""
 }

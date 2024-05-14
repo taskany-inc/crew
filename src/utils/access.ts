@@ -33,6 +33,20 @@ export const accessCheckAnyOf = (...results: AccessCheckResult[]) => {
     throw new TRPCError({ code: 'FORBIDDEN', message: `${tr('All operations are forbidden:')} ${message}` });
 };
 
+export const accessCheckAllOf = (...results: AccessCheckResult[]): AccessCheckResult => {
+    const failed: AccessCheckResultNotAllowed[] = [];
+    for (const result of results) {
+        if (!result.allowed) {
+            failed.push(result);
+        }
+    }
+    if (failed.length === 0) {
+        return { allowed: true };
+    }
+    const message = failed.map((f) => f.errorMessage).join(', ');
+    throw new TRPCError({ code: 'FORBIDDEN', message: `${tr('Some operations are forbidden:')} ${message}` });
+};
+
 export type AccessOperation = ExtractKeysOfType<UserRole, boolean>;
 
 export const checkRoleForAccess = (userRole: UserRole | null, operation: AccessOperation) => {

@@ -1,4 +1,5 @@
 import { Group, User, Vacancy } from '@prisma/client';
+import { GroupAdmin } from 'prisma/prisma-client';
 
 import { Nullish } from '../utils/types';
 
@@ -25,3 +26,9 @@ export interface GroupSupervisor {
 export interface GroupVacancies {
     vacancies: Array<Vacancy & VacancyHr & VacancyHiringManager>;
 }
+
+export interface GroupAdmins {
+    groupAdmin: GroupAdmin;
+}
+
+export type GroupAdminInfo = GroupAdmin & { user: User };

@@ -114,7 +114,9 @@ export const vacancyMethods = {
         const total = await prisma.vacancy.count();
 
         return {
-            vacancies: vacancies.map((v) => ({ ...v, group: addCalculatedGroupFields(v.group, sessionUser) })),
+            vacancies: await Promise.all(
+                vacancies.map(async (v) => ({ ...v, group: await addCalculatedGroupFields(v.group, sessionUser) })),
+            ),
             count,
             total,
         };

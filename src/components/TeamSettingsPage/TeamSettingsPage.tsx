@@ -17,6 +17,7 @@ import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { GroupListItem } from '../GroupListItem';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
+import { GroupAdmins } from '../GroupAdmins/GroupAdmins';
 
 import { tr } from './TeamSettingsPage.i18n';
 
@@ -173,6 +174,8 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                             </FormActions>
                         </Fieldset>
                     </Form>
+
+                    <GroupAdmins isEditable={group.meta.isEditable} groupId={group.id} />
 
                     <Fieldset title={tr('Connections')}>
                         <StyledFormSection weight="bold" color={gray8}>

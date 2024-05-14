@@ -1,7 +1,8 @@
 {
     "Invalid numeric parameter {key} in address": "Неверный числовой параметр {key} в адресе страницы",
     "Invalid string parameter {key} in address": "Неверный строковый параметр {key} в адресе страницы",
-    "All operations are forbidden:": "",
+    "All operations are forbidden:": "Все операции запрещены",
     "Operation": "Операция",
-    "is forbidden": "недоступна"
+    "is forbidden": "недоступна",
+    "Some operations are forbidden:": "Некоторые операции запрещены"
 }
