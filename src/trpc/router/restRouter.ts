@@ -318,33 +318,12 @@ export const restRouter = router({
                 newSupervisor = await userMethods.getByLogin(input.data.supervisorLogin);
             }
 
-            const fieldsToUpdate: Record<string, string> = {};
-
-            if (input.data.organizationUnitId && input.data.organizationUnitId !== user.organizationUnitId) {
-                const newOrganization = await prisma.organizationUnit.findUnique({
-                    where: {
-                        id: input.data.organizationUnitId,
-                    },
-                });
-
-                if (newOrganization) {
-                    fieldsToUpdate.organizationUnitId = newOrganization.id;
-                }
-            }
-
-            if (input.data.name && input.data.name !== user.name) {
-                fieldsToUpdate.name = input.data.name;
-            }
-            if (newSupervisor?.id && newSupervisor?.id !== user.supervisorId) {
-                fieldsToUpdate.supervisorId = newSupervisor.id;
-            }
-            if (input.data.registrationEmail && input.data.registrationEmail !== user.email) {
-                fieldsToUpdate.email = input.data.registrationEmail;
-            }
-
-            const { supervisorId, email, ...rest } = await prisma.user.update({
-                where: { id: user.id },
-                data: fieldsToUpdate,
+            const { supervisorId, email, ...rest } = await userMethods.edit({
+                id: user.id,
+                email: input.data.registrationEmail,
+                name: input.data.name,
+                supervisorId: newSupervisor?.id,
+                organizationUnitId: input.data.organizationUnitId,
             });
 
             const phoneService = await prisma.userService.findFirst({
