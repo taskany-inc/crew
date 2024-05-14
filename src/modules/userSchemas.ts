@@ -67,6 +67,13 @@ export const editUserSchema = z.object({
 
 export type EditUser = z.infer<typeof editUserSchema>;
 
+export const editUserFieldsSchema = editUserSchema.extend({
+    organizationUnitId: z.string().optional(),
+    email: z.string().optional(),
+});
+
+export type EditUserFields = z.infer<typeof editUserFieldsSchema>;
+
 export const editUserActiveStateSchema = z.object({
     id: z.string(),
     active: z.boolean(),

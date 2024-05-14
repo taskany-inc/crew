@@ -22,7 +22,6 @@ import {
 } from './userTypes';
 import {
     AddUserToGroup,
-    EditUser,
     EditUserSettings,
     GetUserList,
     RemoveUserFromGroup,
@@ -30,6 +29,7 @@ import {
     CreateUser,
     EditUserActiveState,
     GetUserByField,
+    EditUserFields,
 } from './userSchemas';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
@@ -328,13 +328,26 @@ export const userMethods = {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } }, active: { not: true } } });
     },
 
-    edit: async (data: EditUser): Promise<User> => {
+    edit: async (data: EditUserFields) => {
+        const newOrganization = await prisma.organizationUnit.findUnique({
+            where: {
+                id: data.organizationUnitId,
+            },
+        });
+
+        if (data.organizationUnitId && !newOrganization) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: `No organization with id ${data.organizationUnitId}`,
+            });
+        }
+
         await externalUserUpdate(data.id, { name: data.name, supervisorId: data.supervisorId });
         return prisma.user.update({
             where: { id: data.id },
             data: {
-                name: data.name,
-                supervisorId: data.supervisorId,
+                ...data,
+                organizationUnitId: newOrganization?.id,
             },
         });
     },
