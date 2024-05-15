@@ -72,8 +72,7 @@ export const restRouter = router({
                 path: '/users/get-by-field',
                 protect: true,
                 summary: 'Get user by chosen field',
-                description:
-                    'https://github.com/taskany-inc/crew/blob/main/src/modules/userSchemas.ts#:~:text=getUserByFieldSchema',
+                deprecated: true,
             },
         })
         .input(getUserByFieldFlatSchema)
@@ -258,6 +257,7 @@ export const restRouter = router({
                 path: '/users/edit-by-field',
                 protect: true,
                 summary: 'Update user by chosen field',
+                deprecated: true,
             },
         })
         .input(
@@ -431,7 +431,13 @@ export const restRouter = router({
                 serviceNumber: z.string().nullish(),
                 accountingId: z.string().nullish(),
                 organizationUnitId: z.string().nullable(),
-                groupId: z.string().array(),
+                groups: z
+                    .object({
+                        id: z.string(),
+                        name: z.string(),
+                        roles: z.string().array(),
+                    })
+                    .array(),
                 supervisorLogin: z.string().nullish(),
                 active: z.boolean(),
             }),
@@ -476,7 +482,11 @@ export const restRouter = router({
                 serviceNumber: serviceNumberService?.serviceId,
                 accountingId: accountingService?.serviceId,
                 organizationUnitId: user.organizationUnitId,
-                groupId: user.memberships.map((m) => m.groupId),
+                groups: user.memberships.map((m) => ({
+                    id: m.groupId,
+                    name: m.group.name,
+                    roles: m.roles.map((r) => r.name),
+                })),
                 supervisorLogin: user.supervisor?.login,
                 active: user.active,
             };
@@ -536,6 +546,7 @@ export const restRouter = router({
                 path: '/users/edit-active',
                 protect: true,
                 summary: 'Activate/deactivate user by email',
+                deprecated: true,
             },
         })
         .input(
