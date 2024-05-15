@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { VacancyStatus } from '@prisma/client';
+import { translit } from '@taskany/bricks';
 
 import { prisma } from '../../utils/prisma';
 import { restProcedure, router } from '../trpcBackend';
@@ -19,6 +20,7 @@ import { serviceMethods } from '../../modules/serviceMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { config } from '../../config';
+import { searchMethods } from '../../modules/searchMethods';
 
 import { tr } from './router.i18n';
 
@@ -537,6 +539,23 @@ export const restRouter = router({
                 active: updatedUser.active,
                 supervisorLogin: user.supervisor?.login,
             };
+        }),
+
+    globalSearchUsers: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/search/users',
+                protect: true,
+                summary: 'Global search users',
+            },
+        })
+        .input(z.object({ query: z.string() }))
+        .output(z.array(userSchema))
+        .query(({ input }) => {
+            const { query } = input;
+            const translitInput = translit(query);
+            return searchMethods.globalUsers(query, translitInput);
         }),
 
     editUserActiveState: restProcedure
