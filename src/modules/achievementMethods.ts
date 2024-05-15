@@ -73,6 +73,7 @@ export const achievementMethods = {
                         externalAchievementId: achievement.bonusForAchievementRule.externalAchievementId,
                         externalAchievementCategoryId:
                             achievement.bonusForAchievementRule.externalAchievementCategoryId,
+                        ruleId: achievement.bonusForAchievementRule.id,
                     },
                 }),
             ]);

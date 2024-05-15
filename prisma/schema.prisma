@@ -251,9 +251,10 @@ model Role {
 }
 
 model BonusRule {
-  id                        String        @id @default(nanoid())
+  id                        String         @id @default(nanoid())
   bonusAmountForAchievement Int
   categoryId                String
+  history                   BonusHistory[]
   achievement               Achievement[]
 }
 
@@ -283,6 +284,9 @@ model BonusHistory {
 
   externalAchievementId         String? @map("achievementId")
   externalAchievementCategoryId String? @map("achievementCategory")
+
+  rule   BonusRule? @relation(fields: [ruleId], references: [id])
+  ruleId String?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
 }
