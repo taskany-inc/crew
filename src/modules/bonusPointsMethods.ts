@@ -39,7 +39,12 @@ export const bonusPointsMethods = {
             const bonusesAmount = Number(bonusesInCategory[0].sum);
 
             const bonusRules = await prisma.bonusRule.findMany({
-                where: { categoryId: data.externalAchievementCategoryId },
+                where: {
+                    OR: [
+                        { categoryId: data.externalAchievementCategoryId },
+                        { externalAchievmentIds: { has: data.externalAchievementId } },
+                    ],
+                },
             });
             const achievements = await prisma.achievement.findMany({
                 where: { bonusRuleId: { in: bonusRules.map(({ id }) => id) } },
