@@ -254,6 +254,7 @@ model BonusRule {
   id                        String         @id @default(nanoid())
   bonusAmountForAchievement Int
   categoryId                String
+  externalAchievmentIds     String[]
   history                   BonusHistory[]
   achievement               Achievement[]
 }
