@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.55.1](https://github.com/taskany-inc/crew/compare/v0.55.0...v0.55.1) (2024-05-16)
+
+
+### Bug Fixes
+
+* **searchRouter:** translit in global search ([f2fb452](https://github.com/taskany-inc/crew/commit/f2fb452f930fa86e957c0a43610d31c43dc595dd))
+
 ## [0.55.0](https://github.com/taskany-inc/crew/compare/v0.54.0...v0.55.0) (2024-05-16)
 
 
