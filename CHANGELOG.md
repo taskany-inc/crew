@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.55.2](https://github.com/taskany-inc/crew/compare/v0.55.1...v0.55.2) (2024-05-21)
+
+
+### Bug Fixes
+
+* wrong model id in bonus history record ([e352743](https://github.com/taskany-inc/crew/commit/e3527436ef096050a7c017b470b65368f1dd0536))
+
 ## [0.55.1](https://github.com/taskany-inc/crew/compare/v0.55.0...v0.55.1) (2024-05-16)
 
 
