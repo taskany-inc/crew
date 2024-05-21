@@ -1,3 +1,5 @@
+import { Prisma } from 'prisma/prisma-client';
+
 import { defaultTake } from '../utils';
 import { prisma } from '../utils/prisma';
 
@@ -43,6 +45,39 @@ export const historyEventMethods = {
         const [count, total] = await Promise.all([
             prisma.historyEvent.count({ where }),
             prisma.historyEvent.count({ where: { actingUserId: userId } }),
+        ]);
+
+        let nextCursor: string | undefined;
+        if (events.length > defaultTake) {
+            const nextEvent = events.pop();
+            nextCursor = nextEvent?.id;
+        }
+
+        return { events, count, total, nextCursor };
+    },
+
+    getUserChanges: async ({ userId, from, to, cursor }: GetUserActivity) => {
+        to?.setUTCHours(23, 59, 59, 999);
+        const where: Prisma.HistoryEventWhereInput = {
+            userId,
+            createdAt: { gte: from, lte: to },
+        };
+        const events = await prisma.historyEvent.findMany({
+            where,
+            include: {
+                group: { select: { id: true, name: true } },
+                user: { select: { id: true, name: true, email: true, active: true } },
+                actingUser: true,
+                actingToken: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            take: defaultTake + 1,
+            cursor: cursor ? { id: cursor } : undefined,
+        });
+
+        const [count, total] = await Promise.all([
+            prisma.historyEvent.count({ where }),
+            prisma.historyEvent.count({ where: { userId } }),
         ]);
 
         let nextCursor: string | undefined;
