@@ -105,10 +105,11 @@ const componentMap: {
     EditUserActiveState: ({ event }) => {
         const stateTr = (active: boolean) => (active ? tr('active') : tr('inactive'));
         return (
-            <>
-                {tr('edited user state')} {tr('from')} <BoldText>{stateTr(event.before)}</BoldText> {tr('to')}{' '}
+            <div className={s.Row}>
+                {tr('edited user state')}
+                <UserListItem user={event.user} /> {tr('from')} <BoldText>{stateTr(event.before)}</BoldText> {tr('to')}{' '}
                 <BoldText>{stateTr(event.after)}</BoldText>
-            </>
+            </div>
         );
     },
 
