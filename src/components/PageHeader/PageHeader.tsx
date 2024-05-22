@@ -23,6 +23,7 @@ import { UserSettings } from '../../modules/userTypes';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { AccessOperation } from '../../utils/access';
 import { objKeys } from '../../utils/objKeys';
+import { Restricted } from '../Restricted';
 
 import { tr } from './PageHeader.i18n';
 
@@ -43,19 +44,22 @@ const StyledList = styled.ul`
 interface HeaderLink {
     path: string;
     text: string;
+    visible: boolean;
 }
 
 export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ logo, userSettings }) => {
+    const sessionUser = useSessionUser();
     const entityListMenuItems = useMemo(() => {
         const items: HeaderLink[] = [
-            { path: pages.teams, text: tr('Teams') },
-            { path: pages.users, text: tr('Users') },
+            { path: pages.teams, text: tr('Teams'), visible: true },
+            { path: pages.users, text: tr('Users'), visible: true },
+
+            { path: pages.logs, text: tr('Logs'), visible: !!sessionUser.role?.viewHistoryEvents },
         ];
 
         return items;
     }, [userSettings]);
 
-    const sessionUser = useSessionUser();
     const avatarRef = useRef<HTMLAnchorElement>(null);
 
     const roleDescriptions = useMemo(() => {
@@ -116,9 +120,11 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             nav={
                 <StyledNav>
                     {entityListMenuItems.map((item) => (
-                        <NextLink key={item.path} href={item.path} passHref legacyBehavior>
-                            <HeaderNavLink>{item.text}</HeaderNavLink>
-                        </NextLink>
+                        <Restricted visible={item.visible} key={item.path}>
+                            <NextLink href={item.path} passHref legacyBehavior>
+                                <HeaderNavLink>{item.text}</HeaderNavLink>
+                            </NextLink>
+                        </Restricted>
                     ))}
                     <HeaderSearch>
                         <GlobalSearch />
