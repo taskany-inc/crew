@@ -136,6 +136,10 @@ export const groupRouter = router({
         return groupMethods.getMemberships(input, ctx.session.user);
     }),
 
+    getTreeMembershipsCount: protectedProcedure.input(z.string()).query(({ input }) => {
+        return groupMethods.getTreeMembershipsCount(input);
+    }),
+
     getHierarchy: protectedProcedure.input(z.string()).query(({ input }) => {
         return groupMethods.getHierarchy(input);
     }),

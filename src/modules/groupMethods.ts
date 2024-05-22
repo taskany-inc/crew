@@ -219,6 +219,36 @@ export const groupMethods = {
         return memberships.map((m) => ({ ...m, group: addCalculatedGroupFields(m.group, sessionUser) }));
     },
 
+    getTreeMembershipsCount: async (id: string) => {
+        const treeViewGroups = await prisma.$queryRaw<{ id: string }[]>`
+            WITH RECURSIVE group_hierarchy AS (
+                SELECT *
+                FROM "Group"
+                WHERE "parentId" = ${id} AND archived = FALSE
+            UNION ALL
+                SELECT g.* FROM "Group" g
+                INNER JOIN group_hierarchy gh
+                    ON gh.id = g."parentId"
+                WHERE g.archived = FALSE
+            )
+            SELECT id FROM group_hierarchy;
+        `;
+
+        const subtreeTotalGroups = await prisma.membership.count({
+            where: {
+                groupId: {
+                    in: treeViewGroups.map((g) => g.id),
+                },
+                archived: false,
+                user: {
+                    active: true,
+                },
+            },
+        });
+
+        return subtreeTotalGroups;
+    },
+
     getHierarchy: async (id: string) => {
         const groups = await prisma.$queryRaw<Group[]>`
             WITH RECURSIVE rectree AS (
