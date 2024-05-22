@@ -14,6 +14,8 @@ export const pages = {
 
     signIn: '/api/auth/signin',
     signOut: '/api/auth/signout',
+
+    logs: '/logs',
 };
 
 export const useRouter = () => {
