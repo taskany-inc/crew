@@ -22,12 +22,16 @@ interface TeamPeopleProps {
 }
 
 export const TeamPeople = ({ groupId, isEditable }: TeamPeopleProps) => {
-    const membershipsQuery = trpc.group.getMemberships.useQuery(groupId);
+    const { data: memberships } = trpc.group.getMemberships.useQuery(groupId);
+    const { data: treeMembershipsCount = 0 } = trpc.group.getTreeMembershipsCount.useQuery(groupId);
+
+    const membershipsCount = memberships?.length ?? 0;
+    const totalTreeMemberships = membershipsCount + treeMembershipsCount;
 
     return (
-        <NarrowSection title={tr('People')}>
+        <NarrowSection title={`${tr('People')} ${membershipsCount}/${totalTreeMemberships}`}>
             <StyledUserList>
-                {membershipsQuery.data?.map((membership) => (
+                {memberships?.map((membership) => (
                     <MembershipUserListItemEditable key={membership.id} membership={membership} />
                 ))}
             </StyledUserList>

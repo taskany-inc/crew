@@ -226,4 +226,24 @@ describe('groups', () => {
         const check = () => groupMethods.move({ id: 'grouse', newParentId: 'wildcat' });
         await assert.rejects(check, { message: 'Cannot move group inside its child' });
     });
+
+    it('check team group hierarchy count', async () => {
+        const rootGroup = await groupMethods.getById('root-test');
+        assert.ok(rootGroup);
+        const treeMembershipsCount = await groupMethods.getTreeMembershipsCount(rootGroup.id);
+        assert.equal(treeMembershipsCount, 5);
+
+        const [randomMembership] = await userMethods.getMemberships('charmander');
+        assert.ok(randomMembership);
+
+        await userMethods.editActiveState({ id: randomMembership.user.id, active: false });
+
+        const treeMembershipsCountWithoutMember = await groupMethods.getTreeMembershipsCount(rootGroup.id);
+        assert.equal(treeMembershipsCountWithoutMember, 4);
+
+        await userMethods.editActiveState({ id: randomMembership.user.id, active: true });
+
+        const treeMembershipsCountWithMember = await groupMethods.getTreeMembershipsCount(rootGroup.id);
+        assert.equal(treeMembershipsCountWithMember, 5);
+    });
 });
