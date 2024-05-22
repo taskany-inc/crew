@@ -282,7 +282,7 @@ export const restRouter = router({
         .meta({
             openapi: {
                 method: 'PUT',
-                path: '/users/{login}',
+                path: '/user/{login}',
                 protect: true,
                 summary: 'Update user by login',
             },
@@ -393,7 +393,7 @@ export const restRouter = router({
         .meta({
             openapi: {
                 method: 'GET',
-                path: '/users/{login}',
+                path: '/user/{login}',
                 protect: true,
                 summary: 'Get user by login',
             },
@@ -477,7 +477,7 @@ export const restRouter = router({
         .meta({
             openapi: {
                 method: 'PUT',
-                path: '/users/{login}/edit-active',
+                path: '/user/{login}/edit-active',
                 protect: true,
                 summary: 'Activate/deactivate user by login',
             },
