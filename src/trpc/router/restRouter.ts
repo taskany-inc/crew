@@ -44,6 +44,7 @@ const userSchema = z.object({
     active: z.boolean(),
     supervisorId: z.string().nullable(),
     bonusPoints: z.number(),
+    image: z.string().nullable(),
 });
 
 export const restRouter = router({
