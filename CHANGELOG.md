@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.56.0](https://github.com/taskany-inc/crew/compare/v0.55.2...v0.56.0) (2024-05-22)
+
+
+### Features
+
+* activity on users profile by others ([c4f5324](https://github.com/taskany-inc/crew/commit/c4f5324ad91ecabdadab881708c477a52e20e208))
+
+
+### Bug Fixes
+
+* change paths to routes that use login from query ([36574ec](https://github.com/taskany-inc/crew/commit/36574ec2af9e15edc6a7926f46ac4ed65ddf6ca4))
+
 ## [0.55.2](https://github.com/taskany-inc/crew/compare/v0.55.1...v0.55.2) (2024-05-21)
 
 
