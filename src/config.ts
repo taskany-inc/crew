@@ -29,6 +29,7 @@ export const config = {
         authPass: process.env.MAIL_PASS,
         authUser: process.env.MAIL_USER,
         enabled: process.env.MAIL_ENABLE,
+        scheduledDeactivationEmails: process.env.SCHEDULE_DEACTIVATE_EMAILS,
     },
     techAdminId: process.env.TECH_ADMIN_ID,
     corporateEmailDomain: process.env.CORPORATE_EMAIL_DOMAIN,

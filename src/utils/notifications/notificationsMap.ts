@@ -16,6 +16,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'service', 'AddToUser' | 'Delete'>
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'achievement', 'Give'>
+    | NamespacedAction<'scheduledDeactivation', 'Create'>
     | NamespacedAction<'bonusPoints', 'Change'>
     | 'sendFeedback'
     | 'copy';
@@ -118,6 +119,12 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             success: tr('Successfully copied'),
             loading: tr('Copying...'),
             error: tr('An error occurred while copying'),
+        },
+
+        scheduledDeactivationCreate: {
+            success: tr('Profile deactivated is scheduled!'),
+            loading: tr('Scheduling profile deactivation...'),
+            error: tr('An error occurred while scheduling profile deactivation'),
         },
     };
 

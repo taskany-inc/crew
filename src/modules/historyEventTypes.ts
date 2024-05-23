@@ -1,3 +1,5 @@
+import { CreateScheduledDeactivation } from './scheduledDeactivationSchemas';
+
 interface HistoryEventsData {
     createUser: {
         requireGroupId: false;
@@ -189,6 +191,12 @@ interface HistoryEventsData {
         requireUserId: false;
         requireBefore: false;
         data: { id: string; name: string };
+    };
+    createScheduledDeactivation: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: CreateScheduledDeactivation;
     };
 }
 

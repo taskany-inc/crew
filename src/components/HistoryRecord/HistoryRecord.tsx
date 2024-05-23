@@ -1,22 +1,23 @@
-import { ComponentProps, Dispatch, ReactNode, SetStateAction, useState } from 'react';
+import { ComponentProps, ReactNode } from 'react';
 import { nullable } from '@taskany/bricks';
 import { Button, HistoryRecord as HistoryRecordBricks, Text } from '@taskany/bricks/harmony';
 import { IconDividerLineOutline } from '@taskany/icons';
 
 import { HistoryAction, HistoryEventData } from '../../modules/historyEventTypes';
-import { dateAgo } from '../../utils/dateTime';
+import { dateAgo, formatDate } from '../../utils/dateTime';
 import { useLocale } from '../../hooks/useLocale';
 import { UserListItem } from '../UserListItem/UserListItem';
 import { capitalize } from '../../utils/capitalize';
 import { GroupListItem } from '../GroupListItem';
+import { useBoolean } from '../../hooks/useBoolean';
 
 import s from './HistoryRecord.module.css';
 import { tr } from './HistoryRecord.i18n';
 
 const BoldText = (props: ComponentProps<typeof Text>) => <Text weight="bold" as="span" {...props} />;
 
-const ToggleShowMore = ({ setVisible }: { setVisible: Dispatch<SetStateAction<boolean>> }) => (
-    <Button size="xs" iconLeft={<IconDividerLineOutline size="xs" />} onClick={() => setVisible((v) => !v)} />
+const ToggleShowMore = ({ setVisible }: { setVisible: () => void }) => (
+    <Button size="xs" iconLeft={<IconDividerLineOutline size="xs" />} onClick={setVisible} />
 );
 
 const ChangeListItem = ({
@@ -46,14 +47,14 @@ const componentMap: {
     [A in Capitalize<HistoryAction>]: (props: { event: HistoryEventData<Uncapitalize<A>> }) => ReactNode;
 } = {
     CreateUser: ({ event }) => {
-        const [visible, setVisible] = useState(false);
+        const visible = useBoolean(false);
         return (
             <>
                 <div className={s.Row}>
                     {tr('created new user')} <UserListItem user={event.user} />
-                    <ToggleShowMore setVisible={setVisible} />
+                    <ToggleShowMore setVisible={visible.toggle} />
                 </div>
-                {nullable(visible, () => (
+                {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Name')} after={event.after.name} />
                         <ChangeListItem title={tr('Email')} after={event.after.email} />
@@ -74,14 +75,14 @@ const componentMap: {
     },
 
     EditUser: ({ event }) => {
-        const [visible, setVisible] = useState(false);
+        const visible = useBoolean(false);
         return (
             <>
                 <div className={s.Row}>
                     {tr('edited user')} <UserListItem user={event.user} />
-                    <ToggleShowMore setVisible={setVisible} />
+                    <ToggleShowMore setVisible={visible.toggle} />
                 </div>
-                {nullable(visible, () => (
+                {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Name')} before={event.before.name} after={event.after.name} />
                         <ChangeListItem title={tr('Email')} before={event.before.email} after={event.after.email} />
@@ -149,14 +150,14 @@ const componentMap: {
     },
 
     CreateGroup: ({ event }) => {
-        const [visible, setVisible] = useState(false);
+        const visible = useBoolean(false);
         return (
             <>
                 <div className={s.Row}>
                     {tr('created team')} <GroupListItem groupId={event.group.id} groupName={event.group.name} />
-                    <ToggleShowMore setVisible={setVisible} />
+                    <ToggleShowMore setVisible={visible.toggle} />
                 </div>
-                {nullable(visible, () => (
+                {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Name')} after={event.after.name} />
                         <ChangeListItem title={tr('Parent team id')} after={event.after.parentId} />
@@ -169,14 +170,14 @@ const componentMap: {
     },
 
     EditGroup: ({ event }) => {
-        const [visible, setVisible] = useState(false);
+        const visible = useBoolean(false);
         return (
             <>
                 <div className={s.Row}>
                     {tr('edited team')} <GroupListItem groupId={event.group.id} groupName={event.group.name} />
-                    <ToggleShowMore setVisible={setVisible} />
+                    <ToggleShowMore setVisible={visible.toggle} />
                 </div>
-                {nullable(visible, () => (
+                {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Name')} before={event.before.name} after={event.after.name} />
                         <ChangeListItem
@@ -266,14 +267,14 @@ const componentMap: {
     },
 
     CreateAchievement: ({ event }) => {
-        const [visible, setVisible] = useState(false);
+        const visible = useBoolean(false);
         return (
             <>
                 <div className={s.Row}>
                     {tr('created achievement')} <BoldText>{event.after.title}</BoldText>
-                    <ToggleShowMore setVisible={setVisible} />
+                    <ToggleShowMore setVisible={visible.toggle} />
                 </div>
-                {nullable(visible, () => (
+                {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Description')} after={event.after.description} />
                         <ChangeListItem title={tr('Hidden')} after={event.after.hidden} />
@@ -314,15 +315,15 @@ const componentMap: {
     },
 
     CreateVacancy: ({ event }) => {
-        const [visible, setVisible] = useState(false);
+        const visible = useBoolean(false);
         return (
             <>
                 <div className={s.Row}>
                     {tr('created vacancy')} <BoldText>{event.after.name}</BoldText> {tr('in a team')}{' '}
                     <GroupListItem groupId={event.group.id} groupName={event.group.name} />
-                    <ToggleShowMore setVisible={setVisible} />
+                    <ToggleShowMore setVisible={visible.toggle} />
                 </div>
-                {nullable(visible, () => (
+                {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Id')} after={event.after.id} />
                         <ChangeListItem title={tr('Status')} after={event.after.status} />
@@ -338,15 +339,15 @@ const componentMap: {
     },
 
     EditVacancy: ({ event }) => {
-        const [visible, setVisible] = useState(false);
+        const visible = useBoolean(false);
         return (
             <>
                 <div className={s.Row}>
                     {tr('edited vacancy')} <BoldText>{event.after.name}</BoldText> {tr('in a team')}{' '}
                     <GroupListItem groupId={event.group.id} groupName={event.group.name} />
-                    <ToggleShowMore setVisible={setVisible} />
+                    <ToggleShowMore setVisible={visible.toggle} />
                 </div>
-                {nullable(visible, () => (
+                {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Id')} after={event.after.id} />
                         <ChangeListItem title={tr('Name')} before={event.before.name} after={event.after.name} />
@@ -389,6 +390,49 @@ const componentMap: {
                 {tr('deleted vacancy')} <BoldText>{event.after.name}</BoldText> {tr('in a team')}{' '}
                 <GroupListItem groupId={event.group.id} groupName={event.group.name} />
             </div>
+        );
+    },
+    CreateScheduledDeactivation: ({ event }) => {
+        const visible = useBoolean(false);
+        const locale = useLocale();
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('created scheduled')}
+                    <BoldText>
+                        {event.after.type === 'retirement'
+                            ? tr('retirement of')
+                            : tr('transfer to {newOrganization} of', { newOrganization: event.after.newOrganization! })}
+                    </BoldText>
+                    <UserListItem user={event.user} />
+                    <ToggleShowMore setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Id')} after={event.after.userId} />
+                        <ChangeListItem title={tr('Name')} after={event.user.name!} />
+                        <ChangeListItem title={tr('Email')} after={event.after.email} />
+                        <ChangeListItem title={tr('Phone')} after={event.after.phone} />
+                        <ChangeListItem
+                            title={tr('Deactiation date')}
+                            after={formatDate(new Date(event.after.deactivateDate), locale)}
+                        />
+                        <ChangeListItem title={tr('Organization')} after={event.after.organization} />
+                        <ChangeListItem title={tr('New Organization')} after={event.after.newOrganization} />
+                        <ChangeListItem title={tr('TeamLead')} after={event.after.teamLead} />
+                        <ChangeListItem title={tr('New teamlead')} after={event.after.newTeamLead} />
+                        <ChangeListItem title={tr('Organizational group')} after={event.after.organizationalGroup} />
+                        <ChangeListItem
+                            title={tr('New organizational group')}
+                            after={event.after.newOrganizationalGroup}
+                        />
+                        <ChangeListItem title={tr('Organizational role')} after={event.after.organizationRole} />
+                        <ChangeListItem title={tr('New organizational role')} after={event.after.newOrganizationRole} />
+                        <ChangeListItem title={tr('Unit')} after={event.after.unitId} />
+                    </>
+                ))}
+            </>
         );
     },
 };

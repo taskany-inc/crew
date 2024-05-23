@@ -39,6 +39,7 @@
     "bcryptjs": "2.4.3",
     "classnames": "2.5.1",
     "easy-typed-intl": "1.0.3",
+    "ical-generator": "7.1.0",
     "next": "13.4.9",
     "next-auth": "4.24.7",
     "next-themes": "0.2.1",

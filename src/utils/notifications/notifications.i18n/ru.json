@@ -46,5 +46,8 @@
     "Awarding an achievement...": "Даем достижение...",
     "Successfully copied": "Успешно скопировано",
     "An error occurred while copying": "Произошла ошибка при копировании",
-    "Copying...": "Копируем..."
+    "Copying...": "Копируем...",
+    "Profile deactivated is scheduled!": "Деактивация профиля запланирована!",
+    "Scheduling profile deactivation...": "Планируем деактивацию профиля",
+    "An error occurred while scheduling profile deactivation": "Произошла ошибка при планировании деактивации профиля"
 }
