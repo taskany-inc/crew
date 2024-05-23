@@ -7,7 +7,7 @@ import { suggestionsTake } from '../utils/suggestions';
 import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import { defaultTake } from '../utils';
-import { assertNever } from '../utils/assertNever';
+import { getCorporateEmail } from '../utils/getCorporateEmail';
 
 import {
     ExternalUserUpdate,
@@ -31,6 +31,7 @@ import {
     EditUserActiveState,
     GetUserByField,
     EditUserFields,
+    UserRestApiData,
 } from './userSchemas';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
@@ -265,16 +266,15 @@ export const userMethods = {
     },
 
     getUserByField: async (data: GetUserByField) => {
-        const where = {} as Prisma.UserWhereInput;
-        if (data.field === 'id') {
-            where.id = data.value;
-        } else if (data.field === 'email') {
-            where.email = data.value;
-        } else if (data.field === 'service') {
-            where.services = { some: { serviceName: data.serviceName, serviceId: data.serviceId } };
-        } else {
-            assertNever(data);
-        }
+        const where: Prisma.UserWhereInput = {
+            id: data.id,
+            email: data.email,
+            login: data.login,
+            services:
+                data.serviceName && data.serviceId
+                    ? { some: { serviceName: data.serviceName, serviceId: data.serviceId } }
+                    : undefined,
+        };
         const user = await prisma.user.findFirst({ where });
         if (!user) {
             throw new TRPCError({ code: 'NOT_FOUND', message: `Cannot find user by ${JSON.stringify(data)}` });
@@ -399,5 +399,56 @@ export const userMethods = {
         }
 
         return suggestions;
+    },
+
+    getUserDataForRestApi: async (data: GetUserByField): Promise<UserRestApiData> => {
+        const { id: userId } = await userMethods.getUserByField(data);
+        const user = await userMethods.getById(userId);
+        const [surname, firstName, middleName] = (user.name || '').split(' ');
+
+        const serviceNumberService = await prisma.userService.findFirst({
+            where: {
+                userId: user.id,
+                serviceName: 'ServiceNumber',
+                organizationUnitId: user.organizationUnitId ?? undefined,
+            },
+        });
+
+        const [phoneService, accountingService] = await Promise.all([
+            prisma.userService.findFirst({
+                where: {
+                    userId: user.id,
+                    serviceName: 'Phone',
+                },
+            }),
+            prisma.userService.findFirst({
+                where: {
+                    userId: user.id,
+                    serviceName: 'AccountingId',
+                },
+            }),
+        ]);
+
+        return {
+            ...user,
+            id: user.id,
+            surname,
+            firstName,
+            middleName,
+            registrationEmail: user.email,
+            corporateEmail: getCorporateEmail(user.login),
+            phone: phoneService?.serviceId,
+            login: user.login,
+            serviceNumber: serviceNumberService?.serviceId,
+            accountingId: accountingService?.serviceId,
+            organizationUnitId: user.organizationUnitId,
+            groups: user.memberships.map((m) => ({
+                id: m.groupId,
+                name: m.group.name,
+                roles: m.roles.map((r) => r.name),
+            })),
+            supervisorLogin: user.supervisor?.login,
+            active: user.active,
+        };
     },
 };
