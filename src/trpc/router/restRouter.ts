@@ -5,7 +5,7 @@ import { translit } from '@taskany/bricks';
 import { prisma } from '../../utils/prisma';
 import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
-import { createUserSchema, getUserByFieldSchema } from '../../modules/userSchemas';
+import { createUserSchema, getUserByFieldSchema, userRestApiDataSchema } from '../../modules/userSchemas';
 import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
 import { groupMethods } from '../../modules/groupMethods';
@@ -19,22 +19,10 @@ import { getServiceListSchema } from '../../modules/serviceSchemas';
 import { serviceMethods } from '../../modules/serviceMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
-import { config } from '../../config';
 import { searchMethods } from '../../modules/searchMethods';
+import { getCorporateEmail } from '../../utils/getCorporateEmail';
 
 import { tr } from './router.i18n';
-
-const getCorporateEmail = (login: string | null) => {
-    const domain = config.corporateEmailDomain || '@taskany.org';
-    return `${login}${domain}`;
-};
-
-const getUserByFieldFlatSchema = z.object({
-    field: z.string(),
-    value: z.string().optional(),
-    serviceName: z.string().optional(),
-    serviceId: z.string().optional(),
-});
 
 const userSchema = z.object({
     id: z.string(),
@@ -47,26 +35,6 @@ const userSchema = z.object({
 });
 
 export const restRouter = router({
-    getUserByEmail: restProcedure
-        .meta({
-            openapi: {
-                method: 'GET',
-                path: '/users',
-                protect: true,
-                summary: 'Get user by email',
-                deprecated: true,
-            },
-        })
-        .input(
-            z.object({
-                email: z.string(),
-            }),
-        )
-        .output(userSchema)
-        .query(({ input }) => {
-            return userMethods.getUserByField({ field: 'email', value: input.email });
-        }),
-
     getUserByField: restProcedure
         .meta({
             openapi: {
@@ -74,52 +42,12 @@ export const restRouter = router({
                 path: '/users/get-by-field',
                 protect: true,
                 summary: 'Get user by chosen field',
-                deprecated: true,
             },
         })
-        .input(getUserByFieldFlatSchema)
-        .output(
-            userSchema.extend({
-                organizationalGroupMembership: z
-                    .object({
-                        group: z.object({
-                            id: z.string(),
-                            name: z.string(),
-                        }),
-                        roles: z.array(
-                            z.object({
-                                name: z.string(),
-                            }),
-                        ),
-                    })
-                    .nullable(),
-                achievements: z.array(
-                    z.object({
-                        count: z.number(),
-                        achievement: z.object({
-                            id: z.string(),
-                            description: z.string(),
-                            title: z.string(),
-                            icon: z.string(),
-                        }),
-                    }),
-                ),
-            }),
-        )
-        .query(async ({ input }) => {
-            const validatedInput = await getUserByFieldSchema.parseAsync(input);
-            const user = await userMethods.getUserByField(validatedInput);
-            const [achievements, organizationalGroupMembership] = await Promise.all([
-                prisma.userAchievement.findMany({
-                    where: { userId: user.id },
-                    include: { achievement: true },
-                }),
-                prisma.membership.findFirst({
-                    where: { userId: user.id, group: { organizational: true } },
-                    select: { roles: true, group: true },
-                }),
-            ]);
-            return { ...user, achievements, organizationalGroupMembership };
+        .input(getUserByFieldSchema)
+        .output(userRestApiDataSchema)
+        .query(({ input }) => {
+            return userMethods.getUserDataForRestApi(input);
         }),
 
     createUser: restProcedure
@@ -170,7 +98,7 @@ export const restRouter = router({
             });
             const [surname, firstName, middleName = ''] = input.name.split(' ');
 
-            const supervisor = await userMethods.getByLogin(input.supervisorLogin);
+            const supervisor = await userMethods.getUserByField({ login: input.supervisorLogin });
 
             const user = await userMethods.create({
                 ...input,
@@ -217,67 +145,6 @@ export const restRouter = router({
             };
         }),
 
-    editUser: restProcedure
-        .meta({
-            openapi: {
-                method: 'PUT',
-                path: '/users/edit',
-                protect: true,
-                summary: 'Update user by email',
-                deprecated: true,
-            },
-        })
-        .input(
-            z.object({
-                email: z.string(),
-                name: z.string().optional(),
-                supervisorId: z.string().nullish(),
-            }),
-        )
-        .output(userSchema)
-        .mutation(async ({ input, ctx }) => {
-            const { email, ...restInput } = input;
-            const userBefore = await userMethods.getUserByField({ field: 'email', value: email });
-            const result = await userMethods.edit({ id: userBefore.id, ...restInput });
-            const { before, after } = dropUnchangedValuesFromEvent(
-                { name: userBefore.name, supervisorId: userBefore.supervisorId },
-                { name: result.name, supervisorId: result.supervisorId },
-            );
-            await historyEventMethods.create({ token: ctx.apiToken }, 'editUser', {
-                groupId: undefined,
-                userId: result.id,
-                before,
-                after,
-            });
-            return result;
-        }),
-
-    editUserByField: restProcedure
-        .meta({
-            openapi: {
-                method: 'PUT',
-                path: '/users/edit-by-field',
-                protect: true,
-                summary: 'Update user by chosen field',
-                deprecated: true,
-            },
-        })
-        .input(
-            z.object({
-                user: getUserByFieldFlatSchema,
-                data: z.object({
-                    name: z.string().optional(),
-                    supervisorId: z.string().nullish(),
-                }),
-            }),
-        )
-        .output(userSchema)
-        .query(async ({ input }) => {
-            const validatedUserInput = await getUserByFieldSchema.parseAsync(input.user);
-            const user = await userMethods.getUserByField(validatedUserInput);
-            return userMethods.edit({ id: user.id, ...input.data });
-        }),
-
     editUserByLogin: restProcedure
         .meta({
             openapi: {
@@ -312,10 +179,10 @@ export const restRouter = router({
         )
         .query(async ({ input, ctx }) => {
             const user = await userMethods.getByLogin(input.login);
-            let newSupervisor: Awaited<ReturnType<typeof userMethods.getByLogin>> | null = null;
+            let newSupervisor: Awaited<ReturnType<typeof userMethods.getUserByField>> | null = null;
 
             if (input.data.supervisorLogin && user.supervisor?.login !== input.data.supervisorLogin) {
-                newSupervisor = await userMethods.getByLogin(input.data.supervisorLogin);
+                newSupervisor = await userMethods.getUserByField({ login: input.data.supervisorLogin });
             }
 
             const { supervisorId, email, ...rest } = await userMethods.edit({
@@ -399,78 +266,9 @@ export const restRouter = router({
             },
         })
         .input(z.object({ login: z.string() }))
-        .output(
-            z.object({
-                id: z.string(),
-                surname: z.string(),
-                firstName: z.string(),
-                middleName: z.string().optional(),
-                registrationEmail: z.string().nullish(),
-                corporateEmail: z.string(),
-                phone: z.string().nullish(),
-                login: z.string().nullable(),
-                serviceNumber: z.string().nullish(),
-                accountingId: z.string().nullish(),
-                organizationUnitId: z.string().nullable(),
-                groups: z
-                    .object({
-                        id: z.string(),
-                        name: z.string(),
-                        roles: z.string().array(),
-                    })
-                    .array(),
-                supervisorLogin: z.string().nullish(),
-                active: z.boolean(),
-            }),
-        )
+        .output(userRestApiDataSchema)
         .query(async ({ input }) => {
-            const user = await userMethods.getByLogin(input.login);
-            const [surname, firstName, middleName] = (user.name || '').split(' ');
-
-            const serviceNumberService = await prisma.userService.findFirst({
-                where: {
-                    userId: user.id,
-                    serviceName: 'ServiceNumber',
-                    organizationUnitId: user.organizationUnitId ?? undefined,
-                },
-            });
-
-            const [phoneService, accountingService] = await Promise.all([
-                prisma.userService.findFirst({
-                    where: {
-                        userId: user.id,
-                        serviceName: 'Phone',
-                    },
-                }),
-                prisma.userService.findFirst({
-                    where: {
-                        userId: user.id,
-                        serviceName: 'AccountingId',
-                    },
-                }),
-            ]);
-
-            return {
-                ...user,
-                id: user.id,
-                surname,
-                firstName,
-                middleName,
-                registrationEmail: user.email,
-                corporateEmail: getCorporateEmail(user.login),
-                phone: phoneService?.serviceId,
-                login: user.login,
-                serviceNumber: serviceNumberService?.serviceId,
-                accountingId: accountingService?.serviceId,
-                organizationUnitId: user.organizationUnitId,
-                groups: user.memberships.map((m) => ({
-                    id: m.groupId,
-                    name: m.group.name,
-                    roles: m.roles.map((r) => r.name),
-                })),
-                supervisorLogin: user.supervisor?.login,
-                active: user.active,
-            };
+            return userMethods.getUserDataForRestApi(input);
         }),
 
     editActiveByLogin: restProcedure
@@ -555,7 +353,7 @@ export const restRouter = router({
         )
         .output(userSchema)
         .mutation(async ({ input, ctx }) => {
-            const userBefore = await userMethods.getUserByField({ field: 'email', value: input.email });
+            const userBefore = await userMethods.getUserByField({ email: input.email });
             const result = await userMethods.editActiveState({ id: userBefore.id, active: input.active });
             if (userBefore.active !== result.active) {
                 await historyEventMethods.create({ token: ctx.apiToken }, 'editUserActiveState', {
@@ -586,8 +384,8 @@ export const restRouter = router({
         .output(userSchema)
         .mutation(async ({ input, ctx }) => {
             const { actingUserEmail, targetUserEmail, ...restInput } = input;
-            const targetUser = await userMethods.getUserByField({ field: 'email', value: targetUserEmail });
-            const actingUser = await userMethods.getUserByField({ field: 'email', value: actingUserEmail });
+            const targetUser = await userMethods.getUserByField({ email: targetUserEmail });
+            const actingUser = await userMethods.getUserByField({ email: actingUserEmail });
             const result = await bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser.id);
             await historyEventMethods.create({ token: ctx.apiToken }, 'editUserBonuses', {
                 groupId: undefined,
@@ -852,8 +650,8 @@ export const restRouter = router({
         .query(async ({ input, ctx }) => {
             const { actingUserEmail, targetUserEmail, achievementId, amount } = input;
             const [targetUser, actingUser, achievement] = await Promise.all([
-                userMethods.getUserByField({ field: 'email', value: targetUserEmail }),
-                userMethods.getUserByField({ field: 'email', value: actingUserEmail }),
+                userMethods.getUserByField({ email: targetUserEmail }),
+                userMethods.getUserByField({ email: actingUserEmail }),
                 achievementMethods.getById(achievementId),
             ]);
             const result = await achievementMethods.give(

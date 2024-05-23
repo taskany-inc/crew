@@ -52,11 +52,13 @@ export const getUserListSchema = z.object({
 });
 export type GetUserList = z.infer<typeof getUserListSchema>;
 
-export const getUserByFieldSchema = z.discriminatedUnion('field', [
-    z.object({ field: z.literal('id'), value: z.string() }),
-    z.object({ field: z.literal('email'), value: z.string() }),
-    z.object({ field: z.literal('service'), serviceName: z.string(), serviceId: z.string() }),
-]);
+export const getUserByFieldSchema = z.object({
+    id: z.string().optional(),
+    email: z.string().optional(),
+    login: z.string().optional(),
+    serviceName: z.string().optional(),
+    serviceId: z.string().optional(),
+});
 export type GetUserByField = z.infer<typeof getUserByFieldSchema>;
 
 export const editUserSchema = z.object({
@@ -95,3 +97,27 @@ export const getUserSuggestionsSchema = z.object({
 });
 
 export type GetUserSuggestions = z.infer<typeof getUserSuggestionsSchema>;
+
+export const userRestApiDataSchema = z.object({
+    id: z.string(),
+    surname: z.string(),
+    firstName: z.string(),
+    middleName: z.string().optional(),
+    registrationEmail: z.string().nullish(),
+    corporateEmail: z.string(),
+    phone: z.string().nullish(),
+    login: z.string().nullable(),
+    serviceNumber: z.string().nullish(),
+    accountingId: z.string().nullish(),
+    organizationUnitId: z.string().nullable(),
+    groups: z
+        .object({
+            id: z.string(),
+            name: z.string(),
+            roles: z.string().array(),
+        })
+        .array(),
+    supervisorLogin: z.string().nullish(),
+    active: z.boolean(),
+});
+export type UserRestApiData = z.infer<typeof userRestApiDataSchema>;
