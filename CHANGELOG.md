@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.57.0](https://github.com/taskany-inc/crew/compare/v0.56.0...v0.57.0) (2024-05-23)
+
+
+### Features
+
+* add users team counter ([0600e2b](https://github.com/taskany-inc/crew/commit/0600e2bdd8fe1305bee1f34d2f83a25a05d1f5ab))
+* logs page ([bf9eb8d](https://github.com/taskany-inc/crew/commit/bf9eb8d726020a4176051d25a63cf55dcec070da))
+* schedule deactivation ([ccc904f](https://github.com/taskany-inc/crew/commit/ccc904f551842a1492e5967edef153314a9e1a53))
+
 ## [0.56.0](https://github.com/taskany-inc/crew/compare/v0.55.2...v0.56.0) (2024-05-22)
 
 
