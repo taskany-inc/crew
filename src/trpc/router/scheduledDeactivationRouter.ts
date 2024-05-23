@@ -23,7 +23,9 @@ export const scheduledDeactivationRouter = router({
             checkRoleForAccess(ctx.session.user.role, 'viewScheduledDeactivation'),
         );
         return scheduledDeactivationMethods.getList(
-            ctx.session.user.role?.viewScheduledDeactivation ? ctx.session.user.id : undefined,
+            ctx.session.user.role?.editScheduledDeactivation && !ctx.session.user.role.viewScheduledDeactivation
+                ? ctx.session.user.id
+                : undefined,
         );
     }),
 });

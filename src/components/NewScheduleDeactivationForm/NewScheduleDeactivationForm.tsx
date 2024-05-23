@@ -196,6 +196,13 @@ export const NewScheduleDeactivationForm = ({
                     />
                     <StyledLabel weight="bold">{tr('Email')}</StyledLabel>
                     <StyledFormInput error={errors.email} autoComplete="off" {...register('email')} />
+                    <StyledLabel weight="bold">{tr('Organization')}</StyledLabel>
+                    <OrganizationUnitComboBox
+                        organizationUnit={organization}
+                        onChange={(group) => group && setValue('organization', getOrgUnitTitle(group))}
+                        inline
+                        error={errors.organization}
+                    />
                     <StyledLabel weight="bold">{tr('TeamLead')}</StyledLabel>
                     <StyledFormInput error={errors.teamLead} autoComplete="off" {...register('teamLead')} />
                     {nullable(watch('type') === 'transfer', () => (
@@ -205,13 +212,6 @@ export const NewScheduleDeactivationForm = ({
                                 error={errors.newTeamLead}
                                 autoComplete="off"
                                 {...register('newTeamLead')}
-                            />
-                            <StyledLabel weight="bold">{tr('Organization')}</StyledLabel>
-                            <OrganizationUnitComboBox
-                                organizationUnit={organization}
-                                onChange={(group) => group && setValue('organization', getOrgUnitTitle(group))}
-                                inline
-                                error={errors.organization}
                             />
                             <StyledLabel weight="bold">{tr('Transfer to')}</StyledLabel>
                             <OrganizationUnitComboBox
