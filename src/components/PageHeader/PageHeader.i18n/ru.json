@@ -12,5 +12,8 @@
     "giving out achievements": "выдача ачивок",
     "User role": "Роль пользователя",
     "viewing history of changes": "просмотр истории изменений",
-    "Logs": "Логи"
+    "Logs": "Логи",
+    "creating and editing scheduled deactivations": "создание и редактирование плановых деактиваций",
+    "viewing scheduled deactivations": "просмотр плановых деактиваций",
+    "Scheduled deactivations": "Запланированные деактивации"
 }

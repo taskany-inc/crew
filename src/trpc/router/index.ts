@@ -14,6 +14,7 @@ import { hireIntegrationRouter } from './hireIntegrationRouter';
 import { appConfigRouter } from './appConfigRouter';
 import { achievementRouter } from './achievementRouter';
 import { historyEventRouter } from './historyEventsRouter';
+import { scheduledDeactivationRouter } from './scheduledDeactivationRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -30,6 +31,7 @@ export const trpcRouter = router({
     appConfig: appConfigRouter,
     achievement: achievementRouter,
     historyEvent: historyEventRouter,
+    scheduledDeactivation: scheduledDeactivationRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

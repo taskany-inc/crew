@@ -59,5 +59,17 @@
     "archived vacancy": "архивировал(а) вакансию",
     "unarchived vacancy": "разархивировал(а) вакансию",
     "deleted vacancy": "удалил(а) вакансию",
-    "Hidden": "Скрытый"
+    "Hidden": "Скрытый",
+    "created scheduled": "создал(а) плановое",
+    "retirement of": "увольнение",
+    "transfer to {newOrganization} of": "перевод в {newOrganization}",
+    "Deactiation date": "Дата деактивации",
+    "Organization": "Организация",
+    "New Organization": "Новая организация",
+    "TeamLead": "Тимлид",
+    "New teamlead": "Новый тимлид",
+    "Organizational group": "Организационная группа",
+    "New organizational group": "Новая организационная группа",
+    "Organizational role": "Организационная роль",
+    "New organizational role": "Новая организационная роль"
 }

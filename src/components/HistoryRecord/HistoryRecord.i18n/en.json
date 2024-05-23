@@ -59,5 +59,17 @@
     "archived vacancy": "",
     "unarchived vacancy": "",
     "deleted vacancy": "",
-    "Hidden": ""
+    "Hidden": "",
+    "created scheduled": "",
+    "retirement of": "",
+    "transfer to {newOrganization} of": "",
+    "Deactiation date": "",
+    "Organization": "",
+    "New Organization": "",
+    "TeamLead": "",
+    "New teamlead": "",
+    "Organizational group": "",
+    "New organizational group": "",
+    "Organizational role": "",
+    "New organizational role": ""
 }

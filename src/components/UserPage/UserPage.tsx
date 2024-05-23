@@ -1,7 +1,6 @@
 import { Text, Button, nullable, Modal } from '@taskany/bricks';
 import { gapL, gapS, gapXl, gray10, gray8, textColor } from '@taskany/colors';
 import styled from 'styled-components';
-import { useState } from 'react';
 
 import { PageSep } from '../PageSep';
 import { trpc } from '../../trpc/trpcClient';
@@ -23,6 +22,8 @@ import { NarrowSection } from '../NarrowSection';
 import { GroupListItem } from '../GroupListItem';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { Restricted } from '../Restricted';
+import { NewScheduleDeactivationForm } from '../NewScheduleDeactivationForm/NewScheduleDeactivationForm';
+import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './UserPage.i18n';
 
@@ -77,8 +78,9 @@ interface UserPageProps {
 
 export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
     const { showGroupPreview } = usePreviewContext();
-    const [openUpdateUserForm, setOpenUpdateUserForm] = useState(false);
-    const [openDeactivateUserForm, setOpenDeactivateUserForm] = useState(false);
+    const updateUserFormVisibility = useBoolean(false);
+    const deactivateUserFormVisibility = useBoolean(false);
+    const scheduleDeactivationFormVisibility = useBoolean(false);
     const sessionUser = useSessionUser();
 
     const userByLogin = trpc.user.getByLogin.useQuery(userLogin, {
@@ -118,25 +120,42 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
                         {!user.active && tr(' [inactive]')}
                     </Text>
                 </StyledUserNameWrapper>
-                <Modal visible={openUpdateUserForm} width={600}>
-                    <UserUpdateForm user={user} onClose={() => setOpenUpdateUserForm(false)} />
+                <Modal visible={updateUserFormVisibility.value} width={600}>
+                    <UserUpdateForm user={user} onClose={updateUserFormVisibility.setFalse} />
                 </Modal>
-                <Modal visible={openDeactivateUserForm} width={600}>
-                    <DeactivateProfileForm user={user} onClose={() => setOpenDeactivateUserForm(false)} />
+                <Modal visible={deactivateUserFormVisibility.value} width={600}>
+                    <DeactivateProfileForm user={user} onClose={deactivateUserFormVisibility.setFalse} />
                 </Modal>
+                <NewScheduleDeactivationForm
+                    visible={scheduleDeactivationFormVisibility.value}
+                    onClose={scheduleDeactivationFormVisibility.setFalse}
+                    user={user}
+                    orgRoles={orgRoles}
+                    organization={user.organizationUnit}
+                    orgGroupName={orgMembership?.group.name}
+                />
                 <EditButtonsWrapper>
-                    {nullable(sessionUser.role?.editUser, () => (
-                        <Button onClick={() => setOpenUpdateUserForm(true)} text={tr('Edit')} size="s" />
-                    ))}
-                    {nullable(sessionUser.role?.editUserActiveState, () => (
+                    <Restricted visible={!!sessionUser.role?.editUser}>
+                        <Button onClick={updateUserFormVisibility.setTrue} text={tr('Edit')} size="s" />
+                    </Restricted>
+                    <Restricted visible={!!sessionUser.role?.editUserActiveState}>
                         <Button
-                            onClick={() => setOpenDeactivateUserForm(true)}
+                            onClick={deactivateUserFormVisibility.setTrue}
                             text={user.active ? tr('Deactivate') : tr('Reactivate')}
                             view="danger"
                             outline
                             size="s"
                         />
-                    ))}
+                    </Restricted>
+                    <Restricted visible={!!sessionUser.role?.editScheduledDeactivation}>
+                        <Button
+                            onClick={scheduleDeactivationFormVisibility.setTrue}
+                            text={tr('Schedule deactivation')}
+                            view="warning"
+                            outline
+                            size="s"
+                        />
+                    </Restricted>
                 </EditButtonsWrapper>
             </StyledHeader>
 

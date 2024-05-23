@@ -55,6 +55,11 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             { path: pages.users, text: tr('Users'), visible: true },
 
             { path: pages.logs, text: tr('Logs'), visible: !!sessionUser.role?.viewHistoryEvents },
+            {
+                path: pages.scheduledDeactivations,
+                text: tr('Scheduled deactivations'),
+                visible: !!sessionUser.role?.viewScheduledDeactivation || !sessionUser.role?.editScheduledDeactivation,
+            },
         ];
 
         return items;
@@ -73,6 +78,8 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             editUserBonuses: tr('editing user bonus points'),
             viewUserBonuses: tr('viewing user bonus points'),
             viewUserExtendedInfo: tr('viewing user extended info'),
+            editScheduledDeactivation: tr('creating and editing scheduled deactivations'),
+            viewScheduledDeactivation: tr('viewing scheduled deactivations'),
 
             editFullGroupTree: tr('editing any team'),
             editAdministratedGroupTree: tr('editing administrated teams'),
