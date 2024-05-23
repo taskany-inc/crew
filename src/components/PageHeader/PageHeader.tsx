@@ -58,7 +58,7 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             {
                 path: pages.scheduledDeactivations,
                 text: tr('Scheduled deactivations'),
-                visible: !!sessionUser.role?.viewScheduledDeactivation || !sessionUser.role?.editScheduledDeactivation,
+                visible: !!sessionUser.role?.viewScheduledDeactivation || !!sessionUser.role?.editScheduledDeactivation,
             },
         ];
 
