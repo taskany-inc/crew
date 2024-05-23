@@ -16,7 +16,7 @@ export const pages = {
     signOut: '/api/auth/signout',
 
     logs: '/logs',
-    scheduledDeactivations: '/scheduled-deactivations',
+    scheduledDeactivations: '/deactivations',
 };
 
 export const useRouter = () => {
