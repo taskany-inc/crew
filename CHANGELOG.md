@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.57.2](https://github.com/taskany-inc/crew/compare/v0.57.1...v0.57.2) (2024-05-23)
+
+
+### Bug Fixes
+
+* correct access check for deactiations page ([8287139](https://github.com/taskany-inc/crew/commit/82871398d4cce9bd4802f687021c7ee6abeba3b4))
+
 ## [0.57.1](https://github.com/taskany-inc/crew/compare/v0.57.0...v0.57.1) (2024-05-23)
 
 
