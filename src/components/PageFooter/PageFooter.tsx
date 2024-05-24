@@ -16,7 +16,7 @@ export const PageFooter: FC = () => {
         { title: tr('Terms'), url: '/terms' },
         { title: tr('Docs'), url: '/docs' },
         { title: tr('Contact Taskany'), url: '/contactTaskany' },
-        { title: tr('API'), url: '/api' },
+        { title: tr('API'), url: '/api-docs' },
         { title: tr('About'), url: '/about' },
     ];
 

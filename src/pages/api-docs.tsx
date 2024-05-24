@@ -1,4 +1,4 @@
-import { DocsPage } from '../components/DocsPage';
+import { ApiPage } from '../components/ApiPage';
 import { createGetServerSideProps } from '../utils/createGetSSRProps';
 import { openApiDoc } from '../utils/openApiDoc';
 
@@ -9,4 +9,4 @@ export const getServerSideProps = createGetServerSideProps({
     },
 });
 
-export default DocsPage;
+export default ApiPage;
