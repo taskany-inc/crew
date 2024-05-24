@@ -25,6 +25,7 @@ interface HistoryEventsData {
             supervisorId?: string;
             email?: string;
             phone?: string;
+            login?: string;
             organizationalUnitId?: string;
         };
     };
@@ -216,6 +217,7 @@ export type HistoryEventData<
     id: string;
     actingUser?: { id: string; name: string | null; email: string } | null;
     actingToken?: { description: string } | null;
+    actingSubsystem?: string | null;
     group: E['requireGroupId'] extends true ? { id: string; name: string } : null;
     user: E['requireUserId'] extends true ? { id: string; name: string | null; email: string; active: boolean } : null;
     action: A;

@@ -494,6 +494,8 @@ model HistoryEvent {
   actingTokenId String?   @db.Uuid
   actingToken   ApiToken? @relation("historyChanges", fields: [actingTokenId], references: [id])
 
+  actingSubsystem String?
+
   user   User?   @relation("historyEvents", fields: [userId], references: [id])
   userId String?
 

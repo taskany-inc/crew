@@ -8,7 +8,7 @@ import { CreateHistoryEventData, HistoryAction } from './historyEventTypes';
 
 export const historyEventMethods = {
     create: <A extends HistoryAction>(
-        actor: { user: string } | { token: string },
+        actor: { user: string } | { token: string } | { subsystem: string },
         action: A,
         data: CreateHistoryEventData<A>,
     ) => {
@@ -16,6 +16,7 @@ export const historyEventMethods = {
             data: {
                 actingUserId: 'user' in actor ? actor.user : undefined,
                 actingTokenId: 'token' in actor ? actor.token : undefined,
+                actingSubsystem: 'subsystem' in actor ? actor.subsystem : undefined,
                 userId: data.userId,
                 groupId: data.groupId,
                 action,
