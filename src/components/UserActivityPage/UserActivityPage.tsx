@@ -92,32 +92,18 @@ const UserActivityPageInner = ({
                     <Tab name="changes" label={<StyledTabLabel>{tr('Changes')}</StyledTabLabel>}>
                         <UserActivityPageFilterPanel count={countUserChangeEvents} total={totalUserChangeEvents} />
                         <div className={s.PageContainer}>
-                            <div className={s.PageContainer}>
-                                <div>
-                                    {userChangeEvents.map((event) => (
-                                        <HistoryRecord
-                                            event={
-                                                {
-                                                    ...event,
-                                                    actingUser: event.actingUser || {
-                                                        name: event.actingToken?.roleCode,
-                                                        email: event.actingToken?.description,
-                                                        id: event.actingToken?.id,
-                                                    },
-                                                } as HistoryEventData
-                                            }
-                                            key={event.id}
-                                        />
-                                    ))}
-                                </div>
-                                {nullable(hasNextPageOfChangeEvents, () => (
-                                    <Button
-                                        text={tr('Load more')}
-                                        onClick={loadMoreChangeEvents}
-                                        className={s.LoadMoreButton}
-                                    />
+                            <div>
+                                {userChangeEvents.map((event) => (
+                                    <HistoryRecord event={event as HistoryEventData} key={event.id} />
                                 ))}
                             </div>
+                            {nullable(hasNextPageOfChangeEvents, () => (
+                                <Button
+                                    text={tr('Load more')}
+                                    onClick={loadMoreChangeEvents}
+                                    className={s.LoadMoreButton}
+                                />
+                            ))}
                         </div>
                     </Tab>
                 </Restricted>

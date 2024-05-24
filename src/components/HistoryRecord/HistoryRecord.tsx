@@ -87,6 +87,7 @@ const componentMap: {
                         <ChangeListItem title={tr('Name')} before={event.before.name} after={event.after.name} />
                         <ChangeListItem title={tr('Email')} before={event.before.email} after={event.after.email} />
                         <ChangeListItem title={tr('Phone')} before={event.before.phone} after={event.after.phone} />
+                        <ChangeListItem title={tr('Login')} before={event.before.login} after={event.after.login} />
                         <ChangeListItem
                             title={tr('Supervisor id')}
                             before={event.before.supervisorId}
@@ -117,8 +118,8 @@ const componentMap: {
     EditUserBonuses: ({ event }) => {
         return (
             <>
-                {tr('edited user bonuses')} {tr('from')} <BoldText>{event.before.amount}</BoldText> {tr('to')}{' '}
-                <BoldText>{event.after.amount}</BoldText>{' '}
+                {tr('edited user bonuses')} <UserListItem user={event.user} /> {tr('from')}{' '}
+                <BoldText>{event.before.amount}</BoldText> {tr('to')} <BoldText>{event.after.amount}</BoldText>{' '}
                 {nullable(event.after.description, (d) => (
                     <>
                         {tr('with description')} <BoldText>{d}</BoldText>{' '}
@@ -441,8 +442,15 @@ interface HistoryRecordProps {
     event: HistoryEventData;
 }
 
+const getAuthor = (event: HistoryEventData) => {
+    if (event.actingUser) return { name: event.actingUser.name, email: event.actingUser.email };
+    if (event.actingToken) return { name: `${tr('API token')} ${event.actingToken.description}` };
+    if (event.actingSubsystem) return { name: `${tr('Subsystem')} ${event.actingSubsystem}` };
+    return { name: tr('Unknown actor') };
+};
+
 export const HistoryRecord = ({ event }: HistoryRecordProps) => {
-    const author = { name: event.actingUser?.name, email: event.actingUser?.email || event.actingToken?.description };
+    const author = getAuthor(event);
     const locale = useLocale();
     const Component = componentMap[capitalize(event.action)] as (props: { event: HistoryEventData }) => ReactNode;
 

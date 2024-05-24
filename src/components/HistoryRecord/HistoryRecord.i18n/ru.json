@@ -71,5 +71,8 @@
     "Organizational group": "Организационная группа",
     "New organizational group": "Новая организационная группа",
     "Organizational role": "Организационная роль",
-    "New organizational role": "Новая организационная роль"
+    "New organizational role": "Новая организационная роль",
+    "API token": "API токен",
+    "Subsystem": "Подсистема",
+    "Unknown actor": "Неизвестный автор"
 }

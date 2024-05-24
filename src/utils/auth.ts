@@ -5,9 +5,11 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { type NextAuthOptions } from 'next-auth';
 
 import { config } from '../config';
+import { historyEventMethods } from '../modules/historyEventMethods';
 
 import { prisma } from './prisma';
 import { verifyPassword } from './passwords';
+import { dropUnchangedValuesFromEvent } from './dropUnchangedValuesFromEvents';
 
 const providers: NextAuthOptions['providers'] = [];
 
@@ -57,6 +59,15 @@ if (config.nextAuth.keycloak.id && config.nextAuth.keycloak.secret && config.nex
                 authorization_signed_response_alg: config.nextAuth.keycloak.jwsAlgorithm,
                 id_token_signed_response_alg: config.nextAuth.keycloak.jwsAlgorithm,
             },
+            profile: (profile) => {
+                return {
+                    id: profile.sub,
+                    name: profile.name ?? profile.preferred_username,
+                    email: profile.email,
+                    image: profile.picture,
+                    login: profile.preferred_username,
+                };
+            },
         }),
     );
 }
@@ -69,22 +80,45 @@ export const authOptions: NextAuthOptions = {
     adapter: {
         ...adapter,
         createUser: async (user) => {
+            const login =
+                'login' in user && typeof user.login === 'string' && user.login.length > 0 ? user.login : undefined;
             const existingUser = await prisma.user.findFirst({
-                where: { services: { some: { serviceName: 'Email', serviceId: user.email } } },
+                where: {
+                    OR: [
+                        {
+                            services: { some: { serviceName: 'Email', serviceId: user.email } },
+                        },
+                        { login },
+                    ],
+                },
+                include: { services: true },
             });
             if (existingUser) {
                 const mainEmail = user.email;
                 const secondaryEmail = existingUser.email;
-                const [updatedUser] = await prisma.$transaction([
-                    prisma.user.update({ where: { id: existingUser.id }, data: { email: mainEmail } }),
-                    prisma.userService.update({
+                const updatedUser = await prisma.user.update({
+                    where: { id: existingUser.id },
+                    data: { email: mainEmail, login },
+                });
+                const { before, after } = dropUnchangedValuesFromEvent(
+                    { email: existingUser.email, login: existingUser.login ?? undefined },
+                    { email: mainEmail, login },
+                );
+                await historyEventMethods.create({ subsystem: 'Auth user merge' }, 'editUser', {
+                    groupId: undefined,
+                    userId: existingUser.id,
+                    before,
+                    after,
+                });
+                if (existingUser.services.find((s) => s.serviceName === 'Email' && s.serviceId === mainEmail)) {
+                    await prisma.userService.update({
                         where: {
                             userId: existingUser.id,
                             serviceName_serviceId: { serviceName: 'Email', serviceId: mainEmail },
                         },
                         data: { serviceId: secondaryEmail },
-                    }),
-                ]);
+                    });
+                }
                 return updatedUser;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
