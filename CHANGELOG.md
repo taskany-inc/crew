@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.58.0](https://github.com/taskany-inc/crew/compare/v0.57.2...v0.58.0) (2024-05-27)
+
+
+### Features
+
+* **DocsPage:** link to download open-api doc on docs page ([311338c](https://github.com/taskany-inc/crew/commit/311338c13c34bcfb07a110d4563a5dd8d1d60bf8))
+* **rest:** sync user output schemas ([fb69032](https://github.com/taskany-inc/crew/commit/fb69032235187982864e20f0bb4f8c2390b2fec9))
+
 ## [0.57.2](https://github.com/taskany-inc/crew/compare/v0.57.1...v0.57.2) (2024-05-24)
 
 
