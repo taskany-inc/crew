@@ -112,7 +112,33 @@ model User {
   scheduledDeactivations        ScheduledDeactivation[] @relation("scheduledDeactivation")
   scheduledDeactivationsCreated ScheduledDeactivation[] @relation("scheduledDeactivationCreated")
 
-  groupAdmins GroupAdmin[]
+  groupAdmins          GroupAdmin[]
+  userCreationRequests UserCreationRequest[]
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+enum UserCreationRequestStatus {
+  Approved
+  Denied
+}
+
+model UserCreationRequest {
+  id                    String                     @id @default(nanoid())
+  name                  String
+  email                 String
+  login                 String
+  supervisor            User                       @relation(fields: [supervisorLogin], references: [login])
+  supervisorLogin       String
+  organization          OrganizationUnit           @relation(fields: [organizationUnitId], references: [id])
+  organizationUnitId    String
+  group                 Group                      @relation(fields: [groupId], references: [id])
+  groupId               String
+  createExternalAccount Boolean
+  status                UserCreationRequestStatus?
+  comment               String?
+  services              Json
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -128,6 +154,7 @@ model UserRole {
   createUser                Boolean @default(false)
   editRoleScopes            Boolean @default(false)
   editUserRole              Boolean @default(false)
+  editUserCreationRequests  Boolean @default(false)
   editUser                  Boolean @default(false)
   editUserActiveState       Boolean @default(false)
   editUserAchievements      Boolean @default(false)
@@ -245,8 +272,9 @@ model OrganizationUnit {
   description String?
   apiToken    ApiToken[]
 
-  users        User[]
-  userServices UserService[]
+  users                User[]
+  userServices         UserService[]
+  userCreationRequests UserCreationRequest[]
 }
 
 model Group {
@@ -272,7 +300,8 @@ model Group {
 
   vacancies Vacancy[] @relation("groupVacancy")
 
-  historyEvents HistoryEvent[] @relation("historyEvents")
+  historyEvents        HistoryEvent[]        @relation("historyEvents")
+  userCreationRequests UserCreationRequest[]
 
   groupAdmins GroupAdmin[]
 
