@@ -347,26 +347,25 @@ export const userMethods = {
     },
 
     edit: async (data: EditUserFields) => {
-        const newOrganization = await prisma.organizationUnit.findUnique({
-            where: {
-                id: data.organizationUnitId,
-            },
-        });
-
-        if (data.organizationUnitId && !newOrganization) {
-            throw new TRPCError({
-                code: 'BAD_REQUEST',
-                message: `No organization with id ${data.organizationUnitId}`,
+        if (data.organizationUnitId) {
+            const newOrganization = await prisma.organizationUnit.findUnique({
+                where: {
+                    id: data.organizationUnitId,
+                },
             });
+
+            if (!newOrganization) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: `No organization with id ${data.organizationUnitId}`,
+                });
+            }
         }
 
         await externalUserUpdate(data.id, { name: data.name, supervisorId: data.supervisorId });
         return prisma.user.update({
             where: { id: data.id },
-            data: {
-                ...data,
-                organizationUnitId: newOrganization?.id,
-            },
+            data,
         });
     },
 
