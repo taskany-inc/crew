@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.58.1](https://github.com/taskany-inc/crew/compare/v0.58.0...v0.58.1) (2024-05-30)
+
+
+### Bug Fixes
+
+* edit user without organizationUnitId error ([e692003](https://github.com/taskany-inc/crew/commit/e69200387ab688366b51bc25ca3cfd08848e8ddf))
+
 ## [0.58.0](https://github.com/taskany-inc/crew/compare/v0.57.2...v0.58.0) (2024-05-28)
 
 
