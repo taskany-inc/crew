@@ -55,7 +55,7 @@ const UserActivityPageInner = ({
     hasNextPageOfUserActivityEvents?: boolean;
     countUserActivityEvents: number;
     totalUserActivityEvents: number;
-    userChangeEvents: TrpcRouterOutput['historyEvent']['getUserChanges']['events'];
+    userChangeEvents?: TrpcRouterOutput['historyEvent']['getUserChanges']['events'];
     loadMoreChangeEvents: VoidFunction;
     hasNextPageOfChangeEvents?: boolean;
     countUserChangeEvents: number;
@@ -92,11 +92,11 @@ const UserActivityPageInner = ({
                     <Tab name="changes" label={<StyledTabLabel>{tr('Changes')}</StyledTabLabel>}>
                         <UserActivityPageFilterPanel count={countUserChangeEvents} total={totalUserChangeEvents} />
                         <div className={s.PageContainer}>
-                            <div>
-                                {userChangeEvents.map((event) => (
+                            {nullable(userChangeEvents, (events) =>
+                                events.map((event) => (
                                     <HistoryRecord event={event as HistoryEventData} key={event.id} />
-                                ))}
-                            </div>
+                                )),
+                            )}
                             {nullable(hasNextPageOfChangeEvents, () => (
                                 <Button
                                     text={tr('Load more')}
@@ -144,10 +144,8 @@ export const UserActivityPage = ({ userId }: UserActivityPageProps) => {
     const loadMoreUserActivityEvents = activityQuery.fetchNextPage;
     const hasNextPageOfUserActivityEvents = activityQuery.hasNextPage;
 
-    if (!changesQuery.data) return null;
-
-    const userChangeEvents = changesQuery.data.pages.flatMap((page) => page.events);
-    const lastPageOfChangeEvents = changesQuery.data.pages.at(-1);
+    const userChangeEvents = changesQuery.data?.pages.flatMap((page) => page.events);
+    const lastPageOfChangeEvents = changesQuery.data?.pages.at(-1);
     const loadMoreChangeEvents = changesQuery.fetchNextPage;
     const hasNextPageOfChangeEvents = changesQuery.hasNextPage;
 
