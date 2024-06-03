@@ -53,5 +53,8 @@
     "Voila! User is added to group administrators 🎉": "",
     "Adding the user...": "",
     "Voila! User is removed from group administrators 🎉": "",
-    "Removing the user...": ""
+    "Removing the user...": "",
+    "Role is changed": "",
+    "Changing role...": "",
+    "An error occurred while changing role": ""
 }

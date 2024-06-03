@@ -12,6 +12,7 @@ import {
     getUserSuggestionsSchema,
     createUserSchema,
     editUserActiveStateSchema,
+    editUserRoleSchema,
 } from '../../modules/userSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
@@ -137,5 +138,10 @@ export const userRouter = router({
 
     suggestions: protectedProcedure.input(getUserSuggestionsSchema).query(({ input }) => {
         return userMethods.suggestions(input);
+    }),
+
+    editUserRole: protectedProcedure.input(editUserRoleSchema).mutation(({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserRole'));
+        return userMethods.editUserRole(input);
     }),
 });

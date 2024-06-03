@@ -24,6 +24,9 @@ import { useSessionUser } from '../../hooks/useSessionUser';
 import { Restricted } from '../Restricted';
 import { NewScheduleDeactivationForm } from '../NewScheduleDeactivationForm/NewScheduleDeactivationForm';
 import { useBoolean } from '../../hooks/useBoolean';
+import { useUserMutations } from '../../modules/userHooks';
+import { UserRoleComboBox } from '../UserRoleComboBox/UserRoleComboBox';
+import { Nullish } from '../../utils/types';
 
 import { tr } from './UserPage.i18n';
 
@@ -77,6 +80,7 @@ interface UserPageProps {
 }
 
 export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
+    const { editUserRole } = useUserMutations();
     const { showGroupPreview } = usePreviewContext();
     const updateUserFormVisibility = useBoolean(false);
     const deactivateUserFormVisibility = useBoolean(false);
@@ -95,6 +99,15 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
 
     const orgMembership = user.memberships.find((m) => m.group.organizational);
     const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
+
+    const handleEditUserRole = async (data?: Nullish<{ code: string }>) => {
+        if (!data) return;
+
+        await editUserRole({
+            id: user.id,
+            roleCode: data.code,
+        });
+    };
 
     return (
         <LayoutMain pageTitle={user.name}>
@@ -155,6 +168,9 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
                             outline
                             size="s"
                         />
+                    </Restricted>
+                    <Restricted visible={!!sessionUser.role?.editUserRole}>
+                        <UserRoleComboBox roleName={user.roleCode ?? undefined} onChange={handleEditUserRole} />
                     </Restricted>
                 </EditButtonsWrapper>
             </StyledHeader>

@@ -32,6 +32,7 @@ import {
     GetUserByField,
     EditUserFields,
     UserRestApiData,
+    EditUserRoleData,
 } from './userSchemas';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
@@ -458,5 +459,12 @@ export const userMethods = {
             supervisorLogin: user.supervisor?.login,
             active: user.active,
         };
+    },
+
+    editUserRole: async ({ id, roleCode }: EditUserRoleData) => {
+        return prisma.user.update({
+            where: { id },
+            data: { roleCode },
+        });
     },
 };

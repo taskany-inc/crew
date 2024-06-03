@@ -6,6 +6,7 @@ import {
     CreateUser,
     EditUser,
     EditUserActiveState,
+    EditUserRoleData,
     EditUserSettings,
     RemoveUserFromGroup,
 } from './userSchemas';
@@ -64,8 +65,16 @@ export const useUserMutations = () => {
         },
     });
 
+    const editUserRole = trpc.user.editUserRole.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+        },
+    });
+
     return {
         createUser: (data: CreateUser) => notifyPromise(createUser.mutateAsync(data), 'userCreate'),
+
+        editUserRole: (data: EditUserRoleData) => notifyPromise(editUserRole.mutateAsync(data), 'userUpdate'),
 
         addUserToGroup: (data: AddUserToGroup) => notifyPromise(addUserToGroup.mutateAsync(data), 'userAddToGroup'),
 

@@ -15,6 +15,7 @@ import { appConfigRouter } from './appConfigRouter';
 import { achievementRouter } from './achievementRouter';
 import { historyEventRouter } from './historyEventsRouter';
 import { scheduledDeactivationRouter } from './scheduledDeactivationRouter';
+import { userRoleRouter } from './userRoleRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -23,6 +24,7 @@ export const trpcRouter = router({
     search: searchRouter,
     service: serviceRouter,
     role: roleRouter,
+    userRole: userRoleRouter,
     device: deviceRouter,
     organizationUnit: organizationUnitRouter,
     bonusPoints: bonusPointsRouter,

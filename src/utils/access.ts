@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server';
 
 import { tr } from './utils.i18n';
 import { ExtractKeysOfType } from './types';
+import { objKeys } from './objKeys';
 
 interface AccessCheckResultAllowed {
     allowed: true;
@@ -53,3 +54,22 @@ export const checkRoleForAccess = (userRole: UserRole | null, operation: AccessO
     if (userRole?.[operation]) return allowed;
     return notAllowed(`${tr('Operation')} '${operation}' ${tr('is forbidden')}`);
 };
+
+const scopesObj: Record<AccessOperation, true> = {
+    editRoleScopes: true,
+    editUserRole: true,
+    createUser: true,
+    editAdministratedGroupTree: true,
+    editFullGroupTree: true,
+    editScheduledDeactivation: true,
+    editUser: true,
+    editUserAchievements: true,
+    editUserActiveState: true,
+    editUserBonuses: true,
+    viewHistoryEvents: true,
+    viewScheduledDeactivation: true,
+    viewUserBonuses: true,
+    viewUserExtendedInfo: true,
+};
+
+export const scopes = objKeys(scopesObj);

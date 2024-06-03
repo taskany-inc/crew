@@ -121,3 +121,9 @@ export const userRestApiDataSchema = z.object({
     active: z.boolean(),
 });
 export type UserRestApiData = z.infer<typeof userRestApiDataSchema>;
+
+export const editUserRoleSchema = z.object({
+    id: z.string(),
+    roleCode: z.string(),
+});
+export type EditUserRoleData = z.infer<typeof editUserRoleSchema>;

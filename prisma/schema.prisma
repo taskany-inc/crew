@@ -111,7 +111,7 @@ model User {
 
   scheduledDeactivations        ScheduledDeactivation[] @relation("scheduledDeactivation")
   scheduledDeactivationsCreated ScheduledDeactivation[] @relation("scheduledDeactivationCreated")
-  
+
   groupAdmins GroupAdmin[]
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
@@ -126,6 +126,8 @@ model UserRole {
   tokens ApiToken[]
 
   createUser                Boolean @default(false)
+  editRoleScopes            Boolean @default(false)
+  editUserRole              Boolean @default(false)
   editUser                  Boolean @default(false)
   editUserActiveState       Boolean @default(false)
   editUserAchievements      Boolean @default(false)

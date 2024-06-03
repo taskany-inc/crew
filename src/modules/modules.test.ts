@@ -14,7 +14,7 @@ import {
 
 import { groupMethods } from './groupMethods';
 import { userMethods } from './userMethods';
-import { roleMethods } from './roleMethods';
+import { groupRoleMethods } from './groupRoleMethods';
 import { searchMethods } from './searchMethods';
 import { vacancyMethods } from './vacancyMethods';
 
@@ -183,9 +183,10 @@ describe('groups', () => {
             userMethods.removeFromGroup({ userId: membership.userId, groupId: membership.groupId });
         await assert.rejects(checkRemove, { message: 'Cannot edit archived membership' });
         const checkAddRole = () =>
-            roleMethods.addToMembership({ membershipId: membership.id, id: 'boss', type: 'existing' });
+            groupRoleMethods.addToMembership({ membershipId: membership.id, id: 'boss', type: 'existing' });
         await assert.rejects(checkAddRole, { message: 'Cannot edit archived membership' });
-        const checkRemoveRole = () => roleMethods.removeFromMembership({ membershipId: membership.id, roleId: 'boss' });
+        const checkRemoveRole = () =>
+            groupRoleMethods.removeFromMembership({ membershipId: membership.id, roleId: 'boss' });
         await assert.rejects(checkRemoveRole, { message: 'Cannot edit archived membership' });
     });
 
