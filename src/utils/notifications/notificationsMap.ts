@@ -18,6 +18,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'achievement', 'Give'>
     | NamespacedAction<'scheduledDeactivation', 'Create'>
     | NamespacedAction<'bonusPoints', 'Change'>
+    | 'addScopeToRole'
     | 'sendFeedback'
     | 'copy';
 
@@ -133,6 +134,11 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         groupRemoveAdmin: {
             success: tr('Voila! User is removed from group administrators 🎉'),
             loading: tr('Removing the user...'),
+        },
+        addScopeToRole: {
+            success: tr('Role is changed'),
+            loading: tr('Changing role...'),
+            error: tr('An error occurred while changing role'),
         },
     };
 

@@ -1,5 +1,5 @@
 import { protectedProcedure, router } from '../trpcBackend';
-import { roleMethods } from '../../modules/roleMethods';
+import { groupRoleMethods } from '../../modules/groupRoleMethods';
 import {
     addRoleToMembershipSchema,
     getRoleListSchema,
@@ -11,8 +11,9 @@ import { accessToFullGroupAndAdministratedGroup } from '../../modules/groupAcces
 
 export const roleRouter = router({
     addToMembership: protectedProcedure.input(addRoleToMembershipSchema).mutation(async ({ input, ctx }) => {
-        const roleName = input.type === 'existing' ? (await roleMethods.getByIdOrThrow(input.id)).name : input.name;
-        const result = await roleMethods.addToMembership(input);
+        const roleName =
+            input.type === 'existing' ? (await groupRoleMethods.getByIdOrThrow(input.id)).name : input.name;
+        const result = await groupRoleMethods.addToMembership(input);
         await accessToFullGroupAndAdministratedGroup(ctx.session.user, result.groupId);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'addRoleToMembership', {
             groupId: result.groupId,
@@ -24,8 +25,8 @@ export const roleRouter = router({
     }),
 
     removeFromMembership: protectedProcedure.input(removeRoleFromMembershipSchema).mutation(async ({ input, ctx }) => {
-        const role = await roleMethods.getByIdOrThrow(input.roleId);
-        const result = await roleMethods.removeFromMembership(input);
+        const role = await groupRoleMethods.getByIdOrThrow(input.roleId);
+        const result = await groupRoleMethods.removeFromMembership(input);
         await accessToFullGroupAndAdministratedGroup(ctx.session.user, result.groupId);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'removeRoleFromMembership', {
             groupId: result.groupId,
@@ -37,10 +38,10 @@ export const roleRouter = router({
     }),
 
     getList: protectedProcedure.input(getRoleListSchema).query(({ input }) => {
-        return roleMethods.getList(input);
+        return groupRoleMethods.getList(input);
     }),
 
     suggestions: protectedProcedure.input(getRoleSuggestionsSchema).query(({ input }) => {
-        return roleMethods.suggestions(input);
+        return groupRoleMethods.suggestions(input);
     }),
 });

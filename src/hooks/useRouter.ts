@@ -17,6 +17,8 @@ export const pages = {
 
     logs: '/logs',
     scheduledDeactivations: '/deactivations',
+
+    adminPanel: '/admin-panel',
 };
 
 export const useRouter = () => {

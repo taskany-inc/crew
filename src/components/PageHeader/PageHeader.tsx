@@ -60,6 +60,11 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
                 text: tr('Scheduled deactivations'),
                 visible: !!sessionUser.role?.viewScheduledDeactivation || !!sessionUser.role?.editScheduledDeactivation,
             },
+            {
+                path: pages.adminPanel,
+                text: tr('Admin panel'),
+                visible: !!sessionUser.role?.editRoleScopes,
+            },
         ];
 
         return items;
@@ -71,6 +76,8 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
         const { role } = sessionUser;
         if (!role) return;
         const allDescriptions: Record<AccessOperation, string> = {
+            editRoleScopes: tr('editing role scopes'),
+            editUserRole: tr('editing user roles'),
             createUser: tr('creating users'),
             editUser: tr('editing users'),
             editUserActiveState: tr('deactivating users'),

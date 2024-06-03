@@ -15,5 +15,8 @@
     "Logs": "Логи",
     "creating and editing scheduled deactivations": "создание и редактирование плановых деактиваций",
     "viewing scheduled deactivations": "просмотр плановых деактиваций",
-    "Scheduled deactivations": "Запланированные деактивации"
+    "Scheduled deactivations": "Запланированные деактивации",
+    "Admin panel": "Панель администратора",
+    "editing role scopes": "редактирование доступов ролей",
+    "editing user roles": "редактирование ролей пользователя"
 }

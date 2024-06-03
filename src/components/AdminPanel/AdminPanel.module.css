@@ -1,0 +1,4 @@
+.AdminPanelTable {
+    overflow: scroll;
+    padding: var(--gap-m);
+}

@@ -7,7 +7,7 @@ import { suggestionsTake } from '../utils/suggestions';
 import { GetRoleList, RemoveRoleFromMembership, GetRoleSuggestions, AddRoleToMembership } from './roleSchemas';
 import { tr } from './modules.i18n';
 
-export const roleMethods = {
+export const groupRoleMethods = {
     getByIdOrThrow: async (id: string) => {
         const role = await prisma.role.findUnique({ where: { id } });
         if (!role) throw new TRPCError({ code: 'NOT_FOUND', message: `No role with id ${id}` });
