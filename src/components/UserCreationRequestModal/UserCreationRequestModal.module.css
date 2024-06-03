@@ -1,0 +1,21 @@
+.InfoRow {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+}
+
+.InfoRowLabel {
+    color: var(--gray-700);
+}
+
+.ModalContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-m);
+}
+
+.ModalContentActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-s);
+}

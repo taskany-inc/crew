@@ -127,3 +127,11 @@ export const editUserRoleSchema = z.object({
     roleCode: z.string(),
 });
 export type EditUserRoleData = z.infer<typeof editUserRoleSchema>;
+
+export const createUserCreationRequestSchema = createUserSchema.extend({
+    accountingId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    groupId: z.string().min(1, { message: tr('Obligatory field') }),
+    supervisorId: z.string().min(1, { message: tr('Obligatory field') }),
+});
+
+export type CreateUserCreationRequest = z.infer<typeof createUserCreationRequestSchema>;

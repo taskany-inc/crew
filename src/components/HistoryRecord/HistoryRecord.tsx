@@ -1,6 +1,6 @@
-import { ComponentProps, ReactNode } from 'react';
-import { nullable } from '@taskany/bricks';
-import { Button, HistoryRecord as HistoryRecordBricks, Text } from '@taskany/bricks/harmony';
+import { ComponentProps, ReactNode, useCallback } from 'react';
+import { nullable, useCopyToClipboard } from '@taskany/bricks';
+import { Button, HistoryRecord as HistoryRecordBricks, Text, Tag } from '@taskany/bricks/harmony';
 import { IconDividerLineOutline } from '@taskany/icons';
 
 import { HistoryAction, HistoryEventData } from '../../modules/historyEventTypes';
@@ -10,14 +10,20 @@ import { UserListItem } from '../UserListItem/UserListItem';
 import { capitalize } from '../../utils/capitalize';
 import { GroupListItem } from '../GroupListItem';
 import { useBoolean } from '../../hooks/useBoolean';
+import { notifyPromise } from '../../utils/notifications/notifyPromise';
 
 import s from './HistoryRecord.module.css';
 import { tr } from './HistoryRecord.i18n';
 
 const BoldText = (props: ComponentProps<typeof Text>) => <Text weight="bold" as="span" {...props} />;
 
-const ToggleShowMore = ({ setVisible }: { setVisible: () => void }) => (
-    <Button size="xs" iconLeft={<IconDividerLineOutline size="xs" />} onClick={setVisible} />
+const ToggleShowMore = ({ visible, setVisible }: { visible: boolean; setVisible: () => void }) => (
+    <Button
+        size="xs"
+        view={visible ? 'checked' : 'default'}
+        iconLeft={<IconDividerLineOutline size="xs" />}
+        onClick={setVisible}
+    />
 );
 
 const ChangeListItem = ({
@@ -52,7 +58,7 @@ const componentMap: {
             <>
                 <div className={s.Row}>
                     {tr('created new user')} <UserListItem user={event.user} />
-                    <ToggleShowMore setVisible={visible.toggle} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
                 {nullable(visible.value, () => (
                     <>
@@ -80,7 +86,7 @@ const componentMap: {
             <>
                 <div className={s.Row}>
                     {tr('edited user')} <UserListItem user={event.user} />
-                    <ToggleShowMore setVisible={visible.toggle} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
                 {nullable(visible.value, () => (
                     <>
@@ -101,6 +107,90 @@ const componentMap: {
                     </>
                 ))}
             </>
+        );
+    },
+
+    CreateUserCreationRequest: ({ event }) => {
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <div className={s.Row}>
+                <>
+                    {tr('create')} {tr('request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('to create user')}{' '}
+                    <BoldText>
+                        {event.after.name} ({event.after.email})
+                    </BoldText>
+                </>
+            </div>
+        );
+    },
+
+    AcceptUserCreationRequest: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <div className={s.Row}>
+                <>
+                    {tr(event.after.status)} {tr('request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('to create user')}{' '}
+                    {nullable(event.user, (user) => (
+                        <UserListItem user={user} />
+                    ))}
+                    {nullable(event.after.comment, (comment) => (
+                        <>
+                            <div className={s.Row}>
+                                {tr('show comment')}
+                                <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                            </div>
+                            {nullable(visible.value, () => (
+                                <Text>{comment}</Text>
+                            ))}
+                        </>
+                    ))}
+                </>
+            </div>
+        );
+    },
+
+    DeclineUserCreationRequest: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <div className={s.Row}>
+                <>
+                    {tr(event.after.status)} {tr('request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('to create user')}{' '}
+                    <BoldText>
+                        {event.after.name} ({event.after.email})
+                    </BoldText>
+                    {nullable(event.after.comment, (comment) => (
+                        <>
+                            <div className={s.Row}>
+                                {tr('show comment')}
+                                <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                            </div>
+                            {nullable(visible.value, () => (
+                                <Text>{comment}</Text>
+                            ))}
+                        </>
+                    ))}
+                </>
+            </div>
         );
     },
 
@@ -156,7 +246,7 @@ const componentMap: {
             <>
                 <div className={s.Row}>
                     {tr('created team')} <GroupListItem groupId={event.group.id} groupName={event.group.name} />
-                    <ToggleShowMore setVisible={visible.toggle} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
                 {nullable(visible.value, () => (
                     <>
@@ -176,7 +266,7 @@ const componentMap: {
             <>
                 <div className={s.Row}>
                     {tr('edited team')} <GroupListItem groupId={event.group.id} groupName={event.group.name} />
-                    <ToggleShowMore setVisible={visible.toggle} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
                 {nullable(visible.value, () => (
                     <>
@@ -273,7 +363,7 @@ const componentMap: {
             <>
                 <div className={s.Row}>
                     {tr('created achievement')} <BoldText>{event.after.title}</BoldText>
-                    <ToggleShowMore setVisible={visible.toggle} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
                 {nullable(visible.value, () => (
                     <>
@@ -322,7 +412,7 @@ const componentMap: {
                 <div className={s.Row}>
                     {tr('created vacancy')} <BoldText>{event.after.name}</BoldText> {tr('in a team')}{' '}
                     <GroupListItem groupId={event.group.id} groupName={event.group.name} />
-                    <ToggleShowMore setVisible={visible.toggle} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
                 {nullable(visible.value, () => (
                     <>
@@ -346,7 +436,7 @@ const componentMap: {
                 <div className={s.Row}>
                     {tr('edited vacancy')} <BoldText>{event.after.name}</BoldText> {tr('in a team')}{' '}
                     <GroupListItem groupId={event.group.id} groupName={event.group.name} />
-                    <ToggleShowMore setVisible={visible.toggle} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
                 {nullable(visible.value, () => (
                     <>
@@ -407,7 +497,7 @@ const componentMap: {
                             : tr('transfer to {newOrganization} of', { newOrganization: event.after.newOrganization! })}
                     </BoldText>
                     <UserListItem user={event.user} />
-                    <ToggleShowMore setVisible={visible.toggle} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
                 {nullable(visible.value, () => (
                     <>

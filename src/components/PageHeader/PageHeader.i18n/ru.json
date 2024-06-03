@@ -1,8 +1,10 @@
 {
     "Teams": "Команды",
     "Users": "Пользователи",
+    "User requests": "Заявки",
     "creating users": "создание пользователей",
     "editing users": "редактирование пользователей",
+    "user creation request": "редактирование заявок на создание пользователя",
     "deactivating users": "деактивация пользователей",
     "editing user bonus points": "редактирование бонусных очков пользователей",
     "viewing user bonus points": "просмотр бонусных очков пользователей",

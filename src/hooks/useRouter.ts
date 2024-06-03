@@ -11,6 +11,7 @@ export const pages = {
     user: (userId: string) => `/users/${userId}`,
     userActivity: (userId: string) => `/users/${userId}/activity`,
     userSettings: '/users/settings',
+    userRequests: '/requests/users',
 
     signIn: '/api/auth/signin',
     signOut: '/api/auth/signout',

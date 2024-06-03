@@ -56,6 +56,7 @@ export const checkRoleForAccess = (userRole: UserRole | null, operation: AccessO
 };
 
 const scopesObj: Record<AccessOperation, true> = {
+    editUserCreationRequests: true,
     editRoleScopes: true,
     editUserRole: true,
     createUser: true,
