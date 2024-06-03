@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.58.2](https://github.com/taskany-inc/crew/compare/v0.58.1...v0.58.2) (2024-06-03)
+
+
+### Bug Fixes
+
+* user cant see his actions ([7372680](https://github.com/taskany-inc/crew/commit/7372680b22a8f7c691f1b203b296089b8bda42ca))
+
 ## [0.58.1](https://github.com/taskany-inc/crew/compare/v0.58.0...v0.58.1) (2024-05-30)
 
 
