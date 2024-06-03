@@ -74,5 +74,11 @@
     "New organizational role": "Новая организационная роль",
     "API token": "API токен",
     "Subsystem": "Подсистема",
-    "Unknown actor": "Неизвестный автор"
+    "Unknown actor": "Неизвестный автор",
+    "Denied": "отклонил(а)",
+    "Approved": "одобрил(а)",
+    "request": "заявку",
+    "to create user": "на создание пользователя",
+    "show comment": "показать комментарий",
+    "create": "создал(а)"
 }

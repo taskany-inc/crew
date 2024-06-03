@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Button,
-    CheckboxInput,
     Form,
     FormAction,
     FormActions,
@@ -18,13 +17,13 @@ import {
     nullable,
 } from '@taskany/bricks';
 import { danger0, gapM, gapS, gapXs, gray3, gray8 } from '@taskany/colors';
+import { Checkbox } from '@taskany/bricks/harmony';
 
-import { CreateUser, createUserSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
-import { useRouter } from '../../hooks/useRouter';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
+import { CreateUserCreationRequest, createUserCreationRequestSchema } from '../../modules/userSchemas';
 
 import { tr } from './CreateUserModal.i18n';
 
@@ -46,8 +45,7 @@ const StyledInputContainer = styled.div`
 `;
 
 export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
-    const { createUser } = useUserMutations();
-    const router = useRouter();
+    const { createUserCreationRequest } = useUserMutations();
 
     const {
         register,
@@ -56,8 +54,8 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
         watch,
         setValue,
         formState: { errors, isSubmitting, isSubmitSuccessful },
-    } = useForm<CreateUser>({
-        resolver: zodResolver(createUserSchema),
+    } = useForm<CreateUserCreationRequest>({
+        resolver: zodResolver(createUserCreationRequestSchema),
         defaultValues: { createExternalAccount: true },
     });
 
@@ -68,12 +66,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
     };
 
     const onSubmit = handleSubmit(async (data) => {
-        const { accountingId, ...restData } = data;
-        const newUser = await createUser({
-            accountingId: accountingId || undefined,
-            ...restData,
-        });
-        router.user(newUser.id);
+        await createUserCreationRequest(data);
 
         onClose();
     });
@@ -150,13 +143,23 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             <Text weight="bold" color={gray8}>
                                 {tr('Supervisor:')}
                             </Text>
-                            <UserComboBox onChange={(user) => setValue('supervisorId', user?.id)} />
+                            <UserComboBox onChange={(user) => user && setValue('supervisorId', user.id)} />
+                            {nullable(errors.supervisorId, (e) => (
+                                <Text size="xs" color={danger0}>
+                                    {e.message}
+                                </Text>
+                            ))}
                         </StyledInputContainer>
                         <StyledInputContainer>
                             <Text weight="bold" color={gray8}>
                                 {tr('Team:')}
                             </Text>
-                            <GroupComboBox onChange={(group) => setValue('groupId', group?.id)} />
+                            <GroupComboBox onChange={(group) => group && setValue('groupId', group.id)} />
+                            {nullable(errors.groupId, (e) => (
+                                <Text size="xs" color={danger0}>
+                                    {e.message}
+                                </Text>
+                            ))}
                         </StyledInputContainer>
                         <StyledInputContainer>
                             <Text weight="bold" color={gray8}>
@@ -176,10 +179,11 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             <Text weight="bold" color={gray8}>
                                 {tr('Create external account:')}
                             </Text>
-                            <CheckboxInput
+                            <Checkbox
                                 value="createExternalAccount"
                                 checked={createExternalAccount}
                                 onChange={onCreateExternalAccountClick}
+                                readOnly
                             />
                         </StyledInputContainer>
                     </NoWrap>

@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client';
+import { Prisma, User, UserCreationRequest } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
@@ -20,6 +20,7 @@ import {
     UserSupervisorIn,
     UserMeta,
     UserOrganizationUnit,
+    FullyUserCreationRequest,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -33,6 +34,7 @@ import {
     EditUserFields,
     UserRestApiData,
     EditUserRoleData,
+    CreateUserCreationRequest,
 } from './userSchemas';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
@@ -466,5 +468,158 @@ export const userMethods = {
             where: { id },
             data: { roleCode },
         });
+    },
+
+    createUserCreationRequest: async (data: CreateUserCreationRequest): Promise<UserCreationRequest> => {
+        const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
+
+        const supervisor = await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } });
+
+        if (!supervisor.login) {
+            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Supervisor has no login' });
+        }
+
+        if (!data.groupId) {
+            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Group is required' });
+        }
+
+        return prisma.userCreationRequest.create({
+            data: {
+                name,
+                supervisorLogin: supervisor.login,
+                email: data.email,
+                login: data.login,
+                organizationUnitId: data.organizationUnitId,
+                groupId: data.groupId,
+                createExternalAccount: Boolean(data.createExternalAccount),
+                services: {
+                    toJSON: () => [
+                        {
+                            serviceName: 'Phone',
+                            serviceId: data.phone,
+                        },
+                        {
+                            serviceName: 'Accounting system',
+                            serviceId: data.accountingId,
+                        },
+                    ],
+                },
+            },
+        });
+    },
+
+    getUsersRequests: async (): Promise<FullyUserCreationRequest[]> => {
+        const requests = await prisma.userCreationRequest.findMany({
+            where: {
+                status: null,
+            },
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+            },
+        });
+
+        return requests as FullyUserCreationRequest[];
+    },
+
+    declineUserRequest: async ({ id, comment }: { id: string; comment?: string }): Promise<UserCreationRequest> => {
+        return prisma.userCreationRequest.update({
+            where: { id },
+            data: { status: 'Denied', comment },
+        });
+    },
+
+    acceptUserRequest: async ({
+        id,
+        comment,
+    }: {
+        id: string;
+        comment?: string;
+    }): Promise<{
+        newUser: User;
+        acceptedRequest: FullyUserCreationRequest;
+    }> => {
+        const userCreationRequest = await prisma.userCreationRequest.findUnique({
+            where: { id },
+            select: {
+                login: true,
+                supervisor: true,
+                services: true,
+                name: true,
+                email: true,
+                createExternalAccount: true,
+                organizationUnitId: true,
+                groupId: true,
+            },
+        });
+
+        if (!userCreationRequest) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'User creation request not found' });
+        }
+
+        let user = null;
+
+        try {
+            user = await userMethods.getByLogin(userCreationRequest.login);
+        } catch (error) {
+            /* empty */
+        }
+
+        if (user) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'User already exists' });
+        }
+
+        const services = userCreationRequest.services as { serviceId: string; serviceName: string }[];
+
+        if (userCreationRequest.createExternalAccount) {
+            const [surname, firstName, middleName] = userCreationRequest.name.split(' ');
+
+            const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
+            const accountingId = services.find((service) => service.serviceName === 'Accounting system')?.serviceId;
+
+            if (!phone) {
+                throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Phone service is required' });
+            }
+
+            try {
+                await externalUserCreate({
+                    surname,
+                    firstName,
+                    middleName,
+                    email: userCreationRequest.email,
+                    accountingId,
+                    phone,
+                    supervisorId: userCreationRequest.supervisor.id,
+                    login: userCreationRequest.login,
+                    organizationUnitId: userCreationRequest.organizationUnitId,
+                });
+            } catch (error) {
+                throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create external user' });
+            }
+        }
+
+        const acceptedRequest = await prisma.userCreationRequest.update({
+            where: { id },
+            data: { status: 'Approved', comment },
+            include: { supervisor: true, organization: true, group: true },
+        });
+
+        const newUser = await prisma.user.create({
+            data: {
+                name: acceptedRequest.name,
+                email: acceptedRequest.email,
+                supervisorId: acceptedRequest.supervisor.id,
+                login: acceptedRequest.login,
+                memberships: { create: { groupId: acceptedRequest.groupId } },
+                organizationUnitId: acceptedRequest.organizationUnitId,
+                services: { createMany: { data: services } },
+            },
+        });
+
+        return {
+            newUser,
+            acceptedRequest: acceptedRequest as FullyUserCreationRequest,
+        };
     },
 };

@@ -74,5 +74,11 @@
     "New organizational role": "",
     "API token": "",
     "Subsystem": "",
-    "Unknown actor": ""
+    "Unknown actor": "",
+    "Denied": "denied",
+    "Approved": "approved",
+    "request": "",
+    "to create user": "",
+    "show comment": "",
+    "create": ""
 }

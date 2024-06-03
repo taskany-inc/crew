@@ -56,6 +56,11 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
 
             { path: pages.logs, text: tr('Logs'), visible: !!sessionUser.role?.viewHistoryEvents },
             {
+                path: pages.userRequests,
+                text: tr('User requests'),
+                visible: !!sessionUser.role?.editUserCreationRequests,
+            },
+            {
                 path: pages.scheduledDeactivations,
                 text: tr('Scheduled deactivations'),
                 visible: !!sessionUser.role?.viewScheduledDeactivation || !!sessionUser.role?.editScheduledDeactivation,
@@ -80,6 +85,7 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             editUserRole: tr('editing user roles'),
             createUser: tr('creating users'),
             editUser: tr('editing users'),
+            editUserCreationRequests: tr('user creation request'),
             editUserActiveState: tr('deactivating users'),
             editUserAchievements: tr('giving out achievements'),
             editUserBonuses: tr('editing user bonus points'),

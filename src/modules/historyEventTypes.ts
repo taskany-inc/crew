@@ -29,6 +29,57 @@ interface HistoryEventsData {
             organizationalUnitId?: string;
         };
     };
+    createUserCreationRequest: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: false;
+        data: {
+            id: string;
+            status: null;
+            name: string;
+            email: string;
+            login: string;
+            supervisorLogin: string;
+            organizationUnitId: string;
+            groupId: string;
+            services?: { serviceName: string; serviceId: string }[] | null;
+        };
+    };
+    acceptUserCreationRequest: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            id: string;
+            status: 'Approved';
+            name: string;
+            email: string;
+            login: string;
+            supervisorLogin: string;
+            organizationUnitId: string;
+            groupId: string;
+            comment?: string;
+            services?: { serviceName: string; serviceId: string }[] | null;
+            active: boolean;
+        };
+    };
+    declineUserCreationRequest: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: false;
+        data: {
+            id: string;
+            status: 'Denied';
+            name: string;
+            email: string;
+            login: string;
+            supervisorLogin: string;
+            organizationUnitId: string;
+            groupId: string;
+            comment?: string;
+            services?: { serviceName: string; serviceId: string }[] | null;
+        };
+    };
     editUserActiveState: {
         requireGroupId: false;
         requireUserId: true;
@@ -215,7 +266,7 @@ export type HistoryEventData<
     E extends HistoryEventsData[A] = HistoryEventsData[A],
 > = {
     id: string;
-    actingUser?: { id: string; name: string | null; email: string } | null;
+    actingUser?: { id: string; name: string | null; email: string; active?: boolean } | null;
     actingToken?: { description: string } | null;
     actingSubsystem?: string | null;
     group: E['requireGroupId'] extends true ? { id: string; name: string } : null;

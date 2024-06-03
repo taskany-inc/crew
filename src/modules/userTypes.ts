@@ -1,4 +1,13 @@
-import { Group, Membership, Role, User, UserAchievement, Achievement, OrganizationUnit } from '@prisma/client';
+import {
+    Group,
+    Membership,
+    Role,
+    User,
+    UserAchievement,
+    Achievement,
+    OrganizationUnit,
+    UserCreationRequest,
+} from '@prisma/client';
 
 import { Nullish } from '../utils/types';
 import { Theme } from '../utils/theme';
@@ -55,4 +64,11 @@ export interface UserAchievements {
 
 export interface UserOrganizationUnit {
     organizationUnit: Nullish<OrganizationUnit>;
+}
+
+export interface FullyUserCreationRequest extends UserCreationRequest {
+    supervisor: User;
+    organization: OrganizationUnit;
+    group: Group;
+    services: Record<'serviceName' | 'serviceId', string>[] | null;
 }

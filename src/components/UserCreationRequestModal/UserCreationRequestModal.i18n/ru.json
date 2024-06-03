@@ -1,0 +1,14 @@
+{
+    "Name": "Имя",
+    "Login": "Логин",
+    "Email": "Почта",
+    "Organization": "Организация",
+    "Group": "Команда",
+    "Supervisor": "Руководитель",
+    "Request for creating user": "Заявка на создание пользователя",
+    "General information": "Общая информация",
+    "Services": "Сервисы",
+    "Comment (optional)": "Комментарий (необязательно)",
+    "Decline": "Отклонить",
+    "Accept": "Принять"
+}

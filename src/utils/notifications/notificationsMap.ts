@@ -9,7 +9,17 @@ export interface NotificationEvents {
 type NamespacedAction<T extends string, A extends string> = `${T}${A}`;
 
 export type NotificationNamespaces =
-    | NamespacedAction<'user', 'Create' | 'Update' | 'AddToGroup' | 'RemoveFromGroup' | 'EditSettings'>
+    | NamespacedAction<
+          'user',
+          | 'Create'
+          | 'Update'
+          | 'AddToGroup'
+          | 'RemoveFromGroup'
+          | 'EditSettings'
+          | 'CreateRequest'
+          | 'DeclineRequest'
+          | 'AcceptRequest'
+      >
     | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move' | 'AddAdmin' | 'RemoveAdmin'>
     | NamespacedAction<'vacancy', 'Create' | 'Update' | 'Archive'>
     | NamespacedAction<'role', 'AddToMembership' | 'RemoveFromMembership'>
@@ -35,6 +45,18 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         userCreate: {
             success: tr('Voila! User is here 🎉'),
             loading: tr('Creating the user...'),
+        },
+        userCreateRequest: {
+            success: tr('Voila! User creation request is created 🎉'),
+            loading: tr('Creating a user creation request...'),
+        },
+        userAcceptRequest: {
+            success: tr('Voila! User is here 🎉'),
+            loading: tr('Creating the user...'),
+        },
+        userDeclineRequest: {
+            success: tr('User creation request was declined'),
+            loading: tr('Declining a user creation request...'),
         },
         userUpdate: {
             success: tr('User is updated'),

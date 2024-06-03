@@ -56,5 +56,9 @@
     "Removing the user...": "",
     "Role is changed": "",
     "Changing role...": "",
-    "An error occurred while changing role": ""
+    "An error occurred while changing role": "",
+    "Voila! User creation request is created 🎉": "",
+    "Creating a user creation request...": "",
+    "User creation request was declined": "",
+    "Declining a user creation request...": ""
 }
