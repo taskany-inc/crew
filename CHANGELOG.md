@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.60.0](https://github.com/taskany-inc/crew/compare/v0.59.0...v0.60.0) (2024-06-06)
+
+
+### Features
+
+* add user requests page to approve/decline ([f02ef75](https://github.com/taskany-inc/crew/commit/f02ef7590879e9019001d08ed47feb4977d8514c))
+
 ## [0.59.0](https://github.com/taskany-inc/crew/compare/v0.58.1...v0.59.0) (2024-06-03)
 
 
