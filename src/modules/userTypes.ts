@@ -7,6 +7,7 @@ import {
     Achievement,
     OrganizationUnit,
     UserCreationRequest,
+    UserRole,
 } from '@prisma/client';
 
 import { Nullish } from '../utils/types';
@@ -71,4 +72,8 @@ export interface FullyUserCreationRequest extends UserCreationRequest {
     organization: OrganizationUnit;
     group: Group;
     services: Record<'serviceName' | 'serviceId', string>[] | null;
+}
+
+export interface UserRoleData {
+    role: Nullish<UserRole>;
 }
