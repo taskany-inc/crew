@@ -17,7 +17,7 @@ import {
 } from '../../modules/userSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
-import { accessToFullGroupAndAdministratedGroup } from '../../modules/groupAccess';
+import { groupAccess } from '../../modules/groupAccess';
 
 export const userRouter = router({
     create: protectedProcedure.input(createUserSchema).mutation(async ({ input, ctx }) => {
@@ -50,7 +50,7 @@ export const userRouter = router({
     }),
 
     addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(async ({ input, ctx }) => {
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, input.groupId);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
 
         const result = await userMethods.addToGroup(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'addUserToGroup', {
@@ -63,7 +63,7 @@ export const userRouter = router({
     }),
 
     removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(async ({ input, ctx }) => {
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, input.groupId);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
 
         const result = await userMethods.removeFromGroup(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'removeUserFromGroup', {

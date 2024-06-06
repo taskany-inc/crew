@@ -45,7 +45,7 @@ export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
             </StyledMembershipList>
 
             {/* TODO: show only groups that user can edit */}
-            {/* https://github.com/taskany-inc/crew/issues/596 */}
+            {/* https://github.com/taskany-inc/crew/issues/842 */}
             <Restricted
                 visible={!!(sessionUser.role?.editFullGroupTree || sessionUser.role?.editAdministratedGroupTree)}
             >

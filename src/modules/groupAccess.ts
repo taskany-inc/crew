@@ -1,12 +1,5 @@
 import { prisma } from '../utils/prisma';
-import {
-    AccessCheckResult,
-    accessCheckAllOf,
-    accessCheckAnyOf,
-    allowed,
-    checkRoleForAccess,
-    notAllowed,
-} from '../utils/access';
+import { AccessCheckResult, allowed, checkRoleForAccess, notAllowed } from '../utils/access';
 import { SessionUser } from '../utils/auth';
 
 import { tr } from './modules.i18n';
@@ -33,24 +26,16 @@ const checkGroupAdmin = async (groupId: string, userId: string) => {
 
 export const groupAccess = {
     isEditable: async (sessionUser: SessionUser, groupId: string): Promise<AccessCheckResult> => {
-        if (sessionUser.role?.editFullGroupTree) {
+        const fullAccess = checkRoleForAccess(sessionUser.role, 'editFullGroupTree');
+
+        if (fullAccess.allowed) {
             return allowed;
         }
-        if (sessionUser.role?.editAdministratedGroupTree) {
-            const checkAdminCount = await checkGroupAdmin(groupId, sessionUser.id);
-            if (checkAdminCount) return allowed;
-        }
+
+        const checkAdminCount = await checkGroupAdmin(groupId, sessionUser.id);
+
+        if (checkAdminCount) return allowed;
 
         return notAllowed(tr('Only admins and supervisors can edit groups'));
     },
-};
-
-export const accessToFullGroupAndAdministratedGroup = async (sessionUser: SessionUser, groupId: string) => {
-    accessCheckAnyOf(
-        checkRoleForAccess(sessionUser.role, 'editFullGroupTree'),
-        accessCheckAllOf(
-            checkRoleForAccess(sessionUser.role, 'editAdministratedGroupTree'),
-            await groupAccess.isEditable(sessionUser, groupId),
-        ),
-    );
 };
