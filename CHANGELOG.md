@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.60.0](https://github.com/taskany-inc/crew/compare/v0.59.0...v0.60.0) (2024-06-06)
+
+
+### Features
+
+* add user requests page to approve/decline ([f02ef75](https://github.com/taskany-inc/crew/commit/f02ef7590879e9019001d08ed47feb4977d8514c))
+* scheduled deactivations edit and cancelation ([2e31d28](https://github.com/taskany-inc/crew/commit/2e31d28516dcf63aa5c218b759929567999c225b))
+
+
+### Bug Fixes
+
+* add history events to addUserToGroupAdmin, removeUserFromGroupAdmin actions ([d93bdd0](https://github.com/taskany-inc/crew/commit/d93bdd00a1bc6f597c527d104c048e58083e7128))
+* display the selected role in the combo box before making a change ([9584257](https://github.com/taskany-inc/crew/commit/9584257136c66e60bfc87a16f82e7da99a1771f8))
+* return access to administrators ([7b7f28b](https://github.com/taskany-inc/crew/commit/7b7f28b5693c22e3566f2d291cb5bc23378d15f7))
+* user cant see team settings page without rights ([76fca11](https://github.com/taskany-inc/crew/commit/76fca1174cc7b6287adf53d9ded8bf791e2244cd))
+
 ## [0.59.0](https://github.com/taskany-inc/crew/compare/v0.58.1...v0.59.0) (2024-06-03)
 
 
