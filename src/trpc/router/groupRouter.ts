@@ -12,8 +12,8 @@ import {
 import { groupMethods } from '../../modules/groupMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
-import { accessToFullGroupAndAdministratedGroup, groupAccess } from '../../modules/groupAccess';
-import { accessCheckAllOf, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
+import { groupAccess } from '../../modules/groupAccess';
+import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 
 export const groupRouter = router({
     create: protectedProcedure.input(createGroupSchema).mutation(async ({ input, ctx }) => {
@@ -38,7 +38,7 @@ export const groupRouter = router({
     }),
 
     edit: protectedProcedure.input(editGroupSchema).mutation(async ({ input, ctx }) => {
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, input.groupId);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
 
         const groupBefore = await groupMethods.getByIdOrThrow(input.groupId);
         const result = await groupMethods.edit(input);
@@ -66,7 +66,7 @@ export const groupRouter = router({
     }),
 
     archive: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, input);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, input));
 
         const result = await groupMethods.archive(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'archiveGroup', {
@@ -79,7 +79,7 @@ export const groupRouter = router({
     }),
 
     delete: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, input);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, input));
 
         const result = await groupMethods.delete(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'deleteGroup', {
@@ -92,7 +92,7 @@ export const groupRouter = router({
     }),
 
     move: protectedProcedure.input(moveGroupSchema).mutation(async ({ input, ctx }) => {
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, input.id);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, input.id));
 
         const groupBefore = await groupMethods.getByIdOrThrow(input.id);
         const result = await groupMethods.move(input);
@@ -149,10 +149,7 @@ export const groupRouter = router({
     addUserToGroupAdmin: protectedProcedure
         .input(addOrRemoveUserFromGroupAdminsSchema)
         .mutation(async ({ input, ctx }) => {
-            accessCheckAllOf(
-                (checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-                await groupAccess.isEditable(ctx.session.user, input.groupId)),
-            );
+            accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
 
             return groupMethods.addUserToGroupAdmins(input);
         }),
@@ -164,10 +161,7 @@ export const groupRouter = router({
     removeUserFromGroupAdmin: protectedProcedure
         .input(addOrRemoveUserFromGroupAdminsSchema)
         .mutation(async ({ input, ctx }) => {
-            accessCheckAllOf(
-                (checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-                await groupAccess.isEditable(ctx.session.user, input.groupId)),
-            );
+            accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
 
             const result = await groupMethods.removeUserFromGroupAdmins(input);
             return result;

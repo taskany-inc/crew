@@ -7,14 +7,15 @@ import {
     getRoleSuggestionsSchema,
 } from '../../modules/roleSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
-import { accessToFullGroupAndAdministratedGroup } from '../../modules/groupAccess';
+import { groupAccess } from '../../modules/groupAccess';
+import { accessCheck } from '../../utils/access';
 
 export const roleRouter = router({
     addToMembership: protectedProcedure.input(addRoleToMembershipSchema).mutation(async ({ input, ctx }) => {
         const roleName =
             input.type === 'existing' ? (await groupRoleMethods.getByIdOrThrow(input.id)).name : input.name;
         const result = await groupRoleMethods.addToMembership(input);
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, result.groupId);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, result.groupId));
         await historyEventMethods.create({ user: ctx.session.user.id }, 'addRoleToMembership', {
             groupId: result.groupId,
             userId: result.userId,
@@ -27,7 +28,7 @@ export const roleRouter = router({
     removeFromMembership: protectedProcedure.input(removeRoleFromMembershipSchema).mutation(async ({ input, ctx }) => {
         const role = await groupRoleMethods.getByIdOrThrow(input.roleId);
         const result = await groupRoleMethods.removeFromMembership(input);
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, result.groupId);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, result.groupId));
         await historyEventMethods.create({ user: ctx.session.user.id }, 'removeRoleFromMembership', {
             groupId: result.groupId,
             userId: result.userId,

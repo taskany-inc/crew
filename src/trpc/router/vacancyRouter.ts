@@ -1,19 +1,17 @@
 import { z } from 'zod';
 
-import { accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 import { router, protectedProcedure } from '../trpcBackend';
 import { createVacancySchema, editVacancySchema, getVacancyListSchema } from '../../modules/vacancySchemas';
 import { vacancyMethods } from '../../modules/vacancyMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
-import { accessToFullGroupAndAdministratedGroup } from '../../modules/groupAccess';
+import { groupAccess } from '../../modules/groupAccess';
+import { accessCheck } from '../../utils/access';
 
 export const vacancyRouter = router({
     create: protectedProcedure.input(createVacancySchema).mutation(async ({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
-            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-        );
+        accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
+
         const result = await vacancyMethods.create(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'createVacancy', {
             groupId: result.groupId,
@@ -34,11 +32,10 @@ export const vacancyRouter = router({
     }),
 
     edit: protectedProcedure.input(editVacancySchema).mutation(async ({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
-            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-        );
         const vacancyBefore = await vacancyMethods.getByIdOrThrow(input.id);
+
+        accessCheck(await groupAccess.isEditable(ctx.session.user, vacancyBefore.groupId));
+
         const result = await vacancyMethods.edit(input);
         const { before, after } = dropUnchangedValuesFromEvent(
             {
@@ -71,7 +68,7 @@ export const vacancyRouter = router({
 
     archive: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
         const vacancy = await vacancyMethods.getById(input);
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, vacancy.groupId);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, vacancy.groupId));
         const result = await vacancyMethods.archive(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'archiveVacancy', {
             groupId: result.groupId,
@@ -84,7 +81,7 @@ export const vacancyRouter = router({
 
     unarchive: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
         const vacancy = await vacancyMethods.getById(input);
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, vacancy.groupId);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, vacancy.groupId));
         const result = await vacancyMethods.unarchive(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'unarchiveVacancy', {
             groupId: result.groupId,
@@ -97,7 +94,7 @@ export const vacancyRouter = router({
 
     delete: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
         const vacancy = await vacancyMethods.getById(input);
-        await accessToFullGroupAndAdministratedGroup(ctx.session.user, vacancy.groupId);
+        accessCheck(await groupAccess.isEditable(ctx.session.user, vacancy.groupId));
         const result = await vacancyMethods.delete(input);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'deleteVacancy', {
             groupId: result.groupId,
