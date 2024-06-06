@@ -71,5 +71,9 @@
     "Transfer to, role": "Куда переходит, роль",
     "Unit": "Ставка",
     "Obligatory field": "Обязательное поле",
-    "User is already in group administrators": "Пользователь уже является администратором группы"
+    "User is already in group administrators": "Пользователь уже является администратором группы",
+    "Cancel retirement of {userName}": "Отменить запланированное увольнение {userName}",
+    "Cancel transfer of {userName}": "Отменить запланированный перевод {userName}",
+    "Update on retirement of": "Обновления в увольнении",
+    "Update on transfer from": "Обновления в переводе"
 }

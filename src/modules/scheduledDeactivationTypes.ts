@@ -1,4 +1,6 @@
-import { User } from '@prisma/client';
+import { User, OrganizationUnit } from '@prisma/client';
+
+import { Nullish } from '../utils/types';
 
 export interface AdditionalDevice {
     name: string;
@@ -12,3 +14,13 @@ export interface ScheduledDeactivationUser {
 export interface ScheduledDeactivationCreator {
     creator: User;
 }
+
+export interface ScheduledDeactivationOrganizationUnit {
+    organizationUnit: Nullish<OrganizationUnit>;
+}
+
+export interface ScheduledDeactivationNewOrganizationUnit {
+    newOrganizationUnit: Nullish<OrganizationUnit>;
+}
+
+export const scheduleDeactivateType = ['retirement', 'transfer'] as const;

@@ -5,7 +5,7 @@ import { tr } from './modules.i18n';
 const baseSchema = z.object({
     userId: z.string(),
     deactivateDate: z.date({ required_error: tr('Obligatory field') }),
-    organization: z
+    organizationUnitId: z
         .string({ required_error: tr('Obligatory field') })
         .min(1, { message: tr('Obligatory field', { min: 1 }) }),
     teamLead: z
@@ -32,7 +32,7 @@ export const createScheduledDeactivationSchema = z
             type: z.literal('transfer'),
 
             disableAccount: z.boolean(),
-            newOrganization: z
+            newOrganizationUnitId: z
                 .string({ required_error: tr('Obligatory field') })
                 .min(1, { message: tr('Obligatory field', { min: 1 }) }),
             newOrganizationRole: z
@@ -55,8 +55,8 @@ export const createScheduledDeactivationSchema = z
         }),
         z.object({
             type: z.literal('retirement'),
-            disableAccount: z.literal(true),
-            newOrganization: z.string().optional(),
+            disableAccount: z.boolean(),
+            newOrganizationUnitId: z.string().optional(),
             newOrganizationRole: z.string().optional(),
             newTeamLead: z.string().optional(),
             organizationRole: z.string().optional(),
@@ -69,3 +69,14 @@ export const createScheduledDeactivationSchema = z
     .and(baseSchema);
 
 export type CreateScheduledDeactivation = z.infer<typeof createScheduledDeactivationSchema>;
+
+export const editScheduledDeactivationSchema = z.object({ id: z.string() }).and(createScheduledDeactivationSchema);
+
+export type EditScheduledDeactivation = z.infer<typeof editScheduledDeactivationSchema>;
+
+export const cancelScheduledDeactivationSchema = z.object({
+    id: z.string(),
+    comment: z.string().min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
+});
+
+export type CancelScheduledDeactivation = z.infer<typeof cancelScheduledDeactivationSchema>;

@@ -202,8 +202,12 @@ model ScheduledDeactivation {
 
   location String
 
-  organization    String
-  newOrganization String?
+  organization          String?
+  newOrganization       String?
+  organizationUnitId    String?
+  organizationUnit      OrganizationUnit? @relation("oldOrganizationUnit", fields: [organizationUnitId], references: [id])
+  newOrganizationUnitId String?
+  newOrganizationUnit   OrganizationUnit? @relation("newOrganizationUnit", fields: [newOrganizationUnitId], references: [id])
 
   teamLead    String
   newTeamLead String?
@@ -222,12 +226,13 @@ model ScheduledDeactivation {
 
   comments String?
 
-  unitId Int?
+  unitId Int
 
   transferPercentage Int?
 
-  canceled   Boolean   @default(false)
-  canceledAt DateTime?
+  canceled      Boolean   @default(false)
+  canceledAt    DateTime?
+  cancelComment String?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -272,9 +277,11 @@ model OrganizationUnit {
   description String?
   apiToken    ApiToken[]
 
+  userCreationRequests UserCreationRequest[]
   users                User[]
   userServices         UserService[]
-  userCreationRequests UserCreationRequest[]
+  oldOrganizationUnit  ScheduledDeactivation[] @relation("oldOrganizationUnit")
+  newOrganizationUnit  ScheduledDeactivation[] @relation("newOrganizationUnit")
 }
 
 model Group {

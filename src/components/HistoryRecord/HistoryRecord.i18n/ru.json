@@ -60,10 +60,10 @@
     "unarchived vacancy": "разархивировал(а) вакансию",
     "deleted vacancy": "удалил(а) вакансию",
     "Hidden": "Скрытый",
-    "created scheduled": "создал(а) плановое",
+    "created scheduled": "создал(а) плановое(ый)",
     "retirement of": "увольнение",
     "transfer to {newOrganization} of": "перевод в {newOrganization}",
-    "Deactiation date": "Дата деактивации",
+    "Deactivation date": "Дата деактивации",
     "Organization": "Организация",
     "New Organization": "Новая организация",
     "TeamLead": "Тимлид",
@@ -80,5 +80,10 @@
     "request": "заявку",
     "to create user": "на создание пользователя",
     "show comment": "показать комментарий",
-    "create": "создал(а)"
+    "create": "создал(а)",
+    "canceled scheduled": "отменил(а) плановое(ый)",
+    "transfer of": "перевод в",
+    "with comment: ": "с комментарием",
+    "edited scheduled": "отредактировал(а) плановое(ый)",
+    "Type": "Тип"
 }

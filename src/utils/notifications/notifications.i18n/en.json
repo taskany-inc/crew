@@ -47,7 +47,7 @@
     "Successfully copied": "",
     "An error occurred while copying": "",
     "Copying...": "",
-    "Profile deactivated is scheduled!": "",
+    "Profile deactivation is scheduled!": "",
     "Scheduling profile deactivation...": "",
     "An error occurred while scheduling profile deactivation": "",
     "Voila! User is added to group administrators 🎉": "",
@@ -60,5 +60,11 @@
     "Voila! User creation request is created 🎉": "",
     "Creating a user creation request...": "",
     "User creation request was declined": "",
-    "Declining a user creation request...": ""
+    "Declining a user creation request...": "",
+    "Profile deactivation is edited!": "",
+    "Editing profile deactivation...": "",
+    "An error occurred while editing profile deactivation": "",
+    "Profile deactivation is canceled!": "",
+    "Canceling profile deactivation...": "",
+    "An error occurred while canceling profile deactivation": ""
 }

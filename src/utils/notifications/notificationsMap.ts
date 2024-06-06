@@ -26,7 +26,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'service', 'AddToUser' | 'Delete'>
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'achievement', 'Give'>
-    | NamespacedAction<'scheduledDeactivation', 'Create'>
+    | NamespacedAction<'scheduledDeactivation', 'Create' | 'Edit' | 'Cancel'>
     | NamespacedAction<'bonusPoints', 'Change'>
     | 'addScopeToRole'
     | 'sendFeedback'
@@ -145,7 +145,7 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         },
 
         scheduledDeactivationCreate: {
-            success: tr('Profile deactivated is scheduled!'),
+            success: tr('Profile deactivation is scheduled!'),
             loading: tr('Scheduling profile deactivation...'),
             error: tr('An error occurred while scheduling profile deactivation'),
         },
@@ -161,6 +161,16 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             success: tr('Role is changed'),
             loading: tr('Changing role...'),
             error: tr('An error occurred while changing role'),
+        },
+        scheduledDeactivationEdit: {
+            success: tr('Profile deactivation is edited!'),
+            loading: tr('Editing profile deactivation...'),
+            error: tr('An error occurred while editing profile deactivation'),
+        },
+        scheduledDeactivationCancel: {
+            success: tr('Profile deactivation is canceled!'),
+            loading: tr('Canceling profile deactivation...'),
+            error: tr('An error occurred while canceling profile deactivation'),
         },
     };
 
