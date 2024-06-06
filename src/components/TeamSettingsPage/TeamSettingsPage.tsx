@@ -18,6 +18,7 @@ import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { GroupListItem } from '../GroupListItem';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { GroupAdmins } from '../GroupAdmins/GroupAdmins';
+import NotFound from '../../pages/404';
 
 import { tr } from './TeamSettingsPage.i18n';
 
@@ -215,6 +216,8 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
 
 export const TeamSettingsPage = ({ teamId }: TeamSettingsPageProps) => {
     const groupQuery = trpc.group.getById.useQuery(teamId);
-    if (!groupQuery.data) return null;
+
+    if (!groupQuery.data || !groupQuery.data.meta.isEditable) return <NotFound />;
+
     return <TeamSettingsPageBase group={groupQuery.data} />;
 };
