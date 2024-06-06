@@ -142,6 +142,18 @@ interface HistoryEventsData {
         requireBefore: true;
         data: string | undefined;
     };
+    addUserToGroupAdmin: {
+        requireGroupId: true;
+        requireUserId: true;
+        requireBefore: false;
+        data: undefined;
+    };
+    removeUserFromGroupAdmin: {
+        requireGroupId: true;
+        requireUserId: true;
+        requireBefore: false;
+        data: undefined;
+    };
     addRoleToMembership: {
         requireGroupId: true;
         requireUserId: true;

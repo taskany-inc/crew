@@ -151,7 +151,16 @@ export const groupRouter = router({
         .mutation(async ({ input, ctx }) => {
             accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
 
-            return groupMethods.addUserToGroupAdmins(input);
+            const result = await groupMethods.addUserToGroupAdmins(input);
+
+            await historyEventMethods.create({ user: ctx.session.user.id }, 'addUserToGroupAdmin', {
+                groupId: result.groupId,
+                userId: result.userId,
+                before: undefined,
+                after: undefined,
+            });
+
+            return result;
         }),
 
     getGroupAdmins: protectedProcedure.input(z.string()).query(async ({ input }) => {
@@ -164,6 +173,14 @@ export const groupRouter = router({
             accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
 
             const result = await groupMethods.removeUserFromGroupAdmins(input);
+
+            await historyEventMethods.create({ user: ctx.session.user.id }, 'removeUserFromGroupAdmin', {
+                groupId: result.groupId,
+                userId: result.userId,
+                before: undefined,
+                after: undefined,
+            });
+
             return result;
         }),
 });

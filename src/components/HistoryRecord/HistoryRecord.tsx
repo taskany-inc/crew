@@ -319,6 +319,24 @@ const componentMap: {
         );
     },
 
+    AddUserToGroupAdmin: ({ event }) => {
+        return (
+            <div className={s.Row}>
+                {tr('added admin')} <UserListItem user={event.user} /> {tr('to the team')}{' '}
+                <GroupListItem groupId={event.group.id} groupName={event.group.name} />
+            </div>
+        );
+    },
+
+    RemoveUserFromGroupAdmin: ({ event }) => {
+        return (
+            <div className={s.Row}>
+                {tr('removed admin')} <UserListItem user={event.user} /> {tr('from the team')}{' '}
+                <GroupListItem groupId={event.group.id} groupName={event.group.name} />
+            </div>
+        );
+    },
+
     AddRoleToMembership: ({ event }) => {
         return (
             <div className={s.Row}>
