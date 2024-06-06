@@ -170,7 +170,7 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
                         />
                     </Restricted>
                     <Restricted visible={!!sessionUser.role?.editUserRole}>
-                        <UserRoleComboBox roleName={user.roleCode ?? undefined} onChange={handleEditUserRole} />
+                        <UserRoleComboBox role={user.role} onChange={handleEditUserRole} />
                     </Restricted>
                 </EditButtonsWrapper>
             </StyledHeader>

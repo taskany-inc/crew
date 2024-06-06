@@ -21,6 +21,7 @@ import {
     UserMeta,
     UserOrganizationUnit,
     FullyUserCreationRequest,
+    UserRoleData,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -233,7 +234,8 @@ export const userMethods = {
             UserAchievements &
             UserSupervisorOf &
             UserSupervisorIn &
-            UserOrganizationUnit
+            UserOrganizationUnit &
+            UserRoleData
     > => {
         const user = await prisma.user.findUnique({
             where: { id },
@@ -250,6 +252,7 @@ export const userMethods = {
                 supervisorIn: { where: { archived: false } },
                 organizationUnit: true,
                 groupAdmins: true,
+                role: true,
             },
         });
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });
