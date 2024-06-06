@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { User, OrganizationUnit } from '@prisma/client';
+import { OrganizationUnit, ScheduledDeactivation } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Button,
@@ -29,15 +29,21 @@ import {
     CreateScheduledDeactivation,
     createScheduledDeactivationSchema,
 } from '../../modules/scheduledDeactivationSchemas';
-import { UserSupervisor } from '../../modules/userTypes';
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { Nullish } from '../../utils/types';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { useScheduledDeactivation } from '../../modules/scheduledDeactivationHooks';
 import { DeviceInScheduleDeactivationForm } from '../DeviceInScheduleDeactivation/DeviceInScheduleDeactivation';
 import { trpc } from '../../trpc/trpcClient';
+import {
+    AdditionalDevice,
+    ScheduledDeactivationNewOrganizationUnit,
+    ScheduledDeactivationOrganizationUnit,
+    ScheduledDeactivationUser,
+    scheduleDeactivateType,
+} from '../../modules/scheduledDeactivationTypes';
 
-import { tr } from './NewScheduleDeactivationForm.i18n';
+import { tr } from './ScheduleDeactivationForm.i18n';
 
 const StyledInputContainer = styled.div`
     display: flex;
@@ -60,52 +66,77 @@ const StyledFormInput = styled(FormInput)`
     width: 60%;
 `;
 
-interface NewScheduleDeactivationFormProps {
-    user: User & UserSupervisor;
+interface ScheduleDeactivationFormProps {
+    userId: string;
     visible: boolean;
     onClose: VoidFunction;
     organization?: Nullish<OrganizationUnit>;
     orgGroupName?: string;
     orgRoles?: string;
+    scheduledDeactivation?: ScheduledDeactivation &
+        ScheduledDeactivationUser &
+        ScheduledDeactivationOrganizationUnit &
+        ScheduledDeactivationNewOrganizationUnit;
 }
 
-interface DefaultValues {
-    userId: string;
-    email: string;
-    teamLead?: string;
-    organization?: string;
-    organizationalGroup?: string;
-    organizationRole?: string;
-}
-
-export const NewScheduleDeactivationForm = ({
-    user,
+export const ScheduleDeactivationForm = ({
+    userId,
     visible,
     onClose,
     organization,
     orgGroupName,
     orgRoles,
-}: NewScheduleDeactivationFormProps) => {
-    const { createScheduledDeactivation } = useScheduledDeactivation();
-
+    scheduledDeactivation,
+}: ScheduleDeactivationFormProps) => {
+    const { createScheduledDeactivation, editScheduledDeactivation } = useScheduledDeactivation();
     const { asPath } = useRouter();
+    const userQuery = trpc.user.getById.useQuery(userId);
+    const user = userQuery.data;
 
-    const userDeviceQuery = trpc.device.getUserDevices.useQuery(user.id);
+    const userDeviceQuery = trpc.device.getUserDevices.useQuery(userId);
 
     const userDevices = userDeviceQuery.data || [];
-    const initTestingDevices = userDevices.map((device) => ({ name: device.deviceName, id: device.deviceId }));
+    const initTestingDevices: AdditionalDevice[] = scheduledDeactivation?.testingDevices
+        ? JSON.parse(scheduledDeactivation.testingDevices as string)
+        : userDevices.map((device) => ({ name: device.deviceName, id: device.deviceId }));
 
-    const userServiceQuery = trpc.service.getUserServices.useQuery(user.id);
+    const initDevices: AdditionalDevice[] =
+        (scheduledDeactivation?.devices && JSON.parse(scheduledDeactivation.devices as string)) || [];
+
+    const userServiceQuery = trpc.service.getUserServices.useQuery(userId);
     const phone = userServiceQuery.data?.find((s) => s.serviceName === 'Phone')?.serviceId;
 
-    const defaultValues: DefaultValues = {
-        userId: user.id,
-        email: user.email,
-        teamLead: user.supervisor?.name || undefined,
-        organization: organization ? getOrgUnitTitle(organization) : undefined,
-        organizationalGroup: orgGroupName,
-        organizationRole: orgRoles,
+    const defaultValuesBase = {
+        userId,
+        deactivateDate: scheduledDeactivation?.deactivateDate || undefined,
+        email: scheduledDeactivation?.email || user?.email,
+        teamLead: scheduledDeactivation?.teamLead || user?.supervisor?.name || undefined,
+        organizationUnitId: scheduledDeactivation?.organizationUnitId || organization?.id,
+        organization: scheduledDeactivation?.organization || (organization ? getOrgUnitTitle(organization) : undefined),
+        organizationalGroup: scheduledDeactivation?.organizationalGroup || orgGroupName,
+        organizationRole: scheduledDeactivation?.organizationRole || orgRoles,
+        newOrganizationUnitId: scheduledDeactivation?.newOrganizationUnitId || undefined,
+        newOrganizationalGroup: scheduledDeactivation?.newOrganizationalGroup || undefined,
+        newOrganizationRole: scheduledDeactivation?.newOrganizationRole || undefined,
+        newTeamLead: scheduledDeactivation?.newTeamLead || undefined,
+        phone: scheduledDeactivation?.phone || undefined,
+        workMode: scheduledDeactivation?.workMode || undefined,
+        workModeComment: scheduledDeactivation?.workModeComment || undefined,
+        comments: scheduledDeactivation?.comments || undefined,
+        location: scheduledDeactivation?.location || undefined,
+        unitId: scheduledDeactivation?.unitId || undefined,
+        devices: initDevices,
+        testingDevices: initTestingDevices,
     };
+    const defaultValues =
+        scheduledDeactivation?.type === scheduleDeactivateType[1]
+            ? {
+                  ...defaultValuesBase,
+                  disableAccount: scheduledDeactivation.disableAccount,
+                  type: scheduleDeactivateType[1],
+                  transferPercentage: scheduledDeactivation.transferPercentage!,
+              }
+            : { ...defaultValuesBase, type: scheduleDeactivateType[0], disableAccount: true };
     const {
         reset,
         handleSubmit,
@@ -115,16 +146,18 @@ export const NewScheduleDeactivationForm = ({
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateScheduledDeactivation>({
         resolver: zodResolver(createScheduledDeactivationSchema),
-        defaultValues: { ...defaultValues, type: 'retirement', disableAccount: true },
+        defaultValues,
     });
 
     useEffect(() => {
-        phone && setValue('phone', phone);
-        setValue('testingDevices', initTestingDevices);
-    }, [phone, initTestingDevices, setValue]);
+        if (!scheduledDeactivation) {
+            phone && setValue('phone', phone);
+            setValue('testingDevices', initTestingDevices);
+        }
+    }, [phone, initTestingDevices, setValue, scheduledDeactivation]);
 
     useEffect(() => {
-        reset({ ...defaultValues, type: 'retirement', disableAccount: true });
+        reset(defaultValues);
     }, [asPath]);
 
     const hideModal = useCallback(() => {
@@ -133,9 +166,11 @@ export const NewScheduleDeactivationForm = ({
     }, [onClose, reset]);
 
     const onSubmit = handleSubmit(async (data) => {
-        await createScheduledDeactivation({
-            ...data,
-        });
+        scheduledDeactivation
+            ? await editScheduledDeactivation({ id: scheduledDeactivation.id, ...data })
+            : await createScheduledDeactivation({
+                  ...data,
+              });
         hideModal();
     });
 
@@ -167,7 +202,9 @@ export const NewScheduleDeactivationForm = ({
         <StyledModal visible={visible} onClose={hideModal} width={700}>
             <ModalHeader>
                 <FormTitle>
-                    {tr('Schedule profile deactivation for {userName}', { userName: user.name || user.email })}
+                    {tr('Schedule profile deactivation for {userName}', {
+                        userName: user?.name || (user?.email as string),
+                    })}
                 </FormTitle>
                 <ModalCross onClick={hideModal} />
             </ModalHeader>
@@ -189,6 +226,7 @@ export const NewScheduleDeactivationForm = ({
                     ))}
 
                     <StyledFormInput
+                        defaultValue={scheduledDeactivation?.deactivateDate.toISOString().split('T')[0]}
                         type="date"
                         error={errors.deactivateDate}
                         autoComplete="off"
@@ -198,10 +236,10 @@ export const NewScheduleDeactivationForm = ({
                     <StyledFormInput error={errors.email} autoComplete="off" {...register('email')} />
                     <StyledLabel weight="bold">{tr('Organization')}</StyledLabel>
                     <OrganizationUnitComboBox
-                        organizationUnit={organization}
-                        onChange={(group) => group && setValue('organization', getOrgUnitTitle(group))}
+                        organizationUnit={scheduledDeactivation?.organizationUnit || organization}
+                        onChange={(group) => group && setValue('organizationUnitId', group.id)}
                         inline
-                        error={errors.organization}
+                        error={errors.organizationUnitId}
                     />
                     <StyledLabel weight="bold">{tr('TeamLead')}</StyledLabel>
                     <StyledFormInput error={errors.teamLead} autoComplete="off" {...register('teamLead')} />
@@ -215,11 +253,12 @@ export const NewScheduleDeactivationForm = ({
                             />
                             <StyledLabel weight="bold">{tr('Transfer to')}</StyledLabel>
                             <OrganizationUnitComboBox
-                                onChange={(group) => group && setValue('newOrganization', getOrgUnitTitle(group))}
+                                onChange={(group) => group && setValue('newOrganizationUnitId', group.id)}
                                 inline
+                                organizationUnit={scheduledDeactivation?.newOrganizationUnit}
                                 error={
-                                    !watch('newOrganization') && errors.newOrganization
-                                        ? errors.newOrganization
+                                    !watch('newOrganizationUnitId') && errors.newOrganizationUnitId
+                                        ? errors.newOrganizationUnitId
                                         : undefined
                                 }
                             />
@@ -297,6 +336,7 @@ export const NewScheduleDeactivationForm = ({
                         error={errors.unitId}
                         type="number"
                         autoComplete="off"
+                        defaultValue={scheduledDeactivation?.unitId}
                         onChange={(e) => setValue('unitId', Number(e.target.value))}
                     />
                     <DeviceInScheduleDeactivationForm
@@ -306,7 +346,7 @@ export const NewScheduleDeactivationForm = ({
                     />
 
                     <DeviceInScheduleDeactivationForm
-                        initialDevices={[]}
+                        initialDevices={initDevices}
                         label={tr('Devices')}
                         onDeviceAdd={(devices) => setValue('devices', devices)}
                     />

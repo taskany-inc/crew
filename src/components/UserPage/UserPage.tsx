@@ -22,7 +22,7 @@ import { NarrowSection } from '../NarrowSection';
 import { GroupListItem } from '../GroupListItem';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { Restricted } from '../Restricted';
-import { NewScheduleDeactivationForm } from '../NewScheduleDeactivationForm/NewScheduleDeactivationForm';
+import { ScheduleDeactivationForm } from '../ScheduleDeactivationForm/ScheduleDeactivationForm';
 import { useBoolean } from '../../hooks/useBoolean';
 import { useUserMutations } from '../../modules/userHooks';
 import { UserRoleComboBox } from '../UserRoleComboBox/UserRoleComboBox';
@@ -139,10 +139,10 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
                 <Modal visible={deactivateUserFormVisibility.value} width={600}>
                     <DeactivateProfileForm user={user} onClose={deactivateUserFormVisibility.setFalse} />
                 </Modal>
-                <NewScheduleDeactivationForm
+                <ScheduleDeactivationForm
                     visible={scheduleDeactivationFormVisibility.value}
                     onClose={scheduleDeactivationFormVisibility.setFalse}
-                    user={user}
+                    userId={user.id}
                     orgRoles={orgRoles}
                     organization={user.organizationUnit}
                     orgGroupName={orgMembership?.group.name}

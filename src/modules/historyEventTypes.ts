@@ -1,5 +1,3 @@
-import { CreateScheduledDeactivation } from './scheduledDeactivationSchemas';
-
 interface HistoryEventsData {
     createUser: {
         requireGroupId: false;
@@ -248,7 +246,53 @@ interface HistoryEventsData {
         requireGroupId: false;
         requireUserId: true;
         requireBefore: false;
-        data: CreateScheduledDeactivation;
+        data: {
+            type: string;
+            id: string;
+            phone: string;
+            deactivateDate: Date;
+            email: string;
+            unitId: number;
+            teamLead: string;
+            organizationalGroup?: string;
+            organizationRole?: string;
+            workMode?: string;
+            organization?: string;
+            comments?: string;
+            newOrganizationRole?: string;
+            newOrganization?: string;
+            newOrganizationalGroup?: string;
+            newTeamLead?: string;
+        };
+    };
+    editScheduledDeactivation: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: true;
+        data: {
+            type?: string;
+            id?: string;
+            phone?: string;
+            deactivateDate?: Date;
+            email?: string;
+            unitId?: number;
+            teamLead?: string;
+            organizationalGroup?: string;
+            organizationRole?: string;
+            workMode?: string;
+            organization?: string;
+            comments?: string;
+            newOrganizationRole?: string;
+            newOrganization?: string;
+            newOrganizationalGroup?: string;
+            newTeamLead?: string;
+        };
+    };
+    cancelScheduledDeactivation: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: { type: string; comment: string };
     };
 }
 

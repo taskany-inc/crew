@@ -63,7 +63,7 @@
     "created scheduled": "",
     "retirement of": "",
     "transfer to {newOrganization} of": "",
-    "Deactiation date": "",
+    "Deactivation date": "",
     "Organization": "",
     "New Organization": "",
     "TeamLead": "",
@@ -80,5 +80,10 @@
     "request": "",
     "to create user": "",
     "show comment": "",
-    "create": ""
+    "create": "",
+    "canceled scheduled": "",
+    "transfer of": "",
+    "with comment: ": "",
+    "edited scheduled": "",
+    "Type": ""
 }

@@ -71,5 +71,9 @@
     "Transfer to, role": "",
     "Unit": "",
     "Obligatory field": "",
-    "User is already in group administrators": ""
+    "User is already in group administrators": "",
+    "Cancel retirement of {userName}": "",
+    "Cancel transfer of {userName}": "",
+    "Update on retirement of": "",
+    "Update on transfer from": ""
 }

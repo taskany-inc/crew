@@ -501,13 +501,14 @@ const componentMap: {
                 </div>
                 {nullable(visible.value, () => (
                     <>
-                        <ChangeListItem title={tr('Id')} after={event.after.userId} />
-                        <ChangeListItem title={tr('Name')} after={event.user.name!} />
+                        <ChangeListItem title={tr('Id')} after={event.after.id} />
                         <ChangeListItem title={tr('Email')} after={event.after.email} />
                         <ChangeListItem title={tr('Phone')} after={event.after.phone} />
                         <ChangeListItem
-                            title={tr('Deactiation date')}
-                            after={formatDate(new Date(event.after.deactivateDate), locale)}
+                            title={tr('Deactivation date')}
+                            after={
+                                event.after.deactivateDate && formatDate(new Date(event.after.deactivateDate), locale)
+                            }
                         />
                         <ChangeListItem title={tr('Organization')} after={event.after.organization} />
                         <ChangeListItem title={tr('New Organization')} after={event.after.newOrganization} />
@@ -523,6 +524,103 @@ const componentMap: {
                         <ChangeListItem title={tr('Unit')} after={event.after.unitId} />
                     </>
                 ))}
+            </>
+        );
+    },
+    EditScheduledDeactivation: ({ event }) => {
+        const visible = useBoolean(false);
+        const locale = useLocale();
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('edited scheduled')}
+                    <BoldText>
+                        {event.before.type === 'retirement'
+                            ? tr('retirement of')
+                            : tr('transfer to {newOrganization} of', {
+                                  newOrganization: event.before.newOrganization!,
+                              })}
+                    </BoldText>
+                    <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Id')} after={event.after.id} />
+                        <ChangeListItem title={tr('Type')} after={event.after.type} before={event.before.type} />
+                        <ChangeListItem title={tr('Email')} after={event.after.email} before={event.before.email} />
+                        <ChangeListItem title={tr('Phone')} after={event.after.phone} before={event.before.phone} />
+                        <ChangeListItem
+                            title={tr('Deactivation date')}
+                            after={
+                                event.after.deactivateDate && formatDate(new Date(event.after.deactivateDate), locale)
+                            }
+                            before={
+                                event.before.deactivateDate && formatDate(new Date(event.before.deactivateDate), locale)
+                            }
+                        />
+                        <ChangeListItem
+                            title={tr('Organization')}
+                            after={event.after.organization}
+                            before={event.before.organization}
+                        />
+                        <ChangeListItem
+                            title={tr('New Organization')}
+                            after={event.after.newOrganization}
+                            before={event.before.newOrganization}
+                        />
+                        <ChangeListItem
+                            title={tr('TeamLead')}
+                            after={event.after.teamLead}
+                            before={event.before.teamLead}
+                        />
+                        <ChangeListItem
+                            title={tr('New teamlead')}
+                            after={event.after.newTeamLead}
+                            before={event.before.newTeamLead}
+                        />
+                        <ChangeListItem
+                            title={tr('Organizational group')}
+                            after={event.after.organizationalGroup}
+                            before={event.before.organizationalGroup}
+                        />
+                        <ChangeListItem
+                            title={tr('New organizational group')}
+                            after={event.after.newOrganizationalGroup}
+                            before={event.before.newOrganizationalGroup}
+                        />
+                        <ChangeListItem
+                            title={tr('Organizational role')}
+                            after={event.after.organizationRole}
+                            before={event.before.organizationRole}
+                        />
+                        <ChangeListItem
+                            title={tr('New organizational role')}
+                            after={event.after.newOrganizationRole}
+                            before={event.before.newOrganizationRole}
+                        />
+                        <ChangeListItem title={tr('Unit')} after={event.after.unitId} before={event.before.unitId} />
+                    </>
+                ))}
+            </>
+        );
+    },
+    CancelScheduledDeactivation: ({ event }) => {
+        const visible = useBoolean(false);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('canceled scheduled')}
+                    <BoldText>{event.after.type === 'retirement' ? tr('retirement of') : tr('transfer of')}</BoldText>
+                    <UserListItem user={event.user} />
+                    <Text>{tr('with comment: ')}</Text>
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                    {nullable(visible.value, () => (
+                        <Text>{event.after.comment}</Text>
+                    ))}
+                </div>
             </>
         );
     },
