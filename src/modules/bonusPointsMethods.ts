@@ -1,4 +1,4 @@
-import { BonusAction, User } from 'prisma/prisma-client';
+import { BonusAction, Prisma, User } from 'prisma/prisma-client';
 import * as Sentry from '@sentry/nextjs';
 
 import { prisma } from '../utils/prisma';
@@ -52,7 +52,9 @@ export const bonusPointsMethods = {
 
                     const bonusesInCategory = await prisma.$queryRaw<Array<{ sum: number }>>`
                         SELECT SUM(amount) FROM public."BonusHistory"
-                        WHERE ("achievementId" = ${data.externalAchievementId} OR "achievementCategory" = ${data.externalAchievementCategoryId})
+                        WHERE ("achievementId" in (${Prisma.join(
+                            achievement.bonusRule.externalAchievmentIds,
+                        )}) OR "achievementCategory" = ${achievement.bonusRule.categoryId})
                         AND "targetUserId" = ${data.userId}
                     `;
                     const bonusesAmount = Number(bonusesInCategory[0].sum);
