@@ -7,16 +7,17 @@ import { tr } from './modules.i18n';
 const checkGroupAdmin = async (groupId: string, userId: string) => {
     const admins = await prisma.$queryRaw<Array<{ count: number }>>`
         SELECT count(*)::INTEGER
-            FROM public."GroupAdmin"
-            WHERE "userId" = ${userId}
-            AND "groupId" in (
+            FROM "Group"
+            LEFT JOIN "GroupAdmin" ON "Group".id = "GroupAdmin"."groupId"
+            WHERE ("GroupAdmin"."userId" = ${userId} OR "Group"."supervisorId" = ${userId})
+            AND "Group".id in (
         WITH RECURSIVE rectree AS (
             SELECT *
-            FROM public."Group"
+            FROM "Group"
             WHERE id = ${groupId}
         UNION ALL
             SELECT g.*
-            FROM public."Group" g
+            FROM "Group" g
             JOIN rectree
                 ON g.id = rectree."parentId"
         ) SELECT id FROM rectree
