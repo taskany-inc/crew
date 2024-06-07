@@ -66,5 +66,8 @@
     "An error occurred while editing profile deactivation": "Произошла ошибка при редактировании деактивации профиля",
     "Profile deactivation is canceled!": "Отменена деактивация профиля!",
     "Canceling profile deactivation...": "Отменяем деактивацию профиля...",
-    "An error occurred while canceling profile deactivation": "Произошла ошибка при отмене деактивации профиля"
+    "An error occurred while canceling profile deactivation": "Произошла ошибка при отмене деактивации профиля",
+    "Attach successfully uploaded!": "Приложение успешно загружено!",
+    "Uploading...": "Загружаем...",
+    "An error occurred while uploading": "Произошла ошибка при загрузке"
 }
