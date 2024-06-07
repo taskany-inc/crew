@@ -165,7 +165,6 @@ model UserRole {
   viewScheduledDeactivation Boolean @default(false)
 
   editFullGroupTree          Boolean @default(false)
-  editAdministratedGroupTree Boolean @default(false)
 
   viewHistoryEvents Boolean @default(false)
 

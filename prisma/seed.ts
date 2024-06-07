@@ -20,7 +20,6 @@ const main = async () => {
                 viewUserBonuses: true,
                 viewUserExtendedInfo: true,
                 editFullGroupTree: true,
-                editAdministratedGroupTree: true,
                 viewHistoryEvents: true,
             },
             {
@@ -32,7 +31,6 @@ const main = async () => {
                 viewUserBonuses: true,
                 viewUserExtendedInfo: true,
                 editFullGroupTree: true,
-                editAdministratedGroupTree: true,
             },
             {
                 code: 'hr',
@@ -42,13 +40,11 @@ const main = async () => {
                 viewUserBonuses: true,
                 viewUserExtendedInfo: true,
                 editFullGroupTree: true,
-                editAdministratedGroupTree: true,
             },
             {
                 code: 'project_owner',
                 name: 'Project owner',
                 viewUserExtendedInfo: true,
-                editAdministratedGroupTree: true,
             },
         ],
     });

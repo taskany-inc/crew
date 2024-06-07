@@ -95,7 +95,6 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             viewScheduledDeactivation: tr('viewing scheduled deactivations'),
 
             editFullGroupTree: tr('editing any team'),
-            editAdministratedGroupTree: tr('editing administrated teams'),
 
             viewHistoryEvents: tr('viewing history of changes'),
         };

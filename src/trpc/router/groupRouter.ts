@@ -13,14 +13,18 @@ import { groupMethods } from '../../modules/groupMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { groupAccess } from '../../modules/groupAccess';
-import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
+import { accessCheck, checkRoleForAccess } from '../../utils/access';
 
 export const groupRouter = router({
     create: protectedProcedure.input(createGroupSchema).mutation(async ({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'),
-            checkRoleForAccess(ctx.session.user.role, 'editAdministratedGroupTree'),
-        );
+        if (input.organizational) {
+            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editFullGroupTree'));
+        }
+
+        if (input.parentId) {
+            accessCheck(await groupAccess.isEditable(ctx.session.user, input.parentId));
+        }
+
         const result = await groupMethods.create(input, ctx.session.user);
 
         await historyEventMethods.create({ user: ctx.session.user.id }, 'createGroup', {
