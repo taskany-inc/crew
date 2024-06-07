@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.60.1](https://github.com/taskany-inc/crew/compare/v0.60.0...v0.60.1) (2024-06-07)
+
+
+### Bug Fixes
+
+* bonus rule amount calculation ([4765e16](https://github.com/taskany-inc/crew/commit/4765e16c2045751da024f8156890979402492f8f))
+* do not replace error on accepting user creation request ([23eda27](https://github.com/taskany-inc/crew/commit/23eda27ee68493e498a90793646e86fa77f293c4))
+
 ## [0.60.0](https://github.com/taskany-inc/crew/compare/v0.59.0...v0.60.0) (2024-06-06)
 
 
