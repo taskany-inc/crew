@@ -579,27 +579,20 @@ export const userMethods = {
             const [surname, firstName, middleName] = userCreationRequest.name.split(' ');
 
             const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
-            const accountingId = services.find((service) => service.serviceName === 'Accounting system')?.serviceId;
 
             if (!phone) {
                 throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Phone service is required' });
             }
 
-            try {
-                await externalUserCreate({
-                    surname,
-                    firstName,
-                    middleName,
-                    email: userCreationRequest.email,
-                    accountingId,
-                    phone,
-                    supervisorId: userCreationRequest.supervisor.id,
-                    login: userCreationRequest.login,
-                    organizationUnitId: userCreationRequest.organizationUnitId,
-                });
-            } catch (error) {
-                throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create external user' });
-            }
+            await externalUserCreate({
+                surname,
+                firstName,
+                middleName,
+                email: userCreationRequest.email,
+                phone,
+                login: userCreationRequest.login,
+                organizationUnitId: userCreationRequest.organizationUnitId,
+            });
         }
 
         const acceptedRequest = await prisma.userCreationRequest.update({
