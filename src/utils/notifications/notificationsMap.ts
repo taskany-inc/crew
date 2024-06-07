@@ -28,6 +28,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'scheduledDeactivation', 'Create' | 'Edit' | 'Cancel'>
     | NamespacedAction<'bonusPoints', 'Change'>
     | 'addScopeToRole'
+    | NamespacedAction<'attach', 'Delete'>
     | 'sendFeedback'
     | 'copy';
 
@@ -170,6 +171,11 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             success: tr('Profile deactivation is canceled!'),
             loading: tr('Canceling profile deactivation...'),
             error: tr('An error occurred while canceling profile deactivation'),
+        },
+        attachDelete: {
+            success: tr('Attach successfully uploaded!'),
+            loading: tr('Uploading...'),
+            error: tr('An error occurred while uploading'),
         },
     };
 

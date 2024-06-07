@@ -66,5 +66,8 @@
     "An error occurred while editing profile deactivation": "",
     "Profile deactivation is canceled!": "",
     "Canceling profile deactivation...": "",
-    "An error occurred while canceling profile deactivation": ""
+    "An error occurred while canceling profile deactivation": "",
+    "Attach successfully uploaded!": "",
+    "Uploading...": "",
+    "An error occurred while uploading": ""
 }
