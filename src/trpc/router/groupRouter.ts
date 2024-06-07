@@ -123,6 +123,10 @@ export const groupRouter = router({
         return groupMethods.getList(input);
     }),
 
+    getUserList: protectedProcedure.input(getGroupListSchema).query(({ input, ctx }) => {
+        return groupMethods.getUserList(ctx.session.user.id, input);
+    }),
+
     getBreadcrumbs: protectedProcedure.input(z.string()).query(({ input }) => {
         return groupMethods.getBreadcrumbs(input);
     }),

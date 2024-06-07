@@ -14,6 +14,7 @@ import {
     MoveGroup,
     GetGroupSuggestions,
     AddOrRemoveUserFromGroupAdmins,
+    GetUserGroupList,
 } from './groupSchemas';
 import { tr } from './modules.i18n';
 import { GroupMeta, GroupParent, GroupSupervisor, GroupVacancies } from './groupTypes';
@@ -188,7 +189,7 @@ export const groupMethods = {
         return prisma.group.findMany({ where: { parentId: id, archived: false } });
     },
 
-    getList: ({ search, filter, take = 10, skip, hasVacancies }: GetGroupList) => {
+    getList: async ({ search, filter, take = 10, skip = 0, hasVacancies }: GetGroupList) => {
         const where: Prisma.GroupWhereInput = {
             name: { contains: search, mode: 'insensitive' },
             archived: false,
@@ -198,11 +199,50 @@ export const groupMethods = {
         if (hasVacancies) {
             where.vacancies = { some: {} };
         }
+
         return prisma.group.findMany({
             where,
             take,
             skip,
         });
+    },
+
+    getUserList: async (userId: string, { search, filter, take = 10, skip }: GetUserGroupList) => {
+        const searchConditions = [];
+
+        if (search) {
+            searchConditions.push(Prisma.sql`name ~* ${search}`);
+        }
+
+        if (filter) {
+            searchConditions.push(Prisma.sql`id NOT IN (${filter.toString()})`);
+        }
+
+        const where = searchConditions.length
+            ? Prisma.sql`where ${Prisma.join(searchConditions, ' AND ')}`
+            : Prisma.empty;
+
+        return prisma.$queryRaw<Array<Group>>`
+            WITH RECURSIVE rectree AS (
+                SELECT *
+                    FROM "Group"
+                    WHERE "Group".id in (
+                        SELECT id
+                        FROM "Group"
+                        LEFT JOIN "GroupAdmin" ON "Group".id = "GroupAdmin"."groupId"
+                        WHERE ("GroupAdmin"."userId" = ${userId} OR "Group"."supervisorId" = ${userId})
+                    )
+
+                UNION
+                    SELECT g.*
+                    FROM "Group" g
+                    JOIN rectree
+                        ON g."parentId" = rectree.id
+
+            ) SELECT * FROM rectree ${where}
+            ORDER BY name ASC
+            LIMIT ${take} OFFSET ${skip}
+        `;
     },
 
     getBreadcrumbs: async (id: string) => {

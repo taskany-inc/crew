@@ -8,8 +8,6 @@ import { UserMemberships } from '../../modules/userTypes';
 import { MembershipGroupListItemEditable } from '../MembershipGroupListItemEditable';
 import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
 import { useUserMutations } from '../../modules/userHooks';
-import { Restricted } from '../Restricted';
-import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './UserMembershipsList.i18n';
 
@@ -26,7 +24,6 @@ interface UserMembershipsProps {
 }
 
 export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
-    const sessionUser = useSessionUser();
     const { addUserToGroup } = useUserMutations();
 
     const onAddUserToTeam = async (group: Group) => {
@@ -44,18 +41,12 @@ export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
                 ))}
             </StyledMembershipList>
 
-            {/* TODO: show only groups that user can edit */}
-            {/* https://github.com/taskany-inc/crew/issues/842 */}
-            <Restricted
-                visible={!!(sessionUser.role?.editFullGroupTree || sessionUser.role?.editAdministratedGroupTree)}
-            >
-                <InlineGroupSelectForm
-                    triggerText={tr('Add team')}
-                    actionText={tr('Add')}
-                    filter={groupFilter}
-                    onSubmit={onAddUserToTeam}
-                />
-            </Restricted>
+            <InlineGroupSelectForm
+                triggerText={tr('Add team')}
+                actionText={tr('Add')}
+                filter={groupFilter}
+                onSubmit={onAddUserToTeam}
+            />
         </NarrowSection>
     );
 };

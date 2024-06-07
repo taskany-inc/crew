@@ -6,6 +6,7 @@ import { IconPlusCircleSolid } from '@taskany/icons';
 import { textColor } from '@taskany/colors';
 
 import { trpc } from '../trpc/trpcClient';
+import { useSessionUser } from '../hooks/useSessionUser';
 
 import { InlineTrigger } from './InlineTrigger';
 
@@ -24,8 +25,23 @@ interface InlineGroupSelectFormProps {
 
 export const InlineGroupSelectForm = (props: InlineGroupSelectFormProps) => {
     const [search, setSearch] = useState('');
+    const sessionUser = useSessionUser();
+
     const [selectedGroup, setSelectedGroup] = useState<Group>();
-    const groupListQuery = trpc.group.getList.useQuery({ search, take: 10, filter: props.filter });
+
+    const showUserGroups = !sessionUser?.role?.editFullGroupTree;
+    const searchParams = {
+        search,
+        filter: props.filter,
+    };
+
+    const { data: groupList } = trpc.group.getList.useQuery(searchParams, {
+        enabled: !showUserGroups,
+    });
+
+    const { data: userGroupList } = trpc.group.getUserList.useQuery(searchParams, {
+        enabled: showUserGroups,
+    });
 
     const onReset = () => {
         setSearch('');
@@ -57,7 +73,7 @@ export const InlineGroupSelectForm = (props: InlineGroupSelectFormProps) => {
                     setSearch(value.name);
                     setSelectedGroup(value);
                 }}
-                items={groupListQuery.data}
+                items={showUserGroups ? userGroupList : groupList}
                 maxWidth={550}
                 renderInput={({ value, ...restProps }) => (
                     <StyledRowWrapper>

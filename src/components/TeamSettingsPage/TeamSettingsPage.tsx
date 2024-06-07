@@ -188,6 +188,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                                     triggerText={tr('Add parent')}
                                     actionText={tr('Add')}
                                     onSubmit={onAddParent}
+                                    filter={[group.id]}
                                 />
                             )}
                         </StyledFormSection>
@@ -204,6 +205,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                             <InlineGroupSelectForm
                                 actionText={tr('Add')}
                                 onSubmit={onAddChild}
+                                filter={[group.id]}
                                 icon={<IconPlusCircleOutline size="s" color={textColor} />}
                             />
                         </StyledFormSection>
