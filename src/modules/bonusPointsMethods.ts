@@ -32,11 +32,6 @@ export const bonusPointsMethods = {
                 Sentry.captureException(`No tech admin with id ${config.techAdminId} from config`);
                 return user;
             }
-            const bonusesInCategory = await prisma.$queryRaw<Array<{ sum: number }>>`
-                SELECT SUM(amount) FROM public."BonusHistory" WHERE "achievementCategory" = ${data.externalAchievementCategoryId} AND "targetUserId" = ${data.userId}
-            `;
-
-            const bonusesAmount = Number(bonusesInCategory[0].sum);
 
             const bonusRules = await prisma.bonusRule.findMany({
                 where: {
@@ -54,6 +49,14 @@ export const bonusPointsMethods = {
             Promise.all(
                 achievements.map(async (achievement) => {
                     if (!achievement.bonusRule) return;
+
+                    const bonusesInCategory = await prisma.$queryRaw<Array<{ sum: number }>>`
+                        SELECT SUM(amount) FROM public."BonusHistory"
+                        WHERE ("achievementId" = ${data.externalAchievementId} OR "achievementCategory" = ${data.externalAchievementCategoryId})
+                        AND "targetUserId" = ${data.userId}
+                    `;
+                    const bonusesAmount = Number(bonusesInCategory[0].sum);
+
                     const userAchievement = await prisma.userAchievement.findFirst({
                         where: { userId: data.userId, achievementId: achievement.id },
                     });
