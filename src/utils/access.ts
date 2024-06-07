@@ -60,7 +60,6 @@ const scopesObj: Record<AccessOperation, true> = {
     editRoleScopes: true,
     editUserRole: true,
     createUser: true,
-    editAdministratedGroupTree: true,
     editFullGroupTree: true,
     editScheduledDeactivation: true,
     editUser: true,

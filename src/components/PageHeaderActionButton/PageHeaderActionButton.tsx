@@ -21,9 +21,7 @@ export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: Us
         if (sessionUser.role?.createUser) {
             result.push({ title: tr('User'), action: createUserModalVisibility.setTrue });
         }
-        if (sessionUser.role?.editFullGroupTree || sessionUser.role?.editAdministratedGroupTree) {
-            result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
-        }
+        result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
         return result;
     }, [sessionUser.role, createGroupModalVisibility.setTrue, createUserModalVisibility.setTrue, userSettings]);
 
