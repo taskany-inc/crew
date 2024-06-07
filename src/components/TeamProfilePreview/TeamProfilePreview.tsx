@@ -54,7 +54,7 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                         ))}
 
                         <TeamChildren
-                            groupId={group.id}
+                            group={group}
                             groupChildren={childrenQuery.data ?? []}
                             isEditable={group.meta.isEditable}
                         />

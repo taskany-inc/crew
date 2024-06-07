@@ -7,19 +7,37 @@ import { gray9 } from '@taskany/colors';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { useBoolean } from '../../hooks/useBoolean';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './GroupComboBox.i18n';
 
 interface GroupComboBoxProps {
-    group?: Nullish<Group>;
+    defaultGroup?: Nullish<Group>;
     onChange: (group: Nullish<Group>) => void;
 }
 
-export const GroupComboBox = ({ group, onChange }: GroupComboBoxProps) => {
-    const [search, setSearch] = useState('');
+export const GroupComboBox = ({ defaultGroup, onChange }: GroupComboBoxProps) => {
+    const [search, setSearch] = useState(defaultGroup?.name || '');
     const suggestionsVisibility = useBoolean(false);
-    const [selectedGroup, setSelectedGroup] = useState(group);
-    const groupsQuery = trpc.group.getList.useQuery({ search, take: 10 }, { keepPreviousData: true });
+    const sessionUser = useSessionUser();
+    const [selectedGroup, setSelectedGroup] = useState(defaultGroup);
+
+    const showUserGroups = !sessionUser?.role?.editFullGroupTree;
+
+    const { data: groupsList = [] } = trpc.group.getList.useQuery(
+        { search },
+        { keepPreviousData: true, enabled: !showUserGroups },
+    );
+
+    const { data: userGroupList = [] } = trpc.group.getUserList.useQuery(
+        {
+            search,
+        },
+        {
+            keepPreviousData: true,
+            enabled: showUserGroups,
+        },
+    );
 
     return (
         <ComboBox
@@ -31,7 +49,7 @@ export const GroupComboBox = ({ group, onChange }: GroupComboBoxProps) => {
                 onChange(value);
             }}
             visible={suggestionsVisibility.value}
-            items={groupsQuery.data}
+            items={showUserGroups ? userGroupList : groupsList}
             renderInput={(props) => (
                 <Input
                     iconLeft={nullable(selectedGroup, () => (

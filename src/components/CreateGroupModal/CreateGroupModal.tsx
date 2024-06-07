@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { ComponentProps, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
@@ -33,6 +33,7 @@ import { tr } from './CreateGroupModal.i18n';
 interface CreateGroupModalProps {
     visible: boolean;
     onClose: VoidFunction;
+    parent?: ComponentProps<typeof GroupComboBox>['defaultGroup'];
 }
 
 const StyledInputContainer = styled.div`
@@ -49,7 +50,7 @@ const StyledTip = styled(Tip)`
 
 type GroupType = 'regular' | 'virtual' | 'organizational';
 
-export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) => {
+export const CreateGroupModal = ({ visible, onClose, parent }: CreateGroupModalProps) => {
     const sessionUser = useSessionUser();
     const { createGroup } = useGroupMutations();
     const router = useRouter();
@@ -73,12 +74,13 @@ export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) =>
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateGroup>({
         resolver: zodResolver(createGroupSchema),
-        defaultValues: { name: '', parentId: undefined },
+        defaultValues: { name: '', parentId: type !== 'virtual' && parent ? parent.id : undefined },
     });
 
     const onSubmit = handleSubmit(async (value) => {
         const newGroup = await createGroup({
             ...value,
+            parentId: type !== 'virtual' ? value.parentId : undefined,
             virtual: type === 'virtual',
             organizational: type === 'organizational',
         });
@@ -126,7 +128,10 @@ export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) =>
                                 <Text weight="bold" color={gray8}>
                                     {tr('Parent team:')}
                                 </Text>
-                                <GroupComboBox onChange={(group) => setValue('parentId', group?.id)} />
+                                <GroupComboBox
+                                    defaultGroup={parent}
+                                    onChange={(group) => setValue('parentId', group?.id)}
+                                />
                             </StyledInputContainer>
                             <StyledTip icon={<IconInfoCircleOutline size="s" />}>
                                 {tr('Group without a parent will show up as the top-level group')}

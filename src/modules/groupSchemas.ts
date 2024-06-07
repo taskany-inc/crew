@@ -37,6 +37,17 @@ export const getGroupListSchema = z.object({
 });
 export type GetGroupList = z.infer<typeof getGroupListSchema>;
 
+export const getUserGroupListSchema = z.object({
+    search: z.string().optional(),
+    filter: z.array(z.string()).optional(),
+    take: z
+        .number()
+        .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
+        .optional(),
+});
+
+export type GetUserGroupList = z.infer<typeof getGroupListSchema>;
+
 export const getGroupSuggestionsSchema = z.object({
     query: z.string(),
     take: z.number().optional(),
