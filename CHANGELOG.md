@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.61.0](https://github.com/taskany-inc/crew/compare/v0.60.2...v0.61.0) (2024-06-10)
+
+
+### Features
+
+* add OrganizationUnit to UserPage ([c596988](https://github.com/taskany-inc/crew/commit/c59698802caa945a6fb9d788777f11426401c049))
+
+
+### Bug Fixes
+
+* **groupAccess:** add current user to admin at creation team ([524fd35](https://github.com/taskany-inc/crew/commit/524fd35dfa6b28d0f72fd4a48b808177ef5f0334))
+
 ## [0.60.2](https://github.com/taskany-inc/crew/compare/v0.60.1...v0.60.2) (2024-06-07)
 
 
