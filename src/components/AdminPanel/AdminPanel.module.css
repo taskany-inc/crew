@@ -1,4 +1,26 @@
 .AdminPanelTable {
     overflow: scroll;
-    padding: var(--gap-m);
+    padding: var(--gap-m) 0;
+}
+
+.AdminPanelTableHeader {
+    background: none;
+    border: none;
+}
+
+.AdminPanelTableHeader .AdminPanelTableHeaderCell {
+    position: static;
+}
+
+.AdminPanelTableCell:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--layer);
+    z-index: 1;
+    padding: var(--gap-xs) var(--gap-sm);
+    margin-left: calc(-1 * var(--gap-sm));
+}
+
+.AdminPanelTableCellContent {
+    white-space: nowrap;
 }

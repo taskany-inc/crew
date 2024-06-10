@@ -1,4 +1,4 @@
-import { Checkbox, Table, TableCell, TableRow, Text } from '@taskany/bricks/harmony';
+import { Checkbox, Table, Text } from '@taskany/bricks/harmony';
 import { useCallback } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
@@ -6,6 +6,7 @@ import { LayoutMain, PageContent } from '../LayoutMain';
 import { scopes } from '../../utils/access';
 import { useUserRoleMutations } from '../../modules/userRoleHooks';
 import { AddScopeToRole } from '../../modules/userRoleSchemas';
+import { TableListItem, TableListItemElement } from '../TableListItem/TableListItem';
 
 import s from './AdminPanel.module.css';
 
@@ -23,9 +24,9 @@ const CellCheckbox = ({
     checked: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => (
-    <TableCell width={width}>
+    <TableListItemElement width={width} className={s.AdminPanelTableCell}>
         <Checkbox checked={checked} onChange={onChange} />
-    </TableCell>
+    </TableListItemElement>
 );
 
 export const AdminPanel = () => {
@@ -44,16 +45,22 @@ export const AdminPanel = () => {
         <LayoutMain>
             <PageContent>
                 <Table className={s.AdminPanelTable}>
-                    <TableRow>
+                    <TableListItem className={s.AdminPanelTableHeader}>
                         {thead.map((item) => (
-                            <TableCell key={item.title} width={item.width}>
+                            <TableListItemElement
+                                key={item.title}
+                                width={item.width}
+                                className={s.AdminPanelTableHeaderCell}
+                            >
                                 <Text>{item.title}</Text>
-                            </TableCell>
+                            </TableListItemElement>
                         ))}
-                    </TableRow>
+                    </TableListItem>
                     {roles.map((role) => (
-                        <TableRow key={role.code}>
-                            <TableCell width="100px">{role.name}</TableCell>
+                        <TableListItem key={role.code}>
+                            <TableListItemElement width="100px" className={s.AdminPanelTableCell}>
+                                <Text className={s.AdminPanelTableCellContent}>{role.name}</Text>
+                            </TableListItemElement>
 
                             {scopes.map((scope) => (
                                 <CellCheckbox
@@ -62,7 +69,7 @@ export const AdminPanel = () => {
                                     onChange={handleChangeScope(role.code, scope)}
                                 />
                             ))}
-                        </TableRow>
+                        </TableListItem>
                     ))}
                 </Table>
             </PageContent>
