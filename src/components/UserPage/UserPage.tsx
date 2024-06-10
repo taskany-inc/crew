@@ -116,7 +116,7 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
                 <StyledUserNameWrapper>
                     {nullable(orgRoles, (r) => (
                         <Text size="s" color={gray8} weight="bold">
-                            {r}
+                            {user.organizationUnit?.name}: {r}
                         </Text>
                     ))}
 

@@ -17,19 +17,22 @@ import { User } from 'prisma/prisma-client';
 import { gapM, gray8 } from '@taskany/colors';
 
 import { UserComboBox } from '../UserComboBox/UserComboBox';
-import { EditUser, editUserSchema } from '../../modules/userSchemas';
+import { EditUser, EditUserFields, editUserFieldsSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
-import { UserSupervisor } from '../../modules/userTypes';
+import { UserOrganizationUnit, UserSupervisor } from '../../modules/userTypes';
+import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 
 import { tr } from './UserUpdateForm.i18n';
 
 interface UserDataFormProps {
-    user: User & UserSupervisor;
+    user: User & UserSupervisor & UserOrganizationUnit;
     onClose: () => void;
 }
 
 const NoWrap = styled.div`
-    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    gap: ${gapM};
 `;
 
 const StyledSupervisorField = styled.div`
@@ -51,14 +54,15 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
         handleSubmit,
         setValue,
         formState: { isSubmitted },
-    } = useForm<EditUser>({
+    } = useForm<EditUserFields>({
         defaultValues: {
             id: user.id,
             supervisorId: user.supervisorId,
             name: user.name || undefined,
+            organizationUnitId: user.organizationUnitId || undefined,
         },
         mode: 'onChange',
-        resolver: zodResolver(editUserSchema),
+        resolver: zodResolver(editUserFieldsSchema),
     });
 
     const updateUser = async (data: EditUser) => {
@@ -91,6 +95,17 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                 user={user.supervisor}
                                 onChange={(newUser) => {
                                     setValue('supervisorId', newUser?.id);
+                                }}
+                            />
+                        </StyledSupervisorField>
+                        <StyledSupervisorField>
+                            <StyledTextSupervisor weight="bold" color={gray8}>
+                                {tr('Organization')}:
+                            </StyledTextSupervisor>
+                            <OrganizationUnitComboBox
+                                organizationUnit={user.organizationUnit}
+                                onChange={(organizationUnit) => {
+                                    setValue('organizationUnitId', organizationUnit?.id);
                                 }}
                             />
                         </StyledSupervisorField>

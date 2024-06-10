@@ -5,7 +5,7 @@ import {
     AddUserToGroup,
     CreateUser,
     CreateUserCreationRequest,
-    EditUser,
+    EditUserFields,
     EditUserActiveState,
     EditUserRoleData,
     EditUserSettings,
@@ -112,7 +112,7 @@ export const useUserMutations = () => {
         editUserSettings: (data: EditUserSettings) =>
             notifyPromise(editUserSettings.mutateAsync(data), 'userEditSettings'),
 
-        editUser: (data: EditUser) => notifyPromise(editUser.mutateAsync(data), 'userUpdate'),
+        editUser: (data: EditUserFields) => notifyPromise(editUser.mutateAsync(data), 'userUpdate'),
 
         editUserActiveState: (data: EditUserActiveState) =>
             notifyPromise(editUserActiveState.mutateAsync(data), 'userUpdate'),

@@ -5,7 +5,7 @@ import { protectedProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
 import {
     addUserToGroupSchema,
-    editUserSchema,
+    editUserFieldsSchema,
     editUserSettingsSchema,
     getUserListSchema,
     removeUserFromGroupSchema,
@@ -103,13 +103,23 @@ export const userRouter = router({
         return userMethods.getGroupMembers(input);
     }),
 
-    edit: protectedProcedure.input(editUserSchema).mutation(async ({ input, ctx }) => {
+    edit: protectedProcedure.input(editUserFieldsSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
         const userBefore = await userMethods.getByIdOrThrow(input.id);
         const result = await userMethods.edit(input);
         const { before, after } = dropUnchangedValuesFromEvent(
-            { name: userBefore.name, supervisorId: userBefore.supervisorId },
-            { name: result.name, supervisorId: result.supervisorId },
+            {
+                name: userBefore.name,
+                supervisorId: userBefore.supervisorId,
+                organizationalUnitId: userBefore.organizationUnitId ?? undefined,
+                email: userBefore.email,
+            },
+            {
+                name: result.name,
+                supervisorId: result.supervisorId,
+                organizationalUnitId: result.organizationUnitId ?? undefined,
+                email: result.email,
+            },
         );
         await historyEventMethods.create({ user: ctx.session.user.id }, 'editUser', {
             groupId: undefined,
