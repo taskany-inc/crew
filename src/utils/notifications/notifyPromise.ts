@@ -1,3 +1,4 @@
+import { TRPCClientError } from '@trpc/client';
 import toast from 'react-hot-toast';
 
 import {
@@ -11,6 +12,17 @@ interface NotifyPromise {
     <T>(promise: Promise<T>, events: NotificationEvents): Promise<T>;
     <T>(promise: Promise<T>, namespace: NotificationNamespaces): Promise<T>;
 }
+
+const extractError = (error: unknown): string | undefined => {
+    if (
+        error instanceof TRPCClientError &&
+        typeof error.data?.httpStatus === 'number' &&
+        error.data.httpStatus >= 400 &&
+        error.data.httpStatus < 500
+    ) {
+        return error.message;
+    }
+};
 
 export const notifyPromise: NotifyPromise = (promise, eventsOrNamespace) => {
     let events: NotificationEvents;
@@ -27,7 +39,10 @@ export const notifyPromise: NotifyPromise = (promise, eventsOrNamespace) => {
         events = eventsOrNamespace;
     }
 
-    toast.promise(promise, events);
+    toast.promise(promise, {
+        ...events,
+        error: (e) => extractError(e) ?? events.error,
+    });
 
     return promise;
 };
