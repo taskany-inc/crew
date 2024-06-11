@@ -486,6 +486,19 @@ export const userMethods = {
             throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Group is required' });
         }
 
+        const [phoneService, accountingService] = await Promise.all([
+            prisma.externalService.findUnique({ where: { name: 'Phone' } }),
+            prisma.externalService.findUnique({ where: { name: 'Accounting system' } }),
+        ]);
+
+        const servicesData: { serviceName: string; serviceId: string }[] = [];
+        if (phoneService) {
+            servicesData.push({ serviceName: phoneService.name, serviceId: data.phone });
+        }
+        if (accountingService) {
+            servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
+        }
+
         return prisma.userCreationRequest.create({
             data: {
                 name,
@@ -496,16 +509,7 @@ export const userMethods = {
                 groupId: data.groupId,
                 createExternalAccount: Boolean(data.createExternalAccount),
                 services: {
-                    toJSON: () => [
-                        {
-                            serviceName: 'Phone',
-                            serviceId: data.phone,
-                        },
-                        {
-                            serviceName: 'Accounting system',
-                            serviceId: data.accountingId,
-                        },
-                    ],
+                    toJSON: () => servicesData,
                 },
             },
         });
