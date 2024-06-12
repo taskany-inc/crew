@@ -147,6 +147,7 @@ const html = (data: ScheduledDeactivation & ScheduledDeactivationUser & Schedule
 ${tr('Sincerely,<br/>HR-team!')}
 </body>
 `;
+
 export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {
         const { userId, type, devices, testingDevices, ...restData } = data;
@@ -263,6 +264,14 @@ export const scheduledDeactivationMethods = {
 
     edit: async (data: EditScheduledDeactivation, sessionUserId: string) => {
         const { userId, type, devices, testingDevices, id, ...restData } = data;
+        const scheduledDеactivationBeforeUpdate = await prisma.scheduledDeactivation.findUnique({ where: { id } });
+
+        if (!scheduledDеactivationBeforeUpdate) {
+            throw new TRPCError({ message: `No scheduled deactivation with id ${id}`, code: 'NOT_FOUND' });
+        }
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+
+        if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${userId}` });
 
         const scheduledDeactivation = await prisma.scheduledDeactivation.update({
             where: { id },
