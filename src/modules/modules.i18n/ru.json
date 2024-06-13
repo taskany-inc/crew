@@ -75,5 +75,8 @@
     "Cancel retirement of {userName}": "Отменить запланированное увольнение {userName}",
     "Cancel transfer of {userName}": "Отменить запланированный перевод {userName}",
     "Update on retirement of": "Обновления в увольнении",
-    "Update on transfer from": "Обновления в переводе"
+    "Update on transfer from": "Обновления в переводе",
+    "No data": "Нет данных",
+    "No file found": "Файл не найден",
+    "Attach not found": "Аттач не найден"
 }

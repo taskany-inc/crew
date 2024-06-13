@@ -5,7 +5,6 @@ export interface NotificationEvents {
     success: string;
     error: string;
 }
-
 type NamespacedAction<T extends string, A extends string> = `${T}${A}`;
 
 export type NotificationNamespaces =
