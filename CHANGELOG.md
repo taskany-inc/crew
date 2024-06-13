@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.62.0](https://github.com/taskany-inc/crew/compare/v0.61.0...v0.62.0) (2024-06-13)
+
+
+### Features
+
+* show user facing backend errors in notifications ([51c7bde](https://github.com/taskany-inc/crew/commit/51c7bdec7460308070efca1331e280f3478ee29f))
+
+
+### Bug Fixes
+
+* add conditions to create external services ([8d43e03](https://github.com/taskany-inc/crew/commit/8d43e03af234ec4848187777c77e69d76512060e))
+
 ## [0.61.0](https://github.com/taskany-inc/crew/compare/v0.60.2...v0.61.0) (2024-06-10)
 
 
