@@ -20,6 +20,7 @@ import {
     ScheduledDeactivationNewOrganizationUnit,
     ScheduledDeactivationUser,
 } from './scheduledDeactivationTypes';
+import { userMethods } from './userMethods';
 
 const html = (data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit) => `
 <head>
@@ -152,8 +153,7 @@ export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {
         const { userId, type, devices, testingDevices, ...restData } = data;
 
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-        if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${userId}` });
+        const user = await userMethods.getByIdOrThrow(userId);
         const scheduledDeactivation = await prisma.scheduledDeactivation.create({
             data: {
                 userId,
@@ -269,9 +269,7 @@ export const scheduledDeactivationMethods = {
         if (!scheduledDеactivationBeforeUpdate) {
             throw new TRPCError({ message: `No scheduled deactivation with id ${id}`, code: 'NOT_FOUND' });
         }
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-
-        if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${userId}` });
+        await userMethods.getByIdOrThrow(userId);
 
         const scheduledDeactivation = await prisma.scheduledDeactivation.update({
             where: { id },
