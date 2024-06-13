@@ -20,6 +20,8 @@ export const pages = {
     scheduledDeactivations: '/deactivations',
 
     adminPanel: '/admin-panel',
+    attaches: '/api/attach',
+    attach: (attachId: string) => `/api/attach/${attachId}`,
 };
 
 export const useRouter = () => {
@@ -36,8 +38,16 @@ export const useRouter = () => {
         user: (userId: string) => router.push(pages.user(userId)),
         userActivity: (userId: string) => router.push(pages.userActivity(userId)),
         userSettings: () => router.push(pages.userSettings),
+        userRequests: () => router.push(pages.userRequests),
 
         signIn: () => router.push(pages.signIn),
         signOut: () => router.push(pages.signOut),
+
+        logs: () => router.push(pages.logs),
+        scheduledDeactivations: () => router.push(pages.scheduledDeactivations),
+
+        adminPanel: () => router.push(pages.adminPanel),
+        attaches: () => router.push(pages.attaches),
+        attach: (attachId: string) => () => router.push(pages.attach(attachId)),
     };
 };

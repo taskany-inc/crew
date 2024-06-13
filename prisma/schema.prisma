@@ -563,3 +563,11 @@ model GroupAdmin {
 
   @@unique([userId, groupId])
 }
+
+model Attach {
+  id               String     @id @default(uuid())
+  createdAt        DateTime   @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  link             String
+  filename         String
+  deletedAt        DateTime?
+}
