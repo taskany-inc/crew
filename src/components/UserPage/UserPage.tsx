@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { User } from 'prisma/prisma-client';
 import { Text, Button, nullable, Modal } from '@taskany/bricks';
 import { gapL, gapS, gapXl, gray10, gray8, textColor } from '@taskany/colors';
 import styled from 'styled-components';
@@ -27,6 +29,16 @@ import { useBoolean } from '../../hooks/useBoolean';
 import { useUserMutations } from '../../modules/userHooks';
 import { UserRoleComboBox } from '../UserRoleComboBox/UserRoleComboBox';
 import { Nullish } from '../../utils/types';
+import {
+    UserAchievements,
+    UserMemberships,
+    UserMeta,
+    UserOrganizationUnit,
+    UserRoleData,
+    UserSupervisor,
+    UserSupervisorIn,
+    UserSupervisorOf,
+} from '../../modules/userTypes';
 
 import { tr } from './UserPage.i18n';
 
@@ -74,12 +86,19 @@ const StyledUserListWrapper = styled.div`
     margin-bottom: ${gapS};
 `;
 
-interface UserPageProps {
-    userId?: string;
-    userLogin?: string;
+interface UserPageInnerProps {
+    user: User &
+        UserMeta &
+        UserMemberships &
+        UserOrganizationUnit &
+        UserSupervisor &
+        UserRoleData &
+        UserAchievements &
+        UserSupervisorOf &
+        UserSupervisorIn;
 }
 
-export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
+export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const { editUserRole } = useUserMutations();
     const { showGroupPreview } = usePreviewContext();
     const updateUserFormVisibility = useBoolean(false);
@@ -87,18 +106,15 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
     const scheduleDeactivationFormVisibility = useBoolean(false);
     const sessionUser = useSessionUser();
 
-    const userByLogin = trpc.user.getByLogin.useQuery(userLogin, {
-        enabled: Boolean(userLogin),
-    });
-    const userById = trpc.user.getById.useQuery(userId, {
-        enabled: Boolean(userId),
-    });
-    const user = userByLogin.data || userById.data;
-
-    if (!user) return null;
-
     const orgMembership = user.memberships.find((m) => m.group.organizational);
     const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
+
+    const orgUnitAndRole = useMemo(() => {
+        const result: string[] = [];
+        if (user.organizationUnit) result.push(user.organizationUnit.name);
+        if (orgRoles) result.push(orgRoles);
+        return result.join(': ');
+    }, [user.organizationUnit, orgRoles]);
 
     const handleEditUserRole = async (data?: Nullish<{ code: string }>) => {
         if (!data) return;
@@ -114,9 +130,9 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
             <StyledHeader>
                 <UserPic size={150} user={user} />
                 <StyledUserNameWrapper>
-                    {nullable(orgRoles, (r) => (
+                    {nullable(orgUnitAndRole, (s) => (
                         <Text size="s" color={gray8} weight="bold">
-                            {user.organizationUnit?.name}: {r}
+                            {s}
                         </Text>
                     ))}
 
@@ -228,4 +244,23 @@ export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
             </StyledUserInfoWrapper>
         </LayoutMain>
     );
+};
+
+interface UserPageProps {
+    userId?: string;
+    userLogin?: string;
+}
+
+export const UserPage = ({ userId = '', userLogin = '' }: UserPageProps) => {
+    const userByLogin = trpc.user.getByLogin.useQuery(userLogin, {
+        enabled: Boolean(userLogin),
+    });
+    const userById = trpc.user.getById.useQuery(userId, {
+        enabled: Boolean(userId),
+    });
+    const user = userByLogin.data || userById.data;
+
+    if (!user) return null;
+
+    return <UserPageInner user={user} />;
 };
