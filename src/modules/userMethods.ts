@@ -93,6 +93,7 @@ const externalUserCreate = async (data: CreateUser) => {
     const { organizationUnitId, firstName, middleName, surname, phone, email, login } = data;
     const organization = await prisma.organizationUnit.findFirstOrThrow({
         where: { id: organizationUnitId },
+        select: { country: true, name: true },
     });
     const body = {
         firstName,
