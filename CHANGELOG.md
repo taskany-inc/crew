@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.63.0](https://github.com/taskany-inc/crew/compare/v0.62.0...v0.63.0) (2024-06-17)
+
+
+### Features
+
+* attaches ([a8c5fe3](https://github.com/taskany-inc/crew/commit/a8c5fe365dec64b99dbd376cabf7bbe4d7e05cf0))
+* scheduled deactivation errors handle ([75328a9](https://github.com/taskany-inc/crew/commit/75328a9132a3ecffb8c93f5472aa2484e70b6e94))
+* scheduled deactivation errors handle ([1e07c8e](https://github.com/taskany-inc/crew/commit/1e07c8ebf1eabc1a167b40be324525f8cb0cca91))
+
 ## [0.62.0](https://github.com/taskany-inc/crew/compare/v0.61.0...v0.62.0) (2024-06-13)
 
 
