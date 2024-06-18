@@ -161,6 +161,12 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
                                 error={errors.icon}
                                 {...register('icon')}
                             />
+                            <FormInput
+                                error={errors.nomination}
+                                autoComplete="off"
+                                placeholder={tr('Nomination')}
+                                {...register('nomination')}
+                            />
                             <StyledInputContainer>
                                 <Text weight="bold" color={gray9}>
                                     {tr('Hidden')}

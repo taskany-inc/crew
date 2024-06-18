@@ -492,6 +492,7 @@ model Achievement {
   title       String
   icon        String
   hidden      Boolean @default(false)
+  nomination  String?
 
   creator   User?   @relation("achievementsCreated", fields: [creatorId], references: [id])
   creatorId String?
