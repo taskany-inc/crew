@@ -78,5 +78,8 @@
     "Update on transfer from": "",
     "No data": "",
     "No file found": "",
-    "Attach not found": ""
+    "Attach not found": "",
+    "Attach access forbidden": "",
+    "Error occured while deleting attach": "",
+    "Attach deleting forbidden": ""
 }

@@ -183,7 +183,6 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                                 value="createExternalAccount"
                                 checked={createExternalAccount}
                                 onChange={onCreateExternalAccountClick}
-                                readOnly
                             />
                         </StyledInputContainer>
                     </NoWrap>

@@ -3,12 +3,14 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
 import fs from 'fs';
 import stream from 'stream';
+import { getServerSession } from 'next-auth/next';
 import { formFieldName } from '@taskany/bricks';
 
 import { pages } from '../hooks/useRouter';
+import { authOptions } from '../utils/auth';
 
 import { attachMethods } from './attachMethods';
-import { getObject, loadFile, removeFile } from './s3Methods';
+import { getObject, loadFile } from './s3Methods';
 import { tr } from './modules.i18n';
 
 interface ResponseObj {
@@ -73,8 +75,14 @@ export const postHandler = async (req: NextApiRequest, res: NextApiResponse) => 
 
 export const getHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     const fileId = req.query.id;
+    const session = await getServerSession(req, res, authOptions);
 
-    const attach = await attachMethods.getById(String(fileId));
+    if (!session) {
+        res.status(401).end();
+        return;
+    }
+
+    const attach = await attachMethods.getById(String(fileId), session.user);
 
     const file = await getObject(attach.link);
 
@@ -88,13 +96,4 @@ export const getHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     const readableStream = file.Body as stream.Readable;
 
     readableStream.pipe(res);
-};
-
-export const deleteHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-    const fileId = String(req.query.id);
-    const attach = await attachMethods.getById(String(fileId));
-
-    await removeFile(attach.link);
-    const result = await attachMethods.deleteAttach(fileId);
-    res.send(result);
 };

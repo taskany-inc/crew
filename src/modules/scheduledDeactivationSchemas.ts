@@ -24,6 +24,7 @@ const baseSchema = z.object({
         .string({ required_error: tr('Obligatory field') })
         .min(1, { message: tr('Obligatory field', { min: 1 }) }),
     comments: z.string().optional(),
+    attachIds: z.array(z.string()).optional(),
 });
 
 export const createScheduledDeactivationSchema = z

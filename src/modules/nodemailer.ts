@@ -21,13 +21,15 @@ export interface MessageBody {
     from?: string;
     html?: string;
     icalEvent?: string;
+    attachments?: Array<{ filename?: string; path?: string }>;
 }
 
-const message = ({ from = 'Crew', to, subject, text, html, icalEvent }: MessageBody) => ({
+const message = ({ from = 'Crew', to, subject, text, html, icalEvent, attachments }: MessageBody) => ({
     from: `${from} <${config.nodemailer.authUser}>`,
     to,
     subject,
     text,
+    attachments,
     ...(html && { html }),
     ...(icalEvent && { icalEvent: { content: icalEvent } }),
 });

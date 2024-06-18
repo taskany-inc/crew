@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 
 import { getApiHandler, getAuthChecker } from '../../utils/apiHandler';
-import { postHandler, getHandler, deleteHandler } from '../../modules/attachHandler';
+import { postHandler, getHandler } from '../../modules/attachHandler';
 
 export const config = {
     api: {
@@ -9,7 +9,6 @@ export const config = {
     },
 };
 
-// eslint-disable-next-line newline-per-chained-call
-const handler = getApiHandler().use(getAuthChecker()).get(getHandler).delete(deleteHandler).post(postHandler);
+const handler = getApiHandler().use(getAuthChecker()).get(getHandler).post(postHandler);
 
 export default handler;

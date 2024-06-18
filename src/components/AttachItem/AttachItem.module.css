@@ -1,0 +1,16 @@
+.AttachItem {
+    display: flex;
+    align-items: center;
+    height: var(--gap-m);
+    margin: var(--gap-s) 0;
+}
+
+.AttachName {
+    margin-left: var(--gap-m);
+    margin-right: var(--gap-m);
+    min-width: 50%;
+}
+
+.IconBin {
+    cursor: pointer;
+}

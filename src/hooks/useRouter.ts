@@ -21,7 +21,7 @@ export const pages = {
 
     adminPanel: '/admin-panel',
     attaches: '/api/attach',
-    attach: (attachId: string) => `/api/attach/${attachId}`,
+    attach: (attachId: string) => `/api/attach?id=${attachId}`,
 };
 
 export const useRouter = () => {

@@ -4,6 +4,7 @@ import { gapM, gapS, gray1, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
 
 import {
+    ScheduledDeactivationAttaches,
     ScheduledDeactivationCreator,
     ScheduledDeactivationNewOrganizationUnit,
     ScheduledDeactivationOrganizationUnit,
@@ -44,7 +45,8 @@ interface ScheduledDeactivationItemProps {
         ScheduledDeactivationCreator &
         ScheduledDeactivationUser &
         ScheduledDeactivationOrganizationUnit &
-        ScheduledDeactivationNewOrganizationUnit;
+        ScheduledDeactivationNewOrganizationUnit &
+        ScheduledDeactivationAttaches;
 }
 
 export const ScheduledDeactivationItem = ({ scheduledDeactivation }: ScheduledDeactivationItemProps) => {

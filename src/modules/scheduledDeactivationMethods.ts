@@ -1,6 +1,8 @@
 import { TRPCError } from '@trpc/server';
-import { ScheduledDeactivation } from '@prisma/client';
+import { ScheduledDeactivation, Attach } from '@prisma/client';
 import { ICalCalendarMethod } from 'ical-generator';
+import fs from 'fs';
+import { Readable } from 'stream';
 
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
@@ -21,6 +23,21 @@ import {
     ScheduledDeactivationUser,
 } from './scheduledDeactivationTypes';
 import { userMethods } from './userMethods';
+import { getObject } from './s3Methods';
+
+const TEMP_DIR = '/tmp/';
+
+const nodemailerAttachments = async (attaches: Attach[]) =>
+    // eslint-disable-next-line no-return-await
+    await Promise.all(
+        attaches.map(async (attach) => {
+            const tempFilePath = TEMP_DIR + attach.filename;
+            const { Body } = await getObject(attach.link);
+            Body instanceof Readable && Body.pipe(fs.createWriteStream(tempFilePath));
+
+            return { path: tempFilePath, filename: attach.filename };
+        }),
+    );
 
 const html = (data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit) => `
 <head>
@@ -151,7 +168,7 @@ ${tr('Sincerely,<br/>HR-team!')}
 
 export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {
-        const { userId, type, devices, testingDevices, ...restData } = data;
+        const { userId, type, devices, testingDevices, attachIds, ...restData } = data;
 
         const user = await userMethods.getByIdOrThrow(userId);
         const scheduledDeactivation = await prisma.scheduledDeactivation.create({
@@ -159,17 +176,20 @@ export const scheduledDeactivationMethods = {
                 userId,
                 creatorId: sessionUserId,
                 type,
+                ...(attachIds && { attaches: { connect: attachIds.map((id) => ({ id })) } }),
                 ...(devices && devices.length && { devices: JSON.stringify(devices) }),
                 ...(testingDevices && testingDevices.length && { testingDevices: JSON.stringify(testingDevices) }),
                 ...restData,
             },
-            include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true },
+            include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true, attaches: true },
         });
 
         const users = [
             ...(config.nodemailer.scheduledDeactivationEmails?.split(' ').map((email) => ({ email })) || []),
             { email: scheduledDeactivation.creator.email, name: scheduledDeactivation.creator.name! },
         ];
+
+        const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
 
         const subject =
             type === 'retirement'
@@ -196,6 +216,7 @@ export const scheduledDeactivationMethods = {
             to,
             html: html(scheduledDeactivation),
             subject,
+            attachments,
             icalEvent: calendarEvents({
                 method: ICalCalendarMethod.REQUEST,
                 events: [icalEvent],
@@ -207,7 +228,13 @@ export const scheduledDeactivationMethods = {
     getList: async (creatorId?: string) => {
         return prisma.scheduledDeactivation.findMany({
             where: { creatorId, canceled: false },
-            include: { creator: true, user: true, organizationUnit: true, newOrganizationUnit: true },
+            include: {
+                creator: true,
+                user: true,
+                organizationUnit: true,
+                newOrganizationUnit: true,
+                attaches: { where: { deletedAt: null } },
+            },
             orderBy: { deactivateDate: 'asc' },
         });
     },
@@ -281,7 +308,13 @@ export const scheduledDeactivationMethods = {
                 ...(testingDevices && testingDevices.length && { testingDevices: JSON.stringify(testingDevices) }),
                 ...restData,
             },
-            include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true },
+            include: {
+                user: true,
+                creator: true,
+                organizationUnit: true,
+                newOrganizationUnit: true,
+                attaches: { where: { deletedAt: null } },
+            },
         });
 
         const subject =
@@ -310,10 +343,13 @@ export const scheduledDeactivationMethods = {
             description: subject,
         });
 
+        const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
+
         await sendMail({
             to,
             html: html(scheduledDeactivation),
             subject,
+            attachments,
             icalEvent: calendarEvents({
                 method: ICalCalendarMethod.REQUEST,
                 events: [icalEvent],
