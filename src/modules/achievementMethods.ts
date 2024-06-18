@@ -11,13 +11,13 @@ import { sendMail } from './nodemailer';
 
 export const achievementMethods = {
     createAndGive: async (data: CreateAndGiveAchievement, sessionUserId: string) => {
-        const { icon, title, description, hidden, userId } = data;
+        const { icon, title, description, hidden, userId, nomination } = data;
         const user = await prisma.user.findUnique({ where: { id: userId } });
 
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${userId}` });
 
         const newAchievement = await prisma.achievement.create({
-            data: { icon, creatorId: sessionUserId, title, description, hidden },
+            data: { icon, creatorId: sessionUserId, title, description, hidden, nomination },
         });
 
         return achievementMethods.give({ achievementId: newAchievement.id, userId }, sessionUserId);

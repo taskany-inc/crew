@@ -12,6 +12,7 @@ export const createAndGiveAchievementSchema = z.object({
         .min(3, { message: tr('Description must be longer than {min} symbol', { min: 3 }) }),
     userId: z.string(),
     hidden: z.boolean(),
+    nomination: z.string(),
 });
 export type CreateAndGiveAchievement = z.infer<typeof createAndGiveAchievementSchema>;
 

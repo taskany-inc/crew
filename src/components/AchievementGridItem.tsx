@@ -1,7 +1,7 @@
 import { FiltersCounter, Popup, Text, nullable } from '@taskany/bricks';
 import { Achievement } from '@prisma/client';
 import styled from 'styled-components';
-import { gapXs, gray10, gray9 } from '@taskany/colors';
+import { gapXs, gray10, gray9, gray4 } from '@taskany/colors';
 import { useRef } from 'react';
 
 interface AchievementGridItemProps {
@@ -33,6 +33,10 @@ const StyledCounter = styled(FiltersCounter)`
     left: 45px;
 `;
 
+const StyledPopup = styled(Popup)`
+    background-color: ${gray4};
+`;
+
 export const AchievementGridItem = ({ achievement, onClick, counter = 1 }: AchievementGridItemProps) => {
     const ref = useRef<HTMLDivElement>(null);
 
@@ -48,9 +52,14 @@ export const AchievementGridItem = ({ achievement, onClick, counter = 1 }: Achie
 
                 <StyledText size="xs">{achievement.title}</StyledText>
             </GridItem>
-            <Popup reference={ref} placement="top-start">
-                <Text>{achievement.description}</Text>
-            </Popup>
+            <StyledPopup reference={ref} placement="left" minWidth={200} maxWidth={250}>
+                <Text weight="bold" size="s">
+                    {achievement.nomination}
+                </Text>
+                <Text color={gray9} size="xs">
+                    {achievement.description}
+                </Text>
+            </StyledPopup>
         </>
     );
 };
