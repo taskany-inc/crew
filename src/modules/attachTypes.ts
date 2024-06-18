@@ -8,3 +8,8 @@ export const createAttachSchema = z.object({
     commentId: z.string().optional(),
 });
 export type CreateAttach = z.infer<typeof createAttachSchema>;
+
+export interface File {
+    name: string;
+    id: string;
+}

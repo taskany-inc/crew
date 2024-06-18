@@ -7,10 +7,10 @@ import {
     Form,
     FormAction,
     FormActions,
+    FormEditor,
     FormInput,
     FormRadio,
     FormRadioInput,
-    FormTextarea,
     FormTitle,
     MenuItem,
     Modal,
@@ -20,7 +20,7 @@ import {
     Text,
     nullable,
 } from '@taskany/bricks';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { gapM, gapS, gray9 } from '@taskany/colors';
 import { useRouter } from 'next/router';
@@ -37,11 +37,17 @@ import { DeviceInScheduleDeactivationForm } from '../DeviceInScheduleDeactivatio
 import { trpc } from '../../trpc/trpcClient';
 import {
     AdditionalDevice,
+    ScheduledDeactivationAttaches,
     ScheduledDeactivationNewOrganizationUnit,
     ScheduledDeactivationOrganizationUnit,
     ScheduledDeactivationUser,
     scheduleDeactivateType,
 } from '../../modules/scheduledDeactivationTypes';
+import { pages } from '../../hooks/useRouter';
+import { File } from '../../modules/attachTypes';
+import { AttachItem } from '../AttachItem/AttachItem';
+import { useSessionUser } from '../../hooks/useSessionUser';
+import { getFileIdFromPath } from '../../utils/attach';
 
 import { tr } from './ScheduleDeactivationForm.i18n';
 
@@ -76,7 +82,8 @@ interface ScheduleDeactivationFormProps {
     scheduledDeactivation?: ScheduledDeactivation &
         ScheduledDeactivationUser &
         ScheduledDeactivationOrganizationUnit &
-        ScheduledDeactivationNewOrganizationUnit;
+        ScheduledDeactivationNewOrganizationUnit &
+        ScheduledDeactivationAttaches;
 }
 
 export const ScheduleDeactivationForm = ({
@@ -92,6 +99,10 @@ export const ScheduleDeactivationForm = ({
     const { asPath } = useRouter();
     const userQuery = trpc.user.getById.useQuery(userId);
     const user = userQuery.data;
+
+    const [files, setFiles] = useState<File[]>(
+        scheduledDeactivation?.attaches.map(({ id, filename }) => ({ id, name: filename })) || [],
+    );
 
     const userDeviceQuery = trpc.device.getUserDevices.useQuery(userId);
 
@@ -158,7 +169,7 @@ export const ScheduleDeactivationForm = ({
 
     useEffect(() => {
         reset(defaultValues);
-    }, [asPath]);
+    }, [asPath, reset, defaultValues]);
 
     const hideModal = useCallback(() => {
         onClose();
@@ -167,9 +178,14 @@ export const ScheduleDeactivationForm = ({
 
     const onSubmit = handleSubmit(async (data) => {
         scheduledDeactivation
-            ? await editScheduledDeactivation({ id: scheduledDeactivation.id, ...data })
+            ? await editScheduledDeactivation({
+                  id: scheduledDeactivation.id,
+                  ...data,
+                  attachIds: files.map(({ id }) => id),
+              })
             : await createScheduledDeactivation({
                   ...data,
+                  attachIds: files.map(({ id }) => id),
               });
         hideModal();
     });
@@ -198,6 +214,17 @@ export const ScheduleDeactivationForm = ({
         { label: tr('Retirement'), value: 'retirement' },
         { label: tr('Transfer'), value: 'transfer' },
     ];
+
+    const attachFormatter = useCallback((uploadedFiles: Array<{ filePath: string; name: string; type: string }>) => {
+        setFiles((prev) => [
+            ...prev,
+            ...uploadedFiles.map((f) => ({ name: f.name, id: getFileIdFromPath(f.filePath) })),
+        ]);
+        return '';
+    }, []);
+
+    const sessionUser = useSessionUser();
+
     return (
         <StyledModal visible={visible} onClose={hideModal} width={700}>
             <ModalHeader>
@@ -350,7 +377,14 @@ export const ScheduleDeactivationForm = ({
                         label={tr('Devices')}
                         onDeviceAdd={(devices) => setValue('devices', devices)}
                     />
-                    <FormTextarea minHeight={180} autoComplete="off" {...register('comments')} />
+                    <FormEditor
+                        uploadLink={pages.attaches}
+                        onChange={(e) => setValue('comments', e)}
+                        attachFormatter={attachFormatter}
+                    />
+                    {files.map((file) => (
+                        <AttachItem user={sessionUser} file={file} key={file.id} />
+                    ))}
                     <FormActions>
                         <FormAction left />
                         <FormAction right inline>

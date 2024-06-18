@@ -8,6 +8,7 @@ import { useBoolean } from '../../hooks/useBoolean';
 import { CancelScheduleDeactivation } from '../CancelScheduleDeactivation/CancelScheduleDeactivation';
 import { ScheduleDeactivationForm } from '../ScheduleDeactivationForm/ScheduleDeactivationForm';
 import {
+    ScheduledDeactivationAttaches,
     ScheduledDeactivationCreator,
     ScheduledDeactivationNewOrganizationUnit,
     ScheduledDeactivationOrganizationUnit,
@@ -21,7 +22,8 @@ interface ScheduledDeactivationEditMenuProps {
         ScheduledDeactivationCreator &
         ScheduledDeactivationUser &
         ScheduledDeactivationOrganizationUnit &
-        ScheduledDeactivationNewOrganizationUnit;
+        ScheduledDeactivationNewOrganizationUnit &
+        ScheduledDeactivationAttaches;
 }
 
 const StyledIconMoreVerticalOutline = styled(IconMoreVerticalOutline)`

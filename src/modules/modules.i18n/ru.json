@@ -78,5 +78,8 @@
     "Update on transfer from": "Обновления в переводе",
     "No data": "Нет данных",
     "No file found": "Файл не найден",
-    "Attach not found": "Аттач не найден"
+    "Attach not found": "Аттач не найден",
+    "Attach access forbidden": "Доступ к аттачу запрещен",
+    "Error occured while deleting attach": "Произошла ошибка при удалении аттача",
+    "Attach deleting forbidden": "Удаление аттача запрещено"
 }
