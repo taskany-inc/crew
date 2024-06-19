@@ -16,6 +16,7 @@ import { achievementRouter } from './achievementRouter';
 import { historyEventRouter } from './historyEventsRouter';
 import { scheduledDeactivationRouter } from './scheduledDeactivationRouter';
 import { userRoleRouter } from './userRoleRouter';
+import { attachRouter } from './attachRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -34,6 +35,7 @@ export const trpcRouter = router({
     achievement: achievementRouter,
     historyEvent: historyEventRouter,
     scheduledDeactivation: scheduledDeactivationRouter,
+    attach: attachRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;
