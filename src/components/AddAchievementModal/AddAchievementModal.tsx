@@ -118,7 +118,7 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
                 <ModalCross onClick={hideModal} />
             </ModalHeader>
 
-            <ModalContent style={{ height: 385 }}>
+            <ModalContent style={{ height: 430 }}>
                 <StyledTabs layout="horizontal" active="choose">
                     <Tab label={<StyledTabLabel>{tr('Choose')}</StyledTabLabel>} name="choose">
                         <FormInput
