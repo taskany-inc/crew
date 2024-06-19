@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.65.0](https://github.com/taskany-inc/crew/compare/v0.64.0...v0.65.0) (2024-06-19)
+
+
+### Features
+
+* attaches ([04e1f0c](https://github.com/taskany-inc/crew/commit/04e1f0caaf0c896227afa38163587688383ab3e1))
+* attaches in scheduled deactivations ([9dfb031](https://github.com/taskany-inc/crew/commit/9dfb03167d5e2c8a4cf2c1019113c7c6c8993b71))
+* **Notifications of nominations:** add mention reason in notification email ([c491e7e](https://github.com/taskany-inc/crew/commit/c491e7e6f78a6a877c92212371bf26095ae886b1))
+
 ## [0.64.0](https://github.com/taskany-inc/crew/compare/v0.63.0...v0.64.0) (2024-06-18)
 
 
