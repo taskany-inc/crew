@@ -6,17 +6,15 @@ import { File } from '../../modules/attachTypes';
 import { useAttachMutations } from '../../modules/attachHooks';
 import { pages } from '../../hooks/useRouter';
 import { useBoolean } from '../../hooks/useBoolean';
-import { SessionUser } from '../../utils/auth';
 
 import { tr } from './AttachItem.i18n';
 import s from './AttachItem.module.css';
 
 interface AttachItemProps {
     file: File;
-    user: SessionUser;
 }
 
-export const AttachItem = ({ file, user }: AttachItemProps) => {
+export const AttachItem = ({ file }: AttachItemProps) => {
     const showDeleteButton = useBoolean(false);
 
     const { deleteAttach } = useAttachMutations();
@@ -36,7 +34,7 @@ export const AttachItem = ({ file, user }: AttachItemProps) => {
                             outline
                             view="danger"
                             text={tr('Delete')}
-                            onClick={() => deleteAttach(file.id, user)}
+                            onClick={() => deleteAttach(file.id)}
                         />
                         <Button brick="left" size="s" outline text={tr('Cancel')} onClick={showDeleteButton.setFalse} />
                     </>

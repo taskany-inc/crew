@@ -46,7 +46,6 @@ import {
 import { pages } from '../../hooks/useRouter';
 import { File } from '../../modules/attachTypes';
 import { AttachItem } from '../AttachItem/AttachItem';
-import { useSessionUser } from '../../hooks/useSessionUser';
 import { getFileIdFromPath } from '../../utils/attach';
 
 import { tr } from './ScheduleDeactivationForm.i18n';
@@ -169,7 +168,7 @@ export const ScheduleDeactivationForm = ({
 
     useEffect(() => {
         reset(defaultValues);
-    }, [asPath, reset, defaultValues]);
+    }, [asPath]);
 
     const hideModal = useCallback(() => {
         onClose();
@@ -222,8 +221,6 @@ export const ScheduleDeactivationForm = ({
         ]);
         return '';
     }, []);
-
-    const sessionUser = useSessionUser();
 
     return (
         <StyledModal visible={visible} onClose={hideModal} width={700}>
@@ -383,7 +380,7 @@ export const ScheduleDeactivationForm = ({
                         attachFormatter={attachFormatter}
                     />
                     {files.map((file) => (
-                        <AttachItem user={sessionUser} file={file} key={file.id} />
+                        <AttachItem file={file} key={file.id} />
                     ))}
                     <FormActions>
                         <FormAction left />
