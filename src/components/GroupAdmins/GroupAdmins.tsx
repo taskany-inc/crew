@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { gapM, gapS } from '@taskany/colors';
 import { Fieldset } from '@taskany/bricks';
-import { useSession } from 'next-auth/react';
 
 import { trpc } from '../../trpc/trpcClient';
 import { Restricted } from '../Restricted';
@@ -32,7 +31,6 @@ interface GroupAdminsProps {
 
 export const GroupAdmins = ({ groupId, isEditable }: GroupAdminsProps) => {
     const groupAdminsQuery = trpc.group.getGroupAdmins.useQuery(groupId);
-    const sessionUser = useSession();
 
     return (
         <>
@@ -41,7 +39,7 @@ export const GroupAdmins = ({ groupId, isEditable }: GroupAdminsProps) => {
                     {groupAdminsQuery.data?.map((groupAdmin) => (
                         <StyledRow key={groupAdmin.userId}>
                             <UserListItem user={groupAdmin.user} />
-                            <Restricted visible={!!sessionUser.data?.user.role?.editFullGroupTree}>
+                            <Restricted visible={isEditable}>
                                 <GroupAdminMenu admin={groupAdmin} />
                             </Restricted>
                         </StyledRow>
