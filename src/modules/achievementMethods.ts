@@ -82,9 +82,9 @@ export const achievementMethods = {
             await sendMail({
                 to: user.email,
                 subject: tr('New achievement!'),
-                text: tr('Congratulations! You have new achievement: {achievement}', {
+                text: `${tr('Congratulations! You have new achievement: {achievement}', {
                     achievement: achievement.title,
-                }),
+                })}\n${tr('Nomination:')} ${achievement.nomination}`,
             });
         }
 
