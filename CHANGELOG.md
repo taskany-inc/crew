@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.65.1](https://github.com/taskany-inc/crew/compare/v0.65.0...v0.65.1) (2024-06-20)
+
+
+### Bug Fixes
+
+* **Attaches:** removing attachment through trpc router ([6ee543a](https://github.com/taskany-inc/crew/commit/6ee543a2ef527158939855086f1e353ba62f84e0))
+* return access to supervisor ([8155aaa](https://github.com/taskany-inc/crew/commit/8155aaa145ca8b1d554b2653acb94f45f0747d39))
+
 ## [0.65.0](https://github.com/taskany-inc/crew/compare/v0.64.0...v0.65.0) (2024-06-19)
 
 
