@@ -115,6 +115,8 @@ model User {
   groupAdmins          GroupAdmin[]
   userCreationRequests UserCreationRequest[]
 
+  mailingSettings MailingSettings?
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
@@ -139,6 +141,7 @@ model UserCreationRequest {
   status                UserCreationRequestStatus?
   comment               String?
   services              Json
+  date                  DateTime?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -164,7 +167,7 @@ model UserRole {
   editScheduledDeactivation Boolean @default(false)
   viewScheduledDeactivation Boolean @default(false)
 
-  editFullGroupTree          Boolean @default(false)
+  editFullGroupTree Boolean @default(false)
 
   viewHistoryEvents Boolean @default(false)
 
@@ -569,10 +572,21 @@ model GroupAdmin {
 
 model Attach {
   id                      String                 @id @default(uuid())
-  createdAt               DateTime               @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
-  link                    String 
+  link                    String
   filename                String
   deletedAt               DateTime?
   scheduledDeactivation   ScheduledDeactivation? @relation(fields: [scheduledDeactivationId], references: [id])
   scheduledDeactivationId String?
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+}
+
+model MailingSettings {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  createUserRequest          Boolean @default(false)
+  createScheduledUserRequest Boolean @default(false)
+  scheduledDeactivation      Boolean @default(false)
 }

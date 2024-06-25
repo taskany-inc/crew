@@ -1,14 +1,13 @@
 import { TRPCError } from '@trpc/server';
-import { ScheduledDeactivation, Attach } from '@prisma/client';
+import { Attach } from '@prisma/client';
 import { ICalCalendarMethod } from 'ical-generator';
 import fs from 'fs';
 import { Readable } from 'stream';
 
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
-import { formatDate } from '../utils/dateTime';
-import { defaultLocale } from '../utils/getLang';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
+import { scheduledDeactivationEmailHtml } from '../utils/emailTemplates';
 
 import {
     CreateScheduledDeactivation,
@@ -17,11 +16,6 @@ import {
 } from './scheduledDeactivationSchemas';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
-import {
-    AdditionalDevice,
-    ScheduledDeactivationNewOrganizationUnit,
-    ScheduledDeactivationUser,
-} from './scheduledDeactivationTypes';
 import { userMethods } from './userMethods';
 import { getObject } from './s3Methods';
 
@@ -38,133 +32,6 @@ const nodemailerAttachments = async (attaches: Attach[]) =>
             return { path: tempFilePath, filename: attach.filename };
         }),
     );
-
-const html = (data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit) => `
-<head>
-  <style>
-    table { border-collapse: collapse; }
-    th { text-align: left; }
-  </style>
-</head>        
-<body>
-    ${tr('Hello colleagues!')}<br/>
-    ${
-        data.type === 'retirement'
-            ? tr('Planning retirement of worker.')
-            : tr('Planning transfer of worker to {newOrganization} {unitId}', {
-                  newOrganization: data?.newOrganizationUnit ? getOrgUnitTitle(data?.newOrganizationUnit) : '',
-                  unitId: data.unitId!,
-              })
-    }<br/>
-    ${tr('Details below.')}<br/>
-    ${tr('The meeting is for informational purposes only.')}<br/>
-    <table border='1' cellpadding='8'>
-        <tr>
-            <th>${tr('Date')}</th>
-            <td>${formatDate(data.deactivateDate, defaultLocale)}</td>
-        </tr>
-        <tr>
-            <th>${tr('Full name')}</th>
-            <td>${data.user.name}</td>
-        </tr>
-        <tr>
-            <th>${tr('Working hours,<br/>workplace (if any)')}</th>
-            <td>
-                ${data.workMode}${data.workModeComment ? `, ${data.workModeComment}` : ''}
-            </td>
-        </tr>
-    ${
-        data.type === 'transfer'
-            ? `
-        <tr>
-            <th>${tr('Transfer from, role')}</th>
-            <td>${data.organizationalGroup}, ${data.organizationRole}</td>
-        </tr>
-        <tr>
-            <th>${tr('Transfer to, role')}</th>
-            <td>${data.newOrganizationalGroup}, ${data.newOrganizationRole}</td>
-        </tr>
-        <tr>
-            <th>${tr('Unit')}</th>
-            <td>${data.unitId}</td>
-        </tr>
-    `
-            : ''
-    }
-        <tr>
-            <th>${tr('Location')}</th>
-            <td>${data.location}</td>
-        </tr>
-        <tr>
-            <th>${tr('Email')}</th>
-            <td>${data.email}</td>
-        </tr>
-        <tr>
-            <th>${tr('Teamlead')}</th>
-            <td>${data.teamLead}</td>
-        </tr>
-        <tr>
-            <th>${tr('Devices')}</th>
-            <td></td>
-        </tr>
-    ${
-        JSON.parse(data.devices as string)
-            ?.map(
-                (d: AdditionalDevice) =>
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${tr('Device name')}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${d.name}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${tr('Device id')}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${d.id}</td>` +
-                    '</tr>',
-            )
-            .join('') || ''
-    }
-        <tr>
-            <th>${tr('Testing devices')}</th>
-            <td></td>
-        </tr>
-    ${
-        JSON.parse(data.testingDevices as string)
-            ?.map(
-                (d: AdditionalDevice) =>
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${tr('Device name')}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${d.name}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${tr('Device id')}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${d.id}</td>` +
-                    '</tr>',
-            )
-            .join('') || ''
-    }
-        <tr>
-            <th>${tr('Comments')}</th>
-            <td>${data.comments}</td>
-        </tr>
-    </table>
-${tr('Sincerely,<br/>HR-team!')}
-</body>
-`;
 
 export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {
@@ -214,7 +81,7 @@ export const scheduledDeactivationMethods = {
 
         await sendMail({
             to,
-            html: html(scheduledDeactivation),
+            html: scheduledDeactivationEmailHtml(scheduledDeactivation),
             subject,
             attachments,
             icalEvent: calendarEvents({
@@ -347,7 +214,7 @@ export const scheduledDeactivationMethods = {
 
         await sendMail({
             to,
-            html: html(scheduledDeactivation),
+            html: scheduledDeactivationEmailHtml(scheduledDeactivation),
             subject,
             attachments,
             icalEvent: calendarEvents({

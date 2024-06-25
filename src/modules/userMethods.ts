@@ -1,5 +1,6 @@
 import { Prisma, User, UserCreationRequest } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { ICalCalendarMethod } from 'ical-generator';
 
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
@@ -8,6 +9,7 @@ import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
+import { htmlUserCreationRequestWithDate, userCreationMailText } from '../utils/emailTemplates';
 
 import {
     ExternalUserUpdate,
@@ -40,6 +42,7 @@ import {
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
 import { userAccess } from './userAccess';
+import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -500,7 +503,7 @@ export const userMethods = {
             servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
         }
 
-        return prisma.userCreationRequest.create({
+        const userCreationRequest = await prisma.userCreationRequest.create({
             data: {
                 name,
                 supervisorLogin: supervisor.login,
@@ -512,8 +515,55 @@ export const userMethods = {
                 services: {
                     toJSON: () => servicesData,
                 },
+                date: data.date,
             },
+            include: { group: true, organization: true, supervisor: true },
         });
+
+        const mailTo = await prisma.user.findMany({
+            where: { mailingSettings: { createUserRequest: true }, active: true },
+            select: { email: true },
+        });
+
+        const mailText = userCreationMailText(name);
+
+        const subject = tr('New user request {userName}', { userName: name });
+
+        sendMail({
+            to: mailTo.map(({ email }) => email),
+            subject,
+            text: mailText,
+        });
+
+        if (data.date) {
+            const scheduledRequestMailTo = await prisma.user.findMany({
+                where: { mailingSettings: { createScheduledUserRequest: true }, active: true },
+                select: { email: true, name: true },
+            });
+
+            const icalEvent = createIcalEventData({
+                id: userCreationRequest.id + config.nodemailer.authUser,
+                start: data.date,
+                allDay: true,
+                duration: 0,
+                users: scheduledRequestMailTo.map((user) => ({ email: user.email, name: user.name || undefined })),
+                summary: subject,
+                description: subject,
+            });
+
+            const html = htmlUserCreationRequestWithDate(userCreationRequest, data.phone, data.date);
+            sendMail({
+                to: scheduledRequestMailTo.map(({ email }) => email),
+                subject,
+                html,
+                icalEvent: calendarEvents({
+                    method: ICalCalendarMethod.REQUEST,
+                    events: [icalEvent],
+                }),
+            });
+        }
+
+        return userCreationRequest;
     },
 
     getUsersRequests: async (): Promise<FullyUserCreationRequest[]> => {
