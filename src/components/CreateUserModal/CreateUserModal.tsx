@@ -185,6 +185,12 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                                 onChange={onCreateExternalAccountClick}
                             />
                         </StyledInputContainer>
+
+                        <FormInput
+                            type="date"
+                            autoComplete="off"
+                            onChange={(e) => e.target.valueAsDate && setValue('date', e.target.valueAsDate)}
+                        />
                     </NoWrap>
 
                     <FormActions>
