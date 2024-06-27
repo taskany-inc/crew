@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.66.0](https://github.com/taskany-inc/crew/compare/v0.65.1...v0.66.0) (2024-06-27)
+
+
+### Features
+
+* add name/email fields to endpoint ([3cb5731](https://github.com/taskany-inc/crew/commit/3cb5731cbeededd2326856c6cfff351ba9d4855c))
+* email notification to create user request ([94471f4](https://github.com/taskany-inc/crew/commit/94471f4ced84d6f1a885ffc7715f67040bc5b985))
+* scheduled deactivation send by mailing lists ([2883a23](https://github.com/taskany-inc/crew/commit/2883a23f489780797247531532b8a9b5d9502364))
+
+
+### Bug Fixes
+
+* deleted attach not visible ([ab3a4ef](https://github.com/taskany-inc/crew/commit/ab3a4ef18dca8ce672d934d26b815c3b4b7c1d13))
+
 ## [0.65.1](https://github.com/taskany-inc/crew/compare/v0.65.0...v0.65.1) (2024-06-20)
 
 
