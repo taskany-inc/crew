@@ -51,10 +51,7 @@ export const scheduledDeactivationMethods = {
             include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true, attaches: true },
         });
 
-        const users = [
-            ...(config.nodemailer.scheduledDeactivationEmails?.split(' ').map((email) => ({ email })) || []),
-            { email: scheduledDeactivation.creator.email, name: scheduledDeactivation.creator.name! },
-        ];
+        const { to, users } = await userMethods.getMailingList('scheduledDeactivation', scheduledDeactivation.creator);
 
         const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
 
@@ -68,7 +65,6 @@ export const scheduledDeactivationMethods = {
                       getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
                   } ${user.name} (${restData.phone})`;
 
-        const to = `${config.nodemailer.scheduledDeactivationEmails} ${scheduledDeactivation.creator.email}`.split(' ');
         const icalEvent = createIcalEventData({
             id: scheduledDeactivation.id + config.nodemailer.authUser,
             start: data.deactivateDate,
@@ -124,10 +120,8 @@ export const scheduledDeactivationMethods = {
                 ? tr('Cancel retirement of {userName}', { userName: scheduledDeactivation.user.name! })
                 : tr('Cancel transfer of {userName}', { userName: scheduledDeactivation.user.name! });
 
-        const users = [
-            ...(config.nodemailer.scheduledDeactivationEmails?.split(' ').map((email) => ({ email })) || []),
-            { email: scheduledDeactivation.creator.email, name: scheduledDeactivation.creator.name! },
-        ];
+        const { to, users } = await userMethods.getMailingList('scheduledDeactivation', scheduledDeactivation.creator);
+
         const icalEvent = createIcalEventData({
             id: scheduledDeactivation.id + config.nodemailer.authUser,
             start: scheduledDeactivation.deactivateDate,
@@ -137,8 +131,6 @@ export const scheduledDeactivationMethods = {
             summary: subject,
             description: subject,
         });
-
-        const to = `${config.nodemailer.scheduledDeactivationEmails} ${scheduledDeactivation.creator.email}`.split(' ');
 
         await sendMail({
             to,
@@ -194,12 +186,8 @@ export const scheduledDeactivationMethods = {
                       getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
                   } ${scheduledDeactivation.user.name} (${restData.phone})`;
 
-        const to = `${config.nodemailer.scheduledDeactivationEmails} ${scheduledDeactivation.creator.email}`.split(' ');
+        const { to, users } = await userMethods.getMailingList('scheduledDeactivation', scheduledDeactivation.creator);
 
-        const users = [
-            ...(config.nodemailer.scheduledDeactivationEmails?.split(' ').map((email) => ({ email })) || []),
-            { email: scheduledDeactivation.creator.email, name: scheduledDeactivation.creator.name! },
-        ];
         const icalEvent = createIcalEventData({
             id: scheduledDeactivation.id + config.nodemailer.authUser,
             start: data.deactivateDate,
