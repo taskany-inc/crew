@@ -25,6 +25,12 @@ export interface UserSettings {
 
 export type MembershipInfo = Membership & { group: Group & GroupMeta; user: User; roles: Role[] };
 
+export type MembershipInfoWithUserOrganizationUnit = Membership & {
+    group: Group & GroupMeta;
+    user: User & UserOrganizationUnit;
+    roles: Role[];
+};
+
 export interface UserMeta {
     meta: Record<keyof typeof userAccess, boolean>;
 }
