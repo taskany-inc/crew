@@ -12,12 +12,18 @@ import s from './AttachItem.module.css';
 
 interface AttachItemProps {
     file: File;
+    onRemove?: () => void;
 }
 
-export const AttachItem = ({ file }: AttachItemProps) => {
+export const AttachItem = ({ file, onRemove }: AttachItemProps) => {
     const showDeleteButton = useBoolean(false);
 
     const { deleteAttach } = useAttachMutations();
+
+    const onDeleteAttachClick = () => {
+        deleteAttach(file.id);
+        onRemove && onRemove();
+    };
 
     return (
         <div key={file.id} className={s.AttachItem}>
@@ -34,7 +40,7 @@ export const AttachItem = ({ file }: AttachItemProps) => {
                             outline
                             view="danger"
                             text={tr('Delete')}
-                            onClick={() => deleteAttach(file.id)}
+                            onClick={onDeleteAttachClick}
                         />
                         <Button brick="left" size="s" outline text={tr('Cancel')} onClick={showDeleteButton.setFalse} />
                     </>

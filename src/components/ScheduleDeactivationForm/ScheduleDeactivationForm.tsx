@@ -380,7 +380,11 @@ export const ScheduleDeactivationForm = ({
                         attachFormatter={attachFormatter}
                     />
                     {files.map((file) => (
-                        <AttachItem file={file} key={file.id} />
+                        <AttachItem
+                            file={file}
+                            key={file.id}
+                            onRemove={() => setFiles(files.filter(({ id }) => id !== file.id))}
+                        />
                     ))}
                     <FormActions>
                         <FormAction left />
