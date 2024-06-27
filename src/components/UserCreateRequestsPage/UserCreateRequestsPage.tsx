@@ -3,10 +3,11 @@ import { nullable } from '@taskany/bricks';
 
 import { useBoolean } from '../../hooks/useBoolean';
 import { CommonHeader } from '../CommonHeader';
-import { LayoutMain, PageContent } from '../LayoutMain';
+import { PageContent } from '../LayoutMain';
 import { UserCreationRequestModal } from '../UserCreationRequestModal/UserCreationRequestModal';
 import { UserCreateRequestsTable } from '../UserCreateRequestsTable/UserCreateRequestsTable';
 import { UserRequest } from '../../trpc/inferredTypes';
+import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 
 import { tr } from './UserCreateRequestsPage.i18n';
 
@@ -15,7 +16,7 @@ export const UserCreateRequestsPage = () => {
     const [request, setRequest] = useState<UserRequest | null>(null);
 
     return (
-        <LayoutMain pageTitle={tr('Requests for user creation')}>
+        <ProfilesManagementLayout>
             <CommonHeader title={tr('Requests for user creation')} />
             <PageContent>
                 <UserCreateRequestsTable
@@ -31,6 +32,6 @@ export const UserCreateRequestsPage = () => {
                     request={r}
                 />
             ))}
-        </LayoutMain>
+        </ProfilesManagementLayout>
     );
 };

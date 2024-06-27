@@ -1,20 +1,18 @@
 import { trpc } from '../../trpc/trpcClient';
-import { LayoutMain } from '../LayoutMain';
+import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { ScheduledDeactivationItem } from '../ScheduledDeactivationItem/ScheduledDeactivationItem';
-
-import { tr } from './ScheduledDeactivationList.i18n';
 
 export const ScheduledDeactivationList = () => {
     const scheduledDeactivations = trpc.scheduledDeactivation.getList.useQuery();
 
     return (
-        <LayoutMain pageTitle={tr('Scheduled deactivations')}>
+        <ProfilesManagementLayout>
             {scheduledDeactivations.data?.map((scheduledDeactivation) => (
                 <ScheduledDeactivationItem
                     key={scheduledDeactivation.id}
                     scheduledDeactivation={scheduledDeactivation}
                 />
             ))}
-        </LayoutMain>
+        </ProfilesManagementLayout>
     );
 };
