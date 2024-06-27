@@ -19,7 +19,7 @@ import {
 import { tr } from './modules.i18n';
 import { GroupMeta, GroupParent, GroupSupervisor, GroupVacancies } from './groupTypes';
 import { groupAccess } from './groupAccess';
-import { MembershipInfo } from './userTypes';
+import { MembershipInfoWithUserOrganizationUnit } from './userTypes';
 
 export const addCalculatedGroupFields = async <T extends Group>(
     group: T,
@@ -261,10 +261,21 @@ export const groupMethods = {
         return groups.reverse();
     },
 
-    getMemberships: async (id: string, sessionUser?: SessionUser): Promise<MembershipInfo[]> => {
+    getMemberships: async (
+        id: string,
+        sessionUser?: SessionUser,
+    ): Promise<MembershipInfoWithUserOrganizationUnit[]> => {
         const memberships = await prisma.membership.findMany({
             where: { groupId: id, archived: false },
-            include: { group: true, user: true, roles: true },
+            include: {
+                group: true,
+                roles: true,
+                user: {
+                    include: {
+                        organizationUnit: true,
+                    },
+                },
+            },
         });
 
         const isEditable = sessionUser ? (await groupAccess.isEditable(sessionUser, id)).allowed : false;
