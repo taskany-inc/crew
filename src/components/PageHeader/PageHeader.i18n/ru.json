@@ -1,7 +1,7 @@
 {
     "Teams": "Команды",
     "Users": "Пользователи",
-    "User requests": "Заявки",
+    "Profiles management": "Заявки",
     "creating users": "создание пользователей",
     "editing users": "редактирование пользователей",
     "user creation request": "редактирование заявок на создание пользователя",
@@ -16,7 +16,6 @@
     "Logs": "Логи",
     "creating and editing scheduled deactivations": "создание и редактирование плановых деактиваций",
     "viewing scheduled deactivations": "просмотр плановых деактиваций",
-    "Scheduled deactivations": "Запланированные деактивации",
     "Admin panel": "Панель администратора",
     "editing role scopes": "редактирование доступов ролей",
     "editing user roles": "редактирование ролей пользователя"
