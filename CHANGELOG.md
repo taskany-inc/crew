@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.66.0](https://github.com/taskany-inc/crew/compare/v0.65.1...v0.66.0) (2024-06-27)
+
+
+### Features
+
+* email notification to create user request ([94471f4](https://github.com/taskany-inc/crew/commit/94471f4ced84d6f1a885ffc7715f67040bc5b985))
+
 ## [0.65.1](https://github.com/taskany-inc/crew/compare/v0.65.0...v0.65.1) (2024-06-20)
 
 
