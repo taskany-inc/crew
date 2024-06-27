@@ -100,6 +100,8 @@ export type GetUserSuggestions = z.infer<typeof getUserSuggestionsSchema>;
 
 export const userRestApiDataSchema = z.object({
     id: z.string(),
+    name: z.string().nullable(),
+    email: z.string(),
     surname: z.string(),
     firstName: z.string(),
     middleName: z.string().optional(),
