@@ -24,6 +24,7 @@ import {
     UserOrganizationUnit,
     FullyUserCreationRequest,
     UserRoleData,
+    MailingSettingType,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -520,40 +521,34 @@ export const userMethods = {
             include: { group: true, organization: true, supervisor: true },
         });
 
-        const mailTo = await prisma.user.findMany({
-            where: { mailingSettings: { createUserRequest: true }, active: true },
-            select: { email: true },
-        });
+        const { to } = await userMethods.getMailingList('createUserRequest');
 
         const mailText = userCreationMailText(name);
 
         const subject = tr('New user request {userName}', { userName: name });
 
         sendMail({
-            to: mailTo.map(({ email }) => email),
+            to,
             subject,
             text: mailText,
         });
 
         if (data.date) {
-            const scheduledRequestMailTo = await prisma.user.findMany({
-                where: { mailingSettings: { createScheduledUserRequest: true }, active: true },
-                select: { email: true, name: true },
-            });
+            const { users, to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest');
 
             const icalEvent = createIcalEventData({
                 id: userCreationRequest.id + config.nodemailer.authUser,
                 start: data.date,
                 allDay: true,
                 duration: 0,
-                users: scheduledRequestMailTo.map((user) => ({ email: user.email, name: user.name || undefined })),
+                users,
                 summary: subject,
                 description: subject,
             });
 
             const html = htmlUserCreationRequestWithDate(userCreationRequest, data.phone, data.date);
             sendMail({
-                to: scheduledRequestMailTo.map(({ email }) => email),
+                to: mailTo,
                 subject,
                 html,
                 icalEvent: calendarEvents({
@@ -672,5 +667,20 @@ export const userMethods = {
             newUser,
             acceptedRequest: acceptedRequest as FullyUserCreationRequest,
         };
+    },
+
+    getMailingList: async (mailingType: MailingSettingType, user?: User) => {
+        const mailingList = await prisma.user.findMany({
+            where: { mailingSettings: { [mailingType]: true }, active: true },
+            select: { email: true, name: true },
+        });
+
+        const users = mailingList.map(({ email, name }) => ({ email, name: name! }));
+
+        user && users.push({ email: user.email, name: user.name! });
+
+        const to = users.map(({ email }) => email);
+
+        return { users, to };
     },
 };
