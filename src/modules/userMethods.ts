@@ -480,11 +480,11 @@ export const userMethods = {
         const supervisor = await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } });
 
         if (!supervisor.login) {
-            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Supervisor has no login' });
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Supervisor has no login' });
         }
 
         if (!data.groupId) {
-            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Group is required' });
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Group is required' });
         }
 
         const [phoneService, accountingService] = await Promise.all([
@@ -586,7 +586,7 @@ export const userMethods = {
             const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
 
             if (!phone) {
-                throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Phone service is required' });
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Phone service is required' });
             }
 
             await externalUserCreate({
