@@ -103,8 +103,13 @@ export const bonusPointsMethods = {
                 authorization: `Bearer ${config.bonusPoints.apiToken}`,
             },
         });
+
+        if (!response.ok) {
+            Sentry.captureException(response.statusText);
+        }
+
         const json = await response.json();
-        const items: BonusPointsAchievement[] = json.data;
+        const items: BonusPointsAchievement[] = json.data || [];
         return items;
     },
 };
