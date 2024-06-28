@@ -22,7 +22,7 @@ import {
 } from '@taskany/bricks';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { gapM, gapS, gray9 } from '@taskany/colors';
+import { danger0, gapM, gapS, gray9 } from '@taskany/colors';
 import { useRouter } from 'next/router';
 
 import {
@@ -46,6 +46,7 @@ import {
 import { pages } from '../../hooks/useRouter';
 import { File } from '../../modules/attachTypes';
 import { AttachItem } from '../AttachItem/AttachItem';
+import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { getFileIdFromPath } from '../../utils/attach';
 
 import { tr } from './ScheduleDeactivationForm.i18n';
@@ -69,6 +70,11 @@ const StyledLabel = styled(Text)`
 
 const StyledFormInput = styled(FormInput)`
     width: 60%;
+`;
+
+const StyledUserComboBox = styled.div`
+    margin: ${gapS} ${gapM};
+    width: 250px;
 `;
 
 interface ScheduleDeactivationFormProps {
@@ -158,6 +164,13 @@ export const ScheduleDeactivationForm = ({
         resolver: zodResolver(createScheduledDeactivationSchema),
         defaultValues,
     });
+
+    const teamLeadQuery = scheduledDeactivation?.teamLeadId
+        ? trpc.user.getById.useQuery(scheduledDeactivation.teamLeadId)
+        : undefined;
+    const newTeamLeadQuery = scheduledDeactivation?.newTeamLeadId
+        ? trpc.user.getById.useQuery(scheduledDeactivation.newTeamLeadId)
+        : undefined;
 
     useEffect(() => {
         if (!scheduledDeactivation) {
@@ -266,15 +279,42 @@ export const ScheduleDeactivationForm = ({
                         error={errors.organizationUnitId}
                     />
                     <StyledLabel weight="bold">{tr('TeamLead')}</StyledLabel>
-                    <StyledFormInput error={errors.teamLead} autoComplete="off" {...register('teamLead')} />
+                    <StyledUserComboBox>
+                        <UserComboBox
+                            user={user?.supervisor || teamLeadQuery?.data}
+                            onChange={(u) => {
+                                if (u) {
+                                    setValue('teamLead', u.name || u.email);
+                                    setValue('teamLeadId', u.id);
+                                }
+                            }}
+                        />
+                    </StyledUserComboBox>
+
+                    {nullable(errors.teamLead && !watch('teamLead'), () => (
+                        <Text color={danger0} size="s">
+                            {errors.teamLead?.message}
+                        </Text>
+                    ))}
                     {nullable(watch('type') === 'transfer', () => (
                         <>
                             <StyledLabel weight="bold">{tr('New teamlead')}</StyledLabel>
-                            <StyledFormInput
-                                error={errors.newTeamLead}
-                                autoComplete="off"
-                                {...register('newTeamLead')}
-                            />
+                            <StyledUserComboBox>
+                                <UserComboBox
+                                    user={newTeamLeadQuery?.data}
+                                    onChange={(u) => {
+                                        if (u) {
+                                            setValue('newTeamLead', u.name || u.email);
+                                            setValue('newTeamLeadId', u.id);
+                                        }
+                                    }}
+                                />
+                                {nullable(errors.newTeamLead && !watch('newTeamLead'), () => (
+                                    <Text color={danger0} size="s">
+                                        {errors.newTeamLead?.message}
+                                    </Text>
+                                ))}
+                            </StyledUserComboBox>
                             <StyledLabel weight="bold">{tr('Transfer to')}</StyledLabel>
                             <OrganizationUnitComboBox
                                 onChange={(group) => group && setValue('newOrganizationUnitId', group.id)}
