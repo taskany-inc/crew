@@ -23,9 +23,7 @@ export interface UserSettings {
     locale: string;
 }
 
-export type MembershipInfo = Membership & { group: Group & GroupMeta; user: User; roles: Role[] };
-
-export type MembershipInfoWithUserOrganizationUnit = Membership & {
+export type MembershipInfo = Membership & {
     group: Group & GroupMeta;
     user: User & UserOrganizationUnit;
     roles: Role[];

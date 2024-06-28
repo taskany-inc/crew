@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { nullable, Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 
-import { MembershipInfoWithUserOrganizationUnit } from '../modules/userTypes';
+import { MembershipInfo } from '../modules/userTypes';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
 
 import { UserListItem } from './UserListItem/UserListItem';
@@ -10,7 +10,7 @@ import { MembershipEditMenu } from './MembershipEditMenu/MembershipEditMenu';
 import { Restricted } from './Restricted';
 
 interface MembershipUserListItemEditableProps {
-    membership: MembershipInfoWithUserOrganizationUnit;
+    membership: MembershipInfo;
 }
 
 const StyledRow = styled.div`

@@ -247,7 +247,15 @@ export const userMethods = {
             include: {
                 memberships: {
                     where: { archived: false },
-                    include: { group: true, user: true, roles: true },
+                    include: {
+                        group: true,
+                        roles: true,
+                        user: {
+                            include: {
+                                organizationUnit: true,
+                            },
+                        },
+                    },
                     orderBy: { group: { name: 'asc' } },
                 },
                 supervisor: true,
@@ -345,7 +353,15 @@ export const userMethods = {
     getMemberships: async (id: string, sessionUser?: SessionUser): Promise<MembershipInfo[]> => {
         const memberships = await prisma.membership.findMany({
             where: { userId: id, archived: false },
-            include: { group: true, user: true, roles: true },
+            include: {
+                group: true,
+                roles: true,
+                user: {
+                    include: {
+                        organizationUnit: true,
+                    },
+                },
+            },
         });
 
         return Promise.all(
