@@ -214,6 +214,9 @@ model ScheduledDeactivation {
   teamLead    String
   newTeamLead String?
 
+  teamLeadId    String?
+  newTeamLeadId String?
+
   organizationRole    String?
   newOrganizationRole String?
 
