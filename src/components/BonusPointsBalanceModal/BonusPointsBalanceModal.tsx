@@ -105,7 +105,7 @@ export const BonusPointsBalanceModal = ({ userId, visible, onClose }: BonusPoint
             action: BonusAction.ADD,
             amount: achievement.attributes.bonus,
             externalAchievementId: String(achievement.id),
-            externalAchievementCategoryId: String(achievement.attributes.achievment_category?.data.id),
+            externalAchievementCategoryId: String(achievement.attributes.achievment_category?.data?.id),
             description: `${tr('Points for achievement')} ${achievement.attributes.title} (id ${achievement.id})`,
         });
         hideModal();

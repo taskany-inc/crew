@@ -105,11 +105,20 @@ export const bonusPointsMethods = {
         });
 
         if (!response.ok) {
-            Sentry.captureException(response.statusText);
+            Sentry.captureException(`BonusPointsAchievement error ${response.statusText}`);
         }
 
         const json = await response.json();
         const items: BonusPointsAchievement[] = json.data || [];
+
+        if (items.some((item) => !item.attributes.achievment_category?.data?.id)) {
+            Sentry.captureException(
+                `BonusPointsAchievements does not have achievement category ${items
+                    .filter((item) => !item.attributes.achievment_category?.data)
+                    .map((item) => item.attributes.title)
+                    .join(', ')}`,
+            );
+        }
         return items;
     },
 };
