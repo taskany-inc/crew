@@ -6,5 +6,8 @@
     "Supervisor of users": "",
     "Supervisor in teams": "",
     "History of activity": "",
-    "Schedule deactivation": ""
+    "Schedule deactivation": "",
+    "scheduled on {date}": "",
+    "retirement": "Retirement",
+    "transfer": "Transfer"
 }

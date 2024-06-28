@@ -35,10 +35,14 @@ import {
     UserMeta,
     UserOrganizationUnit,
     UserRoleData,
+    UserScheduledDeactivations,
     UserSupervisor,
     UserSupervisorIn,
     UserSupervisorOf,
 } from '../../modules/userTypes';
+import { ScheduleDeactivateType } from '../../modules/scheduledDeactivationTypes';
+import { useLocale } from '../../hooks/useLocale';
+import { formatDate } from '../../utils/dateTime';
 
 import { tr } from './UserPage.i18n';
 
@@ -95,7 +99,8 @@ interface UserPageInnerProps {
         UserRoleData &
         UserAchievements &
         UserSupervisorOf &
-        UserSupervisorIn;
+        UserSupervisorIn &
+        UserScheduledDeactivations;
 }
 
 export const UserPageInner = ({ user }: UserPageInnerProps) => {
@@ -125,6 +130,8 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
         });
     };
 
+    const locale = useLocale();
+
     return (
         <LayoutMain pageTitle={user.name}>
             <StyledHeader>
@@ -144,6 +151,19 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                         </Link>
                     ))}
 
+                    {nullable(
+                        (sessionUser.role?.editScheduledDeactivation || sessionUser.role?.viewScheduledDeactivation) &&
+                            user.scheduledDeactivations[0] &&
+                            user.scheduledDeactivations[0].deactivateDate > new Date(),
+                        () => (
+                            <Text size="s" color={gray8} weight="bold">
+                                {tr(user.scheduledDeactivations[0].type as ScheduleDeactivateType)}{' '}
+                                {tr('scheduled on {date}', {
+                                    date: formatDate(user.scheduledDeactivations[0].deactivateDate, locale),
+                                })}
+                            </Text>
+                        ),
+                    )}
                     <Text size="xxl" weight="bold" color={user.active ? textColor : gray8}>
                         {user.name}
                         {!user.active && tr(' [inactive]')}
@@ -162,6 +182,11 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                     orgRoles={orgRoles}
                     organization={user.organizationUnit}
                     orgGroupName={orgMembership?.group.name}
+                    scheduledDeactivation={
+                        user.scheduledDeactivations[0] && user.scheduledDeactivations[0].deactivateDate > new Date()
+                            ? { ...user.scheduledDeactivations[0], user }
+                            : undefined
+                    }
                 />
                 <EditButtonsWrapper>
                     <Restricted visible={!!sessionUser.role?.editUser}>
