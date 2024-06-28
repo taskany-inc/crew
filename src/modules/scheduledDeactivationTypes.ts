@@ -28,3 +28,4 @@ export interface ScheduledDeactivationAttaches {
 }
 
 export const scheduleDeactivateType = ['retirement', 'transfer'] as const;
+export type ScheduleDeactivateType = (typeof scheduleDeactivateType)[number];

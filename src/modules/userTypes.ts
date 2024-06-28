@@ -8,6 +8,7 @@ import {
     OrganizationUnit,
     UserCreationRequest,
     UserRole,
+    ScheduledDeactivation,
 } from '@prisma/client';
 
 import { Nullish } from '../utils/types';
@@ -15,6 +16,11 @@ import { Theme } from '../utils/theme';
 
 import { GroupMeta } from './groupTypes';
 import { userAccess } from './userAccess';
+import {
+    ScheduledDeactivationAttaches,
+    ScheduledDeactivationNewOrganizationUnit,
+    ScheduledDeactivationOrganizationUnit,
+} from './scheduledDeactivationTypes';
 
 export interface UserSettings {
     userId: string;
@@ -65,6 +71,15 @@ export interface UserAchievements {
 
 export interface UserOrganizationUnit {
     organizationUnit: Nullish<OrganizationUnit>;
+}
+
+export interface UserScheduledDeactivations {
+    scheduledDeactivations: Array<
+        ScheduledDeactivation &
+            ScheduledDeactivationOrganizationUnit &
+            ScheduledDeactivationNewOrganizationUnit &
+            ScheduledDeactivationAttaches
+    >;
 }
 
 export interface FullyUserCreationRequest extends UserCreationRequest {

@@ -6,5 +6,8 @@
     "Supervisor of users": "Руководитель у пользователей",
     "Supervisor in teams": "Руководитель в командах",
     "History of activity": "История активности",
-    "Schedule deactivation": "Плановая деактивация"
+    "Schedule deactivation": "Плановая деактивация",
+    "scheduled on {date}": "запланирован(о) на {date}",
+    "retirement": "Увольнение",
+    "transfer": "Перевод"
 }
