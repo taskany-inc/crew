@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Text } from '@taskany/bricks';
+import { nullable, Text } from '@taskany/bricks';
 import { gapS, gray9 } from '@taskany/colors';
 
 import { MembershipInfoWithUserOrganizationUnit } from '../modules/userTypes';
@@ -28,7 +28,7 @@ export const MembershipUserListItemEditable = ({ membership }: MembershipUserLis
         <StyledRow>
             <UserListItem user={membership.user} />
             <Text size="xs" color={gray9}>
-                {organizationUnit && `${getOrgUnitTitle(organizationUnit)}: `}
+                {nullable(organizationUnit, (v) => `${getOrgUnitTitle(v)}: `)}
                 {membership.roles.map((role) => role.name).join(', ')}
             </Text>
 
