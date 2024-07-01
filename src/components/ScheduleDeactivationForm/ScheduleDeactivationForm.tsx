@@ -127,6 +127,7 @@ export const ScheduleDeactivationForm = ({
         deactivateDate: scheduledDeactivation?.deactivateDate || undefined,
         email: scheduledDeactivation?.email || user?.email,
         teamLead: scheduledDeactivation?.teamLead || user?.supervisor?.name || undefined,
+        teamLeadId: scheduledDeactivation?.teamLeadId || user?.supervisor?.id || undefined,
         organizationUnitId: scheduledDeactivation?.organizationUnitId || organization?.id,
         organization: scheduledDeactivation?.organization || (organization ? getOrgUnitTitle(organization) : undefined),
         organizationalGroup: scheduledDeactivation?.organizationalGroup || orgGroupName,
@@ -134,6 +135,7 @@ export const ScheduleDeactivationForm = ({
         newOrganizationUnitId: scheduledDeactivation?.newOrganizationUnitId || undefined,
         newOrganizationalGroup: scheduledDeactivation?.newOrganizationalGroup || undefined,
         newOrganizationRole: scheduledDeactivation?.newOrganizationRole || undefined,
+        newTeamLeadId: scheduledDeactivation?.newTeamLeadId || undefined,
         newTeamLead: scheduledDeactivation?.newTeamLead || undefined,
         phone: scheduledDeactivation?.phone || undefined,
         workMode: scheduledDeactivation?.workMode || undefined,
@@ -145,14 +147,16 @@ export const ScheduleDeactivationForm = ({
         testingDevices: initTestingDevices,
     };
     const defaultValues =
-        scheduledDeactivation?.type === scheduleDeactivateType[1]
+        scheduledDeactivation &&
+        (scheduledDeactivation?.type === scheduleDeactivateType[1]
             ? {
                   ...defaultValuesBase,
                   disableAccount: scheduledDeactivation.disableAccount,
                   type: scheduleDeactivateType[1],
                   transferPercentage: scheduledDeactivation.transferPercentage!,
               }
-            : { ...defaultValuesBase, type: scheduleDeactivateType[0], disableAccount: true };
+            : { ...defaultValuesBase, type: scheduleDeactivateType[0], disableAccount: true });
+
     const {
         reset,
         handleSubmit,
@@ -165,12 +169,13 @@ export const ScheduleDeactivationForm = ({
         defaultValues,
     });
 
-    const teamLeadQuery = scheduledDeactivation?.teamLeadId
-        ? trpc.user.getById.useQuery(scheduledDeactivation.teamLeadId)
-        : undefined;
-    const newTeamLeadQuery = scheduledDeactivation?.newTeamLeadId
-        ? trpc.user.getById.useQuery(scheduledDeactivation.newTeamLeadId)
-        : undefined;
+    const teamLeadQuery = trpc.user.getById.useQuery(String(scheduledDeactivation?.teamLeadId), {
+        enabled: !!scheduledDeactivation?.teamLeadId,
+    });
+
+    const newTeamLeadQuery = trpc.user.getById.useQuery(String(scheduledDeactivation?.newTeamLeadId), {
+        enabled: !!scheduledDeactivation?.newTeamLeadId,
+    });
 
     useEffect(() => {
         if (!scheduledDeactivation) {

@@ -8,15 +8,24 @@ import {
 } from './scheduledDeactivationSchemas';
 
 export const useScheduledDeactivation = () => {
-    const createScheduledDeactivation = trpc.scheduledDeactivation.create.useMutation();
     const utils = trpc.useContext();
 
+    const createScheduledDeactivation = trpc.scheduledDeactivation.create.useMutation({
+        onSuccess: () => utils.user.invalidate(),
+    });
+
     const editScheduledDeactivation = trpc.scheduledDeactivation.edit.useMutation({
-        onSuccess: () => utils.scheduledDeactivation.invalidate(),
+        onSuccess: () => {
+            utils.scheduledDeactivation.invalidate();
+            utils.user.invalidate();
+        },
     });
 
     const cancelScheduledDeactivation = trpc.scheduledDeactivation.cancel.useMutation({
-        onSuccess: () => utils.scheduledDeactivation.invalidate(),
+        onSuccess: () => {
+            utils.scheduledDeactivation.invalidate();
+            utils.user.invalidate();
+        },
     });
 
     return {
