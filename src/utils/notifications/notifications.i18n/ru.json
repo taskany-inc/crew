@@ -69,5 +69,7 @@
     "An error occurred while canceling profile deactivation": "Произошла ошибка при отмене деактивации профиля",
     "Attach successfully uploaded!": "Приложение успешно загружено!",
     "Uploading...": "Загружаем...",
-    "An error occurred while uploading": "Произошла ошибка при загрузке"
+    "An error occurred while uploading": "Произошла ошибка при загрузке",
+    "User is added to mailing list": "Пользователь добавлен в список рассылки",
+    "Adding user to mailing list...": "Добавляем пользователя в список рассылки..."
 }

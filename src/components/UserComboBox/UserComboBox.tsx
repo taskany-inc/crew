@@ -1,7 +1,7 @@
 import { ComboBox, Input, UserMenuItem, nullable } from '@taskany/bricks';
 import { gray10 } from '@taskany/colors';
-import { useState } from 'react';
-import { User } from 'prisma/prisma-client';
+import { useState, ComponentProps } from 'react';
+import { User } from '@prisma/client';
 
 import { trpc } from '../../trpc/trpcClient';
 import { Nullish } from '../../utils/types';
@@ -13,9 +13,10 @@ import { tr } from './UserComboBox.i18n';
 interface UserComboBoxProps {
     user?: Nullish<User>;
     onChange: (user: Nullish<User>) => void;
+    brick?: ComponentProps<typeof Input>['brick'];
 }
 
-export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
+export const UserComboBox = ({ user, onChange, brick }: UserComboBoxProps) => {
     const [search, setSearch] = useState(user?.name || '');
     const suggestionsVisibility = useBoolean(false);
     const [selectedUser, setSelectedUser] = useState<Nullish<User>>(user);
@@ -46,6 +47,7 @@ export const UserComboBox = ({ user, onChange }: UserComboBoxProps) => {
                         onChange(null);
                         setSearch(e.target.value);
                     }}
+                    brick={brick}
                     {...props}
                 />
             )}

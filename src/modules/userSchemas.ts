@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { themes } from '../utils/theme';
 
 import { tr } from './modules.i18n';
+import { mailingSettingType } from './userTypes';
 
 export const createUserSchema = z.object({
     surname: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
@@ -46,6 +47,7 @@ export const getUserListSchema = z.object({
     supervisorsQuery: z.array(z.string()).optional(),
     activeQuery: z.boolean().optional(),
     cursor: z.string().nullish(),
+    mailingSettings: z.enum(mailingSettingType).optional(),
     take: z
         .number()
         .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
@@ -90,6 +92,13 @@ export const editUserSettingsSchema = z.object({
     locale: z.string().optional(),
 });
 export type EditUserSettings = z.infer<typeof editUserSettingsSchema>;
+
+export const editUserMailingSettingsSchema = z.object({
+    userId: z.string(),
+    type: z.enum(mailingSettingType),
+    value: z.boolean(),
+});
+export type EditUserMailingSettings = z.infer<typeof editUserMailingSettingsSchema>;
 
 export const getUserSuggestionsSchema = z.object({
     query: z.string(),
