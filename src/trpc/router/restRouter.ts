@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { VacancyStatus } from '@prisma/client';
 import { translit } from '@taskany/bricks';
+import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../../utils/prisma';
 import { restProcedure, router } from '../trpcBackend';
@@ -649,7 +650,10 @@ export const restRouter = router({
             const { actingUserEmail, targetUserEmail, sectionsNumber } = input;
 
             if (!config.sectionAchiementId || !config.sectionAmountForAchievement) {
-                return 'No sectionAchiementId or sectionAmountForAchievement';
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'No sectionAchiementId or sectionAmountForAchievement in crew config',
+                });
             }
 
             const [targetUser, actingUser, achievement] = await Promise.all([
@@ -659,7 +663,7 @@ export const restRouter = router({
             ]);
 
             if (sectionsNumber % Number(config.sectionAmountForAchievement) !== 0) {
-                return 'completed sections not divided by sectionAmountForAchievement';
+                return 'Amount of completed sections not divided by sectionAmountForAchievement';
             }
 
             const userAchievement = await prisma.userAchievement.findFirst({
@@ -670,7 +674,7 @@ export const restRouter = router({
 
             const amount = sectionsNumber / Number(config.sectionAmountForAchievement) - achievementCount;
 
-            if (amount <= 0) return 'zero achievements';
+            if (amount <= 0) return 'Not enough sections for achievement';
 
             await achievementMethods.give(
                 {
@@ -686,7 +690,7 @@ export const restRouter = router({
                 before: undefined,
                 after: { id: achievement.id, title: achievement.title, amount },
             });
-            return 'achievement given';
+            return 'Achievement successfully given';
         }),
 
     giveCrewAchievement: restProcedure
