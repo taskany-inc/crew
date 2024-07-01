@@ -20,6 +20,8 @@ export const pages = {
     scheduledDeactivations: '/deactivations',
 
     adminPanel: '/admin-panel',
+    mailingLists: '/admin-panel/mailing-lists',
+
     attaches: '/api/attach',
     attach: (attachId: string) => `/api/attach?id=${attachId}`,
 };
@@ -47,6 +49,8 @@ export const useRouter = () => {
         scheduledDeactivations: () => router.push(pages.scheduledDeactivations),
 
         adminPanel: () => router.push(pages.adminPanel),
+        mailingLists: () => router.push(pages.mailingLists),
+
         attaches: () => router.push(pages.attaches),
         attach: (attachId: string) => () => router.push(pages.attach(attachId)),
     };

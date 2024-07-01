@@ -10,6 +10,7 @@ import {
     EditUserRoleData,
     EditUserSettings,
     RemoveUserFromGroup,
+    EditUserMailingSettings,
 } from './userSchemas';
 
 export const useUserMutations = () => {
@@ -51,6 +52,12 @@ export const useUserMutations = () => {
         },
         onSuccess: () => {
             utils.user.getSettings.invalidate();
+        },
+    });
+
+    const editUserMailingSettings = trpc.user.editMailingSettings.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
         },
     });
 
@@ -111,6 +118,9 @@ export const useUserMutations = () => {
 
         editUserSettings: (data: EditUserSettings) =>
             notifyPromise(editUserSettings.mutateAsync(data), 'userEditSettings'),
+
+        editUserMailingSettings: (data: EditUserMailingSettings) =>
+            notifyPromise(editUserMailingSettings.mutateAsync(data), 'userEditMailingSettings'),
 
         editUser: (data: EditUserFields) => notifyPromise(editUser.mutateAsync(data), 'userUpdate'),
 

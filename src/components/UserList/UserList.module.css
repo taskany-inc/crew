@@ -1,0 +1,41 @@
+.UserCard {
+    padding: var(--gap-s) var(--gap-m);
+    border-radius: var(--gap-s);
+    display: flex;
+    align-items: center;
+    width: 300px;
+    gap: var(--gap-m);
+}
+
+.UserCard:hover {
+    background-color: var(--gray4);
+}
+
+.CardsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-left: var(--gap-xxs);
+}
+
+.Title {
+    margin-bottom: var(--gap-s);
+    margin-right: var(--gap-l);
+}
+
+.TitleWrapper {
+    display: flex;
+    align-items: center;
+}
+
+.TextMessage {
+    margin-left: var(--gap-m);
+}
+
+.Icon {
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    margin-left: auto;
+    color: var(--text-color)
+}

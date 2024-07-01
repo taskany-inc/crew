@@ -69,5 +69,7 @@
     "An error occurred while canceling profile deactivation": "",
     "Attach successfully uploaded!": "",
     "Uploading...": "",
-    "An error occurred while uploading": ""
+    "An error occurred while uploading": "",
+    "User is added to mailing list": "",
+    "Adding user to mailing list...": ""
 }

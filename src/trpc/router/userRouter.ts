@@ -14,6 +14,7 @@ import {
     editUserActiveStateSchema,
     editUserRoleSchema,
     createUserCreationRequestSchema,
+    editUserMailingSettingsSchema,
 } from '../../modules/userSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
@@ -77,6 +78,11 @@ export const userRouter = router({
 
     editSettings: protectedProcedure.input(editUserSettingsSchema).mutation(({ input, ctx }) => {
         return userMethods.editSettings(ctx.session.user.id, input);
+    }),
+
+    editMailingSettings: protectedProcedure.input(editUserMailingSettingsSchema).mutation(({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
+        return userMethods.editMailingSettings(input);
     }),
 
     getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {

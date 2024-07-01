@@ -18,6 +18,7 @@ export type NotificationNamespaces =
           | 'CreateRequest'
           | 'DeclineRequest'
           | 'AcceptRequest'
+          | 'EditMailingSettings'
       >
     | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move' | 'AddAdmin' | 'RemoveAdmin'>
     | NamespacedAction<'vacancy', 'Create' | 'Update' | 'Archive'>
@@ -73,6 +74,10 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         userEditSettings: {
             success: tr('Voila! Successfully updated 🎉'),
             loading: tr('Updating user settings...'),
+        },
+        userEditMailingSettings: {
+            success: tr('User is added to mailing list'),
+            loading: tr('Adding user to mailing list...'),
         },
         groupCreate: {
             success: tr('Voila! Team is here 🎉'),

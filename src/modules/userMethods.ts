@@ -40,6 +40,7 @@ import {
     UserRestApiData,
     EditUserRoleData,
     CreateUserCreationRequest,
+    EditUserMailingSettings,
 } from './userSchemas';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
@@ -88,6 +89,10 @@ const usersWhere = (data: GetUserList) => {
 
     if (data.activeQuery !== undefined) {
         where.active = data.activeQuery;
+    }
+
+    if (data.mailingSettings) {
+        where.mailingSettings = { [data.mailingSettings]: true };
     }
 
     return where;
@@ -218,6 +223,17 @@ export const userMethods = {
         return prisma.userSettings.update({
             where: { userId },
             data,
+        });
+    },
+
+    editMailingSettings: ({ userId, type, value }: EditUserMailingSettings) => {
+        return prisma.mailingSettings.upsert({
+            where: { userId },
+            update: { [type]: value },
+            create: {
+                user: { connect: { id: userId } },
+                [type]: value,
+            },
         });
     },
 
