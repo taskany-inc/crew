@@ -139,7 +139,7 @@ export const groupMethods = {
         return prisma.group.findMany({ where: { parentId: null, archived: false } });
     },
 
-    getByIds: async (ids: string[], sessionUser?: SessionUser) => {
+    getByIds: async (ids: string[]) => {
         const groups = await prisma.group.findMany({
             where: {
                 id: {
@@ -159,8 +159,6 @@ export const groupMethods = {
                 },
             },
         });
-
-        groups.forEach((group) => addCalculatedGroupFields(group, sessionUser));
 
         return groups;
     },
@@ -364,7 +362,7 @@ export const groupMethods = {
 
         const processGroupsRecursively = (ids: string[], currentPath: string[]) => {
             ids.forEach((id) => {
-                membershipsDict[id].forEach((m) => {
+                membershipsDict[id]?.forEach((m) => {
                     data.push({
                         userName: m.user.name,
                         email: m.user.email,
