@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { gapS } from '@taskany/colors';
 import { Button, Text } from '@taskany/bricks';
 import styled from 'styled-components';
@@ -7,8 +6,9 @@ import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain, PageContent } from '../LayoutMain';
 import { UsersPageFiltersPanel } from '../UsersPageFilterPanel/UsersPageFilterPanel';
 import { CommonHeader } from '../CommonHeader';
-import { UserFilterQuery } from '../../modules/userTypes';
 import { UserListItem } from '../UserListItem/UserListItem';
+import { useUserListFilterUrlParams } from '../../hooks/useUserListFilterUrlParams';
+import { UserFilterQuery } from '../../modules/userTypes';
 
 import { tr } from './UsersPage.i18n';
 
@@ -17,24 +17,27 @@ const StyledUserListItemWrapper = styled.div`
 `;
 
 export const UsersPage = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filtersQuery, setFiltersQuery] = useState<UserFilterQuery>({ activeQuery: true });
-    const usersQuery = trpc.user.getList.useInfiniteQuery(
-        { search: searchQuery, ...filtersQuery },
-        {
-            keepPreviousData: true,
-            getNextPageParam: (lastPage) => lastPage.nextCursor,
-        },
-    );
+    const { values, setFiltersQuery, setSearch } = useUserListFilterUrlParams();
+
+    const filterQuery: UserFilterQuery = {
+        ...values,
+        activeQuery: (values.activeQuery && values.activeQuery === 'true') as boolean | undefined,
+    };
+
+    const usersQuery = trpc.user.getList.useInfiniteQuery(filterQuery, {
+        keepPreviousData: true,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+    });
 
     return (
         <LayoutMain pageTitle={tr('Users')}>
             <CommonHeader title={tr('Users')} />
             <UsersPageFiltersPanel
-                filterState={filtersQuery}
+                searchQuery={values.search}
+                filterState={filterQuery}
                 total={usersQuery.data?.pages[0].total || 0}
                 counter={usersQuery.data?.pages[0].counter || 0}
-                setSearchQuery={setSearchQuery}
+                setSearchQuery={setSearch}
                 onFilterApply={setFiltersQuery}
             />
             <PageContent>
