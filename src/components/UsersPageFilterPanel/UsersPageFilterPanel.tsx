@@ -24,9 +24,11 @@ import { FilterRadio } from '../FilterRadio';
 
 import { tr } from './UsersPageFilterPanel.i18n';
 
+type UserFilterQueryUrlParam = Omit<UserFilterQuery, 'activeQuery'> & { activeQuery?: 'true' | 'false' };
 interface UsersPageFilterPanelProps {
     setSearchQuery: (searchQuery: string) => void;
     filterState: UserFilterQuery;
+    searchQuery?: string;
     children?: ReactNode;
     loading?: boolean;
     total: number;
@@ -50,15 +52,25 @@ const useQueryOptions = {
 };
 
 export const UsersPageFiltersPanel = memo(
-    ({ children, loading, total, counter, onFilterApply, setSearchQuery, filterState }: UsersPageFilterPanelProps) => {
+    ({
+        children,
+        loading,
+        total,
+        counter,
+        onFilterApply,
+        setSearchQuery,
+        filterState,
+        searchQuery,
+    }: UsersPageFilterPanelProps) => {
         const filterNodeRef = useRef<HTMLSpanElement>(null);
         const [supervisorsQuery, setSupervisorQuery] = useState('');
         const [groupsQuery, setGroupQuery] = useState('');
         const [rolesQuery, setRoleQuery] = useState('');
         const [filterVisible, setFilterVisible] = useState(false);
+
         const [filterQuery, setFilterQuery] = useState<UserFilterQuery>(filterState);
 
-        const activeVariants = { Active: true, Inactive: false, All: undefined };
+        const activeVariants = { Active: 'true', Inactive: 'false', All: undefined } as const;
 
         const [filterActive, setFilterActive] = useState('Active');
 
@@ -93,8 +105,8 @@ export const UsersPageFiltersPanel = memo(
             useQueryOptions,
         );
 
-        const setPartialQueryByKey = useCallback(<K extends keyof UserFilterQuery>(key: K) => {
-            return (value: UserFilterQuery[K]) => {
+        const setPartialQueryByKey = useCallback(<K extends keyof UserFilterQueryUrlParam>(key: K) => {
+            return (value: UserFilterQueryUrlParam[K]) => {
                 setFilterQuery((prev) => {
                     return {
                         ...prev,
@@ -108,8 +120,15 @@ export const UsersPageFiltersPanel = memo(
             setFilterQuery({});
             setRoleQuery('');
             setGroupQuery('');
+            setSearchQuery('');
             setSupervisorQuery('');
-            onFilterApply && onFilterApply({});
+            onFilterApply &&
+                onFilterApply({
+                    activeQuery: undefined,
+                    groupsQuery: undefined,
+                    rolesQuery: undefined,
+                    supervisorsQuery: undefined,
+                });
         };
 
         const isFiltersEmpty = !filterQuery.groupsQuery && !filterQuery.rolesQuery && !filterQuery.supervisorsQuery;
@@ -119,7 +138,11 @@ export const UsersPageFiltersPanel = memo(
                 <FiltersPanelContainer loading={loading}>
                     <FiltersPanelContent>
                         <FiltersSearchContainer>
-                            <SearchFilter placeholder={tr('Search')} onChange={setSearchQuery} />
+                            <SearchFilter
+                                placeholder={tr('Search')}
+                                defaultValue={searchQuery}
+                                onChange={setSearchQuery}
+                            />
                         </FiltersSearchContainer>
                         <FiltersCounterContainer>
                             <FiltersCounter total={total} counter={counter} />
