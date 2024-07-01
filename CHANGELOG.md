@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.67.0](https://github.com/taskany-inc/crew/compare/v0.66.0...v0.67.0) (2024-07-01)
+
+
+### Features
+
+* add organization to lists in membershipuserlistitemeditable ([97ca14d](https://github.com/taskany-inc/crew/commit/97ca14da7961c852d3ea25dbfcfb8c34301b47d1))
+* mailing lists ([5d3eec5](https://github.com/taskany-inc/crew/commit/5d3eec558ca8096791f6fc45b7e1f0b4b6eaaa37))
+* pick teamleads by combobox in scheduled deactivation ([555867c](https://github.com/taskany-inc/crew/commit/555867cf9cdd56bcda476a148cc05a2fbe3076e3))
+* scheduled deactivation and requests in same place ([691e461](https://github.com/taskany-inc/crew/commit/691e4616a865227a45aa1df414fe47aefd2cddb3))
+* scheduled deactivation viewed in profile ([9ac2b3b](https://github.com/taskany-inc/crew/commit/9ac2b3ba1eeafda77a5d4ce0543972fdf7fc8664))
+
+
+### Bug Fixes
+
+* capture sentry error on bonuces ([c0dc36e](https://github.com/taskany-inc/crew/commit/c0dc36e6364afbb63c75e13c0c7800abae67e29f))
+* capture sentry error on bonuces ([6899251](https://github.com/taskany-inc/crew/commit/6899251759a52e1d9b9d5722b7e38bafd1c592d7))
+* remove type membershipInfowithuserorganizationunit, add include in two user methods ([aea03d3](https://github.com/taskany-inc/crew/commit/aea03d3d498c50f82fb13522dc838411e8d23e88))
+* **team export:** crash on undefined ([addf865](https://github.com/taskany-inc/crew/commit/addf865ef22667451b0655981319d07136b8a798))
+* use http 400 for errors with messages for user ([12bdcb7](https://github.com/taskany-inc/crew/commit/12bdcb720b51110edd9ab9de774cb34fd5bb0afd))
+* use nullable fn ([9c6ee45](https://github.com/taskany-inc/crew/commit/9c6ee45d23ce973c45053a7fddc561eb881df296))
+
 ## [0.66.0](https://github.com/taskany-inc/crew/compare/v0.65.1...v0.66.0) (2024-06-27)
 
 
