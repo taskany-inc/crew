@@ -41,10 +41,10 @@ export type RemoveUserFromGroup = z.infer<typeof removeUserFromGroupSchema>;
 
 export const getUserListSchema = z.object({
     search: z.string().optional(),
-    groupsQuery: z.array(z.string()).optional(),
-    rolesQuery: z.array(z.string()).optional(),
-    supervisorsQuery: z.array(z.string()).optional(),
-    activeQuery: z.boolean().optional(),
+    groups: z.array(z.string()).optional(),
+    roles: z.array(z.string()).optional(),
+    supervisors: z.array(z.string()).optional(),
+    active: z.boolean().optional(),
     cursor: z.string().nullish(),
     take: z
         .number()

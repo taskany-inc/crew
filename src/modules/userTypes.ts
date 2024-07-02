@@ -50,10 +50,10 @@ export interface UserSupervisorIn {
 }
 
 export interface UserFilterQuery {
-    groupsQuery?: string[];
-    rolesQuery?: string[];
-    supervisorsQuery?: string[];
-    activeQuery?: boolean;
+    groups?: string[];
+    roles?: string[];
+    supervisors?: string[];
+    active?: boolean;
 }
 
 export interface ExternalUserUpdate {

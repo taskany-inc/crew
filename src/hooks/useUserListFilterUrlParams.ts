@@ -12,10 +12,10 @@ export const useUserListFilterUrlParams = () => {
     const { values, setter, clearParams } = useUrlParams(
         {
             search: 'string',
-            activeQuery: 'string',
-            groupsQuery: 'stringArray',
-            rolesQuery: 'stringArray',
-            supervisorsQuery: 'stringArray',
+            active: 'string',
+            groups: 'stringArray',
+            roles: 'stringArray',
+            supervisors: 'stringArray',
         },
         router.query,
         pushUrl,

@@ -67,26 +67,26 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: S
 const usersWhere = (data: GetUserList) => {
     const where: Prisma.UserWhereInput = {};
     if (data.search) where.name = { contains: data.search, mode: 'insensitive' };
-    if (data.supervisorsQuery) where.supervisorId = { in: data.supervisorsQuery };
-    if (data.groupsQuery && !data.rolesQuery) {
+    if (data.supervisors) where.supervisorId = { in: data.supervisors };
+    if (data.groups && !data.roles) {
         where.memberships = {
-            some: { groupId: { in: data.groupsQuery } },
+            some: { groupId: { in: data.groups } },
         };
     }
-    if (!data.groupsQuery && data.rolesQuery) {
+    if (!data.groups && data.roles) {
         where.memberships = {
-            some: { roles: { some: { id: { in: data.rolesQuery } } } },
-        };
-    }
-
-    if (data.groupsQuery && data.rolesQuery) {
-        where.memberships = {
-            some: { groupId: { in: data.groupsQuery }, roles: { some: { id: { in: data.rolesQuery } } } },
+            some: { roles: { some: { id: { in: data.roles } } } },
         };
     }
 
-    if (data.activeQuery !== undefined) {
-        where.active = data.activeQuery;
+    if (data.groups && data.roles) {
+        where.memberships = {
+            some: { groupId: { in: data.groups }, roles: { some: { id: { in: data.roles } } } },
+        };
+    }
+
+    if (data.active !== undefined) {
+        where.active = data.active;
     }
 
     return where;
