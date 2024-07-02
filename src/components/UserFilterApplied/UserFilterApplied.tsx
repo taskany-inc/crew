@@ -15,41 +15,41 @@ interface UserFilterAppliedProps {
 
 export const UserFilterApplied = ({ filterState, supervisors, groups, roles }: UserFilterAppliedProps) => {
     let filterAppliedString = '';
-    if (filterState.supervisorsQuery?.length && supervisors?.length) {
+    if (filterState.supervisors?.length && supervisors?.length) {
         filterAppliedString = `${
             filterAppliedString +
             tr('Supervisors: ') +
             supervisors
-                .filter((supervisor) => filterState.supervisorsQuery?.includes(supervisor.id))
+                .filter((supervisor) => filterState.supervisors?.includes(supervisor.id))
                 .map((s) => s.name || s.email)
                 .join(', ')
         }. `;
     }
 
-    if (filterState.groupsQuery?.length && groups?.length) {
+    if (filterState.groups?.length && groups?.length) {
         filterAppliedString = `${
             filterAppliedString +
             tr('Groups: ') +
             groups
-                .filter((group) => filterState.groupsQuery?.includes(group.id))
+                .filter((group) => filterState.groups?.includes(group.id))
                 .map((s) => s.name)
                 .join(', ')
         }. `;
     }
 
-    if (filterState.rolesQuery?.length && roles?.length) {
+    if (filterState.roles?.length && roles?.length) {
         filterAppliedString = `${
             filterAppliedString +
             tr('Roles: ') +
             roles
-                .filter((role) => filterState.rolesQuery?.includes(role.id))
+                .filter((role) => filterState.roles?.includes(role.id))
                 .map((s) => s.name)
                 .join(', ')
         }.`;
     }
 
-    if (filterState.activeQuery !== undefined) {
-        const active = filterState.activeQuery ? tr('Active.') : tr('Inactive.');
+    if (filterState.active !== undefined) {
+        const active = filterState.active ? tr('Active.') : tr('Inactive.');
         filterAppliedString = `${filterAppliedString + active}`;
     }
 

@@ -24,9 +24,11 @@ import { FilterRadio } from '../FilterRadio';
 
 import { tr } from './UsersPageFilterPanel.i18n';
 
+type UserFilterQueryUrlParam = Omit<UserFilterQuery, 'activeQuery'> & { activeQuery?: 'true' | 'false' };
 interface UsersPageFilterPanelProps {
     setSearchQuery: (searchQuery: string) => void;
     filterState: UserFilterQuery;
+    searchQuery?: string;
     children?: ReactNode;
     loading?: boolean;
     total: number;
@@ -50,17 +52,31 @@ const useQueryOptions = {
 };
 
 export const UsersPageFiltersPanel = memo(
-    ({ children, loading, total, counter, onFilterApply, setSearchQuery, filterState }: UsersPageFilterPanelProps) => {
+    ({
+        children,
+        loading,
+        total,
+        counter,
+        onFilterApply,
+        setSearchQuery,
+        filterState,
+        searchQuery,
+    }: UsersPageFilterPanelProps) => {
         const filterNodeRef = useRef<HTMLSpanElement>(null);
         const [supervisorsQuery, setSupervisorQuery] = useState('');
         const [groupsQuery, setGroupQuery] = useState('');
         const [rolesQuery, setRoleQuery] = useState('');
         const [filterVisible, setFilterVisible] = useState(false);
+
         const [filterQuery, setFilterQuery] = useState<UserFilterQuery>(filterState);
 
-        const activeVariants = { Active: true, Inactive: false, All: undefined };
+        const activeVariants = { Active: 'true', Inactive: 'false', All: undefined } as const;
 
-        const [filterActive, setFilterActive] = useState('Active');
+        const [filterActive, setFilterActive] = useState(() => {
+            if (filterState.active === undefined) return 'All';
+
+            return filterState.active ? 'Active' : 'Inactive';
+        });
 
         const onApplyClick = useCallback(() => {
             setFilterVisible(false);
@@ -68,33 +84,33 @@ export const UsersPageFiltersPanel = memo(
             setGroupQuery('');
             setSupervisorQuery('');
 
-            if (filterQuery.rolesQuery && !filterQuery.rolesQuery.length) filterQuery.rolesQuery = undefined;
+            if (filterQuery.roles && !filterQuery.roles.length) filterQuery.roles = undefined;
 
-            if (filterQuery.groupsQuery && !filterQuery.groupsQuery.length) filterQuery.groupsQuery = undefined;
+            if (filterQuery.groups && !filterQuery.groups.length) filterQuery.groups = undefined;
 
-            if (filterQuery.supervisorsQuery && !filterQuery.supervisorsQuery.length) {
-                filterQuery.supervisorsQuery = undefined;
+            if (filterQuery.supervisors && !filterQuery.supervisors.length) {
+                filterQuery.supervisors = undefined;
             }
             onFilterApply && onFilterApply(filterQuery);
         }, [filterQuery, onFilterApply]);
 
         const { data: supervisors } = trpc.user.suggestions.useQuery(
-            { query: supervisorsQuery, take: suggestionsTake, include: filterState.supervisorsQuery },
+            { query: supervisorsQuery, take: suggestionsTake, include: filterState.supervisors },
             useQueryOptions,
         );
 
         const { data: groups = [] } = trpc.group.suggestions.useQuery(
-            { query: groupsQuery, take: suggestionsTake, include: filterState.groupsQuery },
+            { query: groupsQuery, take: suggestionsTake, include: filterState.groups },
             useQueryOptions,
         );
 
         const { data: roles = [] } = trpc.role.suggestions.useQuery(
-            { query: rolesQuery, take: suggestionsTake, include: filterState.rolesQuery },
+            { query: rolesQuery, take: suggestionsTake, include: filterState.roles },
             useQueryOptions,
         );
 
-        const setPartialQueryByKey = useCallback(<K extends keyof UserFilterQuery>(key: K) => {
-            return (value: UserFilterQuery[K]) => {
+        const setPartialQueryByKey = useCallback(<K extends keyof UserFilterQueryUrlParam>(key: K) => {
+            return (value: UserFilterQueryUrlParam[K]) => {
                 setFilterQuery((prev) => {
                     return {
                         ...prev,
@@ -108,18 +124,29 @@ export const UsersPageFiltersPanel = memo(
             setFilterQuery({});
             setRoleQuery('');
             setGroupQuery('');
+            setSearchQuery('');
             setSupervisorQuery('');
-            onFilterApply && onFilterApply({});
+            onFilterApply &&
+                onFilterApply({
+                    active: undefined,
+                    groups: undefined,
+                    roles: undefined,
+                    supervisors: undefined,
+                });
         };
 
-        const isFiltersEmpty = !filterQuery.groupsQuery && !filterQuery.rolesQuery && !filterQuery.supervisorsQuery;
+        const isFiltersEmpty = !filterQuery.groups && !filterQuery.roles && !filterQuery.supervisors;
 
         return (
             <>
                 <FiltersPanelContainer loading={loading}>
                     <FiltersPanelContent>
                         <FiltersSearchContainer>
-                            <SearchFilter placeholder={tr('Search')} onChange={setSearchQuery} />
+                            <SearchFilter
+                                placeholder={tr('Search')}
+                                defaultValue={searchQuery}
+                                onChange={setSearchQuery}
+                            />
                         </FiltersSearchContainer>
                         <FiltersCounterContainer>
                             <FiltersCounter total={total} counter={counter} />
@@ -157,8 +184,8 @@ export const UsersPageFiltersPanel = memo(
                         tabName="supervisor"
                         text={tr('Supervisors')}
                         users={mapUserToView(supervisors || [])}
-                        value={filterQuery?.supervisorsQuery}
-                        onChange={setPartialQueryByKey('supervisorsQuery')}
+                        value={filterQuery?.supervisors}
+                        onChange={setPartialQueryByKey('supervisors')}
                         onSearchChange={setSupervisorQuery}
                     />
                     <GroupsOrRolesFilter
@@ -166,8 +193,8 @@ export const UsersPageFiltersPanel = memo(
                         text={tr('Teams')}
                         filterCheckboxName="group"
                         groupsOrRoles={groups.map(({ id, name }) => ({ id, name }))}
-                        value={filterQuery?.groupsQuery}
-                        onChange={setPartialQueryByKey('groupsQuery')}
+                        value={filterQuery?.groups}
+                        onChange={setPartialQueryByKey('groups')}
                         onSearchChange={setGroupQuery}
                     />
                     <GroupsOrRolesFilter
@@ -175,8 +202,8 @@ export const UsersPageFiltersPanel = memo(
                         text={tr('Roles')}
                         filterCheckboxName="role"
                         groupsOrRoles={roles.map(({ id, name }) => ({ id, name }))}
-                        value={filterQuery?.rolesQuery}
-                        onChange={setPartialQueryByKey('rolesQuery')}
+                        value={filterQuery?.roles}
+                        onChange={setPartialQueryByKey('roles')}
                         onSearchChange={setRoleQuery}
                     />
 
