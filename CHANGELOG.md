@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.67.1](https://github.com/taskany-inc/crew/compare/v0.67.0...v0.67.1) (2024-07-02)
+
+
+### Bug Fixes
+
+* scheduled deactivations invalidations and teamleadIds in form ([05ff439](https://github.com/taskany-inc/crew/commit/05ff439c0bbc8b531c32fb170b1a7382e731b6c9))
+
 ## [0.67.0](https://github.com/taskany-inc/crew/compare/v0.66.0...v0.67.0) (2024-07-01)
 
 
