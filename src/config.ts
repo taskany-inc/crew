@@ -39,4 +39,6 @@ export const config = {
     },
     techAdminId: process.env.TECH_ADMIN_ID,
     corporateEmailDomain: process.env.CORPORATE_EMAIL_DOMAIN,
+    sectionAchiementId: process.env.SECTION_ACHIEVEMENT_ID,
+    sectionAmountForAchievement: process.env.SECTION_AMOUNT_FOR_ACHIEVEMENT,
 };

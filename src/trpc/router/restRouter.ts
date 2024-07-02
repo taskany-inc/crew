@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { VacancyStatus } from '@prisma/client';
 import { translit } from '@taskany/bricks';
+import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../../utils/prisma';
 import { restProcedure, router } from '../trpcBackend';
@@ -21,6 +22,7 @@ import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { searchMethods } from '../../modules/searchMethods';
 import { getCorporateEmail } from '../../utils/getCorporateEmail';
+import { config } from '../../config';
 
 import { tr } from './router.i18n';
 
@@ -624,6 +626,72 @@ export const restRouter = router({
             ),
         )
         .query(({ input }) => achievementMethods.getList(input)),
+
+    giveAchievementForHireSections: restProcedure
+        .meta({
+            openapi: {
+                method: 'POST',
+                path: '/achievements/sections',
+                protect: true,
+                summary: 'Give user crew achievement for hire sections',
+            },
+        })
+        .input(
+            giveAchievementSchema
+                .omit({ userId: true, achievementTitle: true, achievementId: true, amount: true })
+                .extend({
+                    targetUserEmail: z.string(),
+                    actingUserEmail: z.string(),
+                    sectionsNumber: z.number(),
+                }),
+        )
+        .output(z.string())
+        .query(async ({ input, ctx }) => {
+            const { actingUserEmail, targetUserEmail, sectionsNumber } = input;
+
+            if (!config.sectionAchiementId || !config.sectionAmountForAchievement) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'No sectionAchiementId or sectionAmountForAchievement in crew config',
+                });
+            }
+
+            const [targetUser, actingUser, achievement] = await Promise.all([
+                userMethods.getUserByField({ email: targetUserEmail }),
+                userMethods.getUserByField({ email: actingUserEmail }),
+                achievementMethods.getById(config.sectionAchiementId),
+            ]);
+
+            if (sectionsNumber % Number(config.sectionAmountForAchievement) !== 0) {
+                return 'Amount of completed sections is not evenly divisible by sectionAmountForAchievement';
+            }
+
+            const userAchievement = await prisma.userAchievement.findFirst({
+                where: { userId: targetUser.id, achievementId: achievement.id },
+            });
+
+            const achievementCount = userAchievement ? userAchievement.count : 0;
+
+            const amount = sectionsNumber / Number(config.sectionAmountForAchievement) - achievementCount;
+
+            if (amount <= 0) return 'Not enough sections for achievement';
+
+            await achievementMethods.give(
+                {
+                    achievementId: config.sectionAchiementId,
+                    amount,
+                    userId: targetUser.id,
+                },
+                actingUser.id,
+            );
+            await historyEventMethods.create({ token: ctx.apiToken }, 'giveAchievementToUser', {
+                groupId: undefined,
+                userId: targetUser.id,
+                before: undefined,
+                after: { id: achievement.id, title: achievement.title, amount },
+            });
+            return 'Achievement successfully given';
+        }),
 
     giveCrewAchievement: restProcedure
         .meta({
