@@ -663,7 +663,7 @@ export const restRouter = router({
             ]);
 
             if (sectionsNumber % Number(config.sectionAmountForAchievement) !== 0) {
-                return 'Amount of completed sections not divided by sectionAmountForAchievement';
+                return 'Amount of completed sections is not evenly divisible by sectionAmountForAchievement';
             }
 
             const userAchievement = await prisma.userAchievement.findFirst({
