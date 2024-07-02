@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.67.2](https://github.com/taskany-inc/crew/compare/v0.67.1...v0.67.2) (2024-07-02)
+
+
+### Bug Fixes
+
+* reset defaultValues in ScheduledDeactivationForm ([4a9679c](https://github.com/taskany-inc/crew/commit/4a9679c08d14cb1d522c4ef54524546f53bfdd16))
+
 ## [0.67.1](https://github.com/taskany-inc/crew/compare/v0.67.0...v0.67.1) (2024-07-02)
 
 
