@@ -19,9 +19,9 @@ const StyledUserListItemWrapper = styled.div`
 export const UsersPage = () => {
     const { values, setFiltersQuery, setSearch } = useUserListFilterUrlParams();
 
-    const filterQuery: UserFilterQuery = {
+    const filterQuery: UserFilterQuery & { search?: string } = {
         ...values,
-        activeQuery: (values.activeQuery && values.activeQuery === 'true') as boolean | undefined,
+        active: values.active ? values.active === 'true' : undefined,
     };
 
     const usersQuery = trpc.user.getList.useInfiniteQuery(filterQuery, {
