@@ -137,7 +137,7 @@ export const ScheduleDeactivationForm = ({
         newOrganizationRole: scheduledDeactivation?.newOrganizationRole || undefined,
         newTeamLeadId: scheduledDeactivation?.newTeamLeadId || undefined,
         newTeamLead: scheduledDeactivation?.newTeamLead || undefined,
-        phone: scheduledDeactivation?.phone || undefined,
+        phone: scheduledDeactivation?.phone || phone || undefined,
         workMode: scheduledDeactivation?.workMode || undefined,
         workModeComment: scheduledDeactivation?.workModeComment || undefined,
         comments: scheduledDeactivation?.comments || undefined,
@@ -147,15 +147,14 @@ export const ScheduleDeactivationForm = ({
         testingDevices: initTestingDevices,
     };
     const defaultValues =
-        scheduledDeactivation &&
-        (scheduledDeactivation?.type === scheduleDeactivateType[1]
+        scheduledDeactivation?.type === scheduleDeactivateType[1]
             ? {
                   ...defaultValuesBase,
-                  disableAccount: scheduledDeactivation.disableAccount,
+                  disableAccount: !!scheduledDeactivation?.disableAccount,
                   type: scheduleDeactivateType[1],
-                  transferPercentage: scheduledDeactivation.transferPercentage!,
+                  transferPercentage: scheduledDeactivation?.transferPercentage || undefined,
               }
-            : { ...defaultValuesBase, type: scheduleDeactivateType[0], disableAccount: true });
+            : { ...defaultValuesBase, type: scheduleDeactivateType[0], disableAccount: true };
 
     const {
         reset,
@@ -190,7 +189,7 @@ export const ScheduleDeactivationForm = ({
 
     const hideModal = useCallback(() => {
         onClose();
-        reset();
+        reset(defaultValues);
     }, [onClose, reset]);
 
     const onSubmit = handleSubmit(async (data) => {
@@ -375,7 +374,7 @@ export const ScheduleDeactivationForm = ({
                         items={workModeItems}
                         renderTrigger={(props) => (
                             <FormInput
-                                value={watch('workMode')}
+                                defaultValue={watch('workMode')}
                                 disabled={props.disabled}
                                 onClick={props.onClick}
                                 error={errors.workMode}
