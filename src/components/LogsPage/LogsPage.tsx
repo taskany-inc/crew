@@ -33,19 +33,7 @@ const LogsPageInner = ({
             <div className={s.PageContainer}>
                 <div>
                     {logs.map((event) => (
-                        <HistoryRecord
-                            event={
-                                {
-                                    ...event,
-                                    actingUser: event.actingUser || {
-                                        name: event.actingToken?.roleCode,
-                                        email: event.actingToken?.description,
-                                        id: event.actingToken?.id,
-                                    },
-                                } as HistoryEventData
-                            }
-                            key={event.id}
-                        />
+                        <HistoryRecord event={event as HistoryEventData} key={event.id} />
                     ))}
                 </div>
                 {nullable(hasNextPageOfLogs, () => (
