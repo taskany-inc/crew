@@ -36,6 +36,7 @@ export const groupRouter = router({
                 parentId: result.parentId || undefined,
                 virtual: result.virtual,
                 organizational: result.organizational,
+                supervisorId: result.supervisorId || undefined,
             },
         });
         return result;

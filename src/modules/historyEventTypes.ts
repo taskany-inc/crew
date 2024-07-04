@@ -6,9 +6,9 @@ interface HistoryEventsData {
         data: {
             name?: string;
             email: string;
-            phone: string;
-            login: string;
-            organizationalUnitId: string;
+            phone?: string;
+            login?: string;
+            organizationalUnitId?: string;
             accountingId?: string;
             supervisorId?: string;
             createExternalAccount?: boolean;
@@ -111,6 +111,7 @@ interface HistoryEventsData {
             parentId?: string;
             virtual?: boolean;
             organizational?: boolean;
+            supervisorId?: string;
         };
     };
     editGroup: {
