@@ -254,6 +254,7 @@ const componentMap: {
                         <ChangeListItem title={tr('Parent team id')} after={event.after.parentId} />
                         <ChangeListItem title={tr('Virtual team')} after={event.after.virtual} />
                         <ChangeListItem title={tr('Organizational team')} after={event.after.organizational} />
+                        <ChangeListItem title={tr('Supervisor id')} after={event.after.supervisorId} />
                     </>
                 ))}
             </>

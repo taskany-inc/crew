@@ -48,8 +48,8 @@ export const groupMethods = {
         return group;
     },
 
-    create: (data: CreateGroup, sessionUser: SessionUser) => {
-        return prisma.group.create({ data: { supervisorId: sessionUser.id, ...data } });
+    create: (data: CreateGroup, sessionUser?: SessionUser) => {
+        return prisma.group.create({ data: { supervisorId: sessionUser?.id, ...data } });
     },
 
     edit: async ({ groupId, ...data }: EditGroup) => {
