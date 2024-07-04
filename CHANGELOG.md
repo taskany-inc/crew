@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.68.0](https://github.com/taskany-inc/crew/compare/v0.67.2...v0.68.0) (2024-07-04)
+
+
+### Features
+
+* hire section achievement router ([4d44eb9](https://github.com/taskany-inc/crew/commit/4d44eb9a9cbf52ef83b214fbaf11ca20e2487a51))
+* hire section achievement router ([75b6725](https://github.com/taskany-inc/crew/commit/75b6725ef939b6d6704f68ebdcf676e7cb1dd180))
+* hire section achievement router ([0b2f01e](https://github.com/taskany-inc/crew/commit/0b2f01e22ac36c3c853faa3959b18ae19ac477ad))
+* **history record:** expand events for create user and group ([58d3446](https://github.com/taskany-inc/crew/commit/58d3446d4ca0e66e53a68721d21308545fa46d18))
+* use url params for user list filter ([f971f79](https://github.com/taskany-inc/crew/commit/f971f79204feabf1d7e6f0d422c8cf1ee817f604))
+
+
+### Bug Fixes
+
+* **history record:** show token and subsystem as authors ([c7ba34c](https://github.com/taskany-inc/crew/commit/c7ba34c6c5388b2bc29c42c39d16688c8228ae89))
+* replace type cast with honest ternary, remove "query" from get user list query params ([7032232](https://github.com/taskany-inc/crew/commit/7032232c698db866ca24f4db0adbf2094cd4d7de))
+
 ## [0.67.2](https://github.com/taskany-inc/crew/compare/v0.67.1...v0.67.2) (2024-07-02)
 
 
