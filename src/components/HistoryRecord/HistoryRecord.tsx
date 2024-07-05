@@ -11,6 +11,8 @@ import { capitalize } from '../../utils/capitalize';
 import { GroupListItem } from '../GroupListItem';
 import { useBoolean } from '../../hooks/useBoolean';
 import { notifyPromise } from '../../utils/notifications/notifyPromise';
+import { trpc } from '../../trpc/trpcClient';
+import { getFavicon } from '../../utils/getFavicon';
 
 import s from './HistoryRecord.module.css';
 import { tr } from './HistoryRecord.i18n';
@@ -649,15 +651,22 @@ interface HistoryRecordProps {
     event: HistoryEventData;
 }
 
-const getAuthor = (event: HistoryEventData) => {
+const useAuthor = (event: HistoryEventData) => {
+    const appConfig = trpc.appConfig.get.useQuery(undefined, {
+        staleTime: Infinity,
+    });
     if (event.actingUser) return { name: event.actingUser.name, email: event.actingUser.email };
-    if (event.actingToken) return { name: `${tr('API token')} ${event.actingToken.description}` };
-    if (event.actingSubsystem) return { name: `${tr('Subsystem')} ${event.actingSubsystem}` };
+    if (event.actingToken) {
+        return { name: `${tr('API token')} ${event.actingToken.description}`, src: getFavicon(appConfig.data) };
+    }
+    if (event.actingSubsystem) {
+        return { name: `${tr('Subsystem')} ${event.actingSubsystem}`, src: getFavicon(appConfig.data) };
+    }
     return { name: tr('Unknown actor') };
 };
 
 export const HistoryRecord = ({ event }: HistoryRecordProps) => {
-    const author = getAuthor(event);
+    const author = useAuthor(event);
     const locale = useLocale();
     const Component = componentMap[capitalize(event.action)] as (props: { event: HistoryEventData }) => ReactNode;
 

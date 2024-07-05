@@ -2,25 +2,35 @@ import { UserRoleDeprecated } from 'prisma/prisma-client';
 
 import { hashPassword } from '../src/utils/passwords';
 import { prisma } from '../src/utils/prisma';
+import { AccessOperation } from '../src/utils/access';
 
 const main = async () => {
     const adminEmail = 'admin@taskany.org';
     const adminPassword = await hashPassword('admin');
+
+    const adminAccess: Record<AccessOperation, true> = {
+        createUser: true,
+        editRoleScopes: true,
+        editUserRole: true,
+        editUserCreationRequests: true,
+        editUser: true,
+        editUserActiveState: true,
+        editUserAchievements: true,
+        editUserBonuses: true,
+        viewUserBonuses: true,
+        viewUserExtendedInfo: true,
+        editScheduledDeactivation: true,
+        viewScheduledDeactivation: true,
+        editFullGroupTree: true,
+        viewHistoryEvents: true,
+    };
 
     await prisma.userRole.createMany({
         data: [
             {
                 code: 'admin',
                 name: 'Administrator',
-                createUser: true,
-                editUser: true,
-                editUserActiveState: true,
-                editUserAchievements: true,
-                editUserBonuses: true,
-                viewUserBonuses: true,
-                viewUserExtendedInfo: true,
-                editFullGroupTree: true,
-                viewHistoryEvents: true,
+                ...adminAccess,
             },
             {
                 code: 'hr_lead',
