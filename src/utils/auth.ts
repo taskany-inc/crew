@@ -122,7 +122,19 @@ export const authOptions: NextAuthOptions = {
                 return updatedUser;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return adapter.createUser!(user);
+            const newUser = await adapter.createUser!(user);
+            await historyEventMethods.create({ subsystem: 'Auth new user' }, 'createUser', {
+                groupId: undefined,
+                userId: newUser.id,
+                before: undefined,
+                after: {
+                    name: newUser.name || undefined,
+                    email: newUser.email,
+                    login,
+                    createExternalAccount: false,
+                },
+            });
+            return newUser;
         },
     },
     session: { strategy: 'jwt' },

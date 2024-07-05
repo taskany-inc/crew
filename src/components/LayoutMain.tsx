@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/router';
 
 import { trpc } from '../trpc/trpcClient';
+import { getFavicon } from '../utils/getFavicon';
 
 import { Theme } from './Theme';
 import { PageHeader } from './PageHeader/PageHeader';
@@ -55,7 +56,7 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
         <>
             <Head>
                 <title>{fullTitle}</title>
-                <link rel="icon" href={appConfig.data?.favicon ?? '/favicon.png'} />
+                <link rel="icon" href={getFavicon(appConfig.data)} />
                 <link rel="stylesheet" id="themeVariables" href={`/theme/${theme}.css`} />
             </Head>
             <OfflineBanner />
