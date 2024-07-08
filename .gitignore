@@ -39,5 +39,6 @@ next-env.d.ts
 
 # dev tools
 .release_bot
+background
 
 /public/theme

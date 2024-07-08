@@ -7,6 +7,7 @@ import { Readable } from 'stream';
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
+import { createJob } from '../utils/worker/create';
 import { scheduledDeactivationEmailHtml } from '../utils/emailTemplates';
 
 import {
@@ -35,17 +36,28 @@ const nodemailerAttachments = async (attaches: Attach[]) =>
 
 export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {
-        const { userId, type, devices, testingDevices, attachIds, ...restData } = data;
+        const { userId, type, devices, testingDevices, attachIds, deactivateDate, ...restData } = data;
+
+        deactivateDate.setUTCHours(config.deactivateUtcHour);
 
         const user = await userMethods.getByIdOrThrow(userId);
+        const job =
+            data.disableAccount &&
+            (await createJob('scheduledDeactivation', {
+                date: deactivateDate,
+                data: { userId },
+            }));
+
         const scheduledDeactivation = await prisma.scheduledDeactivation.create({
             data: {
                 userId,
                 creatorId: sessionUserId,
                 type,
+                deactivateDate,
                 ...(attachIds && { attaches: { connect: attachIds.map((id) => ({ id })) } }),
                 ...(devices && devices.length && { devices: JSON.stringify(devices) }),
                 ...(testingDevices && testingDevices.length && { testingDevices: JSON.stringify(testingDevices) }),
+                ...(job && job.id && { jobId: job.id }),
                 ...restData,
             },
             include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true, attaches: true },
@@ -67,7 +79,7 @@ export const scheduledDeactivationMethods = {
 
         const icalEvent = createIcalEventData({
             id: scheduledDeactivation.id + config.nodemailer.authUser,
-            start: data.deactivateDate,
+            start: deactivateDate,
             allDay: true,
             duration: 0,
             users,
@@ -98,7 +110,7 @@ export const scheduledDeactivationMethods = {
                 newOrganizationUnit: true,
                 attaches: { where: { deletedAt: null } },
             },
-            orderBy: { deactivateDate: 'asc' },
+            orderBy: { deactivateDate: 'desc' },
         });
     },
 
@@ -142,6 +154,8 @@ export const scheduledDeactivationMethods = {
             }),
         });
 
+        scheduledDeactivation.jobId && (await prisma.job.delete({ where: { id: scheduledDeactivation.jobId } }));
+
         return prisma.scheduledDeactivation.update({
             where: { id },
             data: { canceled: true, canceledAt: new Date(), cancelComment: comment },
@@ -149,10 +163,13 @@ export const scheduledDeactivationMethods = {
     },
 
     edit: async (data: EditScheduledDeactivation, sessionUserId: string) => {
-        const { userId, type, devices, testingDevices, id, ...restData } = data;
-        const scheduledDеactivationBeforeUpdate = await prisma.scheduledDeactivation.findUnique({ where: { id } });
+        const { userId, type, devices, testingDevices, id, deactivateDate, ...restData } = data;
 
-        if (!scheduledDеactivationBeforeUpdate) {
+        deactivateDate.setUTCHours(config.deactivateUtcHour);
+
+        const scheduledDeactivationBeforeUpdate = await prisma.scheduledDeactivation.findUnique({ where: { id } });
+
+        if (!scheduledDeactivationBeforeUpdate) {
             throw new TRPCError({ message: `No scheduled deactivation with id ${id}`, code: 'NOT_FOUND' });
         }
         await userMethods.getByIdOrThrow(userId);
@@ -163,6 +180,7 @@ export const scheduledDeactivationMethods = {
                 userId,
                 creatorId: sessionUserId,
                 type,
+                deactivateDate,
                 ...(devices && devices.length && { devices: JSON.stringify(devices) }),
                 ...(testingDevices && testingDevices.length && { testingDevices: JSON.stringify(testingDevices) }),
                 ...restData,
@@ -175,6 +193,19 @@ export const scheduledDeactivationMethods = {
                 attaches: { where: { deletedAt: null } },
             },
         });
+
+        if (scheduledDeactivationBeforeUpdate.deactivateDate && scheduledDeactivationBeforeUpdate.jobId) {
+            if (!scheduledDeactivation.disableAccount) {
+                await prisma.job.delete({ where: { id: scheduledDeactivationBeforeUpdate.jobId } });
+            }
+
+            if (scheduledDeactivationBeforeUpdate.deactivateDate !== scheduledDeactivation.deactivateDate) {
+                await prisma.job.update({
+                    where: { id: scheduledDeactivationBeforeUpdate.jobId },
+                    data: { date: scheduledDeactivation.deactivateDate },
+                });
+            }
+        }
 
         const subject =
             type === 'retirement'
