@@ -37,8 +37,16 @@ export const config = {
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
         bucket: process.env.S3_BUCKET,
     },
+    worker: {
+        queueInterval: process.env.WORKER_JOBS_INTERVAL ? parseInt(process.env.WORKER_JOBS_INTERVAL, 10) : 3000,
+        retryLimit: process.env.WORKER_JOBS_RETRY,
+        defaultJobDelay: process.env.WORKER_JOBS_DELAY ? parseInt(process.env.WORKER_JOBS_DELAY, 10) : 1000,
+    },
     techAdminId: process.env.TECH_ADMIN_ID,
     corporateEmailDomain: process.env.CORPORATE_EMAIL_DOMAIN,
     sectionAchiementId: process.env.SECTION_ACHIEVEMENT_ID,
     sectionAmountForAchievement: process.env.SECTION_AMOUNT_FOR_ACHIEVEMENT,
+    deactivateUtcHour: !Number.isNaN(Number(process.env.DEACTIVATE_UTC_HOUR))
+        ? Number(process.env.DEACTIVATE_UTC_HOUR)
+        : 20,
 };
