@@ -117,6 +117,8 @@ model User {
 
   mailingSettings MailingSettings?
 
+  workStartDate DateTime?
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }

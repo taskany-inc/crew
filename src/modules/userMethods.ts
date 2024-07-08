@@ -1,6 +1,5 @@
 import { Prisma, User, UserCreationRequest } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
-import { ICalCalendarMethod } from 'ical-generator';
 
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
@@ -9,7 +8,7 @@ import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
-import { htmlUserCreationRequestWithDate, userCreationMailText } from '../utils/emailTemplates';
+import { userCreationMailText } from '../utils/emailTemplates';
 
 import {
     ExternalUserUpdate,
@@ -45,7 +44,7 @@ import {
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
 import { userAccess } from './userAccess';
-import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
+import { sendMail } from './nodemailer';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -571,31 +570,6 @@ export const userMethods = {
             text: mailText,
         });
 
-        if (data.date) {
-            const { users, to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest');
-
-            const icalEvent = createIcalEventData({
-                id: userCreationRequest.id + config.nodemailer.authUser,
-                start: data.date,
-                allDay: true,
-                duration: 0,
-                users,
-                summary: subject,
-                description: subject,
-            });
-
-            const html = htmlUserCreationRequestWithDate(userCreationRequest, data.phone, data.date);
-            sendMail({
-                to: mailTo,
-                subject,
-                html,
-                icalEvent: calendarEvents({
-                    method: ICalCalendarMethod.REQUEST,
-                    events: [icalEvent],
-                }),
-            });
-        }
-
         return userCreationRequest;
     },
 
@@ -698,6 +672,7 @@ export const userMethods = {
                 memberships: { create: { groupId: acceptedRequest.groupId } },
                 organizationUnitId: acceptedRequest.organizationUnitId,
                 services: { createMany: { data: services } },
+                workStartDate: acceptedRequest.date,
             },
         });
 
