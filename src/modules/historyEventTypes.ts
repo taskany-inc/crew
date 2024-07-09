@@ -36,6 +36,9 @@ interface HistoryEventsData {
             status: null;
             name: string;
             email: string;
+            corporateEmail?: string;
+            title?: string;
+            osPreference?: string;
             login: string;
             supervisorLogin: string;
             organizationUnitId: string;
@@ -49,16 +52,7 @@ interface HistoryEventsData {
         requireBefore: false;
         data: {
             id: string;
-            status: 'Approved';
-            name: string;
-            email: string;
-            login: string;
-            supervisorLogin: string;
-            organizationUnitId: string;
-            groupId: string;
             comment?: string;
-            services?: { serviceName: string; serviceId: string }[] | null;
-            active: boolean;
         };
     };
     declineUserCreationRequest: {
@@ -67,15 +61,9 @@ interface HistoryEventsData {
         requireBefore: false;
         data: {
             id: string;
-            status: 'Denied';
             name: string;
             email: string;
-            login: string;
-            supervisorLogin: string;
-            organizationUnitId: string;
-            groupId: string;
             comment?: string;
-            services?: { serviceName: string; serviceId: string }[] | null;
         };
     };
     editUserActiveState: {

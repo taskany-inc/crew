@@ -10,5 +10,8 @@
     "Services": "Сервисы",
     "Comment (optional)": "Комментарий (необязательно)",
     "Decline": "Отклонить",
-    "Accept": "Принять"
+    "Accept": "Принять",
+    "Role": "Роль",
+    "Corporate email": "Корпоративный email",
+    "OS preference": "Предпочтения ОС"
 }

@@ -130,13 +130,16 @@ model UserCreationRequest {
   id                    String                     @id @default(nanoid())
   name                  String
   email                 String
+  corporateEmail        String?
   login                 String
+  title                 String?
   supervisor            User                       @relation(fields: [supervisorLogin], references: [login])
   supervisorLogin       String
   organization          OrganizationUnit           @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId    String
   group                 Group                      @relation(fields: [groupId], references: [id])
   groupId               String
+  osPreference          String?
   createExternalAccount Boolean
   status                UserCreationRequestStatus?
   comment               String?
