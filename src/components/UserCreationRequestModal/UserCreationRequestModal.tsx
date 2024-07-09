@@ -57,6 +57,15 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     <InfoRow label={tr('Name')} text={request.name} />
                     <InfoRow label={tr('Login')} text={request.login} />
                     <InfoRow label={tr('Email')} text={request.email} />
+                    {nullable(request.title, (r) => (
+                        <InfoRow label={tr('Role')} text={r} />
+                    ))}
+                    {nullable(request.corporateEmail, (ce) => (
+                        <InfoRow label={tr('Corporate email')} text={ce} />
+                    ))}
+                    {nullable(request.osPreference, (os) => (
+                        <InfoRow label={tr('OS preference')} text={os} />
+                    ))}
                     <InfoRow label={tr('Group')} text={request.group.name} />
                     <InfoRow label={tr('Organization')} text={request.organization.name} />
                     <InfoRow label={tr('Supervisor')}>

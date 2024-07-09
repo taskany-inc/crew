@@ -15,6 +15,7 @@ import {
     editUserRoleSchema,
     createUserCreationRequestSchema,
     editUserMailingSettingsSchema,
+    handleUserCreationRequest,
 } from '../../modules/userSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
@@ -175,6 +176,9 @@ export const userRouter = router({
                 before: undefined,
                 after: {
                     ...creationRequest,
+                    corporateEmail: creationRequest.corporateEmail || undefined,
+                    title: creationRequest.title || undefined,
+                    osPreference: creationRequest.osPreference || undefined,
                     status: null,
                     services: creationRequest.services as Record<'serviceName' | 'serviceId', string>[],
                 },
@@ -188,47 +192,41 @@ export const userRouter = router({
         return userMethods.getUsersRequests();
     }),
 
-    declineUserRequest: protectedProcedure
-        .input(z.object({ id: z.string(), comment: z.string().optional() }))
-        .mutation(async ({ input, ctx }) => {
-            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+    declineUserRequest: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
 
-            const declinedUserRequest = await userMethods.declineUserRequest(input);
+        const declinedUserRequest = await userMethods.declineUserRequest(input);
 
-            await historyEventMethods.create({ user: ctx.session.user.id }, 'declineUserCreationRequest', {
-                groupId: undefined,
-                userId: undefined,
-                before: undefined,
-                after: {
-                    ...declinedUserRequest,
-                    status: declinedUserRequest.status as 'Denied',
-                    comment: input.comment,
-                    services: declinedUserRequest.services as Record<'serviceName' | 'serviceId', string>[],
-                },
-            });
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'declineUserCreationRequest', {
+            groupId: undefined,
+            userId: undefined,
+            before: undefined,
+            after: {
+                id: declinedUserRequest.id,
+                name: declinedUserRequest.name,
+                email: declinedUserRequest.email,
+                comment: input.comment,
+            },
+        });
 
-            return declinedUserRequest;
-        }),
+        return declinedUserRequest;
+    }),
 
-    acceptUserRequest: protectedProcedure
-        .input(z.object({ id: z.string(), comment: z.string().optional() }))
-        .mutation(async ({ input, ctx }) => {
-            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+    acceptUserRequest: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
 
-            const { newUser, acceptedRequest } = await userMethods.acceptUserRequest(input);
+        const { newUser, acceptedRequest } = await userMethods.acceptUserRequest(input);
 
-            await historyEventMethods.create({ user: ctx.session.user.id }, 'acceptUserCreationRequest', {
-                groupId: undefined,
-                userId: newUser.id,
-                before: undefined,
-                after: {
-                    ...acceptedRequest,
-                    status: acceptedRequest.status as 'Approved',
-                    comment: input.comment,
-                    active: newUser.active,
-                },
-            });
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'acceptUserCreationRequest', {
+            groupId: undefined,
+            userId: newUser.id,
+            before: undefined,
+            after: {
+                id: acceptedRequest.id,
+                comment: input.comment,
+            },
+        });
 
-            return { newUser, acceptedRequest };
-        }),
+        return { newUser, acceptedRequest };
+    }),
 });

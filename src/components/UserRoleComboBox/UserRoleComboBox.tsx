@@ -53,7 +53,7 @@ export const UserRoleComboBox = ({ role, onChange, roleName }: UserRoleComboBoxP
             onClickOutside={(cb) => cb()}
             onClose={suggestionsVisibility.setFalse}
             renderItem={(props) => (
-                <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
+                <MenuItem key={props.item.code} focused={props.cursor === props.index} onClick={props.onClick} ghost>
                     <Text size="s" ellipsis>
                         {props.item.name}
                     </Text>

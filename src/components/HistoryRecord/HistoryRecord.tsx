@@ -1,4 +1,4 @@
-import { ComponentProps, ReactNode, useCallback } from 'react';
+import { ComponentProps, ReactNode, useCallback, useMemo } from 'react';
 import { nullable, useCopyToClipboard } from '@taskany/bricks';
 import { Button, HistoryRecord as HistoryRecordBricks, Text, Tag } from '@taskany/bricks/harmony';
 import { IconDividerLineOutline } from '@taskany/icons';
@@ -113,22 +113,42 @@ const componentMap: {
     },
 
     CreateUserCreationRequest: ({ event }) => {
+        const visible = useBoolean(false);
         const [, copy] = useCopyToClipboard();
+
+        const services = useMemo(
+            () => event.after.services?.map((service) => `${service.serviceName} ${service.serviceId}`).join(', '),
+            [event.after.services],
+        );
 
         const handleCopyId = useCallback(() => {
             notifyPromise(copy(event.after.id), 'copy');
         }, [copy, event.after.id]);
 
         return (
-            <div className={s.Row}>
-                <>
-                    {tr('create')} {tr('request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
-                    {tr('to create user')}{' '}
+            <>
+                <div className={s.Row}>
+                    {tr('created request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
                     <BoldText>
                         {event.after.name} ({event.after.email})
                     </BoldText>
-                </>
-            </div>
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Name')} after={event.after.name} />
+                        <ChangeListItem title={tr('Email')} after={event.after.email} />
+                        <ChangeListItem title={tr('Corporate email')} after={event.after.corporateEmail} />
+                        <ChangeListItem title={tr('Login')} after={event.after.login} />
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} />
+                        <ChangeListItem title={tr('Organization id')} after={event.after.organizationUnitId} />
+                        <ChangeListItem title={tr('Supervisor login')} after={event.after.supervisorLogin} />
+                        <ChangeListItem title={tr('Title')} after={event.after.title} />
+                        <ChangeListItem title={tr('OS preference')} after={event.after.osPreference} />
+                        <ChangeListItem title={tr('Services')} after={services} />
+                    </>
+                ))}
+            </>
         );
     },
 
@@ -141,26 +161,20 @@ const componentMap: {
         }, [copy, event.after.id]);
 
         return (
-            <div className={s.Row}>
-                <>
-                    {tr(event.after.status)} {tr('request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
-                    {tr('to create user')}{' '}
+            <>
+                <div className={s.Row}>
+                    {tr('approved request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
                     {nullable(event.user, (user) => (
                         <UserListItem user={user} />
                     ))}
-                    {nullable(event.after.comment, (comment) => (
-                        <>
-                            <div className={s.Row}>
-                                {tr('show comment')}
-                                <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
-                            </div>
-                            {nullable(visible.value, () => (
-                                <Text>{comment}</Text>
-                            ))}
-                        </>
+                    {nullable(event.after.comment, () => (
+                        <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                     ))}
-                </>
-            </div>
+                </div>
+                {nullable(visible.value, () => (
+                    <ChangeListItem title={tr('Comment')} after={event.after.comment} />
+                ))}
+            </>
         );
     },
 
@@ -173,26 +187,20 @@ const componentMap: {
         }, [copy, event.after.id]);
 
         return (
-            <div className={s.Row}>
-                <>
-                    {tr(event.after.status)} {tr('request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
-                    {tr('to create user')}{' '}
+            <>
+                <div className={s.Row}>
+                    {tr('denied request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
                     <BoldText>
                         {event.after.name} ({event.after.email})
                     </BoldText>
-                    {nullable(event.after.comment, (comment) => (
-                        <>
-                            <div className={s.Row}>
-                                {tr('show comment')}
-                                <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
-                            </div>
-                            {nullable(visible.value, () => (
-                                <Text>{comment}</Text>
-                            ))}
-                        </>
+                    {nullable(event.after.comment, () => (
+                        <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                     ))}
-                </>
-            </div>
+                </div>
+                {nullable(visible.value, () => (
+                    <ChangeListItem title={tr('Comment')} after={event.after.comment} />
+                ))}
+            </>
         );
     },
 

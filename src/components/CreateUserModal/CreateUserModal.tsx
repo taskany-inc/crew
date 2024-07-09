@@ -1,5 +1,4 @@
 import { ChangeEvent, useEffect } from 'react';
-import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -16,7 +15,7 @@ import {
     Text,
     nullable,
 } from '@taskany/bricks';
-import { danger0, gapM, gapS, gapXs, gray3, gray8 } from '@taskany/colors';
+import { danger0, gray8 } from '@taskany/colors';
 import { Checkbox } from '@taskany/bricks/harmony';
 
 import { useUserMutations } from '../../modules/userHooks';
@@ -24,25 +23,16 @@ import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { CreateUserCreationRequest, createUserCreationRequestSchema } from '../../modules/userSchemas';
+import { useBoolean } from '../../hooks/useBoolean';
+import { getCorporateEmail } from '../../utils/getCorporateEmail';
 
+import s from './CreateUserModal.module.css';
 import { tr } from './CreateUserModal.i18n';
 
 interface CreateUserModalProps {
     visible: boolean;
     onClose: VoidFunction;
 }
-
-const NoWrap = styled.div`
-    white-space: nowrap;
-`;
-
-const StyledInputContainer = styled.div`
-    display: flex;
-    gap: ${gapS};
-    align-items: center;
-    padding: ${gapXs} ${gapM};
-    background-color: ${gray3};
-`;
 
 export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
     const { createUserCreationRequest } = useUserMutations();
@@ -52,6 +42,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
         handleSubmit,
         reset,
         watch,
+        getValues,
         setValue,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateUserCreationRequest>({
@@ -65,9 +56,25 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
         setValue('createExternalAccount', e.target.checked);
     };
 
+    const createCorporateEmail = useBoolean(false);
+
+    const onCreateCorporateEmailClick = (e: ChangeEvent<HTMLInputElement>) => {
+        createCorporateEmail.setValue(e.target.checked);
+        if (e.target.checked) {
+            setValue('corporateEmail', getCorporateEmail(getValues('login')));
+        } else {
+            setValue('corporateEmail', undefined);
+        }
+    };
+
+    const onLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (createCorporateEmail.value) {
+            setValue('corporateEmail', getCorporateEmail(e.target.value));
+        }
+    };
+
     const onSubmit = handleSubmit(async (data) => {
         await createUserCreationRequest(data);
-
         onClose();
     });
 
@@ -89,7 +96,21 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
 
             <ModalContent>
                 <Form onSubmit={onSubmit}>
-                    <NoWrap>
+                    <div className={s.NoWrap}>
+                        <div className={s.InputContainer}>
+                            <Text weight="bold" color={gray8}>
+                                {tr('Organization:')}
+                            </Text>
+                            <OrganizationUnitComboBox
+                                onChange={(group) => group && setValue('organizationUnitId', group.id)}
+                            />
+                            {nullable(errors.organizationUnitId, (e) => (
+                                <Text size="xs" color={danger0}>
+                                    {e.message}
+                                </Text>
+                            ))}
+                        </div>
+
                         <FormInput
                             label={tr('Surname')}
                             brick="right"
@@ -97,6 +118,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             {...register('surname', { required: tr('Required field') })}
                             error={errors.surname}
                         />
+
                         <FormInput
                             label={tr('First name')}
                             brick="right"
@@ -104,6 +126,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             {...register('firstName', { required: tr('Required field') })}
                             error={errors.firstName}
                         />
+
                         <FormInput
                             label={tr('Middle name')}
                             brick="right"
@@ -111,6 +134,15 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             {...register('middleName')}
                             error={errors.middleName}
                         />
+
+                        <FormInput
+                            label={tr('Role')}
+                            brick="right"
+                            autoComplete="off"
+                            {...register('title')}
+                            error={errors.title}
+                        />
+
                         <FormInput
                             label={tr('Email')}
                             brick="right"
@@ -118,13 +150,44 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             {...register('email', { required: tr('Required field') })}
                             error={errors.email}
                         />
+
                         <FormInput
                             label={tr('Login')}
                             brick="right"
                             autoComplete="off"
-                            {...register('login', { required: tr('Required field') })}
+                            {...register('login', { required: tr('Required field'), onChange: onLoginChange })}
                             error={errors.login}
                         />
+
+                        <div className={s.InputContainer}>
+                            <Text weight="bold" color={gray8}>
+                                {tr('Create corporate email:')}
+                            </Text>
+                            <Checkbox
+                                value="createExternalAccount"
+                                checked={createCorporateEmail.value}
+                                onChange={onCreateCorporateEmailClick}
+                            />
+                        </div>
+
+                        {nullable(createCorporateEmail.value, () => (
+                            <FormInput
+                                label={tr('Corporate email')}
+                                brick="right"
+                                autoComplete="off"
+                                {...register('corporateEmail')}
+                                error={errors.corporateEmail}
+                            />
+                        ))}
+
+                        <FormInput
+                            label={tr('OS preference')}
+                            brick="right"
+                            autoComplete="off"
+                            {...register('osPreference')}
+                            error={errors.osPreference}
+                        />
+
                         <FormInput
                             label={tr('Phone')}
                             brick="right"
@@ -132,6 +195,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             {...register('phone')}
                             error={errors.phone}
                         />
+
                         <FormInput
                             label={tr('Accounting id')}
                             brick="right"
@@ -139,7 +203,8 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                             {...register('accountingId')}
                             error={errors.accountingId}
                         />
-                        <StyledInputContainer>
+
+                        <div className={s.InputContainer}>
                             <Text weight="bold" color={gray8}>
                                 {tr('Supervisor:')}
                             </Text>
@@ -149,8 +214,9 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                                     {e.message}
                                 </Text>
                             ))}
-                        </StyledInputContainer>
-                        <StyledInputContainer>
+                        </div>
+
+                        <div className={s.InputContainer}>
                             <Text weight="bold" color={gray8}>
                                 {tr('Team:')}
                             </Text>
@@ -160,22 +226,19 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                                     {e.message}
                                 </Text>
                             ))}
-                        </StyledInputContainer>
-                        <StyledInputContainer>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Organization:')}
-                            </Text>
+                        </div>
 
-                            <OrganizationUnitComboBox
-                                onChange={(group) => group && setValue('organizationUnitId', group.id)}
+                        <div className={s.DateContainer}>
+                            <FormInput
+                                label={tr('Date')}
+                                type="date"
+                                autoComplete="off"
+                                onChange={(e) => e.target.valueAsDate && setValue('date', e.target.valueAsDate)}
+                                className={s.Date}
                             />
-                            {nullable(errors.organizationUnitId, (e) => (
-                                <Text size="xs" color={danger0}>
-                                    {e.message}
-                                </Text>
-                            ))}
-                        </StyledInputContainer>
-                        <StyledInputContainer>
+                        </div>
+
+                        <div className={s.InputContainer}>
                             <Text weight="bold" color={gray8}>
                                 {tr('Create external account:')}
                             </Text>
@@ -184,14 +247,8 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                                 checked={createExternalAccount}
                                 onChange={onCreateExternalAccountClick}
                             />
-                        </StyledInputContainer>
-
-                        <FormInput
-                            type="date"
-                            autoComplete="off"
-                            onChange={(e) => e.target.valueAsDate && setValue('date', e.target.valueAsDate)}
-                        />
-                    </NoWrap>
+                        </div>
+                    </div>
 
                     <FormActions>
                         <FormAction left />

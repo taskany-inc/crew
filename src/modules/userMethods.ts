@@ -40,6 +40,7 @@ import {
     EditUserRoleData,
     CreateUserCreationRequest,
     EditUserMailingSettings,
+    HandleUserCreationRequest,
 } from './userSchemas';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
@@ -546,6 +547,9 @@ export const userMethods = {
                 name,
                 supervisorLogin: supervisor.login,
                 email: data.email,
+                corporateEmail: data.corporateEmail || undefined,
+                title: data.title || undefined,
+                osPreference: data.osPreference || undefined,
                 login: data.login,
                 organizationUnitId: data.organizationUnitId,
                 groupId: data.groupId,
@@ -588,7 +592,7 @@ export const userMethods = {
         return requests as FullyUserCreationRequest[];
     },
 
-    declineUserRequest: async ({ id, comment }: { id: string; comment?: string }): Promise<UserCreationRequest> => {
+    declineUserRequest: async ({ id, comment }: HandleUserCreationRequest): Promise<UserCreationRequest> => {
         return prisma.userCreationRequest.update({
             where: { id },
             data: { status: 'Denied', comment },
@@ -598,26 +602,11 @@ export const userMethods = {
     acceptUserRequest: async ({
         id,
         comment,
-    }: {
-        id: string;
-        comment?: string;
-    }): Promise<{
+    }: HandleUserCreationRequest): Promise<{
         newUser: User;
         acceptedRequest: FullyUserCreationRequest;
     }> => {
-        const userCreationRequest = await prisma.userCreationRequest.findUnique({
-            where: { id },
-            select: {
-                login: true,
-                supervisor: true,
-                services: true,
-                name: true,
-                email: true,
-                createExternalAccount: true,
-                organizationUnitId: true,
-                groupId: true,
-            },
-        });
+        const userCreationRequest = await prisma.userCreationRequest.findUnique({ where: { id } });
 
         if (!userCreationRequest) {
             throw new TRPCError({ code: 'BAD_REQUEST', message: 'User creation request not found' });
@@ -637,6 +626,8 @@ export const userMethods = {
 
         const services = userCreationRequest.services as { serviceId: string; serviceName: string }[];
 
+        const email = userCreationRequest.corporateEmail || userCreationRequest.email;
+
         if (userCreationRequest.createExternalAccount) {
             const [surname, firstName, middleName] = userCreationRequest.name.split(' ');
 
@@ -650,7 +641,7 @@ export const userMethods = {
                 surname,
                 firstName,
                 middleName,
-                email: userCreationRequest.email,
+                email,
                 phone,
                 login: userCreationRequest.login,
                 organizationUnitId: userCreationRequest.organizationUnitId,
@@ -663,12 +654,19 @@ export const userMethods = {
             include: { supervisor: true, organization: true, group: true },
         });
 
+        if (acceptedRequest.corporateEmail) {
+            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
+            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
+            services.push({ serviceName: emailService.name, serviceId: acceptedRequest.email });
+        }
+
         const newUser = await prisma.user.create({
             data: {
                 name: acceptedRequest.name,
                 email: acceptedRequest.email,
                 supervisorId: acceptedRequest.supervisor.id,
                 login: acceptedRequest.login,
+                title: userCreationRequest.title,
                 memberships: { create: { groupId: acceptedRequest.groupId } },
                 organizationUnitId: acceptedRequest.organizationUnitId,
                 services: { createMany: { data: services } },
