@@ -24,7 +24,7 @@ import { FilterRadio } from '../FilterRadio';
 
 import { tr } from './UsersPageFilterPanel.i18n';
 
-type UserFilterQueryUrlParam = Omit<UserFilterQuery, 'activeQuery'> & { activeQuery?: 'true' | 'false' };
+type UserFilterQueryUrlParam = Omit<UserFilterQuery, 'active'> & { active?: 'true' | 'false' };
 interface UsersPageFilterPanelProps {
     setSearchQuery: (searchQuery: string) => void;
     filterState: UserFilterQuery;
@@ -214,7 +214,7 @@ export const UsersPageFiltersPanel = memo(
                         value={filterActive}
                         onChange={(arg) => {
                             setFilterActive(arg);
-                            setPartialQueryByKey('activeQuery')(activeVariants[arg as keyof typeof activeVariants]);
+                            setPartialQueryByKey('active')(activeVariants[arg as keyof typeof activeVariants]);
                         }}
                     />
                 </FilterPopup>
