@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.69.0](https://github.com/taskany-inc/crew/compare/v0.68.0...v0.69.0) (2024-07-11)
+
+
+### Features
+
+* dont send email on date of user request ([5a2755a](https://github.com/taskany-inc/crew/commit/5a2755a3452ee1817bc06a21a6d3c45fdf3f4e2c))
+* history record of first user login ([6c615b2](https://github.com/taskany-inc/crew/commit/6c615b227b1d8351b1a04514a92e35db17177391))
+* jobs ([84b22c4](https://github.com/taskany-inc/crew/commit/84b22c40654d1f7a885b29c724d944e05fec7302))
+* **user request:** os, title, corp email ([98f7288](https://github.com/taskany-inc/crew/commit/98f72880ab4aa98693287bdbd69c4dae6ed65191))
+
+
+### Bug Fixes
+
+* active user filter ([adbfe48](https://github.com/taskany-inc/crew/commit/adbfe4807627ec2a4b2d5ece42e5c4a46426e1e0))
+
 ## [0.68.0](https://github.com/taskany-inc/crew/compare/v0.67.2...v0.68.0) (2024-07-04)
 
 
