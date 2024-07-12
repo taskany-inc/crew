@@ -17,6 +17,7 @@ import { historyEventRouter } from './historyEventsRouter';
 import { scheduledDeactivationRouter } from './scheduledDeactivationRouter';
 import { userRoleRouter } from './userRoleRouter';
 import { attachRouter } from './attachRouter';
+import { userCreationRequestRouter } from './userCreationRequestRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -36,6 +37,7 @@ export const trpcRouter = router({
     historyEvent: historyEventRouter,
     scheduledDeactivation: scheduledDeactivationRouter,
     attach: attachRouter,
+    userCreationRequest: userCreationRequestRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

@@ -6,7 +6,6 @@ import {
     UserAchievement,
     Achievement,
     OrganizationUnit,
-    UserCreationRequest,
     UserRole,
     ScheduledDeactivation,
 } from '@prisma/client';
@@ -62,13 +61,6 @@ export interface UserFilterQuery {
     active?: boolean;
 }
 
-export interface ExternalUserUpdate {
-    email: string;
-    name?: string;
-    supervisorId?: string | null;
-    active?: boolean;
-}
-
 export interface UserAchievements {
     achievements?: Array<UserAchievement & { achievement: Achievement }>;
 }
@@ -84,13 +76,6 @@ export interface UserScheduledDeactivations {
             ScheduledDeactivationNewOrganizationUnit &
             ScheduledDeactivationAttaches
     >;
-}
-
-export interface FullyUserCreationRequest extends UserCreationRequest {
-    supervisor: User;
-    organization: OrganizationUnit;
-    group: Group;
-    services: Record<'serviceName' | 'serviceId', string>[] | null;
 }
 
 export interface UserRoleData {

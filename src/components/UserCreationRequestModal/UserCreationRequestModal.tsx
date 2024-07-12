@@ -2,7 +2,7 @@ import { Button, Modal, ModalContent, ModalCross, ModalHeader, Text, Textarea } 
 import { ReactNode, useCallback, useState } from 'react';
 import { nullable, useLatest } from '@taskany/bricks';
 
-import { useUserMutations } from '../../modules/userHooks';
+import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { UserRequest } from '../../trpc/inferredTypes';
 import { UserListItem } from '../UserListItem/UserListItem';
 
@@ -29,7 +29,7 @@ interface UserCreationRequestModalProps {
 }
 
 export const UserCreationRequestModal = ({ request, visible, onClose }: UserCreationRequestModalProps) => {
-    const { declineUserRequest, acceptUserRequest } = useUserMutations();
+    const { declineUserRequest, acceptUserRequest } = useUserCreationRequestMutations();
     const [comment, setComment] = useState<string | undefined>();
     const commentRef = useLatest(comment);
 

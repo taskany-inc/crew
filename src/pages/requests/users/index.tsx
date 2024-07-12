@@ -6,7 +6,7 @@ export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
     action: async ({ ssg }) => {
         try {
-            await ssg.user.getUsersRequests.fetch();
+            await ssg.userCreationRequest.getList.fetch();
         } catch (e) {
             return { redirect: { destination: pages.home } };
         }

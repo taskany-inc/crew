@@ -18,11 +18,11 @@ import {
 import { danger0, gray8 } from '@taskany/colors';
 import { Checkbox } from '@taskany/bricks/harmony';
 
-import { useUserMutations } from '../../modules/userHooks';
+import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
-import { CreateUserCreationRequest, createUserCreationRequestSchema } from '../../modules/userSchemas';
+import { CreateUserCreationRequest, createUserCreationRequestSchema } from '../../modules/userCreationRequestSchemas';
 import { useBoolean } from '../../hooks/useBoolean';
 import { getCorporateEmail } from '../../utils/getCorporateEmail';
 
@@ -35,7 +35,7 @@ interface CreateUserModalProps {
 }
 
 export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
-    const { createUserCreationRequest } = useUserMutations();
+    const { createUserCreationRequest } = useUserCreationRequestMutations();
 
     const {
         register,

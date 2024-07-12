@@ -4,4 +4,4 @@ import { TrpcRouter } from './router';
 
 type RouterOutputs = inferRouterOutputs<TrpcRouter>;
 
-export type UserRequest = RouterOutputs['user']['getUsersRequests'][number];
+export type UserRequest = RouterOutputs['userCreationRequest']['getList'][number];
