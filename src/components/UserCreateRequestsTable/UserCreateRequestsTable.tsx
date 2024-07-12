@@ -15,7 +15,7 @@ interface UserCreateRequestsTableProps {
 
 export const UserCreateRequestsTable = ({ openModal, onSelectRequest }: UserCreateRequestsTableProps) => {
     const locale = useLocale();
-    const { data: userRequests = [] } = trpc.user.getUsersRequests.useQuery();
+    const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery();
 
     const thead = useMemo(() => {
         return [

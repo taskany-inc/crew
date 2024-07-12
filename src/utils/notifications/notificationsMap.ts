@@ -10,15 +10,7 @@ type NamespacedAction<T extends string, A extends string> = `${T}${A}`;
 export type NotificationNamespaces =
     | NamespacedAction<
           'user',
-          | 'Create'
-          | 'Update'
-          | 'AddToGroup'
-          | 'RemoveFromGroup'
-          | 'EditSettings'
-          | 'CreateRequest'
-          | 'DeclineRequest'
-          | 'AcceptRequest'
-          | 'EditMailingSettings'
+          'Create' | 'Update' | 'AddToGroup' | 'RemoveFromGroup' | 'EditSettings' | 'EditMailingSettings'
       >
     | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move' | 'AddAdmin' | 'RemoveAdmin'>
     | NamespacedAction<'vacancy', 'Create' | 'Update' | 'Archive'>
@@ -26,6 +18,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'service', 'AddToUser' | 'Delete'>
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'achievement', 'Give'>
+    | NamespacedAction<'userCreationRequest', 'Create' | 'Decline' | 'Accept'>
     | NamespacedAction<'scheduledDeactivation', 'Create' | 'Edit' | 'Cancel'>
     | NamespacedAction<'bonusPoints', 'Change'>
     | 'addScopeToRole'
@@ -46,18 +39,6 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         userCreate: {
             success: tr('Voila! User is here 🎉'),
             loading: tr('Creating the user...'),
-        },
-        userCreateRequest: {
-            success: tr('Voila! User creation request is created 🎉'),
-            loading: tr('Creating a user creation request...'),
-        },
-        userAcceptRequest: {
-            success: tr('Voila! User is here 🎉'),
-            loading: tr('Creating the user...'),
-        },
-        userDeclineRequest: {
-            success: tr('User creation request was declined'),
-            loading: tr('Declining a user creation request...'),
         },
         userUpdate: {
             success: tr('User is updated'),
@@ -148,7 +129,18 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             loading: tr('Copying...'),
             error: tr('An error occurred while copying'),
         },
-
+        userCreationRequestCreate: {
+            success: tr('Voila! User creation request is created 🎉'),
+            loading: tr('Creating a user creation request...'),
+        },
+        userCreationRequestDecline: {
+            success: tr('User creation request was declined'),
+            loading: tr('Declining a user creation request...'),
+        },
+        userCreationRequestAccept: {
+            success: tr('Voila! User is here 🎉'),
+            loading: tr('Creating the user...'),
+        },
         scheduledDeactivationCreate: {
             success: tr('Profile deactivation is scheduled!'),
             loading: tr('Scheduling profile deactivation...'),

@@ -4,7 +4,6 @@ import { notifyPromise } from '../utils/notifications/notifyPromise';
 import {
     AddUserToGroup,
     CreateUser,
-    CreateUserCreationRequest,
     EditUserFields,
     EditUserActiveState,
     EditUserRoleData,
@@ -79,37 +78,10 @@ export const useUserMutations = () => {
         },
     });
 
-    const createUserCreationRequest = trpc.user.createUserCreationRequest.useMutation({
-        onSuccess: () => {
-            utils.user.invalidate();
-        },
-    });
-
-    const declineUserRequest = trpc.user.declineUserRequest.useMutation({
-        onSuccess: () => {
-            utils.user.invalidate();
-        },
-    });
-
-    const acceptUserRequest = trpc.user.acceptUserRequest.useMutation({
-        onSuccess: () => {
-            utils.user.invalidate();
-        },
-    });
-
     return {
         createUser: (data: CreateUser) => notifyPromise(createUser.mutateAsync(data), 'userCreate'),
 
         editUserRole: (data: EditUserRoleData) => notifyPromise(editUserRole.mutateAsync(data), 'userUpdate'),
-
-        createUserCreationRequest: (data: CreateUserCreationRequest) =>
-            notifyPromise(createUserCreationRequest.mutateAsync(data), 'userCreateRequest'),
-
-        declineUserRequest: (data: { id: string; comment?: string }) =>
-            notifyPromise(declineUserRequest.mutateAsync(data), 'userDeclineRequest'),
-
-        acceptUserRequest: (data: { id: string; comment?: string }) =>
-            notifyPromise(acceptUserRequest.mutateAsync(data), 'userAcceptRequest'),
 
         addUserToGroup: (data: AddUserToGroup) => notifyPromise(addUserToGroup.mutateAsync(data), 'userAddToGroup'),
 

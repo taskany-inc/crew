@@ -1,17 +1,14 @@
-import { Prisma, User, UserCreationRequest } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 import { suggestionsTake } from '../utils/suggestions';
 import { trimAndJoin } from '../utils/trimAndJoin';
-import { config } from '../config';
 import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
-import { userCreationMailText } from '../utils/emailTemplates';
 
 import {
-    ExternalUserUpdate,
     MembershipInfo,
     UserAchievements,
     UserMemberships,
@@ -21,7 +18,6 @@ import {
     UserSupervisorIn,
     UserMeta,
     UserOrganizationUnit,
-    FullyUserCreationRequest,
     UserRoleData,
     MailingSettingType,
     UserScheduledDeactivations,
@@ -38,14 +34,12 @@ import {
     EditUserFields,
     UserRestApiData,
     EditUserRoleData,
-    CreateUserCreationRequest,
     EditUserMailingSettings,
-    HandleUserCreationRequest,
 } from './userSchemas';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields } from './groupMethods';
 import { userAccess } from './userAccess';
-import { sendMail } from './nodemailer';
+import { externalUserMethods } from './externalUserMethods';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -98,54 +92,6 @@ const usersWhere = (data: GetUserList) => {
     return where;
 };
 
-const externalUserCreate = async (data: CreateUser) => {
-    if (!config.externalUserService.apiToken || !config.externalUserService.apiUrlCreate) return;
-    const { organizationUnitId, firstName, middleName, surname, phone, email, login } = data;
-    const organization = await prisma.organizationUnit.findFirstOrThrow({
-        where: { id: organizationUnitId },
-        select: { country: true, name: true },
-    });
-    const body = {
-        firstName,
-        middleName,
-        surname,
-        phone,
-        email,
-        organization,
-        login,
-    };
-    const response = await fetch(config.externalUserService.apiUrlCreate, {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-            'Content-Type': 'application/json',
-            authorization: config.externalUserService.apiToken,
-        },
-    });
-    if (!response.ok) {
-        const text = await response.text();
-        throw new TRPCError({ code: 'BAD_REQUEST', message: text });
-    }
-};
-
-const externalUserUpdate = async (userId: string, data: Omit<ExternalUserUpdate, 'email'>) => {
-    if (!config.externalUserService.apiToken || !config.externalUserService.apiUrlUpdate) return;
-    const user = await prisma.user.findFirstOrThrow({ where: { id: userId } });
-    const fullData: ExternalUserUpdate = { email: user.email, ...data };
-    const response = await fetch(config.externalUserService.apiUrlUpdate, {
-        method: 'POST',
-        body: JSON.stringify(fullData),
-        headers: {
-            'Content-Type': 'application/json',
-            authorization: config.externalUserService.apiToken,
-        },
-    });
-    if (!response.ok) {
-        const text = await response.text();
-        throw new TRPCError({ code: 'BAD_REQUEST', message: text });
-    }
-};
-
 export const userMethods = {
     getByIdOrThrow: async (id: string): Promise<User> => {
         const user = await prisma.user.findUnique({ where: { id } });
@@ -166,7 +112,7 @@ export const userMethods = {
             servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
         }
         if (data.createExternalAccount) {
-            await externalUserCreate(data);
+            await externalUserMethods.create(data);
         }
 
         return prisma.user.create({
@@ -411,7 +357,7 @@ export const userMethods = {
             }
         }
 
-        await externalUserUpdate(data.id, { name: data.name, supervisorId: data.supervisorId });
+        await externalUserMethods.update(data.id, { name: data.name, supervisorId: data.supervisorId });
         return prisma.user.update({
             where: { id: data.id },
             data,
@@ -419,7 +365,7 @@ export const userMethods = {
     },
 
     editActiveState: async (data: EditUserActiveState): Promise<User> => {
-        await externalUserUpdate(data.id, { active: data.active });
+        await externalUserMethods.update(data.id, { active: data.active });
         if (data.active === false) {
             await prisma.membership.deleteMany({ where: { userId: data.id, group: { organizational: true } } });
         }
@@ -514,170 +460,6 @@ export const userMethods = {
             where: { id },
             data: { roleCode },
         });
-    },
-
-    createUserCreationRequest: async (data: CreateUserCreationRequest): Promise<UserCreationRequest> => {
-        const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
-
-        const supervisor = await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } });
-
-        if (!supervisor.login) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Supervisor has no login' });
-        }
-
-        if (!data.groupId) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Group is required' });
-        }
-
-        const [phoneService, accountingService] = await Promise.all([
-            prisma.externalService.findUnique({ where: { name: 'Phone' } }),
-            prisma.externalService.findUnique({ where: { name: 'Accounting system' } }),
-        ]);
-
-        const servicesData: { serviceName: string; serviceId: string }[] = [];
-        if (phoneService) {
-            servicesData.push({ serviceName: phoneService.name, serviceId: data.phone });
-        }
-        if (accountingService) {
-            servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
-        }
-
-        const userCreationRequest = await prisma.userCreationRequest.create({
-            data: {
-                name,
-                supervisorLogin: supervisor.login,
-                email: data.email,
-                corporateEmail: data.corporateEmail || undefined,
-                title: data.title || undefined,
-                osPreference: data.osPreference || undefined,
-                login: data.login,
-                organizationUnitId: data.organizationUnitId,
-                groupId: data.groupId,
-                createExternalAccount: Boolean(data.createExternalAccount),
-                services: {
-                    toJSON: () => servicesData,
-                },
-                date: data.date,
-            },
-            include: { group: true, organization: true, supervisor: true },
-        });
-
-        const { to } = await userMethods.getMailingList('createUserRequest');
-
-        const mailText = userCreationMailText(name);
-
-        const subject = tr('New user request {userName}', { userName: name });
-
-        sendMail({
-            to,
-            subject,
-            text: mailText,
-        });
-
-        return userCreationRequest;
-    },
-
-    getUsersRequests: async (): Promise<FullyUserCreationRequest[]> => {
-        const requests = await prisma.userCreationRequest.findMany({
-            where: {
-                status: null,
-            },
-            include: {
-                group: true,
-                organization: true,
-                supervisor: true,
-            },
-        });
-
-        return requests as FullyUserCreationRequest[];
-    },
-
-    declineUserRequest: async ({ id, comment }: HandleUserCreationRequest): Promise<UserCreationRequest> => {
-        return prisma.userCreationRequest.update({
-            where: { id },
-            data: { status: 'Denied', comment },
-        });
-    },
-
-    acceptUserRequest: async ({
-        id,
-        comment,
-    }: HandleUserCreationRequest): Promise<{
-        newUser: User;
-        acceptedRequest: FullyUserCreationRequest;
-    }> => {
-        const userCreationRequest = await prisma.userCreationRequest.findUnique({ where: { id } });
-
-        if (!userCreationRequest) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'User creation request not found' });
-        }
-
-        let user = null;
-
-        try {
-            user = await userMethods.getByLogin(userCreationRequest.login);
-        } catch (error) {
-            /* empty */
-        }
-
-        if (user) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'User already exists' });
-        }
-
-        const services = userCreationRequest.services as { serviceId: string; serviceName: string }[];
-
-        const email = userCreationRequest.corporateEmail || userCreationRequest.email;
-
-        if (userCreationRequest.createExternalAccount) {
-            const [surname, firstName, middleName] = userCreationRequest.name.split(' ');
-
-            const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
-
-            if (!phone) {
-                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Phone service is required' });
-            }
-
-            await externalUserCreate({
-                surname,
-                firstName,
-                middleName,
-                email,
-                phone,
-                login: userCreationRequest.login,
-                organizationUnitId: userCreationRequest.organizationUnitId,
-            });
-        }
-
-        const acceptedRequest = await prisma.userCreationRequest.update({
-            where: { id },
-            data: { status: 'Approved', comment },
-            include: { supervisor: true, organization: true, group: true },
-        });
-
-        if (acceptedRequest.corporateEmail) {
-            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
-            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
-            services.push({ serviceName: emailService.name, serviceId: acceptedRequest.email });
-        }
-
-        const newUser = await prisma.user.create({
-            data: {
-                name: acceptedRequest.name,
-                email: acceptedRequest.email,
-                supervisorId: acceptedRequest.supervisor.id,
-                login: acceptedRequest.login,
-                title: userCreationRequest.title,
-                memberships: { create: { groupId: acceptedRequest.groupId } },
-                organizationUnitId: acceptedRequest.organizationUnitId,
-                services: { createMany: { data: services } },
-                workStartDate: acceptedRequest.date,
-            },
-        });
-
-        return {
-            newUser,
-            acceptedRequest: acceptedRequest as FullyUserCreationRequest,
-        };
     },
 
     getMailingList: async (mailingType: MailingSettingType, user?: User) => {

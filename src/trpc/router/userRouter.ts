@@ -13,9 +13,7 @@ import {
     createUserSchema,
     editUserActiveStateSchema,
     editUserRoleSchema,
-    createUserCreationRequestSchema,
     editUserMailingSettingsSchema,
-    handleUserCreationRequest,
 } from '../../modules/userSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
@@ -161,72 +159,5 @@ export const userRouter = router({
     editUserRole: protectedProcedure.input(editUserRoleSchema).mutation(({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserRole'));
         return userMethods.editUserRole(input);
-    }),
-
-    createUserCreationRequest: protectedProcedure
-        .input(createUserCreationRequestSchema)
-        .mutation(async ({ input, ctx }) => {
-            accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
-
-            const creationRequest = await userMethods.createUserCreationRequest(input);
-
-            await historyEventMethods.create({ user: ctx.session.user.id }, 'createUserCreationRequest', {
-                groupId: undefined,
-                userId: undefined,
-                before: undefined,
-                after: {
-                    ...creationRequest,
-                    corporateEmail: creationRequest.corporateEmail || undefined,
-                    title: creationRequest.title || undefined,
-                    osPreference: creationRequest.osPreference || undefined,
-                    status: null,
-                    services: creationRequest.services as Record<'serviceName' | 'serviceId', string>[],
-                },
-            });
-
-            return creationRequest;
-        }),
-
-    getUsersRequests: protectedProcedure.input(z.undefined()).query(({ ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
-        return userMethods.getUsersRequests();
-    }),
-
-    declineUserRequest: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
-
-        const declinedUserRequest = await userMethods.declineUserRequest(input);
-
-        await historyEventMethods.create({ user: ctx.session.user.id }, 'declineUserCreationRequest', {
-            groupId: undefined,
-            userId: undefined,
-            before: undefined,
-            after: {
-                id: declinedUserRequest.id,
-                name: declinedUserRequest.name,
-                email: declinedUserRequest.email,
-                comment: input.comment,
-            },
-        });
-
-        return declinedUserRequest;
-    }),
-
-    acceptUserRequest: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
-
-        const { newUser, acceptedRequest } = await userMethods.acceptUserRequest(input);
-
-        await historyEventMethods.create({ user: ctx.session.user.id }, 'acceptUserCreationRequest', {
-            groupId: undefined,
-            userId: newUser.id,
-            before: undefined,
-            after: {
-                id: acceptedRequest.id,
-                comment: input.comment,
-            },
-        });
-
-        return { newUser, acceptedRequest };
     }),
 });
