@@ -1,4 +1,4 @@
-import { User, UserCreationRequest } from 'prisma/prisma-client';
+import { User, UserCreationRequest, Prisma } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
@@ -10,7 +10,7 @@ import { sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import { CreateUserCreationRequest, HandleUserCreationRequest } from './userCreationRequestSchemas';
 import { externalUserMethods } from './externalUserMethods';
-import { FullyUserCreationRequest } from './userCreationRequestTypes';
+import { CompleteUserCreationRequest } from './userCreationRequestTypes';
 
 export const userCreationRequestsMethods = {
     create: async (data: CreateUserCreationRequest): Promise<UserCreationRequest> => {
@@ -35,27 +35,37 @@ export const userCreationRequestsMethods = {
         if (phoneService) {
             servicesData.push({ serviceName: phoneService.name, serviceId: data.phone });
         }
-        if (accountingService) {
+        if (accountingService && data.accountingId) {
             servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
         }
 
-        const userCreationRequest = await prisma.userCreationRequest.create({
-            data: {
-                name,
-                supervisorLogin: supervisor.login,
-                email: data.email,
-                corporateEmail: data.corporateEmail || undefined,
-                title: data.title || undefined,
-                osPreference: data.osPreference || undefined,
-                login: data.login,
-                organizationUnitId: data.organizationUnitId,
-                groupId: data.groupId,
-                createExternalAccount: Boolean(data.createExternalAccount),
-                services: {
-                    toJSON: () => servicesData,
-                },
-                date: data.date,
+        const createData: Prisma.UserCreationRequestUncheckedCreateInput = {
+            type: data.type,
+            name,
+            email: data.email,
+            login: data.login,
+            organizationUnitId: data.organizationUnitId,
+            groupId: data.groupId,
+            supervisorLogin: supervisor.login,
+            title: data.title || undefined,
+            corporateEmail: data.corporateEmail || undefined,
+            osPreference: data.osPreference || undefined,
+            createExternalAccount: Boolean(data.createExternalAccount),
+            services: {
+                toJSON: () => servicesData,
             },
+            date: data.date,
+            comment: data.comment,
+            attaches: data.attachIds ? { connect: data.attachIds.map((id) => ({ id })) } : undefined,
+        };
+
+        if (data.type === 'externalEmployee') {
+            createData.externalOrganizationSupervisorLogin = data.externalOrganizationSupervisorLogin || undefined;
+            createData.accessToInternalSystems = data.accessToInternalSystems;
+        }
+
+        const userCreationRequest = await prisma.userCreationRequest.create({
+            data: createData,
             include: { group: true, organization: true, supervisor: true },
         });
 
@@ -86,7 +96,7 @@ export const userCreationRequestsMethods = {
         comment,
     }: HandleUserCreationRequest): Promise<{
         newUser: User;
-        acceptedRequest: FullyUserCreationRequest;
+        acceptedRequest: CompleteUserCreationRequest;
     }> => {
         const userCreationRequest = await prisma.userCreationRequest.findUnique({ where: { id } });
 
@@ -158,11 +168,11 @@ export const userCreationRequestsMethods = {
 
         return {
             newUser,
-            acceptedRequest: acceptedRequest as FullyUserCreationRequest,
+            acceptedRequest: acceptedRequest as CompleteUserCreationRequest,
         };
     },
 
-    getList: async (): Promise<FullyUserCreationRequest[]> => {
+    getList: async (): Promise<CompleteUserCreationRequest[]> => {
         const requests = await prisma.userCreationRequest.findMany({
             where: {
                 status: null,
@@ -174,6 +184,6 @@ export const userCreationRequestsMethods = {
             },
         });
 
-        return requests as FullyUserCreationRequest[];
+        return requests as CompleteUserCreationRequest[];
     },
 };

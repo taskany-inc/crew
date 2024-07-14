@@ -33,6 +33,7 @@ interface HistoryEventsData {
         requireBefore: false;
         data: {
             id: string;
+            type?: string;
             status: null;
             name: string;
             email: string;
@@ -43,7 +44,12 @@ interface HistoryEventsData {
             supervisorLogin: string;
             organizationUnitId: string;
             groupId: string;
+            date?: string;
             services?: { serviceName: string; serviceId: string }[] | null;
+            createExternalAccount?: boolean;
+            externalOrganizationSupervisorLogin?: string;
+            accessToInternalSystems?: boolean;
+            comment?: string;
         };
     };
     acceptUserCreationRequest: {

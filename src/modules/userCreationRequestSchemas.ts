@@ -1,16 +1,66 @@
 import { z } from 'zod';
 
-import { createUserSchema } from './userSchemas';
 import { tr } from './modules.i18n';
 
-export const createUserCreationRequestSchema = createUserSchema.extend({
-    corporateEmail: z.string().optional(),
+export const createUserCreationRequestBaseSchema = z.object({
+    type: z.literal('base'),
+    surname: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    firstName: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    middleName: z.string().optional(),
+    email: z.string().min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
+    phone: z.string().min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
+    login: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    accountingId: z.string().optional(),
+    organizationUnitId: z.string(),
+    groupId: z.string().nullish(),
+    supervisorId: z.string().nullish(),
     title: z.string().optional(),
+    corporateEmail: z.string().optional(),
     osPreference: z.string().optional(),
-    accountingId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
-    groupId: z.string().min(1, { message: tr('Obligatory field') }),
-    supervisorId: z.string().min(1, { message: tr('Obligatory field') }),
+    createExternalAccount: z.boolean().optional(),
+    date: z.date().optional(),
+    comment: z.string().optional(),
+    attachIds: z.string().array().optional(),
 });
+export type CreateUserCreationRequestBase = z.infer<typeof createUserCreationRequestBaseSchema>;
+
+export const createUserCreationRequestInternalEmployeeSchema = createUserCreationRequestBaseSchema.extend({
+    type: z.literal('internalEmployee'),
+    workMode: z.string().min(1, { message: tr('Required field') }),
+    workModeComment: z.string().optional(),
+    equipment: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    extraEquipment: z.string().optional(),
+    workSpace: z.string().optional(),
+    buddyId: z.string().min(1, { message: tr('Required field') }),
+    recruiterId: z.string().min(1, { message: tr('Required field') }),
+    coordinatorId: z.string().min(1, { message: tr('Required field') }),
+    location: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    creationCause: z.string(),
+    unitId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+});
+export type CreateUserCreationRequestInternalEmployee = z.infer<typeof createUserCreationRequestInternalEmployeeSchema>;
+
+export const createUserCreationRequestExternalEmployeeSchema = createUserCreationRequestBaseSchema.extend({
+    type: z.literal('externalEmployee'),
+    accountingId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    groupId: z.string().min(1, { message: tr('Required field') }),
+    supervisorId: z.string().min(1, { message: tr('Required field') }),
+    externalOrganizationSupervisorLogin: z
+        .string()
+        .min(1, { message: tr('External employees should have organizational supervisor') }),
+    accessToInternalSystems: z.boolean(),
+    attachIds: z
+        .string()
+        .array()
+        .nonempty({ message: tr('External employees need an NDA attached') }),
+});
+export type CreateUserCreationRequestExternalEmployee = z.infer<typeof createUserCreationRequestExternalEmployeeSchema>;
+
+export const createUserCreationRequestSchema = z.discriminatedUnion('type', [
+    createUserCreationRequestBaseSchema,
+    createUserCreationRequestInternalEmployeeSchema,
+    createUserCreationRequestExternalEmployeeSchema,
+]);
 export type CreateUserCreationRequest = z.infer<typeof createUserCreationRequestSchema>;
 
 export const handleUserCreationRequest = z.object({

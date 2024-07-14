@@ -1,22 +1,6 @@
 {
-    "Create user": "",
-    "Surname": "",
-    "First name": "",
-    "Middle name": "",
-    "Cancel": "",
-    "Create": "",
-    "Email": "",
-    "Supervisor:": "",
-    "Team:": "",
-    "Required field": "",
-    "Phone": "",
-    "Login": "",
-    "Organization:": "",
-    "Create external account:": "",
-    "Accounting id": "",
-    "Date": "",
-    "Role": "",
-    "OS preference": "",
-    "Create corporate email:": "",
-    "Corporate email": ""
+    "Create request for user creation": "",
+    "Regular": "",
+    "Internal employee": "",
+    "External employee": ""
 }

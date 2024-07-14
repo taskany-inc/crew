@@ -64,5 +64,8 @@
     "Error occured while deleting attach": "",
     "Attach deleting forbidden": "",
     "Nomination:": "",
-    "New user request {userName}": ""
+    "New user request {userName}": "",
+    "External employees should have organizational supervisor": "",
+    "External employees need an NDA attached": "",
+    "Required field": ""
 }

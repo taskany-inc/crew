@@ -16,11 +16,17 @@ export const userCreationRequestRouter = router({
             before: undefined,
             after: {
                 ...creationRequest,
+                type: creationRequest.type || undefined,
                 corporateEmail: creationRequest.corporateEmail || undefined,
                 title: creationRequest.title || undefined,
                 osPreference: creationRequest.osPreference || undefined,
                 status: null,
                 services: creationRequest.services as Record<'serviceName' | 'serviceId', string>[],
+                date: creationRequest.date?.toISOString(),
+                createExternalAccount: creationRequest.createExternalAccount,
+                externalOrganizationSupervisorLogin: creationRequest.externalOrganizationSupervisorLogin || undefined,
+                accessToInternalSystems: creationRequest.accessToInternalSystems || undefined,
+                comment: creationRequest.comment || undefined,
             },
         });
 

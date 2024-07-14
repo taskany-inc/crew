@@ -47,7 +47,7 @@ import { pages } from '../../hooks/useRouter';
 import { File } from '../../modules/attachTypes';
 import { AttachItem } from '../AttachItem/AttachItem';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
-import { getFileIdFromPath } from '../../utils/attach';
+import { attachFormatter } from '../../utils/attachFormatter';
 
 import { tr } from './ScheduleDeactivationForm.i18n';
 
@@ -231,14 +231,6 @@ export const ScheduleDeactivationForm = ({
         { label: tr('Transfer'), value: 'transfer' },
     ];
 
-    const attachFormatter = useCallback((uploadedFiles: Array<{ filePath: string; name: string; type: string }>) => {
-        setFiles((prev) => [
-            ...prev,
-            ...uploadedFiles.map((f) => ({ name: f.name, id: getFileIdFromPath(f.filePath) })),
-        ]);
-        return '';
-    }, []);
-
     return (
         <StyledModal visible={visible} onClose={hideModal} width={700}>
             <ModalHeader>
@@ -421,7 +413,7 @@ export const ScheduleDeactivationForm = ({
                     <FormEditor
                         uploadLink={pages.attaches}
                         onChange={(e) => setValue('comments', e)}
-                        attachFormatter={attachFormatter}
+                        attachFormatter={(f) => attachFormatter(f, setFiles)}
                     />
                     {files.map((file) => (
                         <AttachItem
