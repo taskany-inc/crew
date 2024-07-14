@@ -1,22 +1,6 @@
 {
-    "Create user": "Создать пользователя",
-    "Surname": "Фамилия",
-    "First name": "Имя",
-    "Middle name": "Отчество",
-    "Cancel": "Отмена",
-    "Create": "Создать",
-    "Email": "Почта",
-    "Supervisor:": "Руководитель",
-    "Team:": "Команда",
-    "Required field": "Обязательное поле",
-    "Phone": "Телефон",
-    "Login": "Логин",
-    "Organization:": "Организация",
-    "Create external account:": "Создать внешнюю учетную запись",
-    "Accounting id": "Id в бухгалтерской системе",
-    "Date": "Дата",
-    "Role": "Роль",
-    "OS preference": "Предпочтения ОС",
-    "Create corporate email:": "Создать корпоративный email",
-    "Corporate email": "Корпоративный email"
+    "Create request for user creation": "Создать запрос на добавление пользователя",
+    "Regular": "Обычный",
+    "Internal employee": "Внутренний сотрудник",
+    "External employee": "Внешний сотрудник"
 }

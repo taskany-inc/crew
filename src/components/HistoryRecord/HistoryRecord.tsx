@@ -136,6 +136,7 @@ const componentMap: {
                 </div>
                 {nullable(visible.value, () => (
                     <>
+                        <ChangeListItem title={tr('Type')} after={event.after.type} />
                         <ChangeListItem title={tr('Name')} after={event.after.name} />
                         <ChangeListItem title={tr('Email')} after={event.after.email} />
                         <ChangeListItem title={tr('Corporate email')} after={event.after.corporateEmail} />
@@ -146,6 +147,20 @@ const componentMap: {
                         <ChangeListItem title={tr('Title')} after={event.after.title} />
                         <ChangeListItem title={tr('OS preference')} after={event.after.osPreference} />
                         <ChangeListItem title={tr('Services')} after={services} />
+                        <ChangeListItem title={tr('Date')} after={event.after.date} />
+                        <ChangeListItem
+                            title={tr('External organization supervisor login')}
+                            after={event.after.externalOrganizationSupervisorLogin}
+                        />
+                        <ChangeListItem
+                            title={tr('Access to internal systems')}
+                            after={event.after.accessToInternalSystems}
+                        />
+                        <ChangeListItem
+                            title={tr('Create external account')}
+                            after={event.after.createExternalAccount}
+                        />
+                        <ChangeListItem title={tr('Comment')} after={event.after.comment} />
                     </>
                 ))}
             </>

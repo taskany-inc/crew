@@ -1,19 +1,13 @@
-.NoWrap {
-    white-space: nowrap;
-}
-
-.InputContainer {
+.Modal {
     display: flex;
-    gap: var(--gap-s);
-    align-items: center;
-    padding: var(--gap-xs) var(--gap-m);
-    background-color: var(--gray3);
+    flex-direction: column;
 }
 
-.DateContainer {
-    background-color: var(--gray3);
+.ModalContent {
+    overflow-y: auto;
+    height: 100%;
 }
 
-.Date.Date {
-    width: max-content;
+.TypeSwitch {
+    margin-bottom: var(--gap-m);
 }
