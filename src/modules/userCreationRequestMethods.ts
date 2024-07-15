@@ -69,14 +69,14 @@ export const userCreationRequestsMethods = {
 
         if (data.type === 'internalEmployee') {
             const buddy = data.buddyId
-                ? await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } })
+                ? await prisma.user.findUniqueOrThrow({ where: { id: data.buddyId ?? undefined } })
                 : undefined;
 
             if (buddy && !buddy.login) {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: 'Buddy has no login' });
             }
             const coordinator = data.coordinatorId
-                ? await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } })
+                ? await prisma.user.findUniqueOrThrow({ where: { id: data.coordinatorId ?? undefined } })
                 : undefined;
 
             if (coordinator && !coordinator.login) {
@@ -84,7 +84,7 @@ export const userCreationRequestsMethods = {
             }
 
             const recruiter = data.recruiterId
-                ? await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } })
+                ? await prisma.user.findUniqueOrThrow({ where: { id: data.recruiterId ?? undefined } })
                 : undefined;
 
             if (recruiter && !recruiter.login) {
