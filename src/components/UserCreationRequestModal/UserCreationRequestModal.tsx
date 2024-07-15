@@ -64,7 +64,7 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     {nullable(request.type, (t) => (
                         <InfoRow
                             label={tr('Type')}
-                            text={t === 'createExternalAccount' ? tr('External employee') : tr('Internal employee')}
+                            text={t === 'externalEmployee' ? tr('External employee') : tr('Internal employee')}
                         />
                     ))}
                     {nullable(request.title, (r) => (
