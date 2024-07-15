@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.69.1](https://github.com/taskany-inc/crew/compare/v0.69.0...v0.69.1) (2024-07-15)
+
+
+### Bug Fixes
+
+* attaches and forms fixes on requests forms ([a70973a](https://github.com/taskany-inc/crew/commit/a70973aaded9577f36c0c9038c3e70361c9de4f7))
+* buddy, coordinator and recruiter writes correctly ([c952c97](https://github.com/taskany-inc/crew/commit/c952c976204a12c3a8cd90f1ce746da96023cbba))
+
 ## [0.69.0](https://github.com/taskany-inc/crew/compare/v0.68.0...v0.69.0) (2024-07-15)
 
 
