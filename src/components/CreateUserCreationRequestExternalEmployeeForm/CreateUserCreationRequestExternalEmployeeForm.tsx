@@ -1,10 +1,11 @@
-import { ChangeEvent, ComponentProps, useState } from 'react';
+import { ChangeEvent, ComponentProps, useCallback, useState } from 'react';
 import cn from 'classnames';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, FormAction, FormActions, FormEditor, FormInput, Text, nullable } from '@taskany/bricks';
 import { Checkbox } from '@taskany/bricks/harmony';
 import { danger0, gray8 } from '@taskany/colors';
+import { Group, OrganizationUnit, User } from '@prisma/client';
 
 import {
     CreateUserCreationRequestExternalEmployee,
@@ -20,6 +21,7 @@ import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { attachFormatter } from '../../utils/attachFormatter';
 import { pages } from '../../hooks/useRouter';
 import { AttachItem } from '../AttachItem/AttachItem';
+import { Nullish } from '../../utils/types';
 
 import s from './CreateUserCreationRequestExternalEmployeeForm.module.css';
 import { tr } from './CreateUserCreationRequestExternalEmployeeForm.i18n';
@@ -50,6 +52,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
         setValue,
         getValues,
         setError,
+        trigger,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateUserCreationRequestExternalEmployee>({
         defaultValues,
@@ -85,6 +88,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
         if (!user) return;
         if (user.login) {
             setValue('externalOrganizationSupervisorLogin', user.login);
+            trigger('externalOrganizationSupervisorLogin');
         } else {
             setError('externalOrganizationSupervisorLogin', {
                 message: tr('This user does not have a login defined'),
@@ -109,6 +113,26 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
         onClose();
     };
 
+    const formatter = useCallback(
+        (f: Array<{ filePath: string; name: string; type: string }>) => attachFormatter(f, setFiles),
+        [],
+    );
+
+    const onOrganizationChange = (group: Nullish<OrganizationUnit>) => {
+        group && setValue('organizationUnitId', group.id);
+        trigger('organizationUnitId');
+    };
+
+    const onTeamChange = (group: Nullish<Group>) => {
+        group && setValue('groupId', group.id);
+        trigger('groupId');
+    };
+
+    const onSupervisorChange = (user: Nullish<User>) => {
+        user && setValue('supervisorId', user.id);
+        trigger('supervisorId');
+    };
+
     return (
         <Form onSubmit={onFormSubmit}>
             <div className={s.NoWrap}>
@@ -116,7 +140,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     <Text weight="bold" color={gray8}>
                         {tr('Organization:')}
                     </Text>
-                    <OrganizationUnitComboBox onChange={(group) => group && setValue('organizationUnitId', group.id)} />
+                    <OrganizationUnitComboBox onChange={onOrganizationChange} />
                     {nullable(errors.organizationUnitId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
@@ -217,7 +241,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     <Text weight="bold" color={gray8}>
                         {tr('Supervisor:')}
                     </Text>
-                    <UserComboBox onChange={(user) => user && setValue('supervisorId', user.id)} />
+                    <UserComboBox onChange={onSupervisorChange} />
                     {nullable(errors.supervisorId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
@@ -229,7 +253,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     <Text weight="bold" color={gray8}>
                         {tr('Team:')}
                     </Text>
-                    <GroupComboBox onChange={(group) => group && setValue('groupId', group.id)} />
+                    <GroupComboBox onChange={onTeamChange} />
                     {nullable(errors.groupId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
@@ -277,7 +301,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     placeholder={tr("Don't forget to attach NDA for external employee")}
                     uploadLink={pages.attaches}
                     onChange={(e) => setValue('comment', e)}
-                    attachFormatter={(f) => attachFormatter(f, setFiles)}
+                    attachFormatter={formatter}
                     error={errors.comment}
                 />
                 {files.map((file) => (
