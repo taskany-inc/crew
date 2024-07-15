@@ -39,4 +39,4 @@ export const dateAgo = (pastDate: Date, locale: TLocale): string | undefined => 
 };
 
 export const stripTimezone = (d?: string) => d?.split('T')[0];
-export const minuteInSeconds = 60;
+export const minuteInMiliSeconds = 60000;

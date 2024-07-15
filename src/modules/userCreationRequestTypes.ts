@@ -5,4 +5,7 @@ export interface CompleteUserCreationRequest extends UserCreationRequest {
     organization: OrganizationUnit;
     group: Group;
     services: Record<'serviceName' | 'serviceId', string>[] | null;
+    buddy: User | null;
+    coordinator: User | null;
+    recruiter: User | null;
 }

@@ -5,6 +5,8 @@ import { nullable, useLatest } from '@taskany/bricks';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { UserRequest } from '../../trpc/inferredTypes';
 import { UserListItem } from '../UserListItem/UserListItem';
+import { useLocale } from '../../hooks/useLocale';
+import { formatDate } from '../../utils/dateTime';
 
 import s from './UserCreationRequestModal.module.css';
 import { tr } from './UserCreationRequestModal.i18n';
@@ -33,6 +35,8 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
     const [comment, setComment] = useState<string | undefined>();
     const commentRef = useLatest(comment);
 
+    const locale = useLocale();
+
     const handleSubmit = useCallback(
         (callbackUserRequest: (data: { id: string; comment?: string }) => void) => (id: string) => () => {
             callbackUserRequest({ id, comment: commentRef.current });
@@ -57,6 +61,12 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     <InfoRow label={tr('Name')} text={request.name} />
                     <InfoRow label={tr('Login')} text={request.login} />
                     <InfoRow label={tr('Email')} text={request.email} />
+                    {nullable(request.type, (t) => (
+                        <InfoRow
+                            label={tr('Type')}
+                            text={t === 'createExternalAccount' ? tr('External employee') : tr('Internal employee')}
+                        />
+                    ))}
                     {nullable(request.title, (r) => (
                         <InfoRow label={tr('Role')} text={r} />
                     ))}
@@ -71,6 +81,33 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     <InfoRow label={tr('Supervisor')}>
                         <UserListItem user={request.supervisor} />
                     </InfoRow>
+                    {nullable(request.date, (d) => (
+                        <InfoRow label={tr('Date')} text={formatDate(d, locale)} />
+                    ))}
+                    {nullable(request.externalOrganizationSupervisorLogin, (ex) => (
+                        <InfoRow label={tr('External organization supervisor login')} text={ex} />
+                    ))}
+                    {nullable(request.buddy, (b) => (
+                        <InfoRow label={tr('Buddy')}>
+                            <UserListItem user={b} />
+                        </InfoRow>
+                    ))}
+                    {nullable(request.coordinator, (c) => (
+                        <InfoRow label={tr('Coordinator')}>
+                            <UserListItem user={c} />
+                        </InfoRow>
+                    ))}
+                    {nullable(request.recruiter, (rc) => (
+                        <InfoRow label={tr('Recruiter')}>
+                            <UserListItem user={rc} />
+                        </InfoRow>
+                    ))}
+                    {nullable(request.workMode, (w) => (
+                        <InfoRow label={tr('Work mode')} text={w} />
+                    ))}
+                    {nullable(request.workSpace, (ws) => (
+                        <InfoRow label={tr('Work space application')} text={ws} />
+                    ))}
                 </div>
                 <div>
                     <Text className={s.InfoRowLabel} weight="bold" size="m">

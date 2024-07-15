@@ -97,5 +97,15 @@
     "External organization supervisor login": "Ответственный за работу с внешней организацией",
     "Access to internal systems": "Доступ к внутренним системам",
     "Date": "Дата",
-    "Create external account": "Создать внешнюю учетную запись"
+    "Create external account": "Создать внешнюю учетную запись",
+    "Creation cause": "Причина создания",
+    "Location": "Локация размещения",
+    "Work space application": "Заявка на организацию рабочего места",
+    "Equipment": "Оборудование",
+    "Extra equipment": "Дополнительное оборудование",
+    "Work mode": "Режим работы",
+    "Work mode comment": "Комменарий к режиму работы",
+    "Buddy login": "Логин buddy",
+    "Coordinator login": "Логин координатора",
+    "Recruiter login": "Логин рекрутера"
 }

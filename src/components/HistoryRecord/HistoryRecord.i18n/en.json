@@ -97,5 +97,15 @@
     "External organization supervisor login": "",
     "Access to internal systems": "",
     "Date": "",
-    "Create external account": ""
+    "Create external account": "",
+    "Creation cause": "",
+    "Location": "",
+    "Work space application": "",
+    "Equipment": "",
+    "Extra equipment": "",
+    "Work mode": "",
+    "Work mode comment": "",
+    "Buddy login": "",
+    "Coordinator login": "",
+    "Recruiter login": ""
 }

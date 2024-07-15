@@ -115,6 +115,10 @@ model User {
   groupAdmins          GroupAdmin[]
   userCreationRequests UserCreationRequest[]
 
+  userCreationRequestRecruiter   UserCreationRequest[] @relation("userRecruiter")
+  userCreationRequestBuddy       UserCreationRequest[] @relation("userBuddy")
+  userCreationRequestCoordinator UserCreationRequest[] @relation("userCoordinator")
+
   mailingSettings MailingSettings?
 
   workStartDate DateTime?
@@ -154,6 +158,24 @@ model UserCreationRequest {
   accessToInternalSystems             Boolean?
 
   attaches Attach[]
+
+  workMode        String?
+  workModeComment String?
+  equipment       String?
+  extraEquipment  String?
+  workSpace       String?
+  location        String?
+  creationCause   String?
+  newUser         Boolean?
+  unitId          String?
+
+  buddyLogin String?
+  buddy      User?   @relation(fields: [buddyLogin], references: [login], name: "userBuddy")
+
+  recruiterLogin   String?
+  recruiter        User?   @relation(fields: [recruiterLogin], references: [login], name: "userRecruiter")
+  coordinatorLogin String?
+  coordinator      User?   @relation(fields: [coordinatorLogin], references: [login], name: "userCoordinator")
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt

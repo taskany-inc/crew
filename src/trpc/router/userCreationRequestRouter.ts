@@ -27,6 +27,16 @@ export const userCreationRequestRouter = router({
                 externalOrganizationSupervisorLogin: creationRequest.externalOrganizationSupervisorLogin || undefined,
                 accessToInternalSystems: creationRequest.accessToInternalSystems || undefined,
                 comment: creationRequest.comment || undefined,
+                creationCause: creationRequest.creationCause || undefined,
+                location: creationRequest.location || undefined,
+                workMode: creationRequest.workMode || undefined,
+                workModeComment: creationRequest.workModeComment || undefined,
+                workSpace: creationRequest.workSpace || undefined,
+                equipment: creationRequest.equipment || undefined,
+                extraEquipment: creationRequest.extraEquipment || undefined,
+                buddyLogin: creationRequest.buddyLogin || undefined,
+                recruiterLogin: creationRequest.recruiterLogin || undefined,
+                coordinatorLogin: creationRequest.coordinatorLogin || undefined,
             },
         });
 

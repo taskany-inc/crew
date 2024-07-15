@@ -2,7 +2,7 @@ import ical, { ICalAttendeeStatus, ICalCalendarMethod, ICalEventData, ICalEventS
 import nodemailer from 'nodemailer';
 
 import { config } from '../config';
-import { minuteInSeconds } from '../utils/dateTime';
+import { minuteInMiliSeconds } from '../utils/dateTime';
 
 export const transporter = nodemailer.createTransport({
     host: config.nodemailer.host,
@@ -60,7 +60,7 @@ interface CreateIcalEventDTO {
 
 export const createIcalEventData = (data: CreateIcalEventDTO) => {
     const { start, duration, users, ...restData } = data;
-    const end = !data.allDay ? new Date(start.getTime() + duration * minuteInSeconds) : undefined;
+    const end = !data.allDay ? new Date(start.getTime() + duration * minuteInMiliSeconds) : undefined;
 
     const attendees = users.map((user) => ({ ...user, status: ICalAttendeeStatus.ACCEPTED }));
 
