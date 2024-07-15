@@ -31,12 +31,13 @@ export const createUserCreationRequestInternalEmployeeSchema = createUserCreatio
     equipment: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
     extraEquipment: z.string().optional(),
     workSpace: z.string().optional(),
-    buddyId: z.string().min(1, { message: tr('Required field') }),
+    buddyId: z.string().optional(),
     recruiterId: z.string().min(1, { message: tr('Required field') }),
-    coordinatorId: z.string().min(1, { message: tr('Required field') }),
+    coordinatorId: z.string().optional(),
     location: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
     creationCause: z.string(),
     unitId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    date: z.date(),
 });
 export type CreateUserCreationRequestInternalEmployee = z.infer<typeof createUserCreationRequestInternalEmployeeSchema>;
 

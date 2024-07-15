@@ -49,4 +49,7 @@ export const config = {
     deactivateUtcHour: !Number.isNaN(Number(process.env.DEACTIVATE_UTC_HOUR))
         ? Number(process.env.DEACTIVATE_UTC_HOUR)
         : 20,
+    employmentUtcHour: !Number.isNaN(Number(process.env.EMPLOYMENT_UTC_HOUR))
+        ? Number(process.env.EMPLOYMENT_UTC_HOUR)
+        : 4,
 };

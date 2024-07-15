@@ -13,5 +13,15 @@
     "Accept": "",
     "Role": "",
     "Corporate email": "",
-    "OS preference": ""
+    "OS preference": "",
+    "Type": "",
+    "External employee": "",
+    "Internal employee": "",
+    "Buddy": "",
+    "Coordinator": "",
+    "Recruiter": "",
+    "Work mode": "",
+    "Work space application": "",
+    "Date": "",
+    "External organization supervisor login": ""
 }

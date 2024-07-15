@@ -2,5 +2,7 @@
     "Create request for user creation": "Создать запрос на добавление пользователя",
     "Regular": "Обычный",
     "Internal employee": "Внутренний сотрудник",
-    "External employee": "Внешний сотрудник"
+    "External employee": "Внешний сотрудник",
+    "Create request for planned employment": "Создать запрос на плановый выход сотрудника",
+    "Create access for external user": "Создать доступ для внешнего сотрудника"
 }

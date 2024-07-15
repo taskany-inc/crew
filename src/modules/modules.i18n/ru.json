@@ -67,5 +67,7 @@
     "New user request {userName}": "Запрос на создание профиля {userName}",
     "External employees should have organizational supervisor": "Внешним сотрудникам нужен ответственный от организации",
     "External employees need an NDA attached": "Внешним сотрудникам нужен прикрепленный NDA",
-    "Required field": "Обязательное поле"
+    "Required field": "Обязательное поле",
+    "Transfer": "Перевод",
+    "Employment": "Выход"
 }

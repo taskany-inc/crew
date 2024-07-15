@@ -50,6 +50,16 @@ interface HistoryEventsData {
             externalOrganizationSupervisorLogin?: string;
             accessToInternalSystems?: boolean;
             comment?: string;
+            creationCause?: string;
+            location?: string;
+            workSpace?: string;
+            equipment?: string;
+            extraEquipment?: string;
+            workMode?: string;
+            workModeComment?: string;
+            buddyLogin?: string;
+            coordinatorLogin?: string;
+            recruiterLogin?: string;
         };
     };
     acceptUserCreationRequest: {

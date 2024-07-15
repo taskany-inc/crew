@@ -1,0 +1,23 @@
+.NoWrap {
+    white-space: nowrap;
+}
+
+.InputContainer {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+    padding: var(--gap-xs) var(--gap-m);
+    background-color: var(--gray3);
+}
+
+.FormInput {
+    max-width: 500px;
+}
+
+.FormInputDate {
+    max-width: 200px;
+}
+
+.FormActionWrap {
+    width: 500px;
+}

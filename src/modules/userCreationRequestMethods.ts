@@ -1,12 +1,15 @@
 import { User, UserCreationRequest, Prisma } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
+import { ICalCalendarMethod } from 'ical-generator';
 
 import { prisma } from '../utils/prisma';
 import { trimAndJoin } from '../utils/trimAndJoin';
-import { userCreationMailText } from '../utils/emailTemplates';
+import { config } from '../config';
+import { htmlUserCreationRequestWithDate, userCreationMailText } from '../utils/emailTemplates';
+import { getOrgUnitTitle } from '../utils/organizationUnit';
 
 import { userMethods } from './userMethods';
-import { sendMail } from './nodemailer';
+import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import { CreateUserCreationRequest, HandleUserCreationRequest } from './userCreationRequestSchemas';
 import { externalUserMethods } from './externalUserMethods';
@@ -64,9 +67,52 @@ export const userCreationRequestsMethods = {
             createData.accessToInternalSystems = data.accessToInternalSystems;
         }
 
+        if (data.type === 'internalEmployee') {
+            const buddy = data.buddyId
+                ? await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } })
+                : undefined;
+
+            if (buddy && !buddy.login) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Buddy has no login' });
+            }
+            const coordinator = data.coordinatorId
+                ? await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } })
+                : undefined;
+
+            if (coordinator && !coordinator.login) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Coordinator has no login' });
+            }
+
+            const recruiter = data.recruiterId
+                ? await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } })
+                : undefined;
+
+            if (recruiter && !recruiter.login) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Recruiter has no login' });
+            }
+            createData.workMode = data.workMode || undefined;
+            createData.workModeComment = data.workModeComment || undefined;
+            createData.equipment = data.equipment || undefined;
+            createData.extraEquipment = data.extraEquipment || undefined;
+            createData.workSpace = data.workSpace || undefined;
+            createData.buddyLogin = buddy?.login || undefined;
+            createData.coordinatorLogin = coordinator?.login || undefined;
+            createData.recruiterLogin = recruiter?.login || undefined;
+            createData.location = data.location || undefined;
+            createData.creationCause = data.creationCause || undefined;
+            createData.unitId = data.unitId || undefined;
+        }
+
         const userCreationRequest = await prisma.userCreationRequest.create({
             data: createData,
-            include: { group: true, organization: true, supervisor: true },
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+                buddy: true,
+                coordinator: true,
+                recruiter: true,
+            },
         });
 
         const { to } = await userMethods.getMailingList('createUserRequest');
@@ -80,6 +126,41 @@ export const userCreationRequestsMethods = {
             subject,
             text: mailText,
         });
+
+        if (data.type === 'internalEmployee') {
+            const { users, to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest');
+            data.date.setUTCHours(config.employmentUtcHour, 30);
+
+            const icalSublect = `${
+                userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
+            } ${name} ${getOrgUnitTitle(userCreationRequest.organization)} ${data.phone}`;
+
+            const icalEvent = createIcalEventData({
+                id: userCreationRequest.id + config.nodemailer.authUser,
+                start: data.date,
+                duration: 30,
+                users,
+                summary: icalSublect,
+                description: icalSublect,
+            });
+
+            const html = htmlUserCreationRequestWithDate({
+                userCreationRequest,
+                date: data.date,
+                firstName: data.firstName,
+                surname: data.surname,
+                middleName: data.middleName,
+            });
+            sendMail({
+                to: mailTo,
+                subject: icalSublect,
+                html,
+                icalEvent: calendarEvents({
+                    method: ICalCalendarMethod.REQUEST,
+                    events: [icalEvent],
+                }),
+            });
+        }
 
         return userCreationRequest;
     },
@@ -181,6 +262,9 @@ export const userCreationRequestsMethods = {
                 group: true,
                 organization: true,
                 supervisor: true,
+                buddy: true,
+                coordinator: true,
+                recruiter: true,
             },
         });
 

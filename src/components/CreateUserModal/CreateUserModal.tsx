@@ -3,6 +3,7 @@ import { FormTitle, Modal, ModalContent, ModalCross, ModalHeader, nullable } fro
 import { Switch, SwitchControl } from '@taskany/bricks/harmony';
 
 import { CreateUserCreationRequest } from '../../modules/userCreationRequestSchemas';
+import { CreateUserCreationRequestInternalEmployeeForm } from '../CreateUserCreationRequestInternalEmployeeForm/CreateUserCreationRequestInternalEmployeeForm';
 import { CreateUserCreationRequestBaseForm } from '../CreateUserCreationRequestBaseForm/CreateUserCreationRequestBaseForm';
 import { CreateUserCreationRequestExternalEmployeeForm } from '../CreateUserCreationRequestExternalEmployeeForm/CreateUserCreationRequestExternalEmployeeForm';
 
@@ -16,11 +17,15 @@ interface CreateUserModalProps {
 
 export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
     const [type, setType] = useState<CreateUserCreationRequest['type']>('base');
+    let title = tr('Create request for user creation');
 
+    if (type === 'internalEmployee') title = tr('Create request for planned employment');
+
+    if (type === 'externalEmployee') title = tr('Create access for external user');
     return (
         <Modal visible={visible} onClose={onClose} width={600} className={s.Modal}>
             <ModalHeader>
-                <FormTitle>{tr('Create request for user creation')}</FormTitle>
+                <FormTitle>{title}</FormTitle>
                 <ModalCross onClick={onClose} />
             </ModalHeader>
 
@@ -41,6 +46,10 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
 
                 {nullable(type === 'externalEmployee', () => (
                     <CreateUserCreationRequestExternalEmployeeForm onClose={onClose} onSubmit={onClose} />
+                ))}
+
+                {nullable(type === 'internalEmployee', () => (
+                    <CreateUserCreationRequestInternalEmployeeForm onClose={onClose} onSubmit={onClose} />
                 ))}
             </ModalContent>
         </Modal>

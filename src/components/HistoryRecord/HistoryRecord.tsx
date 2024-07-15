@@ -161,6 +161,16 @@ const componentMap: {
                             after={event.after.createExternalAccount}
                         />
                         <ChangeListItem title={tr('Comment')} after={event.after.comment} />
+                        <ChangeListItem title={tr('Creation cause')} after={event.after.creationCause} />
+                        <ChangeListItem title={tr('Location')} after={event.after.location} />
+                        <ChangeListItem title={tr('Work space application')} after={event.after.workSpace} />
+                        <ChangeListItem title={tr('Equipment')} after={event.after.equipment} />
+                        <ChangeListItem title={tr('Extra equipment')} after={event.after.extraEquipment} />
+                        <ChangeListItem title={tr('Work mode')} after={event.after.workMode} />
+                        <ChangeListItem title={tr('Work mode comment')} after={event.after.workModeComment} />
+                        <ChangeListItem title={tr('Buddy login')} after={event.after.buddyLogin} />
+                        <ChangeListItem title={tr('Coordinator login')} after={event.after.coordinatorLogin} />
+                        <ChangeListItem title={tr('Recruiter login')} after={event.after.recruiterLogin} />
                     </>
                 ))}
             </>

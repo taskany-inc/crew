@@ -13,5 +13,15 @@
     "Accept": "Принять",
     "Role": "Роль",
     "Corporate email": "Корпоративный email",
-    "OS preference": "Предпочтения ОС"
+    "OS preference": "Предпочтения ОС",
+    "Type": "Тип оформления",
+    "Internal employee": "Внутренний сотрудник",
+    "External employee": "Внешний сотрудник",
+    "Buddy": "",
+    "Coordinator": "Координатор",
+    "Recruiter": "Рекрутер",
+    "Work mode": "Режим работы",
+    "Work space application": "Заявка на организацию рабочего места",
+    "Date": "Дата",
+    "External organization supervisor login": "Ответственный за работу с внешней организацией"
 }
