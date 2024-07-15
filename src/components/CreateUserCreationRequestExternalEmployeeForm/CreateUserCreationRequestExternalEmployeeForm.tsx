@@ -33,7 +33,7 @@ interface CreateUserCreationRequestExternalEmployeeFormProps {
 
 const defaultValues: Partial<CreateUserCreationRequestExternalEmployee> = {
     type: 'externalEmployee',
-    attachIds: [''] as unknown as [string, ...string[]],
+    attachIds: [] as unknown as [string, ...string[]],
     createExternalAccount: true,
     accessToInternalSystems: false,
 };
