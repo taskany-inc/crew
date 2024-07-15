@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.69.2](https://github.com/taskany-inc/crew/compare/v0.69.1...v0.69.2) (2024-07-15)
+
+
+### Bug Fixes
+
+* correct request type in UserCreationRequestModal ([b8ab2e5](https://github.com/taskany-inc/crew/commit/b8ab2e5670d252770c03c42c82c8d9e6718267b9))
+
 ## [0.69.1](https://github.com/taskany-inc/crew/compare/v0.69.0...v0.69.1) (2024-07-15)
 
 
