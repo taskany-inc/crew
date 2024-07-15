@@ -99,7 +99,10 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
     };
     const workModeItems = [tr('Office'), tr('Mixed'), tr('Remote')].map((m) => ({
         title: m,
-        action: () => setValue('workMode', m),
+        action: () => {
+            setValue('workMode', m);
+            trigger('workMode');
+        },
     }));
 
     const creationCauseRadioValues = [

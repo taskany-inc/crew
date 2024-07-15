@@ -32,6 +32,7 @@ export const createUserCreationRequestInternalEmployeeSchema = createUserCreatio
     extraEquipment: z.string().optional(),
     workSpace: z.string().optional(),
     buddyId: z.string().optional(),
+    title: z.string().min(1, { message: tr('Required field') }),
     recruiterId: z.string().min(1, { message: tr('Required field') }),
     coordinatorId: z.string().optional(),
     supervisorId: z.string().min(1, { message: tr('Required field') }),
