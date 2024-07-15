@@ -231,6 +231,11 @@ export const ScheduleDeactivationForm = ({
         { label: tr('Transfer'), value: 'transfer' },
     ];
 
+    const formatter = useCallback(
+        (f: Array<{ filePath: string; name: string; type: string }>) => attachFormatter(f, setFiles),
+        [],
+    );
+
     return (
         <StyledModal visible={visible} onClose={hideModal} width={700}>
             <ModalHeader>
@@ -413,7 +418,7 @@ export const ScheduleDeactivationForm = ({
                     <FormEditor
                         uploadLink={pages.attaches}
                         onChange={(e) => setValue('comments', e)}
-                        attachFormatter={(f) => attachFormatter(f, setFiles)}
+                        attachFormatter={formatter}
                     />
                     {files.map((file) => (
                         <AttachItem

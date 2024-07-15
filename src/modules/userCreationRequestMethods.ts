@@ -129,7 +129,7 @@ export const userCreationRequestsMethods = {
 
         if (data.type === 'internalEmployee') {
             const { users, to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest');
-            data.date.setUTCHours(config.employmentUtcHour, 30);
+            data.date.setUTCHours(config.employmentUtcHour);
 
             const icalSublect = `${
                 userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
