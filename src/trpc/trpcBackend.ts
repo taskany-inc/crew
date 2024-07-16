@@ -1,14 +1,29 @@
 import { TRPCError, initTRPC } from '@trpc/server';
 import { OpenApiMeta } from 'trpc-openapi';
 import superjson from 'superjson';
+import { ZodError } from 'zod';
 
 import { prisma } from '../utils/prisma';
 
 import type { TrpcContext } from './trpcContext';
 
-const t = initTRPC.context<TrpcContext>().meta<OpenApiMeta>().create({
-    transformer: superjson,
-});
+const t = initTRPC
+    .context<TrpcContext>()
+    .meta<OpenApiMeta>()
+    .create({
+        transformer: superjson,
+        errorFormatter: (opts) => {
+            const { shape, error } = opts;
+            return {
+                ...shape,
+                data: {
+                    ...shape.data,
+                    zodError:
+                        error.code === 'BAD_REQUEST' && error.cause instanceof ZodError ? error.cause.flatten() : null,
+                },
+            };
+        },
+    });
 
 const sessionCheck = t.middleware(({ next, ctx }) => {
     const { session } = ctx;

@@ -1,5 +1,6 @@
 import { TRPCClientError } from '@trpc/client';
 import toast from 'react-hot-toast';
+import { typeToFlattenedError } from 'zod';
 
 import {
     NotificationEvents,
@@ -7,11 +8,17 @@ import {
     defaultNotifications,
     getNotificicationKeyMap,
 } from './notificationsMap';
+import { tr } from './notifications.i18n';
 
 interface NotifyPromise {
     <T>(promise: Promise<T>, events: NotificationEvents): Promise<T>;
     <T>(promise: Promise<T>, namespace: NotificationNamespaces): Promise<T>;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isFlattenedZodError = (e: unknown): e is typeToFlattenedError<any, string> => {
+    return typeof e === 'object' && e !== null && 'formErrors' in e && 'fieldErrors' in e;
+};
 
 const extractError = (error: unknown): string | undefined => {
     if (
@@ -20,6 +27,11 @@ const extractError = (error: unknown): string | undefined => {
         error.data.httpStatus >= 400 &&
         error.data.httpStatus < 500
     ) {
+        const { zodError } = error.data;
+        if (isFlattenedZodError(zodError)) {
+            const fieldErrors = Object.entries(zodError.fieldErrors).map(([k, v]) => `${k} - ${v?.join(', ')}`);
+            return [tr('Validation error'), ...zodError.formErrors, ...fieldErrors].join('\n');
+        }
         return error.message;
     }
 };
