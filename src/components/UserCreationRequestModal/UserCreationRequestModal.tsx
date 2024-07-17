@@ -108,6 +108,9 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     {nullable(request.workSpace, (ws) => (
                         <InfoRow label={tr('Work space application')} text={ws} />
                     ))}
+                    {nullable(request.comment, (c) => (
+                        <InfoRow label={tr('Comment')} text={c} />
+                    ))}
                 </div>
                 <div>
                     <Text className={s.InfoRowLabel} weight="bold" size="m">

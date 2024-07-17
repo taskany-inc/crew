@@ -194,15 +194,8 @@ export const ScheduleDeactivationForm = ({
 
     const onSubmit = handleSubmit(async (data) => {
         scheduledDeactivation
-            ? await editScheduledDeactivation({
-                  id: scheduledDeactivation.id,
-                  ...data,
-                  attachIds: files.map(({ id }) => id),
-              })
-            : await createScheduledDeactivation({
-                  ...data,
-                  attachIds: files.map(({ id }) => id),
-              });
+            ? await editScheduledDeactivation({ id: scheduledDeactivation.id, ...data })
+            : await createScheduledDeactivation(data);
         hideModal();
     });
 
@@ -232,9 +225,15 @@ export const ScheduleDeactivationForm = ({
     ];
 
     const formatter = useCallback(
-        (f: Array<{ filePath: string; name: string; type: string }>) => attachFormatter(f, setFiles),
+        (f: Array<{ filePath: string; name: string; type: string }>) =>
+            attachFormatter(f, setFiles, (ids) => setValue('attachIds', ids as [string, ...string[]])),
         [],
     );
+
+    const onAttachRemove = (file: File) => {
+        setFiles(files.filter(({ id }) => id !== file.id));
+        setValue('attachIds', files.filter(({ id }) => id !== file.id).map(({ id }) => id) as [string, ...string[]]);
+    };
 
     return (
         <StyledModal visible={visible} onClose={hideModal} width={700}>
@@ -421,11 +420,7 @@ export const ScheduleDeactivationForm = ({
                         attachFormatter={formatter}
                     />
                     {files.map((file) => (
-                        <AttachItem
-                            file={file}
-                            key={file.id}
-                            onRemove={() => setFiles(files.filter(({ id }) => id !== file.id))}
-                        />
+                        <AttachItem file={file} key={file.id} onRemove={() => onAttachRemove(file)} />
                     ))}
                     <FormActions>
                         <FormAction left />
