@@ -103,7 +103,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
     };
 
     const onFormSubmit = handleSubmit(async (data) => {
-        await createUserCreationRequest({ ...data, attachIds: files.map((f) => f.id) as [string, ...string[]] });
+        await createUserCreationRequest(data);
         reset(defaultValues);
         onSubmit();
     });
@@ -114,7 +114,8 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
     };
 
     const formatter = useCallback(
-        (f: Array<{ filePath: string; name: string; type: string }>) => attachFormatter(f, setFiles),
+        (f: Array<{ filePath: string; name: string; type: string }>) =>
+            attachFormatter(f, setFiles, (ids) => setValue('attachIds', ids as [string, ...string[]])),
         [],
     );
 
@@ -131,6 +132,11 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
     const onSupervisorChange = (user: Nullish<User>) => {
         user && setValue('supervisorId', user.id);
         trigger('supervisorId');
+    };
+
+    const onAttachRemove = (file: File) => {
+        setFiles(files.filter(({ id }) => id !== file.id));
+        setValue('attachIds', files.filter(({ id }) => id !== file.id).map(({ id }) => id) as [string, ...string[]]);
     };
 
     return (
@@ -305,11 +311,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     error={errors.comment}
                 />
                 {files.map((file) => (
-                    <AttachItem
-                        file={file}
-                        key={file.id}
-                        onRemove={() => setFiles(files.filter(({ id }) => id !== file.id))}
-                    />
+                    <AttachItem file={file} key={file.id} onRemove={() => onAttachRemove(file)} />
                 ))}
                 {nullable(errors.attachIds, (e) => (
                     <Text color={danger0}>{e.message}</Text>
