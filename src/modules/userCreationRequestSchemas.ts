@@ -12,8 +12,8 @@ export const createUserCreationRequestBaseSchema = z.object({
     login: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
     accountingId: z.string().optional(),
     organizationUnitId: z.string(),
-    groupId: z.string().nullish(),
-    supervisorId: z.string().nullish(),
+    groupId: z.string().min(1, { message: tr('Required field') }),
+    supervisorId: z.string().min(1, { message: tr('Required field') }),
     title: z.string().optional(),
     corporateEmail: z.string().optional(),
     osPreference: z.string().optional(),
@@ -35,7 +35,6 @@ export const createUserCreationRequestInternalEmployeeSchema = createUserCreatio
     title: z.string().min(1, { message: tr('Required field') }),
     recruiterId: z.string().min(1, { message: tr('Required field') }),
     coordinatorId: z.string().optional(),
-    supervisorId: z.string().min(1, { message: tr('Required field') }),
     location: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
     creationCause: z.string(),
     unitId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
@@ -46,8 +45,6 @@ export type CreateUserCreationRequestInternalEmployee = z.infer<typeof createUse
 export const createUserCreationRequestExternalEmployeeSchema = createUserCreationRequestBaseSchema.extend({
     type: z.literal('externalEmployee'),
     accountingId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
-    groupId: z.string().min(1, { message: tr('Required field') }),
-    supervisorId: z.string().min(1, { message: tr('Required field') }),
     externalOrganizationSupervisorLogin: z
         .string()
         .min(1, { message: tr('External employees should have organizational supervisor') }),
