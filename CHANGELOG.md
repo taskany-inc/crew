@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.69.3](https://github.com/taskany-inc/crew/compare/v0.69.2...v0.69.3) (2024-07-18)
+
+
+### Bug Fixes
+
+* format zod errors in client notifications ([b2240fe](https://github.com/taskany-inc/crew/commit/b2240fefaa9fb53b85d3204e409e4986e379b5d7))
+* separate fields for id and value for api tokens ([d6d0453](https://github.com/taskany-inc/crew/commit/d6d0453461a496c4f9900543f3da5203770f9d27))
+* show comment on UserCreationRequestModal ([fa8ea7f](https://github.com/taskany-inc/crew/commit/fa8ea7fbd3befc29c609456256cfddf5e45ace0c))
+* supervisorId and groupId required in createUserCreationRequestBaseSchema ([0e58b0a](https://github.com/taskany-inc/crew/commit/0e58b0aa958a06cdb968ea8ca8b2ee9f1c788039))
+
 ## [0.69.2](https://github.com/taskany-inc/crew/compare/v0.69.1...v0.69.2) (2024-07-15)
 
 
