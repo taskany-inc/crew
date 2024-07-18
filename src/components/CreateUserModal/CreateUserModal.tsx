@@ -16,7 +16,7 @@ interface CreateUserModalProps {
 }
 
 export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
-    const [type, setType] = useState<CreateUserCreationRequest['type']>('base');
+    const [type, setType] = useState<CreateUserCreationRequest['type']>('internalEmployee');
     let title = tr('Create request for user creation');
 
     if (type === 'internalEmployee') title = tr('Create request for planned employment');
@@ -35,9 +35,9 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                     onChange={(e, active) => setType(active as CreateUserCreationRequest['type'])}
                     className={s.TypeSwitch}
                 >
-                    <SwitchControl text={tr('Regular')} value="base" />
                     <SwitchControl text={tr('Internal employee')} value="internalEmployee" />
                     <SwitchControl text={tr('External employee')} value="externalEmployee" />
+                    <SwitchControl text={tr('Existing')} value="base" />
                 </Switch>
 
                 {nullable(type === 'base', () => (
