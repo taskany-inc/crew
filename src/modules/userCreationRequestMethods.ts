@@ -11,7 +11,11 @@ import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
-import { CreateUserCreationRequest, HandleUserCreationRequest } from './userCreationRequestSchemas';
+import {
+    CreateUserCreationRequest,
+    GetUserCreationRequestList,
+    HandleUserCreationRequest,
+} from './userCreationRequestSchemas';
 import { externalUserMethods } from './externalUserMethods';
 import { CompleteUserCreationRequest } from './userCreationRequestTypes';
 
@@ -253,11 +257,15 @@ export const userCreationRequestsMethods = {
         };
     },
 
-    getList: async (): Promise<CompleteUserCreationRequest[]> => {
+    getList: async (data: GetUserCreationRequestList): Promise<CompleteUserCreationRequest[]> => {
+        const where: Prisma.UserCreationRequestWhereInput = {};
+
+        if (data.active) {
+            where.status = null;
+        }
+
         const requests = await prisma.userCreationRequest.findMany({
-            where: {
-                status: null,
-            },
+            where,
             include: {
                 group: true,
                 organization: true,

@@ -1,6 +1,10 @@
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
-import { createUserCreationRequestSchema, handleUserCreationRequest } from '../../modules/userCreationRequestSchemas';
+import {
+    createUserCreationRequestSchema,
+    getUserCreationRequestListSchema,
+    handleUserCreationRequest,
+} from '../../modules/userCreationRequestSchemas';
 import { accessCheck, checkRoleForAccess } from '../../utils/access';
 import { protectedProcedure, router } from '../trpcBackend';
 
@@ -81,8 +85,8 @@ export const userCreationRequestRouter = router({
         return { newUser, acceptedRequest };
     }),
 
-    getList: protectedProcedure.query(({ ctx }) => {
+    getList: protectedProcedure.input(getUserCreationRequestListSchema).query(({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
-        return userCreationRequestsMethods.getList();
+        return userCreationRequestsMethods.getList(input);
     }),
 });

@@ -12,6 +12,7 @@ export const pages = {
     userActivity: (userId: string) => `/users/${userId}/activity`,
     userSettings: '/users/settings',
     userRequests: '/requests/users',
+    userRequestList: '/requests/list',
 
     signIn: '/api/auth/signin',
     signOut: '/api/auth/signout',
@@ -41,6 +42,7 @@ export const useRouter = () => {
         userActivity: (userId: string) => router.push(pages.userActivity(userId)),
         userSettings: () => router.push(pages.userSettings),
         userRequests: () => router.push(pages.userRequests),
+        userRequestList: () => router.push(pages.userRequestList),
 
         signIn: () => router.push(pages.signIn),
         signOut: () => router.push(pages.signOut),
