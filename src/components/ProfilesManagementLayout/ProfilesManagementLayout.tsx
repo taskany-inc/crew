@@ -26,6 +26,11 @@ export const ProfilesManagementLayout = ({ children }: ProfilesManagementLayoutP
                     visible:
                         !!sessionUser.role?.editScheduledDeactivation || !!sessionUser.role?.viewScheduledDeactivation,
                 },
+                {
+                    title: tr('Planned newcomers'),
+                    href: pages.userRequestList,
+                    visible: !!sessionUser.role?.editUserCreationRequests,
+                },
             ]}
             pageTitle={tr('Profiles management')}
         >

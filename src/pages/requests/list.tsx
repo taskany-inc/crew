@@ -1,6 +1,6 @@
-import { UserCreateRequestsPage } from '../../../components/UserCreateRequestsPage/UserCreateRequestsPage';
-import { pages } from '../../../hooks/useRouter';
-import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
+import { UserCreationRequestList } from '../../components/UserCreationRequestList/UserCreationRequestList';
+import { pages } from '../../hooks/useRouter';
+import { createGetServerSideProps } from '../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
@@ -13,4 +13,4 @@ export const getServerSideProps = createGetServerSideProps({
     },
 });
 
-export default UserCreateRequestsPage;
+export default UserCreationRequestList;

@@ -68,3 +68,8 @@ export const handleUserCreationRequest = z.object({
     comment: z.string().optional(),
 });
 export type HandleUserCreationRequest = z.infer<typeof handleUserCreationRequest>;
+
+export const getUserCreationRequestListSchema = z.object({
+    active: z.boolean().optional(),
+});
+export type GetUserCreationRequestList = z.infer<typeof getUserCreationRequestListSchema>;
