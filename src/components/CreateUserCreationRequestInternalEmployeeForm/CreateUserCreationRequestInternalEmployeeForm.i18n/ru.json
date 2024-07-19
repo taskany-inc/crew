@@ -1,7 +1,4 @@
 {
-    "Office": "Офис",
-    "Mixed": "Смешанный",
-    "Remote": "Дистанс",
     "Start": "Выход",
     "Transfer": "Перевод",
     "Surname": "Фамилия",
@@ -31,7 +28,8 @@
     "Create corporate email:": "Создать корпоративный email:",
     "Corporate email": "Корпоративный email",
     "Unit id": "Id ставки",
-    "Comments": "Комментарии",
     "Create external account:": "Создать внешнюю учетную запись",
-    "Cancel": "Отмена"
+    "Cancel": "Отмена",
+    "Comment:": "Комменарий",
+    "Enter your comment": "Введите комментарий"
 }
