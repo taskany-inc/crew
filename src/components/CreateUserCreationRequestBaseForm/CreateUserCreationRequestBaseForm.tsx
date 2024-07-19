@@ -1,8 +1,8 @@
 import { ChangeEvent, useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, FormAction, FormActions, FormEditor, FormInput, Text, nullable } from '@taskany/bricks';
-import { Checkbox } from '@taskany/bricks/harmony';
+import { Button, Form, FormAction, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
+import { Checkbox, FormEditor } from '@taskany/bricks/harmony';
 import { danger0, gray8 } from '@taskany/colors';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 
@@ -253,13 +253,21 @@ export const CreateUserCreationRequestBaseForm = ({ onClose, onSubmit }: CreateU
                     <Checkbox checked={createExternalAccount} onChange={onCreateExternalAccountClick} />
                 </div>
 
-                <FormEditor
-                    placeholder={tr('Comment')}
-                    uploadLink={pages.attaches}
-                    onChange={(e) => setValue('comment', e)}
-                    attachFormatter={formatter}
-                    error={errors.comment}
-                />
+                <div className={s.InputContainer}>
+                    <Text weight="bold" color={gray8}>
+                        {tr('Comment:')}
+                    </Text>
+                </div>
+
+                <div className={s.InputContainer}>
+                    <FormEditor
+                        placeholder={tr('Enter your comment')}
+                        uploadLink={pages.attaches}
+                        onChange={(e) => setValue('comment', e)}
+                        attachFormatter={formatter}
+                    />
+                </div>
+
                 {files.map((file) => (
                     <AttachItem
                         file={file}

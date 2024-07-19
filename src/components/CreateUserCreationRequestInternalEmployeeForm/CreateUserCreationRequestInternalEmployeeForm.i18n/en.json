@@ -1,7 +1,4 @@
 {
-    "Office": "",
-    "Mixed": "",
-    "Remote": "",
     "Start": "",
     "Transfer": "",
     "Surname": "",
@@ -33,5 +30,7 @@
     "Unit id": "",
     "Comments": "",
     "Create external account:": "",
-    "Cancel": ""
+    "Cancel": "",
+    "Comment:": "",
+    "Enter your comment": ""
 }

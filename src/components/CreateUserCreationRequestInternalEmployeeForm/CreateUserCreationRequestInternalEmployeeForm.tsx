@@ -3,14 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Button,
-    Dropdown,
     Form,
     FormAction,
     FormActions,
     FormInput,
     FormRadio,
     FormRadioInput,
-    MenuItem,
     Text,
     nullable,
 } from '@taskany/bricks';
@@ -21,6 +19,7 @@ import { Group, OrganizationUnit, User } from '@prisma/client';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
+import { WorkModeCombobox } from '../WorkModeCombobox/WorkModeCombobox';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import {
     CreateUserCreationRequestInternalEmployee,
@@ -97,13 +96,6 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
             setValue('corporateEmail', getCorporateEmail(e.target.value));
         }
     };
-    const workModeItems = [tr('Office'), tr('Mixed'), tr('Remote')].map((m) => ({
-        title: m,
-        action: () => {
-            setValue('workMode', m);
-            trigger('workMode');
-        },
-    }));
 
     const creationCauseRadioValues = [
         { label: tr('Start'), value: 'start' },
@@ -169,6 +161,7 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     error={errors.middleName}
                     className={s.FormInput}
                 />
+
                 <FormInput
                     label={tr('Role')}
                     error={errors.title}
@@ -302,32 +295,21 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     error={errors.workSpace}
                     className={s.FormInput}
                 />
-                <Dropdown
-                    className={s.FormInput}
-                    onChange={(item) => item.action()}
-                    text="Work mode"
-                    items={workModeItems}
-                    renderTrigger={(props) => (
-                        <FormInput
-                            label={tr('Work mode')}
-                            defaultValue={watch('workMode')}
-                            disabled={props.disabled}
-                            onClick={props.onClick}
-                            error={errors.workMode}
-                        />
-                    )}
-                    renderItem={(props) => (
-                        <MenuItem
-                            key={props.item.title}
-                            focused={props.cursor === props.index}
-                            onClick={props.onClick}
-                            view="primary"
-                            ghost
-                        >
-                            {props.item.title}
-                        </MenuItem>
-                    )}
-                />
+
+                <div className={s.InputContainer}>
+                    <Text weight="bold" color={gray8}>
+                        {tr('Work mode')}
+                    </Text>
+
+                    <WorkModeCombobox value={watch('workMode')} onChange={(mode) => setValue('workMode', mode)} />
+
+                    {nullable(errors.workMode, (e) => (
+                        <Text size="xs" color={danger0}>
+                            {e.message}
+                        </Text>
+                    ))}
+                </div>
+
                 <FormInput
                     label={tr('Work mode comment')}
                     autoComplete="off"
@@ -354,6 +336,7 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                         </Text>
                     ))}
                 </div>
+
                 <FormRadio
                     label={tr('Creation cause')}
                     name="type"
@@ -372,12 +355,18 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     <Checkbox checked={createExternalAccount} onChange={onCreateExternalAccountClick} />
                 </div>
 
-                <FormEditor
-                    className={s.FormInput}
-                    placeholder={tr('Comments')}
-                    disableAttaches
-                    onChange={(e) => setValue('comment', e)}
-                />
+                <div className={s.InputContainer}>
+                    <Text weight="bold" color={gray8}>
+                        {tr('Comment:')}
+                    </Text>
+                </div>
+                <div className={s.InputContainer}>
+                    <FormEditor
+                        placeholder={tr('Enter your comment')}
+                        disableAttaches
+                        onChange={(e) => setValue('comment', e)}
+                    />
+                </div>
             </div>
             <div className={s.FormActionWrap}>
                 <FormActions>

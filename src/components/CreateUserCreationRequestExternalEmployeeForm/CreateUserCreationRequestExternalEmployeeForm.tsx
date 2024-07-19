@@ -2,8 +2,8 @@ import { ChangeEvent, ComponentProps, useCallback, useState } from 'react';
 import cn from 'classnames';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, FormAction, FormActions, FormEditor, FormInput, Text, nullable } from '@taskany/bricks';
-import { Checkbox } from '@taskany/bricks/harmony';
+import { Button, Form, FormAction, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
+import { Checkbox, FormEditor } from '@taskany/bricks/harmony';
 import { danger0, gray8 } from '@taskany/colors';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 
@@ -302,14 +302,20 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     </Text>
                     <Checkbox checked={createExternalAccount} onChange={onCreateExternalAccountClick} />
                 </div>
+                <div className={s.InputContainer}>
+                    <Text weight="bold" color={gray8}>
+                        {tr('Comment:')}
+                    </Text>
+                </div>
+                <div className={s.InputContainer}>
+                    <FormEditor
+                        placeholder={tr("Don't forget to attach NDA for external employee")}
+                        uploadLink={pages.attaches}
+                        onChange={(e) => setValue('comment', e)}
+                        attachFormatter={formatter}
+                    />
+                </div>
 
-                <FormEditor
-                    placeholder={tr("Don't forget to attach NDA for external employee")}
-                    uploadLink={pages.attaches}
-                    onChange={(e) => setValue('comment', e)}
-                    attachFormatter={formatter}
-                    error={errors.comment}
-                />
                 {files.map((file) => (
                     <AttachItem file={file} key={file.id} onRemove={() => onAttachRemove(file)} />
                 ))}
