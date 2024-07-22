@@ -118,6 +118,7 @@ model User {
   userCreationRequestRecruiter   UserCreationRequest[] @relation("userRecruiter")
   userCreationRequestBuddy       UserCreationRequest[] @relation("userBuddy")
   userCreationRequestCoordinator UserCreationRequest[] @relation("userCoordinator")
+  userCreationRequestCreator     UserCreationRequest[] @relation("userCreationRequestCreator")
 
   mailingSettings MailingSettings?
 
@@ -135,6 +136,9 @@ enum UserCreationRequestStatus {
 model UserCreationRequest {
   id   String  @id @default(nanoid())
   type String?
+
+  creatorId String?
+  creator   User?   @relation(fields: [creatorId], references: [id], name: "userCreationRequestCreator")
 
   name                  String
   email                 String

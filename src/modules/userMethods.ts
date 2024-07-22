@@ -470,7 +470,9 @@ export const userMethods = {
 
         const users = mailingList.map(({ email, name }) => ({ email, name: name! }));
 
-        user && users.push({ email: user.email, name: user.name! });
+        if (user && !users.some(({ email }) => email === user.email)) {
+            users.push({ email: user.email, name: user.name! });
+        }
 
         const to = users.map(({ email }) => email);
 
