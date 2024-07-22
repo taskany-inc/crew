@@ -1,6 +1,6 @@
 import { prisma } from '../utils/prisma';
 
-import { AddScopeToRole, GetUserRoleWithScopeData } from './userRoleSchemas';
+import { ChangeRoleScope, GetUserRoleWithScopeData } from './userRoleSchemas';
 
 export const userRoleMethods = {
     getListWithScope: (data: GetUserRoleWithScopeData) => {
@@ -15,7 +15,7 @@ export const userRoleMethods = {
         });
     },
 
-    addScopeToRole: async ({ code, scope }: AddScopeToRole) => {
+    changeRoleScope: async ({ code, scope }: ChangeRoleScope) => {
         return prisma.userRole.update({
             where: { code },
             data: {

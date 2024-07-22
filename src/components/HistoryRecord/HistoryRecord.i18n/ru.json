@@ -93,7 +93,6 @@
     "Comment": "Комментарий",
     "denied request": "отклонил(а) запрос",
     "Corporate email": "Корпоративный email",
-    "External employee": "Внешний сотрудник",
     "External organization supervisor login": "Ответственный за работу с внешней организацией",
     "Access to internal systems": "Доступ к внутренним системам",
     "Date": "Дата",
@@ -107,5 +106,12 @@
     "Work mode comment": "Комменарий к режиму работы",
     "Buddy login": "Логин buddy",
     "Coordinator login": "Логин координатора",
-    "Recruiter login": "Логин рекрутера"
+    "Recruiter login": "Логин рекрутера",
+    "added": "добавил(а)",
+    "removed": "удалил(а)",
+    "scope": "способность",
+    "of the role": "роли",
+    "to the role": "роли",
+    "edited role of user": "изменил(а) роль пользователя",
+    "edited mailing settings of": "изменил(а) настройки отправки почты для"
 }

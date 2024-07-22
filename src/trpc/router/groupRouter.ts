@@ -155,6 +155,7 @@ export const groupRouter = router({
     suggestions: protectedProcedure.input(getGroupSuggestionsSchema).query(({ input }) => {
         return groupMethods.suggestions(input);
     }),
+
     addUserToGroupAdmin: protectedProcedure
         .input(addOrRemoveUserFromGroupAdminsSchema)
         .mutation(async ({ input, ctx }) => {

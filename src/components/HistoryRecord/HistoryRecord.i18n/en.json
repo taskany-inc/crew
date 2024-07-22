@@ -93,7 +93,6 @@
     "Comment": "",
     "denied request": "",
     "Corporate email": "",
-    "External employee": "",
     "External organization supervisor login": "",
     "Access to internal systems": "",
     "Date": "",
@@ -107,5 +106,12 @@
     "Work mode comment": "",
     "Buddy login": "",
     "Coordinator login": "",
-    "Recruiter login": ""
+    "Recruiter login": "",
+    "added": "",
+    "removed": "",
+    "scope": "",
+    "of the role": "",
+    "to the role": "",
+    "edited role of user": "",
+    "edited mailing settings of": ""
 }
