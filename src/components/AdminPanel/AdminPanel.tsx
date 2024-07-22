@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { trpc } from '../../trpc/trpcClient';
 import { scopes } from '../../utils/access';
 import { useUserRoleMutations } from '../../modules/userRoleHooks';
-import { AddScopeToRole } from '../../modules/userRoleSchemas';
+import { ChangeRoleScope } from '../../modules/userRoleSchemas';
 import { AdminPanelLayout } from '../AdminPanelLayout/AdminPanelLayout';
 import { TableListItem, TableListItemElement } from '../TableListItem/TableListItem';
 
@@ -32,13 +32,13 @@ const CellCheckbox = ({
 export const AdminPanel = () => {
     const { data: roles = [] } = trpc.userRole.getListWithScope.useQuery();
 
-    const { addScopeToRole } = useUserRoleMutations();
+    const { changeRoleScope } = useUserRoleMutations();
 
     const handleChangeScope = useCallback(
-        (code: string, scope: AddScopeToRole['scope']['field']) => async (e: React.ChangeEvent<HTMLInputElement>) => {
-            await addScopeToRole({ code, scope: { field: scope, value: e.target.checked } });
+        (code: string, scope: ChangeRoleScope['scope']['field']) => async (e: React.ChangeEvent<HTMLInputElement>) => {
+            await changeRoleScope({ code, scope: { field: scope, value: e.target.checked } });
         },
-        [addScopeToRole],
+        [changeRoleScope],
     );
 
     return (

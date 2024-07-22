@@ -94,6 +94,18 @@ interface HistoryEventsData {
         requireBefore: true;
         data: { amount: number; description?: string };
     };
+    editUserRole: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: true;
+        data: { roleCode?: string };
+    };
+    editUserMailingSettings: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: { type: string; value: boolean };
+    };
     addUserToGroup: {
         requireGroupId: true;
         requireUserId: true;
@@ -310,6 +322,16 @@ interface HistoryEventsData {
         requireUserId: true;
         requireBefore: false;
         data: { type: string; comment: string };
+    };
+    changeUserRoleScope: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: false;
+        data: {
+            roleCode: string;
+            scope: string;
+            value: boolean;
+        };
     };
 }
 

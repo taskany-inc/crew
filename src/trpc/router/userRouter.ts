@@ -79,9 +79,16 @@ export const userRouter = router({
         return userMethods.editSettings(ctx.session.user.id, input);
     }),
 
-    editMailingSettings: protectedProcedure.input(editUserMailingSettingsSchema).mutation(({ input, ctx }) => {
+    editMailingSettings: protectedProcedure.input(editUserMailingSettingsSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
-        return userMethods.editMailingSettings(input);
+        const result = await userMethods.editMailingSettings(input);
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'editUserMailingSettings', {
+            groupId: undefined,
+            userId: result.userId,
+            before: undefined,
+            after: { type: input.type, value: result[input.type] },
+        });
+        return result;
     }),
 
     getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
@@ -156,9 +163,17 @@ export const userRouter = router({
         return userMethods.suggestions(input);
     }),
 
-    editUserRole: protectedProcedure.input(editUserRoleSchema).mutation(({ input, ctx }) => {
+    editUserRole: protectedProcedure.input(editUserRoleSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserRole'));
-        return userMethods.editUserRole(input);
+        const userBefore = await userMethods.getByIdOrThrow(input.id);
+        const result = await userMethods.editUserRole(input);
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'editUserRole', {
+            userId: result.id,
+            groupId: undefined,
+            before: { roleCode: userBefore.roleCode || undefined },
+            after: { roleCode: result.roleCode || undefined },
+        });
+        return result;
     }),
 
     isLoginUnique: protectedProcedure.input(z.string()).query(({ input }) => {

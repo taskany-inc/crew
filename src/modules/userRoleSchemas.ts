@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { scopes } from '../utils/access';
 
-export const addScopeToRoleSchema = z.object({
+export const changeRoleScope = z.object({
     code: z.string(),
     scope: z.object({
         field: z.string().refine((scope) => scopes.includes(scope as (typeof scopes)[number])),
@@ -10,7 +10,7 @@ export const addScopeToRoleSchema = z.object({
     }),
 });
 
-export type AddScopeToRole = z.infer<typeof addScopeToRoleSchema>;
+export type ChangeRoleScope = z.infer<typeof changeRoleScope>;
 
 export const getUserRoleWithScopeSchema = z
     .object({

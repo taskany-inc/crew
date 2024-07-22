@@ -242,7 +242,7 @@ const componentMap: {
 
     EditUserBonuses: ({ event }) => {
         return (
-            <>
+            <div className={s.Row}>
                 {tr('edited user bonuses')} <UserListItem user={event.user} /> {tr('from')}{' '}
                 <BoldText>{event.before.amount}</BoldText> {tr('to')} <BoldText>{event.after.amount}</BoldText>{' '}
                 {nullable(event.after.description, (d) => (
@@ -250,6 +250,31 @@ const componentMap: {
                         {tr('with description')} <BoldText>{d}</BoldText>{' '}
                     </>
                 ))}
+            </div>
+        );
+    },
+
+    EditUserRole: ({ event }) => {
+        return (
+            <div className={s.Row}>
+                {tr('edited role of user')} <UserListItem user={event.user} />
+                {nullable(event.before.roleCode, (r) => (
+                    <>
+                        {tr('from')} <BoldText>{r}</BoldText>{' '}
+                    </>
+                ))}
+                {tr('to')} <BoldText>{event.after.roleCode}</BoldText>
+            </div>
+        );
+    },
+
+    EditUserMailingSettings: ({ event }) => {
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('edited mailing settings of')} <UserListItem user={event.user} />
+                </div>
+                <ChangeListItem title={event.after.type} after={event.after.value} />
             </>
         );
     },
@@ -537,6 +562,7 @@ const componentMap: {
             </div>
         );
     },
+
     CreateScheduledDeactivation: ({ event }) => {
         const visible = useBoolean(false);
         const locale = useLocale();
@@ -581,6 +607,7 @@ const componentMap: {
             </>
         );
     },
+
     EditScheduledDeactivation: ({ event }) => {
         const visible = useBoolean(false);
         const locale = useLocale();
@@ -660,22 +687,30 @@ const componentMap: {
             </>
         );
     },
+
     CancelScheduledDeactivation: ({ event }) => {
         const visible = useBoolean(false);
 
         return (
-            <>
-                <div className={s.Row}>
-                    {tr('canceled scheduled')}
-                    <BoldText>{event.after.type === 'retirement' ? tr('retirement of') : tr('transfer of')}</BoldText>
-                    <UserListItem user={event.user} />
-                    <Text>{tr('with comment: ')}</Text>
-                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
-                    {nullable(visible.value, () => (
-                        <Text>{event.after.comment}</Text>
-                    ))}
-                </div>
-            </>
+            <div className={s.Row}>
+                {tr('canceled scheduled')}
+                <BoldText>{event.after.type === 'retirement' ? tr('retirement of') : tr('transfer of')}</BoldText>
+                <UserListItem user={event.user} />
+                <Text>{tr('with comment: ')}</Text>
+                <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                {nullable(visible.value, () => (
+                    <Text>{event.after.comment}</Text>
+                ))}
+            </div>
+        );
+    },
+
+    ChangeUserRoleScope: ({ event }) => {
+        return (
+            <div className={s.Row}>
+                {event.after.value ? tr('added') : tr('removed')} {tr('scope')} <BoldText>{event.after.scope}</BoldText>{' '}
+                {event.after.value ? tr('to the role') : tr('of the role')} <BoldText>{event.after.roleCode}</BoldText>
+            </div>
         );
     },
 };
