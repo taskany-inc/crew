@@ -476,4 +476,28 @@ export const userMethods = {
 
         return { users, to };
     },
+
+    isLoginUnique: async (login: string) => {
+        const countUserLogins = await prisma.user.count({ where: { login } });
+
+        const countUserRequestLogins = await prisma.userCreationRequest.count({
+            where: {
+                OR: [
+                    {
+                        status: {
+                            not: 'Denied',
+                        },
+                    },
+                    {
+                        status: {
+                            equals: null,
+                        },
+                    },
+                ],
+                AND: [{ login }],
+            },
+        });
+
+        return countUserLogins + countUserRequestLogins === 0;
+    },
 };

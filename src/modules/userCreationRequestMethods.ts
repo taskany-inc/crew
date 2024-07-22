@@ -23,6 +23,15 @@ export const userCreationRequestsMethods = {
     create: async (data: CreateUserCreationRequest): Promise<UserCreationRequest> => {
         const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
 
+        const isLoginUnique = await userMethods.isLoginUnique(data.login);
+
+        if (isLoginUnique === false) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: tr('User with login {login} already exist', { login: data.login }),
+            });
+        }
+
         const supervisor = await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } });
 
         if (!supervisor.login) {

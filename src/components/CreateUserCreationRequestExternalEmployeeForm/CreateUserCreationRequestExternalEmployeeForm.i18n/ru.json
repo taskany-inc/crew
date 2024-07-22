@@ -22,5 +22,6 @@
     "External organization supervisor:": "Ответственный за работу с внешней организацией",
     "Access to internal systems:": "Доступ к внутренним системам",
     "Don't forget to attach NDA for external employee": "Не забудьте прикрепить NDA для внешнего сотрудника",
-    "Comment:": "Комментарий"
+    "Comment:": "Комментарий",
+    "User with login already exist": "Уже есть пользователь с таким логином"
 }

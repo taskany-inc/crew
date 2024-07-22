@@ -1,4 +1,4 @@
-import { ChangeEvent, ComponentProps, useCallback, useState } from 'react';
+import { ChangeEvent, ComponentProps, useCallback, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +6,7 @@ import { Button, Form, FormAction, FormActions, FormInput, Text, nullable } from
 import { Checkbox, FormEditor } from '@taskany/bricks/harmony';
 import { danger0, gray8 } from '@taskany/colors';
 import { Group, OrganizationUnit, User } from '@prisma/client';
+import { debounce } from 'throttle-debounce';
 
 import {
     CreateUserCreationRequestExternalEmployee,
@@ -22,6 +23,7 @@ import { attachFormatter } from '../../utils/attachFormatter';
 import { pages } from '../../hooks/useRouter';
 import { AttachItem } from '../AttachItem/AttachItem';
 import { Nullish } from '../../utils/types';
+import { trpc } from '../../trpc/trpcClient';
 
 import s from './CreateUserCreationRequestExternalEmployeeForm.module.css';
 import { tr } from './CreateUserCreationRequestExternalEmployeeForm.i18n';
@@ -52,6 +54,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
         setValue,
         getValues,
         setError,
+        clearErrors,
         trigger,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateUserCreationRequestExternalEmployee>({
@@ -76,7 +79,22 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
         }
     };
 
+    const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
+
+    const isLoginUnique = trpc.user.isLoginUnique.useQuery(isLoginUniqueQuery, {
+        enabled: isLoginUniqueQuery.length > 1,
+    });
+
+    useEffect(() => {
+        if (isLoginUnique.data === false) {
+            setError('login', { message: tr('User with login already exist') });
+        } else clearErrors('login');
+    }, [isLoginUnique.data, setError, clearErrors]);
+
+    const debouncedSearchHandler = debounce(300, setIsLoginUniqueQuery);
+
     const onLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
+        debouncedSearchHandler(e.currentTarget.value);
         if (createCorporateEmail.value) {
             setValue('corporateEmail', getCorporateEmail(e.target.value));
         }
