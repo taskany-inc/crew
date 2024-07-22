@@ -20,7 +20,7 @@ import { externalUserMethods } from './externalUserMethods';
 import { CompleteUserCreationRequest } from './userCreationRequestTypes';
 
 export const userCreationRequestsMethods = {
-    create: async (data: CreateUserCreationRequest): Promise<UserCreationRequest> => {
+    create: async (data: CreateUserCreationRequest, sessionUserId: string): Promise<UserCreationRequest> => {
         const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
 
         const isLoginUnique = await userMethods.isLoginUnique(data.login);
@@ -58,6 +58,7 @@ export const userCreationRequestsMethods = {
         const createData: Prisma.UserCreationRequestUncheckedCreateInput = {
             type: data.type,
             name,
+            creatorId: sessionUserId,
             email: data.email,
             login: data.login,
             organizationUnitId: data.organizationUnitId,
@@ -125,6 +126,7 @@ export const userCreationRequestsMethods = {
                 buddy: true,
                 coordinator: true,
                 recruiter: true,
+                creator: true,
             },
         });
 
@@ -141,7 +143,10 @@ export const userCreationRequestsMethods = {
         });
 
         if (data.type === 'internalEmployee') {
-            const { users, to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest');
+            const { users, to: mailTo } = await userMethods.getMailingList(
+                'createScheduledUserRequest',
+                userCreationRequest.creator ? userCreationRequest.creator : undefined,
+            );
             data.date.setUTCHours(config.employmentUtcHour);
 
             const icalSublect = `${

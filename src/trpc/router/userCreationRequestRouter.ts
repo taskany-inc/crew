@@ -12,7 +12,7 @@ export const userCreationRequestRouter = router({
     create: protectedProcedure.input(createUserCreationRequestSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
 
-        const creationRequest = await userCreationRequestsMethods.create(input);
+        const creationRequest = await userCreationRequestsMethods.create(input, ctx.session.user.id);
 
         await historyEventMethods.create({ user: ctx.session.user.id }, 'createUserCreationRequest', {
             groupId: undefined,
