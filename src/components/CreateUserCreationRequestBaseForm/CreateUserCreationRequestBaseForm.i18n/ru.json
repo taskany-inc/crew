@@ -19,5 +19,6 @@
     "Cancel": "Отмена",
     "Create": "Создать",
     "Comment:": "Комментарий",
-    "Enter your comment": "Введите комментарий"
+    "Enter your comment": "Введите комментарий",
+    "User with login already exist": "Уже есть пользователь с таким логином"
 }

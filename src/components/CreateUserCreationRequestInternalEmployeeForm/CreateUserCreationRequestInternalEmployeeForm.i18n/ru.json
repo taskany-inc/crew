@@ -31,5 +31,6 @@
     "Create external account:": "Создать внешнюю учетную запись",
     "Cancel": "Отмена",
     "Comment:": "Комменарий",
-    "Enter your comment": "Введите комментарий"
+    "Enter your comment": "Введите комментарий",
+    "User with login already exist": "Уже есть пользователь с таким логином"
 }

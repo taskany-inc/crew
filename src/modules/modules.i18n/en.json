@@ -69,5 +69,6 @@
     "External employees need an NDA attached": "",
     "Required field": "",
     "Transfer": "",
-    "Employment": ""
+    "Employment": "",
+    "User with login {login} already exist": ""
 }

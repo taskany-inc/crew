@@ -69,5 +69,6 @@
     "External employees need an NDA attached": "Внешним сотрудникам нужен прикрепленный NDA",
     "Required field": "Обязательное поле",
     "Transfer": "Перевод",
-    "Employment": "Выход"
+    "Employment": "Выход",
+    "User with login {login} already exist": "Уже есть пользователь с логином {login}"
 }

@@ -160,4 +160,8 @@ export const userRouter = router({
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserRole'));
         return userMethods.editUserRole(input);
     }),
+
+    isLoginUnique: protectedProcedure.input(z.string()).query(({ input }) => {
+        return userMethods.isLoginUnique(input);
+    }),
 });
