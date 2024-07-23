@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.71.0](https://github.com/taskany-inc/crew/compare/v0.70.0...v0.71.0) (2024-07-23)
+
+
+### Features
+
+* add missing history records ([1e95a98](https://github.com/taskany-inc/crew/commit/1e95a982cf6c48b5718850c8fcc1d9a17f7c1d83))
+* create profile on date not on accept ([3f6f1c8](https://github.com/taskany-inc/crew/commit/3f6f1c857a82533b2bcfeb6a0e55edeffade2bc0))
+* send ical mail to user create request creator ([aba8be5](https://github.com/taskany-inc/crew/commit/aba8be5bbf6cf7a80152e9cf45bb110ef115318e))
+
+
+### Bug Fixes
+
+* check is login unique ([f0d1035](https://github.com/taskany-inc/crew/commit/f0d10351efe6f1909d54c69e6118c2215e27b602))
+* user create form styles ([255e5c5](https://github.com/taskany-inc/crew/commit/255e5c57f9f15e7739a97355807a249b48dbfb2c))
+
 ## [0.70.0](https://github.com/taskany-inc/crew/compare/v0.69.2...v0.70.0) (2024-07-18)
 
 
