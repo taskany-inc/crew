@@ -189,9 +189,9 @@ const componentMap: {
             <>
                 <div className={s.Row}>
                     {tr('approved request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
-                    {nullable(event.user, (user) => (
-                        <UserListItem user={user} />
-                    ))}
+                    <BoldText>
+                        {event.after.name} ({event.after.email})
+                    </BoldText>
                     {nullable(event.after.comment, () => (
                         <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                     ))}

@@ -64,10 +64,12 @@ interface HistoryEventsData {
     };
     acceptUserCreationRequest: {
         requireGroupId: false;
-        requireUserId: true;
+        requireUserId: false;
         requireBefore: false;
         data: {
             id: string;
+            name?: string;
+            email?: string;
             comment?: string;
         };
     };

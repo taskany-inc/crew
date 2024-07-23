@@ -181,6 +181,9 @@ model UserCreationRequest {
   coordinatorLogin String?
   coordinator      User?   @relation(fields: [coordinatorLogin], references: [login], name: "userCoordinator")
 
+  jobId String? @unique
+  job   Job?    @relation(fields: [jobId], references: [id])
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
@@ -654,6 +657,7 @@ model Job {
   date     DateTime?
 
   scheduledDeactivation ScheduledDeactivation?
+  userCreationRequest   UserCreationRequest?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt

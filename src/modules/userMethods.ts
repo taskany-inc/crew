@@ -502,4 +502,64 @@ export const userMethods = {
 
         return countUserLogins + countUserRequestLogins === 0;
     },
+
+    createUserFromRequest: async (userCreationRequestId: string) => {
+        const request = await prisma.userCreationRequest.findUnique({ where: { id: userCreationRequestId } });
+
+        if (!request) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No user creation request by id ${userCreationRequestId}`,
+            });
+        }
+
+        if (request.status !== 'Approved') {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Request was not accepted' });
+        }
+
+        const services = request.services as { serviceId: string; serviceName: string }[];
+
+        if (request.corporateEmail) {
+            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
+            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
+            services.push({ serviceName: emailService.name, serviceId: request.email });
+        }
+
+        if (request.createExternalAccount) {
+            const [surname, firstName, middleName] = request.name.split(' ');
+
+            const email = request.corporateEmail || request.email;
+            const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
+
+            if (!phone) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Phone service is required' });
+            }
+
+            await externalUserMethods.create({
+                surname,
+                firstName,
+                middleName,
+                email,
+                phone,
+                login: request.login,
+                organizationUnitId: request.organizationUnitId,
+            });
+        }
+
+        const newUser = prisma.user.create({
+            data: {
+                name: request.name,
+                email: request.email,
+                supervisor: { connect: { login: request.supervisorLogin } },
+                login: request.login,
+                title: request.title,
+                memberships: { create: { groupId: request.groupId } },
+                organizationUnit: { connect: { id: request.organizationUnitId } },
+                services: { createMany: { data: services } },
+                workStartDate: request.date,
+            },
+            include: { services: true },
+        });
+        return newUser;
+    },
 };

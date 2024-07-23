@@ -1,4 +1,4 @@
-import { User, UserCreationRequest, Prisma } from 'prisma/prisma-client';
+import { UserCreationRequest, Prisma } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
 
@@ -7,6 +7,7 @@ import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import { htmlUserCreationRequestWithDate, userCreationMailText } from '../utils/emailTemplates';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
+import { createJob } from '../utils/worker/create';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
@@ -16,7 +17,6 @@ import {
     GetUserCreationRequestList,
     HandleUserCreationRequest,
 } from './userCreationRequestSchemas';
-import { externalUserMethods } from './externalUserMethods';
 import { CompleteUserCreationRequest } from './userCreationRequestTypes';
 
 export const userCreationRequestsMethods = {
@@ -41,6 +41,7 @@ export const userCreationRequestsMethods = {
         if (!data.groupId) {
             throw new TRPCError({ code: 'BAD_REQUEST', message: 'Group is required' });
         }
+        data.date && data.date.setUTCHours(config.employmentUtcHour);
 
         const [phoneService, accountingService] = await Promise.all([
             prisma.externalService.findUnique({ where: { name: 'Phone' } }),
@@ -147,7 +148,6 @@ export const userCreationRequestsMethods = {
                 'createScheduledUserRequest',
                 userCreationRequest.creator ? userCreationRequest.creator : undefined,
             );
-            data.date.setUTCHours(config.employmentUtcHour);
 
             const icalSublect = `${
                 userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
@@ -190,13 +190,7 @@ export const userCreationRequestsMethods = {
         });
     },
 
-    accept: async ({
-        id,
-        comment,
-    }: HandleUserCreationRequest): Promise<{
-        newUser: User;
-        acceptedRequest: CompleteUserCreationRequest;
-    }> => {
+    accept: async ({ id, comment }: HandleUserCreationRequest): Promise<CompleteUserCreationRequest> => {
         const userCreationRequest = await prisma.userCreationRequest.findUnique({ where: { id } });
 
         if (!userCreationRequest) {
@@ -215,60 +209,20 @@ export const userCreationRequestsMethods = {
             throw new TRPCError({ code: 'BAD_REQUEST', message: 'User already exists' });
         }
 
-        const services = userCreationRequest.services as { serviceId: string; serviceName: string }[];
-
-        const email = userCreationRequest.corporateEmail || userCreationRequest.email;
-
-        if (userCreationRequest.createExternalAccount) {
-            const [surname, firstName, middleName] = userCreationRequest.name.split(' ');
-
-            const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
-
-            if (!phone) {
-                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Phone service is required' });
-            }
-
-            await externalUserMethods.create({
-                surname,
-                firstName,
-                middleName,
-                email,
-                phone,
-                login: userCreationRequest.login,
-                organizationUnitId: userCreationRequest.organizationUnitId,
-            });
-        }
-
         const acceptedRequest = await prisma.userCreationRequest.update({
             where: { id },
             data: { status: 'Approved', comment },
             include: { supervisor: true, organization: true, group: true },
         });
 
-        if (acceptedRequest.corporateEmail) {
-            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
-            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
-            services.push({ serviceName: emailService.name, serviceId: acceptedRequest.email });
+        if (userCreationRequest.date) {
+            await createJob('createProfile', {
+                data: { userCreationRequestId: userCreationRequest.id },
+                date: userCreationRequest.date,
+            });
         }
 
-        const newUser = await prisma.user.create({
-            data: {
-                name: acceptedRequest.name,
-                email: acceptedRequest.email,
-                supervisorId: acceptedRequest.supervisor.id,
-                login: acceptedRequest.login,
-                title: userCreationRequest.title,
-                memberships: { create: { groupId: acceptedRequest.groupId } },
-                organizationUnitId: acceptedRequest.organizationUnitId,
-                services: { createMany: { data: services } },
-                workStartDate: acceptedRequest.date,
-            },
-        });
-
-        return {
-            newUser,
-            acceptedRequest: acceptedRequest as CompleteUserCreationRequest,
-        };
+        return acceptedRequest as CompleteUserCreationRequest;
     },
 
     getList: async (data: GetUserCreationRequestList): Promise<CompleteUserCreationRequest[]> => {

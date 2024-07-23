@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 import { prisma } from '../prisma';
 import { config } from '../../config';
 
@@ -10,6 +12,9 @@ export enum jobState {
 export interface JobDataMap {
     scheduledDeactivation: {
         userId: string;
+    };
+    createProfile: {
+        userCreationRequestId: string;
     };
 }
 
@@ -27,15 +32,22 @@ export function createJob<K extends keyof JobDataMap>(
     kind: K,
     { data, priority, delay = config.worker.defaultJobDelay, cron, date }: CreateJobProps<K>,
 ) {
+    const createJobData: Prisma.JobCreateInput = {
+        state: jobState.scheduled,
+        data,
+        kind,
+        priority,
+        delay,
+        cron,
+        date,
+    };
+
+    if (kind === 'createProfile') {
+        const { userCreationRequestId } = data as JobDataMap['createProfile'];
+        createJobData.userCreationRequest = { connect: { id: userCreationRequestId } };
+    }
+
     return prisma.job.create({
-        data: {
-            state: jobState.scheduled,
-            data,
-            kind,
-            priority,
-            delay,
-            cron,
-            date,
-        },
+        data: createJobData,
     });
 }
