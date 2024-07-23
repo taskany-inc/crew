@@ -20,3 +20,29 @@ export const scheduledDeactivation = async ({ userId }: JobDataMap['scheduledDea
         });
     }
 };
+
+export const createProfile = async ({ userCreationRequestId }: JobDataMap['createProfile']) => {
+    try {
+        const user = await userMethods.createUserFromRequest(userCreationRequestId);
+
+        const phone = user.services.find((service) => service.serviceName === 'Phone')?.serviceId;
+
+        await historyEventMethods.create({ subsystem: 'Scheduled profile creation' }, 'createUser', {
+            userId: user.id,
+            groupId: undefined,
+            before: undefined,
+            after: {
+                name: user.name || undefined,
+                email: user.email,
+                phone,
+                login: user.login || undefined,
+                organizationalUnitId: user.organizationUnitId || undefined,
+                supervisorId: user.supervisorId || undefined,
+            },
+        });
+    } catch (error) {
+        Sentry.captureException(error, {
+            fingerprint: ['worker', 'resolve'],
+        });
+    }
+};

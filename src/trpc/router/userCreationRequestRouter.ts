@@ -70,19 +70,21 @@ export const userCreationRequestRouter = router({
     accept: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
 
-        const { newUser, acceptedRequest } = await userCreationRequestsMethods.accept(input);
+        const acceptedRequest = await userCreationRequestsMethods.accept(input);
 
         await historyEventMethods.create({ user: ctx.session.user.id }, 'acceptUserCreationRequest', {
             groupId: undefined,
-            userId: newUser.id,
+            userId: undefined,
             before: undefined,
             after: {
                 id: acceptedRequest.id,
+                name: acceptedRequest.name,
+                email: acceptedRequest.email,
                 comment: input.comment,
             },
         });
 
-        return { newUser, acceptedRequest };
+        return acceptedRequest;
     }),
 
     getList: protectedProcedure.input(getUserCreationRequestListSchema).query(({ input, ctx }) => {
