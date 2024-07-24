@@ -8,11 +8,13 @@ import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { useBoolean } from '../../hooks/useBoolean';
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
+import { OrganizationUnitSearchType } from '../../modules/organizationUnitSchemas';
 
 import { tr } from './OrganizationUnitComboBox.i18n';
 
 interface OrganizationUnitComboBoxProps {
     organizationUnit?: Nullish<OrganizationUnit>;
+    searchType?: OrganizationUnitSearchType;
     onChange: (organizationUnit: Nullish<OrganizationUnit>) => void;
     inline?: boolean;
     placeholder?: string;
@@ -22,6 +24,7 @@ interface OrganizationUnitComboBoxProps {
 
 export const OrganizationUnitComboBox = ({
     organizationUnit,
+    searchType,
     onChange,
     inline,
     placeholder,
@@ -32,7 +35,7 @@ export const OrganizationUnitComboBox = ({
     const suggestionsVisibility = useBoolean(false);
     const [selectedValue, setSelectedValue] = useState(organizationUnit);
     const organizationUnitQuery = trpc.organizationUnit.getList.useQuery(
-        { search, take: 10 },
+        { search, take: 10, searchType },
         { keepPreviousData: true },
     );
 

@@ -56,6 +56,12 @@ export const userCreationRequestsMethods = {
             servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
         }
 
+        const organizationUnit = await prisma.organizationUnit.findUnique({
+            where: {
+                id: data.organizationUnitId,
+            },
+        });
+
         const createData: Prisma.UserCreationRequestUncheckedCreateInput = {
             type: data.type,
             name,
@@ -78,11 +84,25 @@ export const userCreationRequestsMethods = {
         };
 
         if (data.type === 'externalEmployee') {
+            if (!organizationUnit?.external) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Cannot create external user in internal organization',
+                });
+            }
+
             createData.externalOrganizationSupervisorLogin = data.externalOrganizationSupervisorLogin || undefined;
             createData.accessToInternalSystems = data.accessToInternalSystems;
         }
 
         if (data.type === 'internalEmployee') {
+            if (organizationUnit?.external) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Cannot create internal user in external organization',
+                });
+            }
+
             const buddy = data.buddyId
                 ? await prisma.user.findUniqueOrThrow({ where: { id: data.buddyId ?? undefined } })
                 : undefined;
