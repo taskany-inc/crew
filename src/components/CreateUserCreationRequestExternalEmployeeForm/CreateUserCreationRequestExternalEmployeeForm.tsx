@@ -164,7 +164,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     <Text weight="bold" color={gray8}>
                         {tr('Organization:')}
                     </Text>
-                    <OrganizationUnitComboBox onChange={onOrganizationChange} />
+                    <OrganizationUnitComboBox onChange={onOrganizationChange} searchType="external" />
                     {nullable(errors.organizationUnitId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
