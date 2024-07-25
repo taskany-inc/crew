@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.72.0](https://github.com/taskany-inc/crew/compare/v0.71.0...v0.72.0) (2024-07-25)
+
+
+### Features
+
+* mailing settings per ogranization ([0071319](https://github.com/taskany-inc/crew/commit/007131921215fc33d1dd2cbc23ef5c24abfd8c7b))
+
 ## [0.71.0](https://github.com/taskany-inc/crew/compare/v0.70.0...v0.71.0) (2024-07-23)
 
 
