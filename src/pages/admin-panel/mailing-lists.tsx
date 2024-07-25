@@ -1,4 +1,4 @@
-import { MailingLists } from '../../components/MailingLists';
+import { MailingLists } from '../../components/MailingLists/MailingLists';
 import { pages } from '../../hooks/useRouter';
 import { createGetServerSideProps } from '../../utils/createGetSSRProps';
 

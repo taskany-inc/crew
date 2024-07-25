@@ -11,24 +11,32 @@ import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './MailingList.i18n';
+import s from './MailingList.module.css';
 
 interface MailingListProps {
     mailingSettings: MailingSettingType;
+    organizationUnitId: string;
 }
 
-export const MailingList = ({ mailingSettings }: MailingListProps) => {
+export const MailingList = ({ mailingSettings, organizationUnitId }: MailingListProps) => {
     const [userId, setUserId] = useState<null | string>();
     const [userName, setUserName] = useState<null | string>();
     const [user, setUser] = useState<null | User>();
 
     const confirmationVisibility = useBoolean(false);
 
-    const userQuery = trpc.user.getList.useQuery({ mailingSettings });
+    const userQuery = trpc.user.getList.useQuery({ mailingSettings: { type: mailingSettings, organizationUnitId } });
 
     const { editUserMailingSettings } = useUserMutations();
 
     const onUserChoose = async () => {
-        user && (await editUserMailingSettings({ userId: user.id, type: mailingSettings, value: true }));
+        user &&
+            (await editUserMailingSettings({
+                userId: user.id,
+                type: mailingSettings,
+                value: true,
+                organizationUnitId,
+            }));
         return setUser(null);
     };
 
@@ -39,12 +47,12 @@ export const MailingList = ({ mailingSettings }: MailingListProps) => {
     };
 
     const onUserRemove = async () => {
-        userId && (await editUserMailingSettings({ userId, type: mailingSettings, value: false }));
+        userId && (await editUserMailingSettings({ userId, type: mailingSettings, value: false, organizationUnitId }));
         onRemoveCancel();
     };
 
     return (
-        <>
+        <div className={s.UserList}>
             <UserList
                 title={tr(mailingSettings)}
                 titleFragment={
@@ -88,6 +96,6 @@ export const MailingList = ({ mailingSettings }: MailingListProps) => {
                     </FormActions>
                 </ModalContent>
             </Modal>
-        </>
+        </div>
     );
 };

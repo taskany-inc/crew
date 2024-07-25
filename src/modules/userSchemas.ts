@@ -47,7 +47,7 @@ export const getUserListSchema = z.object({
     supervisors: z.array(z.string()).optional(),
     active: z.boolean().optional(),
     cursor: z.string().nullish(),
-    mailingSettings: z.enum(mailingSettingType).optional(),
+    mailingSettings: z.object({ type: z.enum(mailingSettingType), organizationUnitId: z.string() }).optional(),
     take: z
         .number()
         .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
@@ -97,6 +97,7 @@ export const editUserMailingSettingsSchema = z.object({
     userId: z.string(),
     type: z.enum(mailingSettingType),
     value: z.boolean(),
+    organizationUnitId: z.string(),
 });
 export type EditUserMailingSettings = z.infer<typeof editUserMailingSettingsSchema>;
 

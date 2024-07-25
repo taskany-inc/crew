@@ -106,7 +106,7 @@ interface HistoryEventsData {
         requireGroupId: false;
         requireUserId: true;
         requireBefore: false;
-        data: { type: string; value: boolean };
+        data: { type: string; value: boolean; organizationUnitId?: string };
     };
     addUserToGroup: {
         requireGroupId: true;

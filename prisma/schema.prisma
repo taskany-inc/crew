@@ -120,7 +120,7 @@ model User {
   userCreationRequestCoordinator UserCreationRequest[] @relation("userCoordinator")
   userCreationRequestCreator     UserCreationRequest[] @relation("userCreationRequestCreator")
 
-  mailingSettings MailingSettings?
+  mailingSettings MailingSettings[]
 
   workStartDate DateTime?
 
@@ -334,6 +334,7 @@ model OrganizationUnit {
   userServices         UserService[]
   oldOrganizationUnit  ScheduledDeactivation[] @relation("oldOrganizationUnit")
   newOrganizationUnit  ScheduledDeactivation[] @relation("newOrganizationUnit")
+  mailingSettings      MailingSettings[]
 }
 
 model Group {
@@ -635,7 +636,10 @@ model Attach {
 model MailingSettings {
   id     String @id @default(uuid())
   user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  userId String
+
+  organizationUnit   OrganizationUnit? @relation(fields: [organizationUnitId], references: [id])
+  organizationUnitId String?
 
   createUserRequest          Boolean @default(false)
   createScheduledUserRequest Boolean @default(false)
