@@ -1,8 +1,8 @@
 {
     "Remove {userName} from": "",
-    "createUserRequest": "Create user request",
-    "createScheduledUserRequest": "Scheduled new user",
-    "scheduledDeactivation": "Scheduled profile deactivation",
+    "Create user request": "",
+    "Scheduled new user": "",
+    "Scheduled profile deactivation": "",
     "Cancel": "",
     "Yes, remove": ""
 }

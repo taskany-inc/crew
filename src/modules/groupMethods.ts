@@ -415,6 +415,7 @@ export const groupMethods = {
 
         return prisma.groupAdmin.create({ data });
     },
+
     getGroupAdmins: async (groupId: string) => {
         const groupAdmins = await prisma.groupAdmin.findMany({
             where: { groupId },

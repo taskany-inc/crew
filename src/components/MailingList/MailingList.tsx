@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { User } from '@prisma/client';
 import { IconXOutline } from '@taskany/icons';
 import { Button, FormAction, FormActions, FormTitle, Modal, ModalContent, ModalHeader } from '@taskany/bricks';
@@ -51,10 +51,19 @@ export const MailingList = ({ mailingSettings, organizationUnitId }: MailingList
         onRemoveCancel();
     };
 
+    const mailingSettingsTr = useMemo<Record<MailingSettingType, string>>(
+        () => ({
+            createUserRequest: tr('Create user request'),
+            createScheduledUserRequest: tr('Scheduled new user'),
+            scheduledDeactivation: tr('Scheduled profile deactivation'),
+        }),
+        [],
+    );
+
     return (
         <div className={s.UserList}>
             <UserList
-                title={tr(mailingSettings)}
+                title={mailingSettingsTr[mailingSettings]}
                 titleFragment={
                     <>
                         <UserComboBox onChange={(u) => setUser(u)} user={user} brick={user ? 'right' : undefined} />
@@ -83,7 +92,7 @@ export const MailingList = ({ mailingSettings, organizationUnitId }: MailingList
                             userName: userName!,
                             mailingList: mailingSettings,
                         })}{' '}
-                        {tr(mailingSettings)}
+                        {mailingSettingsTr[mailingSettings]}
                     </FormTitle>
                 </ModalHeader>
                 <ModalContent>

@@ -70,5 +70,7 @@
     "Required field": "Обязательное поле",
     "Transfer": "Перевод",
     "Employment": "Выход",
-    "User with login {login} already exist": "Уже есть пользователь с логином {login}"
+    "User with login {login} already exist": "Уже есть пользователь с логином {login}",
+    "Device with this id already belongs to user {user}": "Устройство с этим id уже добавлено пользователю {user}",
+    "Service with this id already belongs to user {user}": "Сервис с таким id уже добавлен пользователю {user}"
 }
