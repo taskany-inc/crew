@@ -63,7 +63,11 @@ export const scheduledDeactivationMethods = {
             include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true, attaches: true },
         });
 
-        const { to, users } = await userMethods.getMailingList('scheduledDeactivation', scheduledDeactivation.creator);
+        const { to, users } = await userMethods.getMailingList(
+            'scheduledDeactivation',
+            data.organizationUnitId,
+            scheduledDeactivation.creator,
+        );
 
         const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
 
@@ -132,27 +136,33 @@ export const scheduledDeactivationMethods = {
                 ? tr('Cancel retirement of {userName}', { userName: scheduledDeactivation.user.name! })
                 : tr('Cancel transfer of {userName}', { userName: scheduledDeactivation.user.name! });
 
-        const { to, users } = await userMethods.getMailingList('scheduledDeactivation', scheduledDeactivation.creator);
+        if (scheduledDeactivation.organizationUnitId) {
+            const { to, users } = await userMethods.getMailingList(
+                'scheduledDeactivation',
+                scheduledDeactivation.organizationUnitId,
+                scheduledDeactivation.creator,
+            );
 
-        const icalEvent = createIcalEventData({
-            id: scheduledDeactivation.id + config.nodemailer.authUser,
-            start: scheduledDeactivation.deactivateDate,
-            allDay: true,
-            duration: 0,
-            users,
-            summary: subject,
-            description: subject,
-        });
+            const icalEvent = createIcalEventData({
+                id: scheduledDeactivation.id + config.nodemailer.authUser,
+                start: scheduledDeactivation.deactivateDate,
+                allDay: true,
+                duration: 0,
+                users,
+                summary: subject,
+                description: subject,
+            });
 
-        await sendMail({
-            to,
-            subject,
-            text: comment,
-            icalEvent: calendarEvents({
-                method: ICalCalendarMethod.CANCEL,
-                events: [icalEvent],
-            }),
-        });
+            await sendMail({
+                to,
+                subject,
+                text: comment,
+                icalEvent: calendarEvents({
+                    method: ICalCalendarMethod.CANCEL,
+                    events: [icalEvent],
+                }),
+            });
+        }
 
         scheduledDeactivation.jobId && (await prisma.job.delete({ where: { id: scheduledDeactivation.jobId } }));
 
@@ -217,30 +227,37 @@ export const scheduledDeactivationMethods = {
                       getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
                   } ${scheduledDeactivation.user.name} (${restData.phone})`;
 
-        const { to, users } = await userMethods.getMailingList('scheduledDeactivation', scheduledDeactivation.creator);
+        if (scheduledDeactivation.organizationUnitId) {
+            const { to, users } = await userMethods.getMailingList(
+                'scheduledDeactivation',
+                scheduledDeactivation.organizationUnitId,
+                scheduledDeactivation.creator,
+            );
 
-        const icalEvent = createIcalEventData({
-            id: scheduledDeactivation.id + config.nodemailer.authUser,
-            start: data.deactivateDate,
-            allDay: true,
-            duration: 0,
-            users,
-            summary: subject,
-            description: subject,
-        });
+            const icalEvent = createIcalEventData({
+                id: scheduledDeactivation.id + config.nodemailer.authUser,
+                start: data.deactivateDate,
+                allDay: true,
+                duration: 0,
+                users,
+                summary: subject,
+                description: subject,
+            });
 
-        const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
+            const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
 
-        await sendMail({
-            to,
-            html: scheduledDeactivationEmailHtml(scheduledDeactivation),
-            subject,
-            attachments,
-            icalEvent: calendarEvents({
-                method: ICalCalendarMethod.REQUEST,
-                events: [icalEvent],
-            }),
-        });
+            await sendMail({
+                to,
+                html: scheduledDeactivationEmailHtml(scheduledDeactivation),
+                subject,
+                attachments,
+                icalEvent: calendarEvents({
+                    method: ICalCalendarMethod.REQUEST,
+                    events: [icalEvent],
+                }),
+            });
+        }
+
         return scheduledDeactivation;
     },
     getById: async (id: string) => {

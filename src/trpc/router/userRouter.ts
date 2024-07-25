@@ -86,7 +86,11 @@ export const userRouter = router({
             groupId: undefined,
             userId: result.userId,
             before: undefined,
-            after: { type: input.type, value: result[input.type] },
+            after: {
+                type: input.type,
+                value: result[input.type],
+                organizationUnitId: result.organizationUnitId || undefined,
+            },
         });
         return result;
     }),

@@ -275,6 +275,7 @@ const componentMap: {
                     {tr('edited mailing settings of')} <UserListItem user={event.user} />
                 </div>
                 <ChangeListItem title={event.after.type} after={event.after.value} />
+                <ChangeListItem title={tr('Organization id')} after={event.after.organizationUnitId} />
             </>
         );
     },

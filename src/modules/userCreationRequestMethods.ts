@@ -131,7 +131,7 @@ export const userCreationRequestsMethods = {
             },
         });
 
-        const { to } = await userMethods.getMailingList('createUserRequest');
+        const { to } = await userMethods.getMailingList('createUserRequest', data.organizationUnitId);
 
         const mailText = userCreationMailText(name);
 
@@ -146,6 +146,7 @@ export const userCreationRequestsMethods = {
         if (data.type === 'internalEmployee') {
             const { users, to: mailTo } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
+                data.organizationUnitId,
                 userCreationRequest.creator ? userCreationRequest.creator : undefined,
             );
 

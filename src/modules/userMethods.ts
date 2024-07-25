@@ -86,7 +86,9 @@ const usersWhere = (data: GetUserList) => {
     }
 
     if (data.mailingSettings) {
-        where.mailingSettings = { [data.mailingSettings]: true };
+        where.mailingSettings = {
+            some: { [data.mailingSettings.type]: true, organizationUnitId: data.mailingSettings.organizationUnitId },
+        };
     }
 
     return where;
@@ -172,12 +174,16 @@ export const userMethods = {
         });
     },
 
-    editMailingSettings: ({ userId, type, value }: EditUserMailingSettings) => {
-        return prisma.mailingSettings.upsert({
-            where: { userId },
-            update: { [type]: value },
-            create: {
+    editMailingSettings: async ({ userId, type, value, organizationUnitId }: EditUserMailingSettings) => {
+        const settings = await prisma.mailingSettings.findFirst({ where: { userId, organizationUnitId } });
+
+        if (settings) {
+            return prisma.mailingSettings.update({ where: { id: settings.id }, data: { [type]: value } });
+        }
+        return prisma.mailingSettings.create({
+            data: {
                 user: { connect: { id: userId } },
+                organizationUnit: { connect: { id: organizationUnitId } },
                 [type]: value,
             },
         });
@@ -462,12 +468,11 @@ export const userMethods = {
         });
     },
 
-    getMailingList: async (mailingType: MailingSettingType, user?: User) => {
+    getMailingList: async (mailingType: MailingSettingType, organizationUnitId: string, user?: User) => {
         const mailingList = await prisma.user.findMany({
-            where: { mailingSettings: { [mailingType]: true }, active: true },
+            where: { mailingSettings: { some: { [mailingType]: true, organizationUnitId } }, active: true },
             select: { email: true, name: true },
         });
-
         const users = mailingList.map(({ email, name }) => ({ email, name: name! }));
 
         if (user && !users.some(({ email }) => email === user.email)) {
