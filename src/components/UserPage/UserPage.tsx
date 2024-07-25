@@ -132,6 +132,11 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
 
     const locale = useLocale();
 
+    const deactivationTypeTr = useMemo<Record<ScheduleDeactivateType, string>>(
+        () => ({ retirement: tr('Retirement'), transfer: tr('Transfer') }),
+        [],
+    );
+
     return (
         <LayoutMain pageTitle={user.name}>
             <StyledHeader>
@@ -157,7 +162,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             user.scheduledDeactivations[0].deactivateDate > new Date(),
                         () => (
                             <Text size="s" color={gray8} weight="bold">
-                                {tr(user.scheduledDeactivations[0].type as ScheduleDeactivateType)}{' '}
+                                {deactivationTypeTr[user.scheduledDeactivations[0].type as ScheduleDeactivateType]}{' '}
                                 {tr('scheduled on {date}', {
                                     date: formatDate(user.scheduledDeactivations[0].deactivateDate, locale),
                                 })}

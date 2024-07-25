@@ -1,7 +1,10 @@
+import { TRPCError } from '@trpc/server';
+
 import { prisma } from '../utils/prisma';
 
 import { GetServiceList, CreateService, DeleteUserService } from './serviceSchemas';
 import { UserServiceInfo } from './serviceTypes';
+import { tr } from './modules.i18n';
 
 export const serviceMethods = {
     getList: (data: GetServiceList) => {
@@ -17,7 +20,19 @@ export const serviceMethods = {
         });
     },
 
-    addToUser: (data: CreateService) => {
+    addToUser: async (data: CreateService) => {
+        const userService = await prisma.userService.findUnique({
+            where: { serviceName_serviceId: { serviceName: data.serviceName, serviceId: data.serviceId } },
+            include: { user: true },
+        });
+        if (userService) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: tr('Service with this id already belongs to user {user}', {
+                    user: userService.user.name || userService.user.email,
+                }),
+            });
+        }
         return prisma.userService.create({ data });
     },
 

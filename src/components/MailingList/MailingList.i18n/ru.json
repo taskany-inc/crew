@@ -1,8 +1,8 @@
 {
     "Remove {userName} from": "Удалить {userName} из рассылки",
-    "createUserRequest": "Запрос на создание профиля",
-    "createScheduledUserRequest": "Запланированный выход сотрудника",
-    "scheduledDeactivation": "Запланированная деактивация",
+    "Create user request": "Запрос на создание профиля",
+    "Scheduled new user": "Запланированный выход сотрудника",
+    "Scheduled profile deactivation": "Запланированная деактивация",
     "Cancel": "Отмена",
     "Yes, remove": "Да, удалить"
 }

@@ -1,10 +1,27 @@
+import { TRPCError } from '@trpc/server';
+
 import { prisma } from '../utils/prisma';
 
 import { CreateDevice, DeleteUserDevice, GetDeviceList } from './deviceSchemas';
 import { UserDeviceInfo } from './deviceTypes';
+import { tr } from './modules.i18n';
 
 export const deviceMethods = {
-    addToUser: (data: CreateDevice) => {
+    addToUser: async (data: CreateDevice) => {
+        const userDevice = await prisma.userDevice.findUnique({
+            where: {
+                deviceName_deviceId: { deviceName: data.deviceName, deviceId: data.deviceId },
+            },
+            include: { user: true },
+        });
+        if (userDevice) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: tr('Device with this id already belongs to user {user}', {
+                    user: userDevice.user.name || userDevice.user.email,
+                }),
+            });
+        }
         return prisma.userDevice.create({ data });
     },
 
