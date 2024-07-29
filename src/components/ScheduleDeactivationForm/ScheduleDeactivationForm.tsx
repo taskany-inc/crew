@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { FormControl } from '@taskany/bricks/harmony';
 import { OrganizationUnit, ScheduledDeactivation } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -7,7 +8,6 @@ import {
     Form,
     FormAction,
     FormActions,
-    FormEditor,
     FormInput,
     FormRadio,
     FormRadioInput,
@@ -48,6 +48,7 @@ import { File } from '../../modules/attachTypes';
 import { AttachItem } from '../AttachItem/AttachItem';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { attachFormatter } from '../../utils/attachFormatter';
+import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 
 import { tr } from './ScheduleDeactivationForm.i18n';
 
@@ -414,11 +415,13 @@ export const ScheduleDeactivationForm = ({
                         label={tr('Devices')}
                         onDeviceAdd={(devices) => setValue('devices', devices)}
                     />
-                    <FormEditor
-                        uploadLink={pages.attaches}
-                        onChange={(e) => setValue('comments', e)}
-                        attachFormatter={formatter}
-                    />
+                    <FormControl>
+                        <FormControlEditor
+                            uploadLink={pages.attaches}
+                            onChange={(e) => setValue('comments', e)}
+                            attachFormatter={formatter}
+                        />
+                    </FormControl>
                     {files.map((file) => (
                         <AttachItem file={file} key={file.id} onRemove={() => onAttachRemove(file)} />
                     ))}

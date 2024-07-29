@@ -2,8 +2,8 @@ import { ChangeEvent, ComponentProps, useCallback, useEffect, useState } from 'r
 import cn from 'classnames';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, FormAction, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
-import { Checkbox, FormEditor } from '@taskany/bricks/harmony';
+import { Button, Form, FormAction, FormControl, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
+import { Checkbox } from '@taskany/bricks/harmony';
 import { danger0, gray8 } from '@taskany/colors';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
@@ -24,6 +24,7 @@ import { pages } from '../../hooks/useRouter';
 import { AttachItem } from '../AttachItem/AttachItem';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
+import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 
 import s from './CreateUserCreationRequestExternalEmployeeForm.module.css';
 import { tr } from './CreateUserCreationRequestExternalEmployeeForm.i18n';
@@ -326,12 +327,14 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     </Text>
                 </div>
                 <div className={s.InputContainer}>
-                    <FormEditor
-                        placeholder={tr("Don't forget to attach NDA for external employee")}
-                        uploadLink={pages.attaches}
-                        onChange={(e) => setValue('comment', e)}
-                        attachFormatter={formatter}
-                    />
+                    <FormControl>
+                        <FormControlEditor
+                            placeholder={tr("Don't forget to attach NDA for external employee")}
+                            uploadLink={pages.attaches}
+                            onChange={(e) => setValue('comment', e)}
+                            attachFormatter={formatter}
+                        />
+                    </FormControl>
                 </div>
 
                 {files.map((file) => (
