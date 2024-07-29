@@ -13,7 +13,7 @@ import {
     nullable,
 } from '@taskany/bricks';
 import { danger0, gray8 } from '@taskany/colors';
-import { Checkbox, FormEditor } from '@taskany/bricks/harmony';
+import { Checkbox, FormControl } from '@taskany/bricks/harmony';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
 
@@ -30,6 +30,7 @@ import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { useBoolean } from '../../hooks/useBoolean';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
+import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 
 import { tr } from './CreateUserCreationRequestInternalEmployeeForm.i18n';
 import s from './CreateUserCreationRequestInternalEmployeeForm.module.css';
@@ -379,11 +380,13 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     </Text>
                 </div>
                 <div className={s.InputContainer}>
-                    <FormEditor
-                        placeholder={tr('Enter your comment')}
-                        disableAttaches
-                        onChange={(e) => setValue('comment', e)}
-                    />
+                    <FormControl>
+                        <FormControlEditor
+                            placeholder={tr('Enter your comment')}
+                            disableAttaches
+                            onChange={(e) => setValue('comment', e)}
+                        />
+                    </FormControl>
                 </div>
             </div>
             <div className={s.FormActionWrap}>

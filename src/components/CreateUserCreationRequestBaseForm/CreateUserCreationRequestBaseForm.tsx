@@ -1,8 +1,8 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, FormAction, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
-import { Checkbox, FormEditor } from '@taskany/bricks/harmony';
+import { Button, Form, FormAction, FormControl, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
+import { Checkbox } from '@taskany/bricks/harmony';
 import { danger0, gray8 } from '@taskany/colors';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
@@ -23,6 +23,7 @@ import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { File } from '../../modules/attachTypes';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
+import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 
 import s from './CreateUserCreationRequestBaseForm.module.css';
 import { tr } from './CreateUserCreationRequestBaseForm.i18n';
@@ -279,12 +280,14 @@ export const CreateUserCreationRequestBaseForm = ({ onClose, onSubmit }: CreateU
                 </div>
 
                 <div className={s.InputContainer}>
-                    <FormEditor
-                        placeholder={tr('Enter your comment')}
-                        uploadLink={pages.attaches}
-                        onChange={(e) => setValue('comment', e)}
-                        attachFormatter={formatter}
-                    />
+                    <FormControl>
+                        <FormControlEditor
+                            placeholder={tr('Enter your comment')}
+                            uploadLink={pages.attaches}
+                            onChange={(e) => setValue('comment', e)}
+                            attachFormatter={formatter}
+                        />
+                    </FormControl>
                 </div>
 
                 {files.map((file) => (
