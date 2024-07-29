@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.73.0](https://github.com/taskany-inc/crew/compare/v0.72.0...v0.73.0) (2024-07-29)
+
+
+### Features
+
+* external flag to organizations ([5d6e577](https://github.com/taskany-inc/crew/commit/5d6e5777e92c18e0fe4e63f3e4a4bea1d84b4eff))
+* unique constraint errors for devices and services ([28fd91b](https://github.com/taskany-inc/crew/commit/28fd91b9172f29fdda0f675c11f011f906c44967))
+
 ## [0.72.0](https://github.com/taskany-inc/crew/compare/v0.71.0...v0.72.0) (2024-07-25)
 
 
