@@ -13,13 +13,14 @@ import { defaultLocale } from './getLang';
 import { formatDate } from './dateTime';
 import { tr } from './utils.i18n';
 
-export const userCreationMailText = (name: string) => `${tr('Hello colleagues!')}<br/>
-            ${tr('Plese look at profile creation request for {userName}', { userName: name })}
+export const userCreationMailText = (name: string) => `${tr('Hello colleagues!')}
+
+${tr('Plese look at profile creation request for {userName}', { userName: name })}
             
-            ${process.env.NEXTAUTH_URL}${pages.userRequests}
+${process.env.NEXTAUTH_URL}${pages.userRequests}
             
-            ${tr('Sincerely,<br/>HR-team!')}
-                    `;
+${tr('Sincerely,')}
+HR-team!`;
 
 export const scheduledDeactivationEmailHtml = (
     data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit,
@@ -146,7 +147,7 @@ export const scheduledDeactivationEmailHtml = (
             <td>${data.comments}</td>
         </tr>
     </table>
-${tr('Sincerely,<br/>HR-team!')}
+${tr('Sincerely,')}<br/>HR-team!
 </body>
 `;
 
@@ -288,7 +289,7 @@ export const htmlUserCreationRequestWithDate = (data: {
                         <td>${userCreationRequest.comment || ''}</td>
                     </tr>
                 </table>
-            ${tr('Sincerely,<br/>HR-team!')}
+            ${tr('Sincerely,')}<br/>HR-team!
             </body>
             `;
 };

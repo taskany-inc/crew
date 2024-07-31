@@ -14,7 +14,7 @@
     "Email": "Почта",
     "Teamlead": "Тимлид",
     "Devices": "Техника",
-    "Sincerely,<br/>HR-team!": "С уважением,<br/>HR-team!",
+    "Sincerely,": "С уважением,",
     "Planning retirement of worker.": "Планируем увольнение сотрудника.",
     "Planning transfer of worker to {newOrganization} {unitId}": "",
     "Working hours,<br/>workplace (if any)": "Режим работы,<br/>рабочее место (если есть)",
