@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.73.1](https://github.com/taskany-inc/crew/compare/v0.73.0...v0.73.1) (2024-08-01)
+
+
+### Bug Fixes
+
+* **FormEditor:** add monaco files in repo and end ([1e27c95](https://github.com/taskany-inc/crew/commit/1e27c950347a284f560d2546ed7a05a9a9006b67))
+* remove br tags from email template ([669179a](https://github.com/taskany-inc/crew/commit/669179a0e1e025c9425a8d72e0d59fc061a7f7e4))
+
 ## [0.73.0](https://github.com/taskany-inc/crew/compare/v0.72.0...v0.73.0) (2024-07-29)
 
 
