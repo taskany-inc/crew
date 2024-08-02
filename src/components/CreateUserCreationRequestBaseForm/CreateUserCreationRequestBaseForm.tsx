@@ -1,8 +1,8 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, FormAction, FormControl, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
-import { Checkbox } from '@taskany/bricks/harmony';
+import { Button, Form, FormAction, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
+import { Checkbox, FormControl } from '@taskany/bricks/harmony';
 import { danger0, gray8 } from '@taskany/colors';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
@@ -279,16 +279,14 @@ export const CreateUserCreationRequestBaseForm = ({ onClose, onSubmit }: CreateU
                     </Text>
                 </div>
 
-                <div className={s.InputContainer}>
-                    <FormControl>
-                        <FormControlEditor
-                            placeholder={tr('Enter your comment')}
-                            uploadLink={pages.attaches}
-                            onChange={(e) => setValue('comment', e)}
-                            attachFormatter={formatter}
-                        />
-                    </FormControl>
-                </div>
+                <FormControl className={s.InputContainer}>
+                    <FormControlEditor
+                        placeholder={tr('Enter your comment')}
+                        uploadLink={pages.attaches}
+                        onChange={(e) => setValue('comment', e)}
+                        attachFormatter={formatter}
+                    />
+                </FormControl>
 
                 {files.map((file) => (
                     <AttachItem

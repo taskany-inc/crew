@@ -379,15 +379,14 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                         {tr('Comment:')}
                     </Text>
                 </div>
-                <div className={s.InputContainer}>
-                    <FormControl>
-                        <FormControlEditor
-                            placeholder={tr('Enter your comment')}
-                            disableAttaches
-                            onChange={(e) => setValue('comment', e)}
-                        />
-                    </FormControl>
-                </div>
+
+                <FormControl className={s.InputContainer}>
+                    <FormControlEditor
+                        placeholder={tr('Enter your comment')}
+                        disableAttaches
+                        onChange={(e) => setValue('comment', e)}
+                    />
+                </FormControl>
             </div>
             <div className={s.FormActionWrap}>
                 <FormActions>
