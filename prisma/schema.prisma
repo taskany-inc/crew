@@ -3,6 +3,12 @@ generator client {
   previewFeatures = ["fullTextSearch"]
 }
 
+generator kysely {
+  provider = "prisma-kysely"
+  output   = "../src/generated"
+  fileName = "kyselyTypes.ts"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -651,7 +657,7 @@ model MailingSettings {
 }
 
 model Job {
-  id       String    @id @default(cuid())
+  id       String    @id @default(dbgenerated("gen_random_uuid()"))
   state    String
   priority Int       @default(0)
   kind     String

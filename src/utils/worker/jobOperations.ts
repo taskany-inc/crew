@@ -1,10 +1,11 @@
-import { PrismaClient, Prisma, Job as PrismaJob } from '@prisma/client';
+import { sql } from 'kysely';
+
+import { db } from '../db';
 
 import { jobState } from './create';
-import { Job } from './worker';
+import { Job, UpdateJobData } from './worker';
 
-const prisma = new PrismaClient();
-export const removeNullsFromJob = (jobWithNulls: PrismaJob): Job => {
+export const removeNullsFromJob = (jobWithNulls: Job): Job => {
     return {
         ...jobWithNulls,
         cron: jobWithNulls.cron === null ? undefined : jobWithNulls.cron,
@@ -19,37 +20,38 @@ export const getNextJob = async (state: jobState, exclude: string[]): Promise<Jo
     // update Status to pending
     // lock before updating
 
-    const [job] = (await prisma.$queryRaw(Prisma.sql`
-        WITH cte AS (
-            SELECT *
-            FROM "Job"
-            WHERE "state" = ${state} ${
-        exclude.length ? Prisma.sql`AND "id" NOT IN (${Prisma.join(exclude)})` : Prisma.empty
-    }
-            ORDER BY "priority" DESC
-            LIMIT 1
-            FOR UPDATE
-            SKIP LOCKED
+    const [job] = await db
+        .with('cte', (qc) =>
+            qc
+                .selectFrom('Job')
+                .where('state', '=', state)
+                .$if(exclude.length > 0, (qb) => qb.where(({ eb }) => eb('id', 'not in', exclude)))
+                .orderBy('priority desc')
+                .limit(1)
+                .forUpdate()
+                .skipLocked(),
         )
-        UPDATE "Job" job
-        SET "state" = ${jobState.pending}
-        FROM cte
-        WHERE job.id = cte.id
-        RETURNING *
-    `)) as PrismaJob[];
+        .updateTable('Job')
+        .set('state', jobState.pending)
+        .from('cte')
+        .where('Job.id', '=', 'cte.id')
+        .returningAll()
+        .execute();
 
     if (!job) return;
 
     return removeNullsFromJob(job);
 };
 
-export const jobUpdate = async (id: string, data: Prisma.JobUpdateInput): Promise<void> => {
-    await prisma.job.update({
-        where: { id },
-        data,
-    });
+export const jobUpdate = async (id: string, data: UpdateJobData): Promise<void> => {
+    const { runs, ...restData } = data;
+    await db
+        .updateTable('Job')
+        .set({ ...restData, runs: runs?.increment ? sql`runs + 1` : undefined })
+        .where('id', '=', id)
+        .execute();
 };
 
 export const jobDelete = async (id: string): Promise<void> => {
-    await prisma.job.delete({ where: { id } });
+    await db.deleteFrom('Job').where('id', '=', id).execute();
 };
