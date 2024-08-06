@@ -17,14 +17,14 @@ export interface Job {
     state: string;
     priority: number;
     kind: string;
-    data: JsonValue;
-    delay?: number;
-    retry?: number;
+    data: JsonValue | unknown;
+    delay?: number | null;
+    retry?: number | null;
     runs: number;
     force: boolean;
-    cron?: string;
-    error?: string;
-    date?: Date;
+    cron?: string | null;
+    error?: string | null;
+    date?: Date | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -32,7 +32,7 @@ export interface Job {
 export interface UpdateJobData {
     state?: string;
     force?: boolean;
-    runs?: number | { increment: number };
+    runs?: { increment: true };
     error?: string;
     retry?: number;
     delay?: number;
@@ -45,6 +45,7 @@ const iterateJobQueue = async (
 ): Promise<number> => {
     const watchedIds: string[] = [];
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         // eslint-disable-next-line no-await-in-loop
         const job = await getNextJob(state, watchedIds);
@@ -128,7 +129,7 @@ export const worker = async (
                         logger(`resolve job ${job.kind} ${job.id}`);
 
                         await resolve[job.kind](job.data as any);
-                        await jobUpdate(job.id, { state: jobState.completed, runs: { increment: 1 }, force: false });
+                        await jobUpdate(job.id, { state: jobState.completed, runs: { increment: true }, force: false });
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     } catch (error: any) {
                         if (job.retry !== retryLimit) {

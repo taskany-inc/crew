@@ -1,6 +1,4 @@
-import { Prisma } from '@prisma/client';
-
-import { prisma } from '../prisma';
+import { db } from '../db';
 import { config } from '../../config';
 
 export enum jobState {
@@ -28,26 +26,32 @@ interface CreateJobProps<K extends keyof JobDataMap> {
     date?: Date;
 }
 
-export function createJob<K extends keyof JobDataMap>(
+export async function createJob<K extends keyof JobDataMap>(
     kind: K,
     { data, priority, delay = config.worker.defaultJobDelay, cron, date }: CreateJobProps<K>,
 ) {
-    const createJobData: Prisma.JobCreateInput = {
-        state: jobState.scheduled,
-        data,
-        kind,
-        priority,
-        delay,
-        cron,
-        date,
-    };
+    const job = await db
+        .insertInto('Job')
+        .values({
+            state: jobState.scheduled,
+            data,
+            kind,
+            priority,
+            delay,
+            cron,
+            date,
+        })
+        .returningAll()
+        .executeTakeFirstOrThrow();
 
     if (kind === 'createProfile') {
         const { userCreationRequestId } = data as JobDataMap['createProfile'];
-        createJobData.userCreationRequest = { connect: { id: userCreationRequestId } };
+        await db
+            .updateTable('UserCreationRequest')
+            .set({ jobId: job.id })
+            .where('id', '=', userCreationRequestId)
+            .execute();
     }
 
-    return prisma.job.create({
-        data: createJobData,
-    });
+    return job;
 }
