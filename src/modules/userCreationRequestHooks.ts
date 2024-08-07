@@ -34,6 +34,12 @@ export const useUserCreationRequestMutations = () => {
         },
     });
 
+    const cancelUserRequest = trpc.userCreationRequest.cancel.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
     return {
         createUserCreationRequest: (data: CreateUserCreationRequest) =>
             notifyPromise(createUserCreationRequest.mutateAsync(data), 'userCreationRequestCreate'),
@@ -46,5 +52,8 @@ export const useUserCreationRequestMutations = () => {
 
         editUserCreationRequest: (data: EditUserCreationRequest) =>
             notifyPromise(editUserCreationRequest.mutateAsync(data), 'userCreationRequestEdit'),
+
+        cancelUserRequest: (data: { id: string; comment?: string }) =>
+            notifyPromise(cancelUserRequest.mutateAsync(data), 'userCreationRequestCancel'),
     };
 };

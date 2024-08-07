@@ -14,7 +14,7 @@
     "Teamlead": "",
     "Devices": "",
     "Sincerely,": "",
-    "Plese look at profile creation request for {userName}": "",
+    "Please look at profile creation request for {userName}": "",
     "Planning retirement of worker.": "",
     "Planning transfer of worker to {newOrganization} {unitId}": "",
     "Working hours,<br/>workplace (if any)": "",
@@ -44,5 +44,7 @@
     "No": "",
     "Planning new worker in": "",
     "Team": "",
-    "Coordinator": ""
+    "Coordinator": "",
+    "Cancelling planned newcomer {userName} to {organization}": "",
+    "Comment": ""
 }

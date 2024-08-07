@@ -183,6 +183,32 @@ const componentMap: {
         );
     },
 
+    CancelUserCreationRequest: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('canceled request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
+                    <BoldText>
+                        {event.after.name} ({event.after.email})
+                    </BoldText>
+                    {nullable(event.after.comment, () => (
+                        <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                    ))}
+                </div>
+                {nullable(visible.value, () => (
+                    <ChangeListItem title={tr('Comment')} after={event.after.comment} />
+                ))}
+            </>
+        );
+    },
+
     AcceptUserCreationRequest: ({ event }) => {
         const visible = useBoolean(false);
         const [, copy] = useCopyToClipboard();

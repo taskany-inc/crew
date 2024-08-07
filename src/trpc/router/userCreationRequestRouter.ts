@@ -137,4 +137,24 @@ export const userCreationRequestRouter = router({
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
         return userCreationRequestsMethods.getList(input);
     }),
+
+    cancel: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+
+        const cancelledUserRequest = await userCreationRequestsMethods.cancel(input);
+
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'cancelUserCreationRequest', {
+            groupId: undefined,
+            userId: undefined,
+            before: undefined,
+            after: {
+                id: cancelledUserRequest.id,
+                name: cancelledUserRequest.name,
+                email: cancelledUserRequest.email,
+                comment: input.comment,
+            },
+        });
+
+        return cancelledUserRequest;
+    }),
 });

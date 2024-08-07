@@ -63,6 +63,17 @@ interface HistoryEventsData {
             supplementalPositions?: { organizationUnitId: string; percentage: number }[];
         };
     };
+    cancelUserCreationRequest: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: false;
+        data: {
+            id: string;
+            name: string;
+            email: string;
+            comment?: string;
+        };
+    };
     acceptUserCreationRequest: {
         requireGroupId: false;
         requireUserId: false;

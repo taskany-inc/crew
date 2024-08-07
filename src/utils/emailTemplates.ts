@@ -15,13 +15,30 @@ import { tr } from './utils.i18n';
 
 export const userCreationMailText = (name: string) => `${tr('Hello colleagues!')}
 
-${tr('Plese look at profile creation request for {userName}', { userName: name })}
+${tr('Please look at profile creation request for {userName}', { userName: name })}
             
 ${process.env.NEXTAUTH_URL}${pages.userRequests}
             
 ${tr('Sincerely,')}
 HR-team!`;
 
+export const cancelUserCreationMailText = (data: { name: string; organization: string; comment?: string }) => {
+    const { name, organization, comment } = data;
+
+    return `${tr('Hello colleagues!')}
+
+${tr('Cancelling planned newcomer {userName} to {organization}', { userName: name, organization })}
+
+${
+    comment
+        ? `${tr('Comment')}:
+${comment}`
+        : ''
+}
+            
+${tr('Sincerely,')}
+HR-team!`;
+};
 export const scheduledDeactivationEmailHtml = (
     data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit,
 ) => `
