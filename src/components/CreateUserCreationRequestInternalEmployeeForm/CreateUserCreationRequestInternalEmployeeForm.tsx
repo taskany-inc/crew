@@ -31,6 +31,9 @@ import { useBoolean } from '../../hooks/useBoolean';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
+import { AddSupplementalPositionType } from '../../modules/organizationUnitSchemas';
+import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';
+import { SupplementalPositionItem } from '../SupplementalPositionItem/SupplementalPositionItem';
 
 import { tr } from './CreateUserCreationRequestInternalEmployeeForm.i18n';
 import s from './CreateUserCreationRequestInternalEmployeeForm.module.css';
@@ -52,6 +55,8 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
 }: CreateUserCreationRequestInternalEmployeeFormProps) => {
     const { createUserCreationRequest } = useUserCreationRequestMutations();
 
+    const [supplementalPositions, setSupplementalPositions] = useState<AddSupplementalPositionType[]>([]);
+
     const {
         register,
         handleSubmit,
@@ -69,7 +74,13 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
     });
 
     const onFormSubmit = handleSubmit(async (data) => {
-        await createUserCreationRequest(data);
+        await createUserCreationRequest({
+            ...data,
+            supplementalPositions: supplementalPositions.map(({ percentage, organizationUnit }) => ({
+                percentage,
+                organizationUnitId: organizationUnit.id,
+            })),
+        });
         reset(defaultValues);
         onSubmit();
     });
@@ -78,6 +89,12 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
         reset(defaultValues);
         onClose();
     };
+
+    const addSupplementalPosition = (data: AddSupplementalPositionType) =>
+        setSupplementalPositions((prev) => [...prev, data]);
+
+    const removeSupplementalPosition = (id: string) =>
+        setSupplementalPositions(supplementalPositions.filter((sp) => sp.organizationUnit.id !== id));
 
     const createExternalAccount = watch('createExternalAccount');
 
@@ -156,6 +173,25 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                         </Text>
                     ))}
                 </div>
+                {nullable(!!supplementalPositions.length, () => (
+                    <div className={s.BadgeWrapper}>
+                        <div className={s.InputContainer}>
+                            <Text weight="bold" color={gray8}>
+                                {tr('Supplemental positions:')}
+                            </Text>
+                        </div>
+                        <div className={s.BadgeWrapperList}>
+                            {supplementalPositions.map((position) => (
+                                <SupplementalPositionItem
+                                    key={position.organizationUnit.id}
+                                    supplementalPosition={position}
+                                    removeSupplementalPosition={removeSupplementalPosition}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                ))}
+                <AddSupplementalPosition onSubmit={addSupplementalPosition} />
                 <FormInput
                     label={tr('Surname')}
                     brick="right"

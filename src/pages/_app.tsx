@@ -11,6 +11,8 @@ import { trpc } from '../trpc/trpcClient';
 import { PreviewContextProvider } from '../contexts/previewContext';
 import { Previews } from '../components/Previews';
 
+import '@taskany/icons/style.css';
+
 const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
     setSSRLocale(router.locale as TLocale);
 

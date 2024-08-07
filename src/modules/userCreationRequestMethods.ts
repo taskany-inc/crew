@@ -17,10 +17,13 @@ import {
     GetUserCreationRequestList,
     HandleUserCreationRequest,
 } from './userCreationRequestSchemas';
-import { CompleteUserCreationRequest } from './userCreationRequestTypes';
+import { CompleteUserCreationRequest, UserCreationRequestSupplementPosition } from './userCreationRequestTypes';
 
 export const userCreationRequestsMethods = {
-    create: async (data: CreateUserCreationRequest, sessionUserId: string): Promise<UserCreationRequest> => {
+    create: async (
+        data: CreateUserCreationRequest,
+        sessionUserId: string,
+    ): Promise<UserCreationRequest & UserCreationRequestSupplementPosition> => {
         const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
 
         const isLoginUnique = await userMethods.isLoginUnique(data.login);
@@ -125,6 +128,16 @@ export const userCreationRequestsMethods = {
             if (recruiter && !recruiter.login) {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: 'Recruiter has no login' });
             }
+
+            if (data.supplementalPositions?.length) {
+                createData.supplementalPositions = {
+                    create: data.supplementalPositions.map(({ organizationUnitId, percentage }) => ({
+                        organizationUnit: { connect: { id: organizationUnitId } },
+                        percentage,
+                    })),
+                };
+            }
+
             createData.workMode = data.workMode || undefined;
             createData.workModeComment = data.workModeComment || undefined;
             createData.equipment = data.equipment || undefined;
@@ -148,6 +161,7 @@ export const userCreationRequestsMethods = {
                 coordinator: true,
                 recruiter: true,
                 creator: true,
+                supplementalPositions: { include: { organizationUnit: true } },
             },
         });
 

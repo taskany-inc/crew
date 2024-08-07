@@ -1,0 +1,7 @@
+.Badge {
+    padding-left: var(--gap-s);
+}
+
+.Icon {
+    cursor: pointer;
+}

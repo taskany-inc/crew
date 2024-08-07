@@ -21,6 +21,7 @@ import {
     UserRoleData,
     MailingSettingType,
     UserScheduledDeactivations,
+    UserSupplementalPosition,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -210,7 +211,8 @@ export const userMethods = {
             UserSupervisorIn &
             UserOrganizationUnit &
             UserRoleData &
-            UserScheduledDeactivations
+            UserScheduledDeactivations &
+            UserSupplementalPosition
     > => {
         const user = await prisma.user.findUnique({
             where: { id },
@@ -240,6 +242,7 @@ export const userMethods = {
                     orderBy: { createdAt: 'desc' },
                     include: { organizationUnit: true, newOrganizationUnit: true, attaches: true },
                 },
+                supplementalPositions: { include: { organizationUnit: true } },
             },
         });
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });
@@ -473,10 +476,10 @@ export const userMethods = {
             where: { mailingSettings: { some: { [mailingType]: true, organizationUnitId } }, active: true },
             select: { email: true, name: true },
         });
-        const users = mailingList.map(({ email, name }) => ({ email, name: name! }));
+        const users = mailingList.map(({ email, name }) => ({ email, name: name || undefined }));
 
         if (user && !users.some(({ email }) => email === user.email)) {
-            users.push({ email: user.email, name: user.name! });
+            users.push({ email: user.email, name: user.name || undefined });
         }
 
         const to = users.map(({ email }) => email);
@@ -509,7 +512,10 @@ export const userMethods = {
     },
 
     createUserFromRequest: async (userCreationRequestId: string) => {
-        const request = await prisma.userCreationRequest.findUnique({ where: { id: userCreationRequestId } });
+        const request = await prisma.userCreationRequest.findUnique({
+            where: { id: userCreationRequestId },
+            include: { supplementalPositions: true },
+        });
 
         if (!request) {
             throw new TRPCError({
@@ -562,6 +568,11 @@ export const userMethods = {
                 organizationUnit: { connect: { id: request.organizationUnitId } },
                 services: { createMany: { data: services } },
                 workStartDate: request.date,
+                supplementalPositions: {
+                    connect: request.supplementalPositions.map(({ id }) => ({
+                        id,
+                    })),
+                },
             },
             include: { services: true },
         });

@@ -8,6 +8,7 @@ import {
     OrganizationUnit,
     UserRole,
     ScheduledDeactivation,
+    SupplementalPosition,
 } from '@prisma/client';
 
 import { Nullish } from '../utils/types';
@@ -85,3 +86,7 @@ export interface UserRoleData {
 export const mailingSettingType = ['createUserRequest', 'createScheduledUserRequest', 'scheduledDeactivation'] as const;
 
 export type MailingSettingType = (typeof mailingSettingType)[number];
+
+export interface UserSupplementalPosition {
+    supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
+}

@@ -39,10 +39,12 @@ import {
     UserSupervisor,
     UserSupervisorIn,
     UserSupervisorOf,
+    UserSupplementalPosition,
 } from '../../modules/userTypes';
 import { ScheduleDeactivateType } from '../../modules/scheduledDeactivationTypes';
 import { useLocale } from '../../hooks/useLocale';
 import { formatDate } from '../../utils/dateTime';
+import { supplementPositionListToString } from '../../utils/suplementPosition';
 
 import { tr } from './UserPage.i18n';
 
@@ -100,7 +102,8 @@ interface UserPageInnerProps {
         UserAchievements &
         UserSupervisorOf &
         UserSupervisorIn &
-        UserScheduledDeactivations;
+        UserScheduledDeactivations &
+        UserSupplementalPosition;
 }
 
 export const UserPageInner = ({ user }: UserPageInnerProps) => {
@@ -146,6 +149,14 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                         <Text size="s" color={gray8} weight="bold">
                             {s}
                         </Text>
+                    ))}
+                    {nullable(!!user.supplementalPositions.length, () => (
+                        <div>
+                            <Text size="s" color={gray8}>
+                                {tr('Supplemental: ')}
+                                {supplementPositionListToString(user.supplementalPositions)}.
+                            </Text>
+                        </div>
                     ))}
 
                     {nullable(orgMembership, (m) => (

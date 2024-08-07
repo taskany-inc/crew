@@ -143,6 +143,12 @@ const componentMap: {
                         <ChangeListItem title={tr('Login')} after={event.after.login} />
                         <ChangeListItem title={tr('Team')} after={event.after.groupId} />
                         <ChangeListItem title={tr('Organization id')} after={event.after.organizationUnitId} />
+                        <ChangeListItem
+                            title={tr('Supplemental positions')}
+                            after={event.after.supplementalPositions
+                                ?.map(({ organizationUnitId, percentage }) => `${organizationUnitId}: ${percentage}%`)
+                                .join(', ')}
+                        />
                         <ChangeListItem title={tr('Supervisor login')} after={event.after.supervisorLogin} />
                         <ChangeListItem title={tr('Title')} after={event.after.title} />
                         <ChangeListItem title={tr('OS preference')} after={event.after.osPreference} />
@@ -575,7 +581,9 @@ const componentMap: {
                     <BoldText>
                         {event.after.type === 'retirement'
                             ? tr('retirement of')
-                            : tr('transfer to {newOrganization} of', { newOrganization: event.after.newOrganization! })}
+                            : tr('transfer to {newOrganization} of', {
+                                  newOrganization: String(event.after.newOrganization),
+                              })}
                     </BoldText>
                     <UserListItem user={event.user} />
                     <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
@@ -621,7 +629,7 @@ const componentMap: {
                         {event.before.type === 'retirement'
                             ? tr('retirement of')
                             : tr('transfer to {newOrganization} of', {
-                                  newOrganization: event.before.newOrganization!,
+                                  newOrganization: String(event.before.newOrganization),
                               })}
                     </BoldText>
                     <UserListItem user={event.user} />

@@ -1,0 +1,12 @@
+.Input {
+    width: 160px;
+}
+
+.Base {
+    background-color: var(--gray3);
+    padding-left: var(--gap-m);
+}
+
+.InputWrapper {
+    display: flex;
+}

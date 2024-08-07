@@ -60,6 +60,7 @@ interface HistoryEventsData {
             buddyLogin?: string;
             coordinatorLogin?: string;
             recruiterLogin?: string;
+            supplementalPositions?: { organizationUnitId: string; percentage: number }[];
         };
     };
     acceptUserCreationRequest: {
