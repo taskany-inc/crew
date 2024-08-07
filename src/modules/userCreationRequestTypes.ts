@@ -1,4 +1,8 @@
-import { Group, OrganizationUnit, User, UserCreationRequest } from 'prisma/prisma-client';
+import { Group, OrganizationUnit, SupplementalPosition, User, UserCreationRequest } from 'prisma/prisma-client';
+
+export interface UserCreationRequestSupplementPosition {
+    supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
+}
 
 export interface CompleteUserCreationRequest extends UserCreationRequest {
     supervisor: User;
@@ -8,4 +12,5 @@ export interface CompleteUserCreationRequest extends UserCreationRequest {
     buddy: User | null;
     coordinator: User | null;
     recruiter: User | null;
+    supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
 }

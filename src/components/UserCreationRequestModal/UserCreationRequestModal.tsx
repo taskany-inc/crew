@@ -7,6 +7,7 @@ import { UserRequest } from '../../trpc/inferredTypes';
 import { UserListItem } from '../UserListItem/UserListItem';
 import { useLocale } from '../../hooks/useLocale';
 import { formatDate } from '../../utils/dateTime';
+import { supplementPositionListToString } from '../../utils/suplementPosition';
 
 import s from './UserCreationRequestModal.module.css';
 import { tr } from './UserCreationRequestModal.i18n';
@@ -78,6 +79,12 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     ))}
                     <InfoRow label={tr('Group')} text={request.group.name} />
                     <InfoRow label={tr('Organization')} text={request.organization.name} />
+                    {nullable(!!request.supplementalPositions.length, () => (
+                        <InfoRow
+                            label={tr('Supplement')}
+                            text={supplementPositionListToString(request.supplementalPositions)}
+                        />
+                    ))}
                     <InfoRow label={tr('Supervisor')}>
                         <UserListItem user={request.supervisor} />
                     </InfoRow>

@@ -39,6 +39,7 @@ export const createUserCreationRequestInternalEmployeeSchema = createUserCreatio
     creationCause: z.string(),
     unitId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
     date: z.date(),
+    supplementalPositions: z.array(z.object({ organizationUnitId: z.string(), percentage: z.number() })).optional(),
 });
 export type CreateUserCreationRequestInternalEmployee = z.infer<typeof createUserCreationRequestInternalEmployeeSchema>;
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { OrganizationUnit } from '@prisma/client';
 
 import { tr } from './modules.i18n';
 
@@ -15,3 +16,8 @@ export const getOrganizationUnitListSchema = z.object({
     skip: z.number().optional(),
 });
 export type GetOrganizationUnitList = z.infer<typeof getOrganizationUnitListSchema>;
+
+export interface AddSupplementalPositionType {
+    percentage: number;
+    organizationUnit: OrganizationUnit;
+}

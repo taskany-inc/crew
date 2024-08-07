@@ -41,6 +41,12 @@ export const userCreationRequestRouter = router({
                 buddyLogin: creationRequest.buddyLogin || undefined,
                 recruiterLogin: creationRequest.recruiterLogin || undefined,
                 coordinatorLogin: creationRequest.coordinatorLogin || undefined,
+                supplementalPositions: creationRequest.supplementalPositions.length
+                    ? creationRequest.supplementalPositions.map(({ organizationUnitId, percentage }) => ({
+                          organizationUnitId,
+                          percentage,
+                      }))
+                    : undefined,
             },
         });
 
