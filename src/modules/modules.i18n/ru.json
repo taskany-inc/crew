@@ -72,5 +72,9 @@
     "Employment": "Выход",
     "User with login {login} already exist": "Уже есть пользователь с логином {login}",
     "Device with this id already belongs to user {user}": "Устройство с этим id уже добавлено пользователю {user}",
-    "Service with this id already belongs to user {user}": "Сервис с таким id уже добавлен пользователю {user}"
+    "Service with this id already belongs to user {user}": "Сервис с таким id уже добавлен пользователю {user}",
+    "Cancel user request {userName}": "Отмена запроса для {userName}",
+    "Cancellation of": "Отмена",
+    "transfer": "перевод",
+    "employment": "выход"
 }

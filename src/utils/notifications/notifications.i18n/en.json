@@ -74,5 +74,7 @@
     "Adding user to mailing list...": "",
     "Validation error": "",
     "Voila! User creation request is edited 🎉": "",
-    "Editing a user creation request...": ""
+    "Editing a user creation request...": "",
+    "User creation request was cancelled": "",
+    "Cancelling a user creation request...": ""
 }

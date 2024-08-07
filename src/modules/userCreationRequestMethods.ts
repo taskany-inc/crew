@@ -5,10 +5,14 @@ import { ICalCalendarMethod } from 'ical-generator';
 import { prisma } from '../utils/prisma';
 import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
-import { htmlUserCreationRequestWithDate, userCreationMailText } from '../utils/emailTemplates';
+import {
+    cancelUserCreationMailText,
+    htmlUserCreationRequestWithDate,
+    userCreationMailText,
+} from '../utils/emailTemplates';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../utils/worker/create';
-import { jobUpdate } from '../utils/worker/jobOperations';
+import { jobUpdate, jobDelete } from '../utils/worker/jobOperations';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
@@ -367,5 +371,56 @@ export const userCreationRequestsMethods = {
         });
 
         return requests as CompleteUserCreationRequest[];
+    },
+
+    cancel: async ({ id, comment }: HandleUserCreationRequest) => {
+        const canceledRequest = await prisma.userCreationRequest.update({
+            where: { id },
+            data: { status: 'Denied', comment },
+            include: { organization: true, creator: true },
+        });
+        if (canceledRequest.jobId) await jobDelete(canceledRequest.jobId);
+
+        if (canceledRequest.date) {
+            const { users, to } = await userMethods.getMailingList(
+                'createScheduledUserRequest',
+                canceledRequest.organizationUnitId,
+                canceledRequest.creator ? canceledRequest.creator : undefined,
+            );
+
+            const text = cancelUserCreationMailText({
+                name: canceledRequest.name,
+                organization: getOrgUnitTitle(canceledRequest.organization),
+                comment,
+            });
+
+            const subject = tr('Cancel user request {userName}', { userName: canceledRequest.name });
+
+            const icalSublect = `
+                ${tr('Cancellation of')} ${
+                canceledRequest.creationCause === 'transfer' ? tr('transfer') : tr('employment')
+            } ${canceledRequest.name} ${getOrgUnitTitle(canceledRequest.organization)}`;
+
+            const icalEvent = createIcalEventData({
+                id: canceledRequest.id + config.nodemailer.authUser,
+                start: canceledRequest.date,
+                duration: 30,
+                users,
+                summary: icalSublect,
+                description: icalSublect,
+            });
+
+            sendMail({
+                to,
+                subject,
+                text,
+                icalEvent: calendarEvents({
+                    method: ICalCalendarMethod.CANCEL,
+                    events: [icalEvent],
+                }),
+            });
+        }
+
+        return canceledRequest;
     },
 };

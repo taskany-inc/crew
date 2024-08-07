@@ -5,7 +5,7 @@
     "Operation": "Операция",
     "is forbidden": "недоступна",
     "Some operations are forbidden:": "Некоторые операции запрещены",
-    "Plese look at profile creation request for {userName}": "Пожалуйста посмотрите запрос на создание профиля для {userName}",
+    "Please look at profile creation request for {userName}": "Пожалуйста посмотрите запрос на создание профиля для {userName}",
     "Hello colleagues!": "Коллеги, добрый день!",
     "Details below.": "Подробности ниже",
     "The meeting is for informational purposes only.": "Встреча носит информационный характер.",
@@ -44,5 +44,7 @@
     "No": "Нет",
     "Planning new worker in": "Планируем выход нового сотрудника в",
     "Team": "Команда",
-    "Coordinator": "Координатор"
+    "Coordinator": "Координатор",
+    "Cancelling planned newcomer {userName} to {organization}": "Отмена выхода нового сотрудника {userName} в {organization}",
+    "Comment": "Комментарий"
 }

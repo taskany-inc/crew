@@ -72,5 +72,9 @@
     "Employment": "",
     "User with login {login} already exist": "",
     "Device with this id already belongs to user {user}": "",
-    "Service with this id already belongs to user {user}": ""
+    "Service with this id already belongs to user {user}": "",
+    "Cancel user request {userName}": "",
+    "Cancellation of": "",
+    "transfer": "",
+    "employment": ""
 }
