@@ -38,7 +38,7 @@ export const scheduledDeactivationEmailHtml = (
             ? tr('Planning retirement of worker.')
             : tr('Planning transfer of worker to {newOrganization} {unitId}', {
                   newOrganization: data?.newOrganizationUnit ? getOrgUnitTitle(data?.newOrganizationUnit) : '',
-                  unitId: data.unitId!,
+                  unitId: data.unitId || '',
               })
     }<br/>
     ${tr('Details below.')}<br/>
@@ -162,11 +162,9 @@ export const htmlUserCreationRequestWithDate = (data: {
         organization: OrganizationUnit;
     };
     date: Date;
-    firstName: string;
-    surname: string;
-    middleName?: string;
 }) => {
-    const { userCreationRequest, date, firstName, surname, middleName } = data;
+    const { userCreationRequest, date } = data;
+    const fullNameArray = userCreationRequest.name.split(' ');
     return `
             <head>
               <style>
@@ -183,17 +181,17 @@ export const htmlUserCreationRequestWithDate = (data: {
                 <table border='1' cellpadding='8'>
                     <tr>
                         <th>${tr('First name')}</th>
-                        <td>${firstName}</td>
+                        <td>${fullNameArray[1]}</td>
                     </tr>
                     <tr>
                         <th>${tr('Surname')}</th>
-                        <td>${surname}</td>
+                        <td>${fullNameArray[0]}</td>
                     </tr>
                     <tr>
                     ${
-                        middleName
+                        fullNameArray[2]
                             ? `<th>${tr('Middle name')}</th>
-                        <td>${middleName}</td>
+                        <td>${fullNameArray[2]}</td>
                     </tr>`
                             : ''
                     }

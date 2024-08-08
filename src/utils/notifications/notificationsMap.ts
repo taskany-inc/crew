@@ -18,7 +18,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'service', 'AddToUser' | 'Delete'>
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'achievement', 'Give'>
-    | NamespacedAction<'userCreationRequest', 'Create' | 'Decline' | 'Accept'>
+    | NamespacedAction<'userCreationRequest', 'Create' | 'Decline' | 'Accept' | 'Edit'>
     | NamespacedAction<'scheduledDeactivation', 'Create' | 'Edit' | 'Cancel'>
     | NamespacedAction<'bonusPoints', 'Change'>
     | NamespacedAction<'userRole', 'ChangeScope'>
@@ -140,6 +140,10 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         userCreationRequestAccept: {
             success: tr('Voila! User is here 🎉'),
             loading: tr('Creating the user...'),
+        },
+        userCreationRequestEdit: {
+            success: tr('Voila! User creation request is edited 🎉'),
+            loading: tr('Editing a user creation request...'),
         },
         scheduledDeactivationCreate: {
             success: tr('Profile deactivation is scheduled!'),

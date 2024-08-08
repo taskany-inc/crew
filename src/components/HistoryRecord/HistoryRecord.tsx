@@ -235,6 +235,32 @@ const componentMap: {
         );
     },
 
+    EditUserCreationRequest: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('edited request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
+                    <BoldText>{event.after.name}</BoldText>
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Email')} after={event.after.email} before={event.before.email} />
+                        <ChangeListItem title={tr('Phone')} after={event.after.phone} before={event.before.phone} />
+                        <ChangeListItem title={tr('Date')} after={event.after.date} before={event.before.date} />
+                    </>
+                ))}
+            </>
+        );
+    },
+
     EditUserActiveState: ({ event }) => {
         const stateTr = (active: boolean) => (active ? tr('active') : tr('inactive'));
         return (

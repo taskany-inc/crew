@@ -36,6 +36,7 @@ export interface UpdateJobData {
     error?: string;
     retry?: number;
     delay?: number;
+    date?: Date;
 }
 
 const iterateJobQueue = async (

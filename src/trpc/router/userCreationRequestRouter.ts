@@ -2,10 +2,12 @@ import { historyEventMethods } from '../../modules/historyEventMethods';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
 import {
     createUserCreationRequestSchema,
+    editUserCreationRequestSchema,
     getUserCreationRequestListSchema,
     handleUserCreationRequest,
 } from '../../modules/userCreationRequestSchemas';
 import { accessCheck, checkRoleForAccess } from '../../utils/access';
+import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { protectedProcedure, router } from '../trpcBackend';
 
 export const userCreationRequestRouter = router({
@@ -51,6 +53,44 @@ export const userCreationRequestRouter = router({
         });
 
         return creationRequest;
+    }),
+
+    edit: protectedProcedure.input(editUserCreationRequestSchema).mutation(async ({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        const userCreationRequestBefore = await userCreationRequestsMethods.getById(input.id);
+
+        const userCreationRequestAfter = await userCreationRequestsMethods.edit(
+            input,
+            userCreationRequestBefore,
+            ctx.session.user.id,
+        );
+        const servicesBefore = userCreationRequestBefore.services as { serviceId: string; serviceName: string }[];
+
+        const phoneBefore = servicesBefore.find((service) => service.serviceName === 'Phone')?.serviceId;
+
+        const { before, after } = dropUnchangedValuesFromEvent(
+            {
+                name: userCreationRequestBefore.name,
+                email: userCreationRequestBefore.email,
+                phone: phoneBefore,
+                date: userCreationRequestBefore.date?.toISOString(),
+            },
+            {
+                name: userCreationRequestAfter.name,
+                email: userCreationRequestAfter.email,
+                phone: input.phone,
+                date: userCreationRequestAfter.date?.toISOString(),
+            },
+        );
+
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'editUserCreationRequest', {
+            groupId: undefined,
+            userId: undefined,
+            before: { ...before, id: userCreationRequestBefore.id },
+            after: { ...after, id: userCreationRequestAfter.id },
+        });
+
+        return userCreationRequestAfter;
     }),
 
     decline: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {

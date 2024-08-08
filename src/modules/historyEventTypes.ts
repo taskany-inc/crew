@@ -85,6 +85,18 @@ interface HistoryEventsData {
             comment?: string;
         };
     };
+    editUserCreationRequest: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: true;
+        data: {
+            id: string;
+            name?: string;
+            email?: string;
+            date?: string;
+            phone?: string;
+        };
+    };
     editUserActiveState: {
         requireGroupId: false;
         requireUserId: true;
