@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.74.0](https://github.com/taskany-inc/crew/compare/v0.73.2...v0.74.0) (2024-08-08)
+
+
+### Features
+
+* supplement position ([b08d79f](https://github.com/taskany-inc/crew/commit/b08d79f3ef016d9855423111e6300d31d7bd6293))
+* worker with kysely ([f96199b](https://github.com/taskany-inc/crew/commit/f96199b4b73f5e02f5074166db618e3a3b363397))
+
 ## [0.73.2](https://github.com/taskany-inc/crew/compare/v0.73.1...v0.73.2) (2024-08-02)
 
 
