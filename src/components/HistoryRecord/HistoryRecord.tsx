@@ -774,6 +774,25 @@ const componentMap: {
             </div>
         );
     },
+
+    AddSupplementalPositionToUser: ({ event }) => {
+        return (
+            <div className={s.Row}>
+                {tr('added supplemental position in')} <BoldText>{event.after.organizationUnitId}</BoldText> {tr('on')}{' '}
+                <BoldText>{event.after.percentage}</BoldText>% {tr('to a user')} <UserListItem user={event.user} />
+            </div>
+        );
+    },
+
+    RemoveSupplementalPositionFromUser: ({ event }) => {
+        return (
+            <div className={s.Row}>
+                {tr('removed supplemental position in')} <BoldText>{event.after.organizationUnitId}</BoldText>{' '}
+                {tr('on')} <BoldText>{event.after.percentage}</BoldText>% {tr('from user')}{' '}
+                <UserListItem user={event.user} />
+            </div>
+        );
+    },
 };
 
 interface HistoryRecordProps {

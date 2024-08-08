@@ -10,44 +10,47 @@ import {
     ModalHeader,
     ModalCross,
     Text,
+    nullable,
 } from '@taskany/bricks';
 import { zodResolver } from '@hookform/resolvers/zod';
-import styled from 'styled-components';
 import { User } from 'prisma/prisma-client';
-import { gapM, gray8 } from '@taskany/colors';
+import { gray8 } from '@taskany/colors';
 
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { EditUser, EditUserFields, editUserFieldsSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
-import { UserOrganizationUnit, UserSupervisor } from '../../modules/userTypes';
+import { UserOrganizationUnit, UserSupervisor, UserSupplementalPositions } from '../../modules/userTypes';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
+import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';
+import { SupplementalPositionItem } from '../SupplementalPositionItem/SupplementalPositionItem';
+import { useSupplementalPositionMutations } from '../../modules/supplementalPositionHooks';
+import { AddSupplementalPositionType } from '../../modules/organizationUnitSchemas';
 
 import { tr } from './UserUpdateForm.i18n';
+import s from './UserUpdateForm.module.css';
 
 interface UserDataFormProps {
-    user: User & UserSupervisor & UserOrganizationUnit;
+    user: User & UserSupervisor & UserOrganizationUnit & UserSupplementalPositions;
     onClose: () => void;
 }
-
-const NoWrap = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: ${gapM};
-`;
-
-const StyledSupervisorField = styled.div`
-    display: inline-flex;
-    align-items: center;
-`;
-
-const StyledTextSupervisor = styled(Text)`
-    padding-left: ${gapM};
-    margin-right: ${gapM};
-`;
 
 /* TODO: Add coordinator field https://github.com/taskany-inc/crew/issues/278*/
 export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
     const { editUser } = useUserMutations();
+
+    const { addSupplementalPositionToUser, removeSupplementalPositionFromUser } = useSupplementalPositionMutations();
+
+    const onSupplementalPositionSubmit = (data: AddSupplementalPositionType) => {
+        addSupplementalPositionToUser({
+            userId: user.id,
+            percentage: data.percentage,
+            organizationUnitId: data.organizationUnit.id,
+        });
+    };
+
+    const onSupplementalPositionRemove = (id: string) => {
+        removeSupplementalPositionFromUser({ id, userId: user.id });
+    };
 
     const {
         register,
@@ -79,7 +82,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
 
             <ModalContent>
                 <Form onSubmit={handleSubmit(updateUser)}>
-                    <NoWrap>
+                    <div className={s.NoWrap}>
                         <FormInput
                             label={tr('Full Name')}
                             {...register('name')}
@@ -87,29 +90,44 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                             brick="right"
                             autoComplete="off"
                         />
-                        <StyledSupervisorField>
-                            <StyledTextSupervisor weight="bold" color={gray8}>
+                        <div className={s.Field}>
+                            <Text className={s.Text} weight="bold" color={gray8}>
                                 {tr('Supervisor:')}
-                            </StyledTextSupervisor>
+                            </Text>
                             <UserComboBox
                                 user={user.supervisor}
                                 onChange={(newUser) => {
                                     setValue('supervisorId', newUser?.id);
                                 }}
                             />
-                        </StyledSupervisorField>
-                        <StyledSupervisorField>
-                            <StyledTextSupervisor weight="bold" color={gray8}>
+                        </div>
+                        <div className={s.Field}>
+                            <Text className={s.Text} weight="bold" color={gray8}>
                                 {tr('Organization')}:
-                            </StyledTextSupervisor>
+                            </Text>
                             <OrganizationUnitComboBox
                                 organizationUnit={user.organizationUnit}
                                 onChange={(organizationUnit) => {
                                     setValue('organizationUnitId', organizationUnit?.id);
                                 }}
                             />
-                        </StyledSupervisorField>
-                    </NoWrap>
+                        </div>
+                        {nullable(!!user.supplementalPositions.length, () => (
+                            <div className={s.BadgeWrapperList}>
+                                <Text className={s.Text} weight="bold" color={gray8}>
+                                    {tr('Supplemental:')}
+                                </Text>
+                                {user.supplementalPositions.map((position) => (
+                                    <SupplementalPositionItem
+                                        key={position.id}
+                                        supplementalPosition={position}
+                                        removeSupplementalPosition={() => onSupplementalPositionRemove(position.id)}
+                                    />
+                                ))}
+                            </div>
+                        ))}
+                        <AddSupplementalPosition onSubmit={onSupplementalPositionSubmit} />
+                    </div>
 
                     <FormActions flat="top">
                         <FormAction left />

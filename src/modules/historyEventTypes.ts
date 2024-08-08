@@ -359,6 +359,24 @@ interface HistoryEventsData {
             value: boolean;
         };
     };
+    addSupplementalPositionToUser: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            organizationUnitId: string;
+            percentage: number;
+        };
+    };
+    removeSupplementalPositionFromUser: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            organizationUnitId: string;
+            percentage: number;
+        };
+    };
 }
 
 export type HistoryAction = keyof HistoryEventsData;

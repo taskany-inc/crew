@@ -1,0 +1,22 @@
+.NoWrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-m);
+    white-space: nowrap;
+}
+
+.Field {
+    display: inline-flex;
+    align-items: center;
+}
+
+.Text {
+    padding-left: var(--gap-m);
+    margin-right: var(--gap-m);
+}
+
+.BadgeWrapperList {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-s);
+}

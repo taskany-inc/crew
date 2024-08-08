@@ -116,5 +116,8 @@
     "edited mailing settings of": "изменил(а) настройки отправки почты для",
     "Supplemental positions": "Дополнительные организации",
     "edited request": "отредактировал(а) запрос",
-    "canceled request": "отменил(а) заявку"
+    "canceled request": "отменил(а) заявку",
+    "added supplemental position in": "добавлена дополнительная позиция в",
+    "on": "на",
+    "removed supplemental position in": "удалена дополнительная позиция в"
 }

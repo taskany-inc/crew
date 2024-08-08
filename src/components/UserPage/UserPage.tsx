@@ -39,7 +39,7 @@ import {
     UserSupervisor,
     UserSupervisorIn,
     UserSupervisorOf,
-    UserSupplementalPosition,
+    UserSupplementalPositions,
 } from '../../modules/userTypes';
 import { ScheduleDeactivateType } from '../../modules/scheduledDeactivationTypes';
 import { useLocale } from '../../hooks/useLocale';
@@ -103,7 +103,7 @@ interface UserPageInnerProps {
         UserSupervisorOf &
         UserSupervisorIn &
         UserScheduledDeactivations &
-        UserSupplementalPosition;
+        UserSupplementalPositions;
 }
 
 export const UserPageInner = ({ user }: UserPageInnerProps) => {

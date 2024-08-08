@@ -87,6 +87,6 @@ export const mailingSettingType = ['createUserRequest', 'createScheduledUserRequ
 
 export type MailingSettingType = (typeof mailingSettingType)[number];
 
-export interface UserSupplementalPosition {
+export interface UserSupplementalPositions {
     supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
 }
