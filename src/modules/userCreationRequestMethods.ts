@@ -8,12 +8,14 @@ import { config } from '../config';
 import { htmlUserCreationRequestWithDate, userCreationMailText } from '../utils/emailTemplates';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../utils/worker/create';
+import { jobUpdate } from '../utils/worker/jobOperations';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import {
     CreateUserCreationRequest,
+    EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
 } from './userCreationRequestSchemas';
@@ -184,7 +186,7 @@ export const userCreationRequestsMethods = {
                 userCreationRequest.creator ? userCreationRequest.creator : undefined,
             );
 
-            const icalSublect = `${
+            const icalSubject = `${
                 userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
             } ${name} ${getOrgUnitTitle(userCreationRequest.organization)} ${data.phone}`;
 
@@ -193,20 +195,17 @@ export const userCreationRequestsMethods = {
                 start: data.date,
                 duration: 30,
                 users,
-                summary: icalSublect,
-                description: icalSublect,
+                summary: icalSubject,
+                description: icalSubject,
             });
 
             const html = htmlUserCreationRequestWithDate({
                 userCreationRequest,
                 date: data.date,
-                firstName: data.firstName,
-                surname: data.surname,
-                middleName: data.middleName,
             });
             sendMail({
                 to: mailTo,
-                subject: icalSublect,
+                subject: icalSubject,
                 html,
                 icalEvent: calendarEvents({
                     method: ICalCalendarMethod.REQUEST,
@@ -216,6 +215,94 @@ export const userCreationRequestsMethods = {
         }
 
         return userCreationRequest;
+    },
+
+    getById: async (id: string) => {
+        const request = await prisma.userCreationRequest.findUnique({ where: { id } });
+
+        if (!request) {
+            throw new TRPCError({ message: `No user creation request with id ${id}`, code: 'NOT_FOUND' });
+        }
+
+        return request;
+    },
+
+    edit: async (data: EditUserCreationRequest, requestBeforeUpdate: UserCreationRequest, _sessionUserId: string) => {
+        const { id, phone, ...restData } = data;
+
+        if (requestBeforeUpdate.status === 'Denied') {
+            throw new TRPCError({ code: 'FORBIDDEN', message: `Forbidden to edit denied request id: ${id}` });
+        }
+
+        restData.date && restData.date.setUTCHours(config.employmentUtcHour);
+
+        const updateData: Prisma.UserCreationRequestUpdateInput = restData;
+        const phoneService = await prisma.externalService.findUnique({ where: { name: 'Phone' } });
+
+        const servicesBefore = requestBeforeUpdate.services as { serviceId: string; serviceName: string }[];
+        const phoneBefore = servicesBefore.find((service) => service.serviceName === 'Phone')?.serviceId;
+
+        if (phone && phoneBefore && phone !== phoneBefore) {
+            const servicesAfter = servicesBefore.map((service) => {
+                if (service.serviceName === phoneService?.name) {
+                    return { serviceName: phoneService.name, serviceId: data.phone };
+                }
+                return service;
+            });
+            updateData.services = servicesAfter;
+        }
+
+        const updatedRequest = await prisma.userCreationRequest.update({
+            where: { id },
+            data: updateData,
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+                buddy: true,
+                coordinator: true,
+                recruiter: true,
+                creator: true,
+            },
+        });
+
+        if (restData.date && requestBeforeUpdate.date !== restData.date) {
+            const { users, to: mailTo } = await userMethods.getMailingList(
+                'createScheduledUserRequest',
+                updatedRequest.organizationUnitId,
+                updatedRequest.creator ? updatedRequest.creator : undefined,
+            );
+
+            const icalSubject = `${updatedRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')} ${
+                updatedRequest.name
+            } ${getOrgUnitTitle(updatedRequest.organization)} ${phone}`;
+
+            const icalEvent = createIcalEventData({
+                id: updatedRequest.id + config.nodemailer.authUser,
+                start: restData.date,
+                duration: 30,
+                users,
+                summary: icalSubject,
+                description: icalSubject,
+            });
+
+            const html = htmlUserCreationRequestWithDate({
+                userCreationRequest: updatedRequest,
+                date: restData.date,
+            });
+            sendMail({
+                to: mailTo,
+                subject: icalSubject,
+                html,
+                icalEvent: calendarEvents({
+                    method: ICalCalendarMethod.REQUEST,
+                    events: [icalEvent],
+                }),
+            });
+
+            if (requestBeforeUpdate.jobId) await jobUpdate(requestBeforeUpdate.jobId, { date: restData.date });
+        }
+        return updatedRequest;
     },
 
     decline: async ({ id, comment }: HandleUserCreationRequest): Promise<UserCreationRequest> => {

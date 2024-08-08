@@ -74,3 +74,11 @@ export const getUserCreationRequestListSchema = z.object({
     active: z.boolean().optional(),
 });
 export type GetUserCreationRequestList = z.infer<typeof getUserCreationRequestListSchema>;
+
+export const editUserCreationRequestSchema = z.object({
+    id: z.string(),
+    email: z.string().optional(),
+    date: z.date().optional(),
+    phone: z.string().optional(),
+});
+export type EditUserCreationRequest = z.infer<typeof editUserCreationRequestSchema>;

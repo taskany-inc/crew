@@ -1,12 +1,19 @@
 import { trpc } from '../trpc/trpcClient';
 import { notifyPromise } from '../utils/notifications/notifyPromise';
 
-import { CreateUserCreationRequest } from './userCreationRequestSchemas';
+import { CreateUserCreationRequest, EditUserCreationRequest } from './userCreationRequestSchemas';
 
 export const useUserCreationRequestMutations = () => {
     const utils = trpc.useContext();
 
     const createUserCreationRequest = trpc.userCreationRequest.create.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
+
+    const editUserCreationRequest = trpc.userCreationRequest.edit.useMutation({
         onSuccess: () => {
             utils.user.invalidate();
             utils.userCreationRequest.invalidate();
@@ -36,5 +43,8 @@ export const useUserCreationRequestMutations = () => {
 
         acceptUserRequest: (data: { id: string; comment?: string }) =>
             notifyPromise(acceptUserRequest.mutateAsync(data), 'userCreationRequestAccept'),
+
+        editUserCreationRequest: (data: EditUserCreationRequest) =>
+            notifyPromise(editUserCreationRequest.mutateAsync(data), 'userCreationRequestEdit'),
     };
 };
