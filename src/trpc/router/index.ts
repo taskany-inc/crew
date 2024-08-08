@@ -18,6 +18,7 @@ import { scheduledDeactivationRouter } from './scheduledDeactivationRouter';
 import { userRoleRouter } from './userRoleRouter';
 import { attachRouter } from './attachRouter';
 import { userCreationRequestRouter } from './userCreationRequestRouter';
+import { supplementalPositionRouter } from './supplementalPositionRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -38,6 +39,7 @@ export const trpcRouter = router({
     scheduledDeactivation: scheduledDeactivationRouter,
     attach: attachRouter,
     userCreationRequest: userCreationRequestRouter,
+    supplementalPosition: supplementalPositionRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

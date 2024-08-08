@@ -76,5 +76,9 @@
     "Voila! User creation request is edited 🎉": "",
     "Editing a user creation request...": "",
     "User creation request was cancelled": "",
-    "Cancelling a user creation request...": ""
+    "Cancelling a user creation request...": "",
+    "Supplemental position added to user": "",
+    "Adding the supplemental position...": "",
+    "Supplemental position removed from user": "",
+    "Removing the supplemental position...": ""
 }

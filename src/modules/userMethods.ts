@@ -21,7 +21,7 @@ import {
     UserRoleData,
     MailingSettingType,
     UserScheduledDeactivations,
-    UserSupplementalPosition,
+    UserSupplementalPositions,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -212,7 +212,7 @@ export const userMethods = {
             UserOrganizationUnit &
             UserRoleData &
             UserScheduledDeactivations &
-            UserSupplementalPosition
+            UserSupplementalPositions
     > => {
         const user = await prisma.user.findUnique({
             where: { id },

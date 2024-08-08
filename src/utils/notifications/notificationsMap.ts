@@ -23,6 +23,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'bonusPoints', 'Change'>
     | NamespacedAction<'userRole', 'ChangeScope'>
     | NamespacedAction<'attach', 'Delete'>
+    | NamespacedAction<'supplementalPosition', 'Add' | 'Remove'>
     | 'sendFeedback'
     | 'copy';
 
@@ -181,6 +182,14 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             success: tr('Attach successfully uploaded!'),
             loading: tr('Uploading...'),
             error: tr('An error occurred while uploading'),
+        },
+        supplementalPositionAdd: {
+            success: tr('Supplemental position added to user'),
+            loading: tr('Adding the supplemental position...'),
+        },
+        supplementalPositionRemove: {
+            success: tr('Supplemental position removed from user'),
+            loading: tr('Removing the supplemental position...'),
         },
     };
 

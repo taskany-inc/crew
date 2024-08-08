@@ -76,5 +76,7 @@
     "Cancel user request {userName}": "Отмена запроса для {userName}",
     "Cancellation of": "Отмена",
     "transfer": "перевод",
-    "employment": "выход"
+    "employment": "выход",
+    "User already has supplemental position in this organization": "У пользователя уже есть дополнительная позиция в этой организации",
+    "User does not have supplemental position in this organization": "У пользователя нет дополнительной позиции в этой организации"
 }
