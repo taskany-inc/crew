@@ -13,10 +13,15 @@ export async function middleware(request: NextRequest) {
         };
         const session = await getSession({ req: requestForNextAuth });
         const ua = userAgent(request);
+
         const { url } = request;
-        let locale = request.url.split('/')[3];
+        const parts = request.url.split('/');
+        let locale = parts[3];
+        const host = parts[2];
+        let path = parts.slice(4).join('/');
         if (!['ru', 'en'].includes(locale)) {
             locale = 'en';
+            path = parts.slice(3).join('/');
         }
 
         const params = {
@@ -29,6 +34,8 @@ export async function middleware(request: NextRequest) {
                 user_agent: ua.ua,
                 url,
                 locale,
+                host,
+                path,
             },
             device_type: ua.device.type,
             device_brand: ua.device.vendor,
@@ -38,7 +45,7 @@ export async function middleware(request: NextRequest) {
         };
 
         fetch(telemetryURL, {
-            body: JSON.stringify(params),
+            body: JSON.stringify({ events: [params] }),
             method: 'POST',
             headers: {
                 Accept: 'application/json',
