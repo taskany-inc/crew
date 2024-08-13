@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.75.0](https://github.com/taskany-inc/crew/compare/v0.74.1...v0.75.0) (2024-08-13)
+
+
+### Features
+
+* **telemetry:** log pageviews ([75830ab](https://github.com/taskany-inc/crew/commit/75830ab62d4590315983bf01fe85879e5279e3eb))
+
+
+### Bug Fixes
+
+* **telemetry:** use batch ([a13d347](https://github.com/taskany-inc/crew/commit/a13d347de08ba844a4165bcaf2375261e6b1e7f3))
+
 ## [0.74.1](https://github.com/taskany-inc/crew/compare/v0.74.0...v0.74.1) (2024-08-08)
 
 
