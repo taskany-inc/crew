@@ -3,7 +3,7 @@
     position: relative;
 }
 
-.Column:not(:first-child):not(:last-child)::after {
+.Column:not(:last-child)::after {
     content: '';
     height: 24px;
     width: 1px;
