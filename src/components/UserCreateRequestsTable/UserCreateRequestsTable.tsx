@@ -1,12 +1,14 @@
-import { Button, Table, TableCell, TableRow, Text } from '@taskany/bricks/harmony';
+import { Button, Table, TableCell, TableRow } from '@taskany/bricks/harmony';
 import { useCallback, useMemo } from 'react';
 
 import { TableListItem, TableListItemElement } from '../TableListItem/TableListItem';
 import { trpc } from '../../trpc/trpcClient';
 import { useLocale } from '../../hooks/useLocale';
 import { UserRequest } from '../../trpc/inferredTypes';
+import { TableCellText } from '../TableCellText/TableCellText';
 
 import { tr } from './UserCreateRequestsTable.i18n';
+import s from './UserCreateRequestTable.module.css';
 
 interface UserCreateRequestsTableProps {
     openModal: () => void;
@@ -44,27 +46,27 @@ export const UserCreateRequestsTable = ({ openModal, onSelectRequest }: UserCrea
                 request,
                 list: [
                     {
-                        content: <Text>{request.name}</Text>,
+                        content: <TableCellText text={request.name} />,
                         width: 240,
                     },
                     {
-                        content: <Text>{request.login}</Text>,
+                        content: <TableCellText text={request.login} />,
                         width: 160,
                     },
                     {
-                        content: <Text>{request.email}</Text>,
+                        content: <TableCellText text={request.email} />,
                         width: 160,
                     },
                     {
-                        content: <Text>{request.organization.name}</Text>,
+                        content: <TableCellText text={request.organization.name} />,
                         width: 160,
                     },
                     {
-                        content: <Text>{request.group.name}</Text>,
+                        content: <TableCellText text={request.group.name} />,
                         width: 160,
                     },
                     {
-                        content: <Text>{request.supervisor.name}</Text>,
+                        content: <TableCellText text={request.supervisor.name || ''} />,
                         width: 160,
                     },
                     {
@@ -77,7 +79,7 @@ export const UserCreateRequestsTable = ({ openModal, onSelectRequest }: UserCrea
 
     return (
         <Table>
-            <TableRow>
+            <TableRow className={s.TableHeader}>
                 {thead.map((th) => (
                     <TableCell key={th.content} width={th.width}>
                         {th.content}
