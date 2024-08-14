@@ -187,7 +187,7 @@ export const userCreationRequestsMethods = {
             const { users, to: mailTo } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
                 data.organizationUnitId,
-                userCreationRequest.creator ? userCreationRequest.creator : undefined,
+                [sessionUserId],
             );
 
             const icalSubject = `${
@@ -231,7 +231,7 @@ export const userCreationRequestsMethods = {
         return request;
     },
 
-    edit: async (data: EditUserCreationRequest, requestBeforeUpdate: UserCreationRequest, _sessionUserId: string) => {
+    edit: async (data: EditUserCreationRequest, requestBeforeUpdate: UserCreationRequest, sessionUserId: string) => {
         const { id, phone, ...restData } = data;
 
         if (requestBeforeUpdate.status === 'Denied') {
@@ -274,7 +274,7 @@ export const userCreationRequestsMethods = {
             const { users, to: mailTo } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
                 updatedRequest.organizationUnitId,
-                updatedRequest.creator ? updatedRequest.creator : undefined,
+                [sessionUserId],
             );
 
             const icalSubject = `${updatedRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')} ${
@@ -374,7 +374,7 @@ export const userCreationRequestsMethods = {
         return requests as CompleteUserCreationRequest[];
     },
 
-    cancel: async ({ id, comment }: HandleUserCreationRequest) => {
+    cancel: async ({ id, comment }: HandleUserCreationRequest, sessionUserId: string) => {
         const canceledRequest = await prisma.userCreationRequest.update({
             where: { id },
             data: { status: 'Denied', comment },
@@ -386,7 +386,7 @@ export const userCreationRequestsMethods = {
             const { users, to } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
                 canceledRequest.organizationUnitId,
-                canceledRequest.creator ? canceledRequest.creator : undefined,
+                [sessionUserId],
             );
 
             const text = cancelUserCreationMailText({

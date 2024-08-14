@@ -63,11 +63,10 @@ export const scheduledDeactivationMethods = {
             include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true, attaches: true },
         });
 
-        const { to, users } = await userMethods.getMailingList(
-            'scheduledDeactivation',
-            data.organizationUnitId,
-            scheduledDeactivation.creator,
-        );
+        const { to, users } = await userMethods.getMailingList('scheduledDeactivation', data.organizationUnitId, [
+            sessionUserId,
+            restData.teamLeadId,
+        ]);
 
         const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
 
@@ -140,7 +139,9 @@ export const scheduledDeactivationMethods = {
             const { to, users } = await userMethods.getMailingList(
                 'scheduledDeactivation',
                 scheduledDeactivation.organizationUnitId,
-                scheduledDeactivation.creator,
+                scheduledDeactivation.teamLeadId
+                    ? [scheduledDeactivation.creatorId, scheduledDeactivation.teamLeadId]
+                    : [scheduledDeactivation.creatorId],
             );
 
             const icalEvent = createIcalEventData({
@@ -231,7 +232,9 @@ export const scheduledDeactivationMethods = {
             const { to, users } = await userMethods.getMailingList(
                 'scheduledDeactivation',
                 scheduledDeactivation.organizationUnitId,
-                scheduledDeactivation.creator,
+                scheduledDeactivation.teamLeadId
+                    ? [scheduledDeactivation.creatorId, scheduledDeactivation.teamLeadId]
+                    : [scheduledDeactivation.creatorId],
             );
 
             const icalEvent = createIcalEventData({

@@ -471,16 +471,21 @@ export const userMethods = {
         });
     },
 
-    getMailingList: async (mailingType: MailingSettingType, organizationUnitId: string, user?: User) => {
+    getMailingList: async (
+        mailingType: MailingSettingType,
+        organizationUnitId: string,
+        additionUsersIds?: string[],
+    ) => {
         const mailingList = await prisma.user.findMany({
-            where: { mailingSettings: { some: { [mailingType]: true, organizationUnitId } }, active: true },
+            where: {
+                OR: [
+                    { mailingSettings: { some: { [mailingType]: true, organizationUnitId } }, active: true },
+                    { id: { in: additionUsersIds } },
+                ],
+            },
             select: { email: true, name: true },
         });
         const users = mailingList.map(({ email, name }) => ({ email, name: name || undefined }));
-
-        if (user && !users.some(({ email }) => email === user.email)) {
-            users.push({ email: user.email, name: user.name || undefined });
-        }
 
         const to = users.map(({ email }) => email);
 

@@ -141,7 +141,7 @@ export const userCreationRequestRouter = router({
     cancel: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
 
-        const cancelledUserRequest = await userCreationRequestsMethods.cancel(input);
+        const cancelledUserRequest = await userCreationRequestsMethods.cancel(input, ctx.session.user.id);
 
         await historyEventMethods.create({ user: ctx.session.user.id }, 'cancelUserCreationRequest', {
             groupId: undefined,
