@@ -26,10 +26,9 @@ export const TeamPeople = ({ groupId, isEditable }: TeamPeopleProps) => {
     const { data: treeMembershipsCount = 0 } = trpc.group.getTreeMembershipsCount.useQuery(groupId);
 
     const membershipsCount = memberships?.length ?? 0;
-    const totalTreeMemberships = membershipsCount + treeMembershipsCount;
 
     return (
-        <NarrowSection title={`${tr('People')} ${membershipsCount}/${totalTreeMemberships}`}>
+        <NarrowSection title={`${tr('People')} ${membershipsCount}/${treeMembershipsCount}`}>
             <StyledUserList>
                 {memberships?.map((membership) => (
                     <MembershipUserListItemEditable key={membership.id} membership={membership} />

@@ -261,7 +261,7 @@ export const groupMethods = {
 
     getMemberships: async (id: string, sessionUser?: SessionUser): Promise<MembershipInfo[]> => {
         const memberships = await prisma.membership.findMany({
-            where: { groupId: id, archived: false },
+            where: { groupId: id, archived: false, user: { active: true } },
             include: {
                 group: true,
                 roles: true,
@@ -293,15 +293,10 @@ export const groupMethods = {
             SELECT id FROM group_hierarchy;
         `;
 
-        const subtreeTotalGroups = await prisma.membership.count({
+        const subtreeTotalGroups = await prisma.user.count({
             where: {
-                groupId: {
-                    in: treeViewGroups.map((g) => g.id),
-                },
-                archived: false,
-                user: {
-                    active: true,
-                },
+                memberships: { some: { groupId: { in: [...treeViewGroups.map((g) => g.id), id] } } },
+                active: true,
             },
         });
 
@@ -342,9 +337,16 @@ export const groupMethods = {
         const hierarchy = await groupMethods.getHierarchy(groupId);
         const groupIds = Object.keys(hierarchy.dict);
         const memberships = await prisma.membership.findMany({
-            where: { groupId: { in: groupIds } },
+            where: { groupId: { in: groupIds }, user: { active: true } },
             select: {
-                user: { select: { name: true, email: true } },
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                        organizationUnit: true,
+                        supplementalPositions: { include: { organizationUnit: true } },
+                    },
+                },
                 group: { select: { name: true } },
                 roles: { select: { name: true } },
                 groupId: true,
@@ -354,6 +356,8 @@ export const groupMethods = {
         const membershipsDict = objByKeyMulti(memberships, 'groupId');
         const data: {
             userName: string | null;
+            orgUnitName: string | undefined;
+            supplemental: string;
             email: string;
             roles: string;
             percentage: number | string;
@@ -365,6 +369,10 @@ export const groupMethods = {
                 membershipsDict[id]?.forEach((m) => {
                     data.push({
                         userName: m.user.name,
+                        orgUnitName: m.user.organizationUnit?.name,
+                        supplemental: m.user.supplementalPositions
+                            .map(({ organizationUnit }) => organizationUnit.name)
+                            .join(', '),
                         email: m.user.email,
                         roles: m.roles.map((r) => r.name).join(', '),
                         percentage: m.percentage === null ? '' : m.percentage,
@@ -381,6 +389,8 @@ export const groupMethods = {
 
         return createCsvDocument(data, [
             { key: 'userName', name: tr('Full name') },
+            { key: 'orgUnitName', name: tr('Organization') },
+            { key: 'supplemental', name: tr('Supplemental positions') },
             { key: 'email', name: 'Email' },
             { key: 'roles', name: tr('Roles') },
             { key: 'percentage', name: tr('Membership percentage') },
