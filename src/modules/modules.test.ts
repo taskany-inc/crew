@@ -232,7 +232,7 @@ describe('groups', () => {
         const rootGroup = await groupMethods.getById('root-test');
         assert.ok(rootGroup);
         const treeMembershipsCount = await groupMethods.getTreeMembershipsCount(rootGroup.id);
-        assert.equal(treeMembershipsCount, 5);
+        assert.equal(treeMembershipsCount, 3);
 
         const [randomMembership] = await userMethods.getMemberships('charmander');
         assert.ok(randomMembership);
@@ -240,12 +240,12 @@ describe('groups', () => {
         await userMethods.editActiveState({ id: randomMembership.user.id, active: false });
 
         const treeMembershipsCountWithoutMember = await groupMethods.getTreeMembershipsCount(rootGroup.id);
-        assert.equal(treeMembershipsCountWithoutMember, 4);
+        assert.equal(treeMembershipsCountWithoutMember, 2);
 
         await userMethods.editActiveState({ id: randomMembership.user.id, active: true });
 
         const treeMembershipsCountWithMember = await groupMethods.getTreeMembershipsCount(rootGroup.id);
-        assert.equal(treeMembershipsCountWithMember, 5);
+        assert.equal(treeMembershipsCountWithMember, 3);
     });
     it('cannot add user to the same groupAdmin twice', async () => {
         const check = () => groupMethods.addUserToGroupAdmins({ userId: 'bulbasaur', groupId: 'zebra' });

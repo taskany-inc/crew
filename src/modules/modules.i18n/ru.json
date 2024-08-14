@@ -78,5 +78,7 @@
     "transfer": "перевод",
     "employment": "выход",
     "User already has supplemental position in this organization": "У пользователя уже есть дополнительная позиция в этой организации",
-    "User does not have supplemental position in this organization": "У пользователя нет дополнительной позиции в этой организации"
+    "User does not have supplemental position in this organization": "У пользователя нет дополнительной позиции в этой организации",
+    "Organization": "Организация",
+    "Supplemental positions": "Дополнительные организации"
 }
