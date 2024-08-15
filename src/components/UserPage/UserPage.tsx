@@ -45,6 +45,7 @@ import { ScheduleDeactivateType } from '../../modules/scheduledDeactivationTypes
 import { useLocale } from '../../hooks/useLocale';
 import { formatDate } from '../../utils/dateTime';
 import { supplementPositionListToString } from '../../utils/suplementPosition';
+import { scheduledDeactivationAllowed } from '../../utils/scheduledDeactivationAllowed';
 
 import { tr } from './UserPage.i18n';
 
@@ -217,7 +218,9 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             size="s"
                         />
                     </Restricted>
-                    <Restricted visible={!!sessionUser.role?.editScheduledDeactivation}>
+                    <Restricted
+                        visible={scheduledDeactivationAllowed(user) && !!sessionUser.role?.editScheduledDeactivation}
+                    >
                         <Button
                             onClick={scheduleDeactivationFormVisibility.setTrue}
                             text={tr('Schedule deactivation')}
