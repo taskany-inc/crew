@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.75.1](https://github.com/taskany-inc/crew/compare/v0.75.0...v0.75.1) (2024-08-15)
+
+
+### Bug Fixes
+
+* ellipsis for UserCreateRequestTable table cells ([7e84df7](https://github.com/taskany-inc/crew/commit/7e84df7c5c8eff4d0ffe9c049d595e378a1e4bff))
+
 ## [0.75.0](https://github.com/taskany-inc/crew/compare/v0.74.1...v0.75.0) (2024-08-13)
 
 
