@@ -9,6 +9,7 @@ import { config } from '../config';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../utils/worker/create';
 import { scheduledDeactivationEmailHtml } from '../utils/emailTemplates';
+import { scheduledDeactivationAllowed } from '../utils/scheduledDeactivationAllowed';
 
 import {
     CreateScheduledDeactivation,
@@ -40,7 +41,25 @@ export const scheduledDeactivationMethods = {
 
         deactivateDate.setUTCHours(config.deactivateUtcHour);
 
-        const user = await userMethods.getByIdOrThrow(userId);
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: { scheduledDeactivations: true },
+        });
+
+        if (!user) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No user with id ${userId}`,
+            });
+        }
+
+        if (!scheduledDeactivationAllowed(user)) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: 'Not allowed to schedule deactivation for inactive or already scheduled for deactivation user',
+            });
+        }
+
         const job =
             data.disableAccount &&
             (await createJob('scheduledDeactivation', {
