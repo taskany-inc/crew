@@ -43,10 +43,6 @@ export const userCreationRequestsMethods = {
 
         const supervisor = await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } });
 
-        if (!supervisor.login) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Supervisor has no login' });
-        }
-
         if (!data.groupId) {
             throw new TRPCError({ code: 'BAD_REQUEST', message: 'Group is required' });
         }
@@ -80,6 +76,7 @@ export const userCreationRequestsMethods = {
             organizationUnitId: data.organizationUnitId,
             groupId: data.groupId,
             supervisorLogin: supervisor.login,
+            supervisorId: data.supervisorId,
             title: data.title || undefined,
             corporateEmail: data.corporateEmail || undefined,
             osPreference: data.osPreference || undefined,
@@ -116,24 +113,13 @@ export const userCreationRequestsMethods = {
                 ? await prisma.user.findUniqueOrThrow({ where: { id: data.buddyId ?? undefined } })
                 : undefined;
 
-            if (buddy && !buddy.login) {
-                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Buddy has no login' });
-            }
             const coordinator = data.coordinatorId
                 ? await prisma.user.findUniqueOrThrow({ where: { id: data.coordinatorId ?? undefined } })
                 : undefined;
 
-            if (coordinator && !coordinator.login) {
-                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Coordinator has no login' });
-            }
-
             const recruiter = data.recruiterId
                 ? await prisma.user.findUniqueOrThrow({ where: { id: data.recruiterId ?? undefined } })
                 : undefined;
-
-            if (recruiter && !recruiter.login) {
-                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Recruiter has no login' });
-            }
 
             if (data.supplementalPositions?.length) {
                 createData.supplementalPositions = {
@@ -150,8 +136,11 @@ export const userCreationRequestsMethods = {
             createData.extraEquipment = data.extraEquipment || undefined;
             createData.workSpace = data.workSpace || undefined;
             createData.buddyLogin = buddy?.login || undefined;
+            createData.buddyId = buddy?.id || undefined;
             createData.coordinatorLogin = coordinator?.login || undefined;
+            createData.coordinatorId = coordinator?.id || undefined;
             createData.recruiterLogin = recruiter?.login || undefined;
+            createData.recruiterId = recruiter?.id || undefined;
             createData.location = data.location || undefined;
             createData.creationCause = data.creationCause || undefined;
             createData.unitId = data.unitId || undefined;

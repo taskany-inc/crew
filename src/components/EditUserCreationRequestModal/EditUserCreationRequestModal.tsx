@@ -19,7 +19,7 @@ import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 
 import s from './EditUserCreationRequestModal.module.css';
-import { tr } from './EditUserCreationRequestModal.tsx.i18n';
+import { tr } from './EditUserCreationRequestModal.i18n';
 
 interface EditUserCreationRequestModalProps {
     visible: boolean;

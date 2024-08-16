@@ -152,8 +152,9 @@ model UserCreationRequest {
   corporateEmail        String?
   login                 String
   title                 String?
-  supervisor            User                       @relation(fields: [supervisorLogin], references: [login])
-  supervisorLogin       String
+  supervisor            User?                      @relation(fields: [supervisorId], references: [id])
+  supervisorLogin       String?
+  supervisorId          String?
   organization          OrganizationUnit           @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId    String
   group                 Group                      @relation(fields: [groupId], references: [id])
@@ -181,12 +182,15 @@ model UserCreationRequest {
   unitId          String?
 
   buddyLogin String?
-  buddy      User?   @relation(fields: [buddyLogin], references: [login], name: "userBuddy")
+  buddyId    String?
+  buddy      User?   @relation(fields: [buddyId], references: [id], name: "userBuddy")
 
   recruiterLogin   String?
-  recruiter        User?   @relation(fields: [recruiterLogin], references: [login], name: "userRecruiter")
+  recruiterId      String?
+  recruiter        User?   @relation(fields: [recruiterId], references: [id], name: "userRecruiter")
   coordinatorLogin String?
-  coordinator      User?   @relation(fields: [coordinatorLogin], references: [login], name: "userCoordinator")
+  coordinatorId    String?
+  coordinator      User?   @relation(fields: [coordinatorId], references: [id], name: "userCoordinator")
 
   jobId String? @unique
   job   Job?    @relation(fields: [jobId], references: [id])
@@ -338,12 +342,12 @@ model OrganizationUnit {
   apiToken    ApiToken[]
   external    Boolean    @default(false)
 
-  userCreationRequests UserCreationRequest[]
-  users                User[]
-  userServices         UserService[]
-  oldOrganizationUnit  ScheduledDeactivation[] @relation("oldOrganizationUnit")
-  newOrganizationUnit  ScheduledDeactivation[] @relation("newOrganizationUnit")
-  mailingSettings      MailingSettings[]
+  userCreationRequests  UserCreationRequest[]
+  users                 User[]
+  userServices          UserService[]
+  oldOrganizationUnit   ScheduledDeactivation[] @relation("oldOrganizationUnit")
+  newOrganizationUnit   ScheduledDeactivation[] @relation("newOrganizationUnit")
+  mailingSettings       MailingSettings[]
   supplementalPositions SupplementalPosition[]
 }
 
