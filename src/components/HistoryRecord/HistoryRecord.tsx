@@ -150,6 +150,7 @@ const componentMap: {
                                 .join(', ')}
                         />
                         <ChangeListItem title={tr('Supervisor login')} after={event.after.supervisorLogin} />
+                        <ChangeListItem title={tr('Supervisor id')} after={event.after.supervisorId} />
                         <ChangeListItem title={tr('Title')} after={event.after.title} />
                         <ChangeListItem title={tr('OS preference')} after={event.after.osPreference} />
                         <ChangeListItem title={tr('Services')} after={services} />
@@ -175,8 +176,11 @@ const componentMap: {
                         <ChangeListItem title={tr('Work mode')} after={event.after.workMode} />
                         <ChangeListItem title={tr('Work mode comment')} after={event.after.workModeComment} />
                         <ChangeListItem title={tr('Buddy login')} after={event.after.buddyLogin} />
+                        <ChangeListItem title="Buddy id" after={event.after.buddyId} />
                         <ChangeListItem title={tr('Coordinator login')} after={event.after.coordinatorLogin} />
+                        <ChangeListItem title={tr('Coordinator id')} after={event.after.coordinatorId} />
                         <ChangeListItem title={tr('Recruiter login')} after={event.after.recruiterLogin} />
+                        <ChangeListItem title={tr('Recruiter id')} after={event.after.recruiterId} />
                     </>
                 ))}
             </>

@@ -290,7 +290,8 @@ export type UserCreationRequest = {
     corporateEmail: string | null;
     login: string;
     title: string | null;
-    supervisorLogin: string;
+    supervisorLogin: string | null;
+    supervisorId: string | null;
     organizationUnitId: string;
     groupId: string;
     osPreference: string | null;
@@ -311,8 +312,11 @@ export type UserCreationRequest = {
     newUser: boolean | null;
     unitId: string | null;
     buddyLogin: string | null;
+    buddyId: string | null;
     recruiterLogin: string | null;
+    recruiterId: string | null;
     coordinatorLogin: string | null;
+    coordinatorId: string | null;
     jobId: string | null;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;

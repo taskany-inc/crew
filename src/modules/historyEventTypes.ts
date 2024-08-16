@@ -41,7 +41,8 @@ interface HistoryEventsData {
             title?: string;
             osPreference?: string;
             login: string;
-            supervisorLogin: string;
+            supervisorLogin?: string;
+            supervisorId?: string;
             organizationUnitId: string;
             groupId: string;
             date?: string;
@@ -58,8 +59,11 @@ interface HistoryEventsData {
             workMode?: string;
             workModeComment?: string;
             buddyLogin?: string;
+            buddyId?: string;
             coordinatorLogin?: string;
+            coordinatorId?: string;
             recruiterLogin?: string;
+            recruiterId?: string;
             supplementalPositions?: { organizationUnitId: string; percentage: number }[];
         };
     };

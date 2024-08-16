@@ -566,7 +566,7 @@ export const userMethods = {
             data: {
                 name: request.name,
                 email: request.email,
-                supervisor: { connect: { login: request.supervisorLogin } },
+                supervisor: { connect: { id: request.supervisorId || undefined } },
                 login: request.login,
                 title: request.title,
                 memberships: { create: { groupId: request.groupId } },

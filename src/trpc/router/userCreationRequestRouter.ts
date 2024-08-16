@@ -22,6 +22,11 @@ export const userCreationRequestRouter = router({
             before: undefined,
             after: {
                 ...creationRequest,
+                supervisorLogin: creationRequest.supervisorLogin || undefined,
+                supervisorId: creationRequest.supervisorId || undefined,
+                buddyId: creationRequest.buddyId || undefined,
+                coordinatorId: creationRequest.supervisorId || undefined,
+                recruiterId: creationRequest.recruiterId || undefined,
                 type: creationRequest.type || undefined,
                 corporateEmail: creationRequest.corporateEmail || undefined,
                 title: creationRequest.title || undefined,

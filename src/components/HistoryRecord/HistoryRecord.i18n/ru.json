@@ -119,5 +119,7 @@
     "canceled request": "отменил(а) заявку",
     "added supplemental position in": "добавлена дополнительная позиция в",
     "on": "на",
-    "removed supplemental position in": "удалена дополнительная позиция в"
+    "removed supplemental position in": "удалена дополнительная позиция в",
+    "Coordinator id": "Id координатора",
+    "Recruiter id": "Id рекрутера"
 }

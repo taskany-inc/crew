@@ -66,7 +66,7 @@ export const UserCreateRequestsTable = ({ openModal, onSelectRequest }: UserCrea
                         width: 160,
                     },
                     {
-                        content: <TableCellText text={request.supervisor.name || ''} />,
+                        content: <TableCellText text={request.supervisor?.name || ''} />,
                         width: 160,
                     },
                     {
