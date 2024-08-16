@@ -369,7 +369,7 @@ export const groupMethods = {
                 membershipsDict[id]?.forEach((m) => {
                     data.push({
                         userName: m.user.name,
-                        orgUnitName: m.user.organizationUnit?.name,
+                        orgUnitName: m.user.organizationUnit?.name || '',
                         supplemental: m.user.supplementalPositions
                             .map(({ organizationUnit }) => organizationUnit.name)
                             .join(', '),
