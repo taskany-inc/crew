@@ -5,12 +5,13 @@ import { Button, CheckboxInput, Fieldset, Form, FormAction, FormActions, FormInp
 import { gapM, gapS, gapXs, gray3, gray8, textColor } from '@taskany/colors';
 import { IconPlusCircleOutline, IconXCircleSolid } from '@taskany/icons';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { trpc } from '../../trpc/trpcClient';
 import { PageSep } from '../PageSep';
 import { LayoutMain } from '../LayoutMain';
 import { SettingsCard, SettingsContainer } from '../Settings';
-import { EditGroup } from '../../modules/groupSchemas';
+import { EditGroup, editGroupSchema } from '../../modules/groupSchemas';
 import { GroupMeta, GroupParent, GroupSupervisor } from '../../modules/groupTypes';
 import { useGroupMutations } from '../../modules/groupHooks';
 import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
@@ -90,8 +91,9 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
         reset,
         watch,
         setValue,
-        formState: { isDirty },
+        formState: { isDirty, errors },
     } = useForm<EditGroup>({
+        resolver: zodResolver(editGroupSchema),
         defaultValues: {
             groupId: group.id,
             name: group.name,
@@ -128,8 +130,13 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                 <SettingsCard>
                     <Form onSubmit={onSubmit}>
                         <Fieldset title={tr('General')}>
-                            <FormInput {...register('name')} label={tr('Name')} autoComplete="off" flat="bottom" />
-
+                            <FormInput
+                                {...register('name')}
+                                label={tr('Name')}
+                                autoComplete="off"
+                                flat="bottom"
+                                error={errors.name}
+                            />
                             <FormInput
                                 {...register('description')}
                                 label={tr('Description')}
