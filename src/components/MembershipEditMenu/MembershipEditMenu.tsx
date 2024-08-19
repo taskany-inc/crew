@@ -18,7 +18,7 @@ export const MembershipEditMenu = ({ membership }: MembershipEditMenuProps) => {
 
     const items = useMemo(
         () => [
-            { name: tr('Edit roles'), action: () => setEditRolesModalVisible(true) },
+            { name: tr('Edit'), action: () => setEditRolesModalVisible(true) },
             { name: tr('Remove'), action: () => setRemoveModalVisible(true) },
         ],
         [],

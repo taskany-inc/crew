@@ -8,6 +8,7 @@ import { AddRoleToMembershipForm } from '../AddRoleToMembershipForm/AddRoleToMem
 import { UserListItem } from '../UserListItem/UserListItem';
 import { useRoleMutations } from '../../modules/roleHooks';
 import { GroupListItem } from '../GroupListItem';
+import { EditPercentageForm } from '../EditPercentageForm/EditPercentageForm';
 
 import { tr } from './EditRolesModal.i18n';
 
@@ -35,7 +36,7 @@ export const EditRolesModal = ({ membership, visible, onClose }: EditRolesModalP
     return (
         <Modal visible={visible} onClose={onClose} width={500}>
             <ModalHeader>
-                <FormTitle>{tr('Edit roles')}</FormTitle>
+                <FormTitle>{tr('Edit')}</FormTitle>
                 <ModalCross onClick={onClose} />
             </ModalHeader>
 
@@ -58,6 +59,7 @@ export const EditRolesModal = ({ membership, visible, onClose }: EditRolesModalP
                 </div>
 
                 <AddRoleToMembershipForm membershipId={membership.id} />
+                <EditPercentageForm membership={membership} />
             </StyledModalContent>
         </Modal>
     );

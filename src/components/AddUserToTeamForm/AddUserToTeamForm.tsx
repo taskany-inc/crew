@@ -3,18 +3,9 @@ import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-    Button,
-    Form,
-    FormControl,
-    FormControlError,
-    FormControlInput,
-    FormControlLabel,
-    Text,
-    nullable,
-} from '@taskany/bricks';
+import { Button, Form, Text, nullable } from '@taskany/bricks';
 import { IconPlusCircleSolid } from '@taskany/icons';
-import { danger0, gapS, gray7 } from '@taskany/colors';
+import { danger0, gapS } from '@taskany/colors';
 
 import { InlineTrigger } from '../InlineTrigger';
 import { useUserMutations } from '../../modules/userHooks';
@@ -24,6 +15,7 @@ import { AddUserToGroup, addUserToGroupSchema } from '../../modules/userSchemas'
 import { trpc } from '../../trpc/trpcClient';
 import { Nullish } from '../../utils/types';
 import { useBoolean } from '../../hooks/useBoolean';
+import { EditPercentageFormControl } from '../EditPercentageFormControl/EditPercentageFormControl';
 
 import { tr } from './AddUserToTeamForm.i18n';
 
@@ -36,10 +28,6 @@ const StyledBottomRow = styled.div`
     display: flex;
     align-items: center;
     gap: ${gapS};
-`;
-
-const StyledFormControlInput = styled(FormControlInput)`
-    width: 7ch;
 `;
 
 const StyledSubmitButton = styled(Button)`
@@ -129,16 +117,11 @@ export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
                 ))}
                 <StyledBottomRow>
                     {nullable(userId, () => (
-                        <FormControl error={errors.percentage !== undefined} variant="outline" inline>
-                            <FormControlLabel color={gray7}>{tr('Membership percentage')}</FormControlLabel>
-                            <StyledFormControlInput onChange={onPercentageChange} />
-                            {nullable(errors.percentage, (e) => (
-                                <FormControlError error={e} />
-                            ))}
-                            <Text size="s" color={gray7}>
-                                {tr.raw('Available: {max}', { max })}
-                            </Text>
-                        </FormControl>
+                        <EditPercentageFormControl
+                            onPercentageChange={onPercentageChange}
+                            errors={errors}
+                            maxPercentage={max}
+                        />
                     ))}
                     <StyledSubmitButton text={tr('Add')} view="primary" type="submit" />
                 </StyledBottomRow>
