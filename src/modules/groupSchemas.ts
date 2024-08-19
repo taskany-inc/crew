@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { tr } from './modules.i18n';
 
 export const createGroupSchema = z.object({
-    name: z.string().min(3, { message: tr('Title must be longer than {min} symbol', { min: 3 }) }),
+    name: z.string().min(2, { message: tr('Title must be longer than {min} symbol', { min: 2 }) }),
     parentId: z.string().optional(),
     virtual: z.boolean().optional(),
     organizational: z.boolean().optional(),
@@ -12,7 +12,10 @@ export type CreateGroup = z.infer<typeof createGroupSchema>;
 
 export const editGroupSchema = z.object({
     groupId: z.string(),
-    name: z.string().optional(),
+    name: z
+        .string()
+        .min(2, { message: tr('Title must be longer than {min} symbol', { min: 2 }) })
+        .optional(),
     description: z.string().optional(),
     organizational: z.boolean().optional(),
     supervisorId: z.string().nullish(),
