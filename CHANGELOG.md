@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.76.1](https://github.com/taskany-inc/crew/compare/v0.76.0...v0.76.1) (2024-08-19)
+
+
+### Bug Fixes
+
+* allow supervisor and others not to have login in user requests ([647b66d](https://github.com/taskany-inc/crew/commit/647b66d4b66e8670293b128907dfbd49a2cbe0f7))
+* no undefined organizations in group export to csv ([20e04b3](https://github.com/taskany-inc/crew/commit/20e04b30703d8a6bc80ff72723458222c506ac6e))
+
 ## [0.76.0](https://github.com/taskany-inc/crew/compare/v0.75.0...v0.76.0) (2024-08-15)
 
 
