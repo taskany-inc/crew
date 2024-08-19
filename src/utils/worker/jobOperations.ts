@@ -28,13 +28,14 @@ export const getNextJob = async (state: jobState, exclude: string[]): Promise<Jo
                 .$if(exclude.length > 0, (qb) => qb.where(({ eb }) => eb('id', 'not in', exclude)))
                 .orderBy('priority desc')
                 .limit(1)
+                .select(['id'])
                 .forUpdate()
                 .skipLocked(),
         )
         .updateTable('Job')
         .set('state', jobState.pending)
         .from('cte')
-        .where('Job.id', '=', 'cte.id')
+        .whereRef('Job.id', '=', 'cte.id')
         .returningAll()
         .execute();
 
