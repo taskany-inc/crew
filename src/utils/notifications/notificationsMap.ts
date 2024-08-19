@@ -15,6 +15,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move' | 'AddAdmin' | 'RemoveAdmin'>
     | NamespacedAction<'vacancy', 'Create' | 'Update' | 'Archive'>
     | NamespacedAction<'role', 'AddToMembership' | 'RemoveFromMembership'>
+    | NamespacedAction<'percentage', 'Update'>
     | NamespacedAction<'service', 'AddToUser' | 'Delete'>
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'achievement', 'Give'>
@@ -84,6 +85,10 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         roleRemoveFromMembership: {
             success: tr('Role is removed'),
             loading: tr('Removing the role...'),
+        },
+        percentageUpdate: {
+            success: tr('Percentage is updated'),
+            loading: tr('Updating the percentage...'),
         },
         serviceAddToUser: {
             success: tr('Service is added'),

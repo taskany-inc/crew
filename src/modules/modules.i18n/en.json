@@ -80,5 +80,6 @@
     "User already has supplemental position in this organization": "",
     "User does not have supplemental position in this organization": "",
     "Organization": "",
-    "Supplemental positions": ""
+    "Supplemental positions": "",
+    "Cannot edit non-existent membership": ""
 }
