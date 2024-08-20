@@ -97,7 +97,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                             <UserComboBox
                                 user={user.supervisor}
                                 onChange={(newUser) => {
-                                    setValue('supervisorId', newUser?.id);
+                                    setValue('supervisorId', newUser?.id || null);
                                 }}
                             />
                         </div>
