@@ -247,8 +247,39 @@ describe('groups', () => {
         const treeMembershipsCountWithMember = await groupMethods.getTreeMembershipsCount(rootGroup.id);
         assert.equal(treeMembershipsCountWithMember, 3);
     });
+
     it('cannot add user to the same groupAdmin twice', async () => {
         const check = () => groupMethods.addUserToGroupAdmins({ userId: 'bulbasaur', groupId: 'zebra' });
         await assert.rejects(check, { message: 'User is already in group administrators' });
+    });
+
+    it('can update membership percentage', async () => {
+        const memberships = await groupMethods.getMemberships('goldfinch');
+        const membership = memberships[0];
+        assert.ok(membership);
+        const percentage = 50;
+        await userMethods.updatePercentage({ membershipId: membership.id, percentage });
+        const updatedMembership = await prisma.membership.findUnique({ where: { id: membership.id } });
+        assert.equal(updatedMembership?.percentage, percentage);
+    });
+
+    it('cannot update membership percentage if group is archived', async () => {
+        const memberships = await groupMethods.getMemberships('goldfinch');
+        const membership = memberships[0];
+        await groupMethods.archive('goldfinch');
+        assert.ok(membership);
+        const percentage = 50;
+        const check = () => userMethods.updatePercentage({ membershipId: membership.id, percentage });
+        await assert.rejects(check, { message: 'Cannot edit archived membership' });
+    });
+
+    it('cannot update membership percentage if percentage is higher than available', async () => {
+        const memberships = await groupMethods.getMemberships('goldfinch');
+        const membership = memberships[0];
+        const availablePercentage = await userMethods.getAvailableMembershipPercentage(membership.userId);
+        assert.ok(membership);
+        const percentage = availablePercentage + 1;
+        const check = () => userMethods.updatePercentage({ membershipId: membership.id, percentage });
+        await assert.rejects(check, { message: `Maximum available percentage is ${availablePercentage}` });
     });
 });

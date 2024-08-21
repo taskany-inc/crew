@@ -14,6 +14,7 @@ import {
     editUserActiveStateSchema,
     editUserRoleSchema,
     editUserMailingSettingsSchema,
+    updateMembershipPercentageSchema,
 } from '../../modules/userSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
@@ -60,6 +61,10 @@ export const userRouter = router({
             after: { percentage: result.percentage || undefined },
         });
         return result;
+    }),
+
+    updatePercentage: protectedProcedure.input(updateMembershipPercentageSchema).mutation(async ({ input }) => {
+        return userMethods.updatePercentage(input);
     }),
 
     removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(async ({ input, ctx }) => {
