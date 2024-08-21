@@ -19,7 +19,6 @@ import { userRoleRouter } from './userRoleRouter';
 import { attachRouter } from './attachRouter';
 import { userCreationRequestRouter } from './userCreationRequestRouter';
 import { supplementalPositionRouter } from './supplementalPositionRouter';
-import { percentageRouter } from './percentageRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -28,7 +27,6 @@ export const trpcRouter = router({
     search: searchRouter,
     service: serviceRouter,
     role: roleRouter,
-    percentage: percentageRouter,
     userRole: userRoleRouter,
     device: deviceRouter,
     organizationUnit: organizationUnitRouter,

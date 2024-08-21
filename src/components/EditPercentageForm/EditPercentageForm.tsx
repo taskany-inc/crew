@@ -4,10 +4,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { EditPercentageFormControl } from '../EditPercentageFormControl/EditPercentageFormControl';
-import { UpdateMembershipPercentage, updateMembershipPercentageSchema } from '../../modules/percentageSchemas';
 import { MembershipInfo } from '../../modules/userTypes';
 import { trpc } from '../../trpc/trpcClient';
-import { usePercentageMutations } from '../../modules/percentageHooks';
+import { useUserMutations } from '../../modules/userHooks';
+import { UpdateMembershipPercentage, updateMembershipPercentageSchema } from '../../modules/userSchemas';
 
 import { tr } from './EditPercentageForm.i18n';
 
@@ -16,7 +16,7 @@ interface EditPercentageFormProps {
 }
 
 export const EditPercentageForm: FC<EditPercentageFormProps> = ({ membership }) => {
-    const { updatePercentage } = usePercentageMutations();
+    const { updatePercentage } = useUserMutations();
     const {
         handleSubmit,
         setValue,

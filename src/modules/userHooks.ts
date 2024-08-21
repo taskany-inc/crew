@@ -10,6 +10,7 @@ import {
     EditUserSettings,
     RemoveUserFromGroup,
     EditUserMailingSettings,
+    UpdateMembershipPercentage,
 } from './userSchemas';
 
 export const useUserMutations = () => {
@@ -23,6 +24,13 @@ export const useUserMutations = () => {
     });
 
     const addUserToGroup = trpc.user.addToGroup.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.group.getMemberships.invalidate();
+        },
+    });
+
+    const updatePercentage = trpc.user.updatePercentage.useMutation({
         onSuccess: () => {
             utils.user.invalidate();
             utils.group.getMemberships.invalidate();
@@ -84,6 +92,9 @@ export const useUserMutations = () => {
         editUserRole: (data: EditUserRoleData) => notifyPromise(editUserRole.mutateAsync(data), 'userUpdate'),
 
         addUserToGroup: (data: AddUserToGroup) => notifyPromise(addUserToGroup.mutateAsync(data), 'userAddToGroup'),
+
+        updatePercentage: (data: UpdateMembershipPercentage) =>
+            notifyPromise(updatePercentage.mutateAsync(data), 'percentageUpdate'),
 
         removeUserFromGroup: (data: RemoveUserFromGroup) =>
             notifyPromise(removeUserFromGroup.mutateAsync(data), 'userRemoveFromGroup'),

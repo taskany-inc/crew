@@ -21,18 +21,24 @@ export const createUserSchema = z.object({
 });
 export type CreateUser = z.infer<typeof createUserSchema>;
 
+const percentageSchema = z
+    .number({ invalid_type_error: tr('Percentage must be a number') })
+    .int(tr('Percentage must be an integer'))
+    .min(1, tr('Minimum value is {min}', { min: 1 }))
+    .max(100, tr('Maximum value is {max}', { max: 100 }));
+
 export const addUserToGroupSchema = z.object({
     userId: z.string({ required_error: tr('User is required') }),
     groupId: z.string(),
-    percentage: z.optional(
-        z
-            .number({ invalid_type_error: tr('Percentage must be a number') })
-            .int(tr('Percentage must be an integer'))
-            .min(1, tr('Minimum value is {min}', { min: 1 }))
-            .max(100, tr('Maximum value is {max}', { max: 100 })),
-    ),
+    percentage: z.optional(percentageSchema),
 });
 export type AddUserToGroup = z.infer<typeof addUserToGroupSchema>;
+
+export const updateMembershipPercentageSchema = z.object({
+    membershipId: z.string(),
+    percentage: percentageSchema.or(z.null()),
+});
+export type UpdateMembershipPercentage = z.infer<typeof updateMembershipPercentageSchema>;
 
 export const removeUserFromGroupSchema = z.object({
     userId: z.string(),
