@@ -15,6 +15,7 @@ COPY --from=build /app/version ./public/version.txt
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/next.config.js ./
 COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/background ./background
 
 RUN npm ci --only=production --ignore-scripts && npm cache clean --force
 RUN npx prisma generate

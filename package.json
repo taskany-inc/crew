@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "npm run build:css && concurrently -k \"npm run dev:worker\" \"next dev\"",
     "build": "npm run build:css && concurrently \"next build\" \"npm run build:worker\"",
-    "build:worker": "tsc -p ./src/utils/worker",
-    "dev:worker": "tsx -r dotenv/config src/utils/worker/index.ts",
+    "build:worker": "tsc -p ./src/worker",
+    "dev:worker": "tsx -r dotenv/config src/worker/index.ts",
     "dev:db:init": "npx prisma migrate dev --preview-feature && npx prisma db seed",
     "dev:db:run": "docker-compose -f docker-compose.dev.yml up -d",
     "dev:db:down": "docker-compose down",

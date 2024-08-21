@@ -11,8 +11,8 @@ import {
     userCreationMailText,
 } from '../utils/emailTemplates';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
-import { createJob } from '../utils/worker/create';
-import { jobUpdate, jobDelete } from '../utils/worker/jobOperations';
+import { createJob } from '../worker/create';
+import { jobUpdate, jobDelete } from '../worker/jobOperations';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';

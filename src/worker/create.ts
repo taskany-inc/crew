@@ -1,5 +1,5 @@
-import { db } from '../db';
-import { config } from '../../config';
+import { db } from '../utils/db';
+import { config } from '../config';
 
 export enum jobState {
     scheduled = 'scheduled',

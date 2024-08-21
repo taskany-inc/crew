@@ -1,6 +1,6 @@
 import { sql } from 'kysely';
 
-import { db } from '../db';
+import { db } from '../utils/db';
 
 import { jobState } from './create';
 import { Job, UpdateJobData } from './worker';

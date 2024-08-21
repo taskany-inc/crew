@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 
-import { historyEventMethods } from '../../modules/historyEventMethods';
-import { userMethods } from '../../modules/userMethods';
+import { historyEventMethods } from '../modules/historyEventMethods';
+import { userMethods } from '../modules/userMethods';
 
 import { JobDataMap } from './create';
 

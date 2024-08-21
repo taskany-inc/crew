@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/nextjs';
 
-import { config } from '../../config';
+import { config } from '../config';
 
 import { worker, Job } from './worker';
 import * as resolve from './resolve';
