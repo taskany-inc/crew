@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "../../../background",
+        "outDir": "../../background",
         "target": "es5",
         "allowJs": true,
         "skipLibCheck": true,

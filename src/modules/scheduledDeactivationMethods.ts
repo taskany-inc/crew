@@ -7,7 +7,7 @@ import { Readable } from 'stream';
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
-import { createJob } from '../utils/worker/create';
+import { createJob } from '../worker/create';
 import { scheduledDeactivationEmailHtml } from '../utils/emailTemplates';
 import { scheduledDeactivationAllowed } from '../utils/scheduledDeactivationAllowed';
 
