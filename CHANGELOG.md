@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.76.3](https://github.com/taskany-inc/crew/compare/v0.76.2...v0.76.3) (2024-08-22)
+
+
+### Bug Fixes
+
+* edit user role in group doesn't allow to change percentage ([6c9f239](https://github.com/taskany-inc/crew/commit/6c9f2392858c4bb18ac12847b6a6328836aa68cb))
+
 ## [0.76.2](https://github.com/taskany-inc/crew/compare/v0.76.1...v0.76.2) (2024-08-21)
 
 
