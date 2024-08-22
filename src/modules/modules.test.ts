@@ -258,7 +258,7 @@ describe('groups', () => {
         const membership = memberships[0];
         assert.ok(membership);
         const percentage = 50;
-        await userMethods.updatePercentage({ membershipId: membership.id, percentage });
+        await userMethods.updatePercentage({ membershipId: membership.id, percentage, groupId: membership.groupId });
         const updatedMembership = await prisma.membership.findUnique({ where: { id: membership.id } });
         assert.equal(updatedMembership?.percentage, percentage);
     });
@@ -269,7 +269,8 @@ describe('groups', () => {
         await groupMethods.archive('goldfinch');
         assert.ok(membership);
         const percentage = 50;
-        const check = () => userMethods.updatePercentage({ membershipId: membership.id, percentage });
+        const check = () =>
+            userMethods.updatePercentage({ membershipId: membership.id, percentage, groupId: membership.groupId });
         await assert.rejects(check, { message: 'Cannot edit archived membership' });
     });
 
@@ -279,7 +280,8 @@ describe('groups', () => {
         const availablePercentage = await userMethods.getAvailableMembershipPercentage(membership.userId);
         assert.ok(membership);
         const percentage = availablePercentage + 1;
-        const check = () => userMethods.updatePercentage({ membershipId: membership.id, percentage });
+        const check = () =>
+            userMethods.updatePercentage({ membershipId: membership.id, percentage, groupId: membership.groupId });
         await assert.rejects(check, { message: `Maximum available percentage is ${availablePercentage}` });
     });
 });

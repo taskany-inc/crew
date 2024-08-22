@@ -28,6 +28,7 @@ export const EditPercentageForm: FC<EditPercentageFormProps> = ({ membership }) 
     } = useForm<UpdateMembershipPercentage>({
         resolver: zodResolver(updateMembershipPercentageSchema),
         defaultValues: {
+            groupId: membership.groupId,
             membershipId: membership.id,
             percentage: membership.percentage,
         },

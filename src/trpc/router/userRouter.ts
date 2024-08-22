@@ -19,6 +19,7 @@ import {
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { groupAccess } from '../../modules/groupAccess';
+import { prisma } from '../../utils/prisma';
 
 export const userRouter = router({
     create: protectedProcedure.input(createUserSchema).mutation(async ({ input, ctx }) => {
@@ -63,8 +64,21 @@ export const userRouter = router({
         return result;
     }),
 
-    updatePercentage: protectedProcedure.input(updateMembershipPercentageSchema).mutation(async ({ input }) => {
-        return userMethods.updatePercentage(input);
+    updatePercentage: protectedProcedure.input(updateMembershipPercentageSchema).mutation(async ({ input, ctx }) => {
+        accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
+
+        const membership = await prisma.membership.findUnique({
+            where: { id: input.membershipId },
+        });
+
+        const result = await userMethods.updatePercentage(input);
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'editMembershipPercentage', {
+            groupId: result.groupId,
+            userId: result.userId,
+            before: membership?.percentage || undefined,
+            after: result.percentage || undefined,
+        });
+        return result;
     }),
 
     removeFromGroup: protectedProcedure.input(removeUserFromGroupSchema).mutation(async ({ input, ctx }) => {

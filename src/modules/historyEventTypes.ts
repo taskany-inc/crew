@@ -130,6 +130,12 @@ interface HistoryEventsData {
         requireBefore: true;
         data: { roleCode?: string };
     };
+    editMembershipPercentage: {
+        requireGroupId: true;
+        requireUserId: true;
+        requireBefore: true;
+        data?: number;
+    };
     editUserMailingSettings: {
         requireGroupId: false;
         requireUserId: true;

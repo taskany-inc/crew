@@ -10,12 +10,17 @@ type NamespacedAction<T extends string, A extends string> = `${T}${A}`;
 export type NotificationNamespaces =
     | NamespacedAction<
           'user',
-          'Create' | 'Update' | 'AddToGroup' | 'RemoveFromGroup' | 'EditSettings' | 'EditMailingSettings'
+          | 'Create'
+          | 'Update'
+          | 'AddToGroup'
+          | 'RemoveFromGroup'
+          | 'EditSettings'
+          | 'EditMailingSettings'
+          | 'UpdatePercentage'
       >
     | NamespacedAction<'group', 'Create' | 'Update' | 'Archive' | 'Move' | 'AddAdmin' | 'RemoveAdmin'>
     | NamespacedAction<'vacancy', 'Create' | 'Update' | 'Archive'>
     | NamespacedAction<'role', 'AddToMembership' | 'RemoveFromMembership'>
-    | NamespacedAction<'percentage', 'Update'>
     | NamespacedAction<'service', 'AddToUser' | 'Delete'>
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'achievement', 'Give'>
@@ -62,6 +67,10 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             success: tr('User is added to mailing list'),
             loading: tr('Adding user to mailing list...'),
         },
+        userUpdatePercentage: {
+            success: tr('Percentage is updated'),
+            loading: tr('Updating the percentage...'),
+        },
         groupCreate: {
             success: tr('Voila! Team is here 🎉'),
             loading: tr('Creating the team...'),
@@ -86,10 +95,7 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             success: tr('Role is removed'),
             loading: tr('Removing the role...'),
         },
-        percentageUpdate: {
-            success: tr('Percentage is updated'),
-            loading: tr('Updating the percentage...'),
-        },
+
         serviceAddToUser: {
             success: tr('Service is added'),
             loading: tr('Adding service...'),
