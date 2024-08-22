@@ -1,7 +1,8 @@
 import React, { ChangeEventHandler, FC } from 'react';
 import { FieldError } from 'react-hook-form';
-import { FormControl, FormControlError, FormControlLabel, Input, Text, nullable } from '@taskany/bricks';
+import { FormControl, FormControlError, FormControlLabel, Input, Text } from '@taskany/bricks/harmony';
 import { gray7 } from '@taskany/colors';
+import { nullable } from '@taskany/bricks';
 
 import { tr } from './EditPercentageFormControl.i18n';
 import s from './EditPercentageFormControl.module.css';
@@ -23,19 +24,25 @@ export const EditPercentageFormControl: FC<EditPercentageFormControlProps> = ({
     submitButton,
 }) => {
     return (
-        <FormControl error={errors.percentage !== undefined} variant="outline">
-            <FormControlLabel as="div" color={gray7}>
-                {tr('Membership percentage')}
-            </FormControlLabel>
+        <FormControl>
+            <FormControlLabel color={gray7}>{tr('Membership percentage')}</FormControlLabel>
             {nullable(
                 submitButton,
                 () => (
                     <div className={s.EditPercentageFormControlInputWrapper}>
-                        <Input brick="right" onChange={onPercentageChange} defaultValue={initialPercentage} />
+                        <Input
+                            view={errors.percentage ? 'danger' : 'default'}
+                            brick="right"
+                            outline
+                            onChange={onPercentageChange}
+                            defaultValue={initialPercentage}
+                        />
                         {submitButton}
                     </div>
                 ),
                 <Input
+                    view={errors.percentage ? 'danger' : 'default'}
+                    outline
                     className={s.EditPercentageFormControlInput}
                     onChange={onPercentageChange}
                     defaultValue={initialPercentage}

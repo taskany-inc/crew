@@ -1,8 +1,10 @@
 .EditPercentageFormControlInputWrapper {
+  margin: var(--gap-s) 0;
   display: grid;
   grid-template-columns: minmax(calc(240px), 20%) max-content;
 }
 
 .EditPercentageFormControlInput {
+  margin: var(--gap-s) 0;
   width: 7ch;
 }

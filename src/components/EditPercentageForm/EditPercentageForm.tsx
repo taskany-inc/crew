@@ -1,7 +1,8 @@
-import { Button, Form } from '@taskany/bricks';
+import { Form } from '@taskany/bricks';
 import React, { ChangeEvent, FC, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@taskany/bricks/harmony';
 
 import { EditPercentageFormControl } from '../EditPercentageFormControl/EditPercentageFormControl';
 import { MembershipInfo } from '../../modules/userTypes';
@@ -32,9 +33,7 @@ export const EditPercentageForm: FC<EditPercentageFormProps> = ({ membership }) 
         },
     });
 
-    const availableMembershipQuery = trpc.user.getAvailableMembershipPercentage.useQuery(membership.userId, {
-        enabled: !!membership.userId,
-    });
+    const availableMembershipQuery = trpc.user.getAvailableMembershipPercentage.useQuery(membership.userId);
     const max = availableMembershipQuery.data ?? 100;
 
     const onPercentageChange = useCallback(
@@ -52,7 +51,6 @@ export const EditPercentageForm: FC<EditPercentageFormProps> = ({ membership }) 
 
     const onSubmit = async (data: UpdateMembershipPercentage) => {
         await updatePercentage(data);
-        setValue('percentage', membership.percentage);
     };
 
     return (
@@ -67,7 +65,6 @@ export const EditPercentageForm: FC<EditPercentageFormProps> = ({ membership }) 
                         type="submit"
                         view="primary"
                         disabled={Number(getValues().percentage) > max}
-                        outline
                         brick="left"
                         text={tr('Save')}
                     />
