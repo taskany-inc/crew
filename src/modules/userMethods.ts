@@ -172,7 +172,8 @@ export const userMethods = {
         }
 
         const availablePercentage = await userMethods.getAvailableMembershipPercentage(membership.userId);
-        if (percentage && percentage > availablePercentage) {
+        const max = Math.min(100, availablePercentage + Number(membership.percentage));
+        if (percentage && percentage > max) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
                 message: tr('Maximum available percentage is {max}', { max: availablePercentage }),

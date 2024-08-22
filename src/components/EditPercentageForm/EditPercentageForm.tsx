@@ -35,7 +35,7 @@ export const EditPercentageForm: FC<EditPercentageFormProps> = ({ membership }) 
     });
 
     const availableMembershipQuery = trpc.user.getAvailableMembershipPercentage.useQuery(membership.userId);
-    const max = availableMembershipQuery.data ?? 100;
+    const max = Math.min(100, Number(availableMembershipQuery.data) + Number(membership.percentage));
 
     const onPercentageChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
