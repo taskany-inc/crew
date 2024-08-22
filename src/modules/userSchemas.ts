@@ -36,6 +36,7 @@ export type AddUserToGroup = z.infer<typeof addUserToGroupSchema>;
 
 export const updateMembershipPercentageSchema = z.object({
     membershipId: z.string(),
+    groupId: z.string(),
     percentage: percentageSchema.or(z.null()),
 });
 export type UpdateMembershipPercentage = z.infer<typeof updateMembershipPercentageSchema>;

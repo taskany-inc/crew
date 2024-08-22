@@ -112,6 +112,22 @@ const componentMap: {
         );
     },
 
+    EditMembershipPercentage: ({ event }) => {
+        const visible = useBoolean(false);
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('edited membership percentage')} <UserListItem user={event.user} />
+                    {tr('in a team')} <GroupListItem groupId={event.group.id} groupName={event.group.name} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <ChangeListItem title={tr('Percentage')} before={event.before} after={event.after} />
+                ))}
+            </>
+        );
+    },
+
     CreateUserCreationRequest: ({ event }) => {
         const visible = useBoolean(false);
         const [, copy] = useCopyToClipboard();

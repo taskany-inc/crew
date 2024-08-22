@@ -94,7 +94,7 @@ export const useUserMutations = () => {
         addUserToGroup: (data: AddUserToGroup) => notifyPromise(addUserToGroup.mutateAsync(data), 'userAddToGroup'),
 
         updatePercentage: (data: UpdateMembershipPercentage) =>
-            notifyPromise(updatePercentage.mutateAsync(data), 'percentageUpdate'),
+            notifyPromise(updatePercentage.mutateAsync(data), 'userUpdatePercentage'),
 
         removeUserFromGroup: (data: RemoveUserFromGroup) =>
             notifyPromise(removeUserFromGroup.mutateAsync(data), 'userRemoveFromGroup'),
