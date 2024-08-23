@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.76.4](https://github.com/taskany-inc/crew/compare/v0.76.3...v0.76.4) (2024-08-23)
+
+
+### Bug Fixes
+
+* can`t decrease membership percentage ([93b773e](https://github.com/taskany-inc/crew/commit/93b773e4113f0be2e425dc191790e0a384a595a4))
+
 ## [0.76.3](https://github.com/taskany-inc/crew/compare/v0.76.2...v0.76.3) (2024-08-22)
 
 
