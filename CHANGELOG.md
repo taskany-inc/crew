@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.76.5](https://github.com/taskany-inc/crew/compare/v0.76.4...v0.76.5) (2024-08-27)
+
+
+### Bug Fixes
+
+* **telemetry:** use env for host ([9168efc](https://github.com/taskany-inc/crew/commit/9168efcd30cd2764cad55509547c9830fbc5f362))
+
 ## [0.76.4](https://github.com/taskany-inc/crew/compare/v0.76.3...v0.76.4) (2024-08-23)
 
 
