@@ -10,6 +10,7 @@ import {
     FiltersMenuItem,
     FilterPopup,
     Button,
+    nullable,
 } from '@taskany/bricks';
 import { User } from 'prisma/prisma-client';
 
@@ -56,6 +57,13 @@ const activityValues: Record<ActivityVariants, string | undefined> = {
     all: undefined,
 };
 
+type IncludeChildrenGroupsVariants = 'yes' | 'no';
+
+const includeChildrenGroupsValues: Record<IncludeChildrenGroupsVariants, string | undefined> = {
+    yes: '1',
+    no: undefined,
+};
+
 export const UsersPageFiltersPanel = memo(({ children, loading, total, counter }: UsersPageFilterPanelProps) => {
     const userListFilter = useUserListFilter();
 
@@ -71,6 +79,11 @@ export const UsersPageFiltersPanel = memo(({ children, loading, total, counter }
         active: tr('Active'),
         inactive: tr('Inactive'),
         all: tr('All'),
+    };
+
+    const includeChildrenGroupsTranslations: Record<IncludeChildrenGroupsVariants, string> = {
+        yes: tr('Yes'),
+        no: tr('No'),
     };
 
     const onApplyClick = () => {
@@ -164,7 +177,7 @@ export const UsersPageFiltersPanel = memo(({ children, loading, total, counter }
                 supervisors={supervisors}
                 groups={groups}
                 roles={roles}
-            ></UserFilterApplied>
+            />
             <FilterPopup
                 applyButtonText={tr('Apply')}
                 cancelButtonText={tr('Cancel')}
@@ -191,6 +204,20 @@ export const UsersPageFiltersPanel = memo(({ children, loading, total, counter }
                     onChange={setPartialQueryByKey('groups')}
                     onSearchChange={setGroupQuery}
                 />
+                {nullable(localFilterQuery.groups?.length, () => (
+                    <FilterRadio
+                        tabName="includeChildrenGroups"
+                        label={tr('Children groups')}
+                        items={objKeys(includeChildrenGroupsValues).map((k) => ({
+                            title: includeChildrenGroupsTranslations[k],
+                            value: k,
+                        }))}
+                        value={localFilterQuery.includeChildrenGroups ? 'yes' : 'no'}
+                        onChange={(v) => {
+                            setPartialQueryByKey('includeChildrenGroups')(v === 'yes' ? true : undefined);
+                        }}
+                    />
+                ))}
                 <GroupsOrRolesFilter
                     tabName="roles"
                     text={tr('Roles')}

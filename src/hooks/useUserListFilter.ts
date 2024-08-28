@@ -14,6 +14,7 @@ export const useUserListFilter = () => {
             search: 'string',
             activity: 'string',
             groups: 'stringArray',
+            includeChildrenGroups: 'boolean',
             roles: 'stringArray',
             supervisors: 'stringArray',
         },

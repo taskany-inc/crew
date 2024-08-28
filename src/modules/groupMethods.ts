@@ -6,6 +6,7 @@ import { objByKey, objByKeyMulti } from '../utils/objByKey';
 import { SessionUser } from '../utils/auth';
 import { suggestionsTake } from '../utils/suggestions';
 import { createCsvDocument } from '../utils/csv';
+import { db } from '../utils/db';
 
 import {
     CreateGroup,
@@ -331,6 +332,28 @@ export const groupMethods = {
             }
         }
         return { adjacencyList, dict };
+    },
+
+    getDeepChildrenIds: async (groupIds: string[]) => {
+        const children = await db
+            .withRecursive('rectree', (qc) =>
+                qc
+                    .selectFrom('Group')
+                    .select(['id'])
+                    .where('id', 'in', groupIds)
+                    .where('archived', '=', false)
+                    .unionAll((qb) =>
+                        qb
+                            .selectFrom('Group')
+                            .select(['Group.id'])
+                            .innerJoin('rectree', 'rectree.id', 'Group.parentId')
+                            .where('archived', '=', false),
+                    ),
+            )
+            .selectFrom('rectree')
+            .selectAll()
+            .execute();
+        return children.map(({ id }) => id);
     },
 
     exportMembers: async (groupId: string): Promise<string> => {

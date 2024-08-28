@@ -45,7 +45,7 @@ export const UserFilterApplied = ({ filterState, supervisors, groups, roles }: U
                 .filter((role) => filterState.roles?.includes(role.id))
                 .map((s) => s.name)
                 .join(', ')
-        }.`;
+        }. `;
     }
 
     if (filterState.activity !== undefined) {
