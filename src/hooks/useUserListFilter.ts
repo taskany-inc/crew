@@ -5,14 +5,14 @@ import { debounce } from 'throttle-debounce';
 
 import { UserFilterQuery } from '../modules/userTypes';
 
-export const useUserListFilterUrlParams = () => {
+export const useUserListFilter = () => {
     const router = useRouter();
     const pushUrl = useCallback((url: string) => router.push(url), [router]);
 
     const { values, setter, clearParams } = useUrlParams(
         {
             search: 'string',
-            active: 'string',
+            activity: 'string',
             groups: 'stringArray',
             roles: 'stringArray',
             supervisors: 'stringArray',
@@ -21,18 +21,21 @@ export const useUserListFilterUrlParams = () => {
         pushUrl,
     );
 
-    const setFiltersQuery = useCallback((filters: UserFilterQuery) => {
-        Object.entries(filters).forEach(([key, value]) => {
-            setter(key as keyof UserFilterQuery, value);
-        });
-    }, []);
+    const setFiltersQuery = useCallback(
+        (filters: UserFilterQuery) => {
+            Object.entries(filters).forEach(([key, value]) => {
+                setter(key as keyof UserFilterQuery, value);
+            });
+        },
+        [setter],
+    );
 
     const setSearch = useCallback(
         debounce(300, (v: string) => {
             setter('search', v);
         }),
-        [],
+        [setter],
     );
 
-    return { values, setFiltersQuery, clearParams, setSearch };
+    return { values: values as UserFilterQuery, setFiltersQuery, clearParams, setSearch };
 };

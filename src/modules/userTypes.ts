@@ -56,10 +56,11 @@ export interface UserSupervisorIn {
 }
 
 export interface UserFilterQuery {
+    search?: string;
     groups?: string[];
     roles?: string[];
     supervisors?: string[];
-    active?: boolean;
+    activity?: 'active' | 'inactive';
 }
 
 export interface UserAchievements {

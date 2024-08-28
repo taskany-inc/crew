@@ -61,6 +61,7 @@ export const UserFilter: React.FC<UserFilterProps> = ({
 
                     return (
                         <FilterCheckbox
+                            key={item.id}
                             name="user"
                             value={item.id}
                             checked={checked}
