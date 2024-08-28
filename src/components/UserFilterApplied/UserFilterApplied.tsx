@@ -48,9 +48,9 @@ export const UserFilterApplied = ({ filterState, supervisors, groups, roles }: U
         }.`;
     }
 
-    if (filterState.active !== undefined) {
-        const active = filterState.active ? tr('Active.') : tr('Inactive.');
-        filterAppliedString = `${filterAppliedString + active}`;
+    if (filterState.activity !== undefined) {
+        const activity = filterState.activity === 'active' ? tr('Active.') : tr('Inactive.');
+        filterAppliedString = `${filterAppliedString + activity}`;
     }
 
     return (

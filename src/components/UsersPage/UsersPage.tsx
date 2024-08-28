@@ -7,8 +7,7 @@ import { LayoutMain, PageContent } from '../LayoutMain';
 import { UsersPageFiltersPanel } from '../UsersPageFilterPanel/UsersPageFilterPanel';
 import { CommonHeader } from '../CommonHeader';
 import { UserListItem } from '../UserListItem/UserListItem';
-import { useUserListFilterUrlParams } from '../../hooks/useUserListFilterUrlParams';
-import { UserFilterQuery } from '../../modules/userTypes';
+import { useUserListFilter } from '../../hooks/useUserListFilter';
 
 import { tr } from './UsersPage.i18n';
 
@@ -17,28 +16,27 @@ const StyledUserListItemWrapper = styled.div`
 `;
 
 export const UsersPage = () => {
-    const { values, setFiltersQuery, setSearch } = useUserListFilterUrlParams();
+    const userListFilter = useUserListFilter();
 
-    const filterQuery: UserFilterQuery & { search?: string } = {
-        ...values,
-        active: values.active ? values.active === 'true' : undefined,
-    };
-
-    const usersQuery = trpc.user.getList.useInfiniteQuery(filterQuery, {
-        keepPreviousData: true,
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-    });
+    const usersQuery = trpc.user.getList.useInfiniteQuery(
+        {
+            ...userListFilter.values,
+            active:
+                userListFilter.values.activity === undefined ? undefined : userListFilter.values.activity === 'active',
+        },
+        {
+            keepPreviousData: true,
+            getNextPageParam: (lastPage) => lastPage.nextCursor,
+        },
+    );
 
     return (
         <LayoutMain pageTitle={tr('Users')}>
             <CommonHeader title={tr('Users')} />
             <UsersPageFiltersPanel
-                searchQuery={values.search}
-                filterState={filterQuery}
+                loading={usersQuery.isLoading}
                 total={usersQuery.data?.pages[0].total || 0}
                 counter={usersQuery.data?.pages[0].counter || 0}
-                setSearchQuery={setSearch}
-                onFilterApply={setFiltersQuery}
             />
             <PageContent>
                 {usersQuery.data?.pages.map((page, index) => (
