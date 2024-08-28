@@ -39,7 +39,7 @@ import {
     UpdateMembershipPercentage,
 } from './userSchemas';
 import { tr } from './modules.i18n';
-import { addCalculatedGroupFields } from './groupMethods';
+import { addCalculatedGroupFields, groupMethods } from './groupMethods';
 import { userAccess } from './userAccess';
 import { externalUserMethods } from './externalUserMethods';
 
@@ -62,25 +62,20 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: S
     };
 };
 
-const usersWhere = (data: GetUserList) => {
+const usersWhere = async (data: GetUserList) => {
     const where: Prisma.UserWhereInput = {};
+    const membershipsSome: Prisma.MembershipWhereInput = {};
     if (data.search) where.name = { contains: data.search, mode: 'insensitive' };
     if (data.supervisors) where.supervisorId = { in: data.supervisors };
-    if (data.groups && !data.roles) {
-        where.memberships = {
-            some: { groupId: { in: data.groups } },
-        };
+    if (data.groups) {
+        let groupIds = [...data.groups];
+        if (data.includeChildrenGroups) {
+            groupIds = await groupMethods.getDeepChildrenIds(groupIds);
+        }
+        membershipsSome.groupId = { in: groupIds };
     }
-    if (!data.groups && data.roles) {
-        where.memberships = {
-            some: { roles: { some: { id: { in: data.roles } } } },
-        };
-    }
-
-    if (data.groups && data.roles) {
-        where.memberships = {
-            some: { groupId: { in: data.groups }, roles: { some: { id: { in: data.roles } } } },
-        };
+    if (data.roles) {
+        membershipsSome.roles = { some: { id: { in: data.roles } } };
     }
 
     if (data.active !== undefined) {
@@ -93,7 +88,7 @@ const usersWhere = (data: GetUserList) => {
         };
     }
 
-    return where;
+    return { ...where, memberships: { some: membershipsSome } };
 };
 
 export const userMethods = {
@@ -322,7 +317,7 @@ export const userMethods = {
     getList: async (data: GetUserList) => {
         const { cursor, take, ...restData } = data;
 
-        const where = usersWhere(restData);
+        const where = await usersWhere(restData);
 
         const counter = await prisma.user.count({ where });
 

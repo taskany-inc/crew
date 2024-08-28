@@ -58,6 +58,7 @@ export interface UserSupervisorIn {
 export interface UserFilterQuery {
     search?: string;
     groups?: string[];
+    includeChildrenGroups?: boolean;
     roles?: string[];
     supervisors?: string[];
     activity?: 'active' | 'inactive';
