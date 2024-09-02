@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.77.0](https://github.com/taskany-inc/crew/compare/v0.76.5...v0.77.0) (2024-09-02)
+
+
+### Features
+
+* **user list filter:** including children groups in search ([6c2b50e](https://github.com/taskany-inc/crew/commit/6c2b50e6a3785f6084356a6fd245cc88770de21d))
+
+
+### Bug Fixes
+
+* **HistoryRecord:** show percentage change without toggle ([36b8c53](https://github.com/taskany-inc/crew/commit/36b8c537789cdc66a90324a6bf4b0cd7f39e63d7))
+
 ## [0.76.5](https://github.com/taskany-inc/crew/compare/v0.76.4...v0.76.5) (2024-08-27)
 
 
