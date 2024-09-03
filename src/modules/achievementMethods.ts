@@ -58,15 +58,18 @@ export const achievementMethods = {
                 Sentry.captureException(`No tech admin with id ${config.techAdminId} from config`);
                 return achievement;
             }
+
+            const bonuses = achievement.bonusForAchievementRule.bonusesPerCrewAchievement * amount;
+
             await prisma.$transaction([
                 prisma.user.update({
                     where: { id: data.userId },
-                    data: { bonusPoints: { increment: achievement.bonusForAchievementRule.bonusesPerCrewAchievement } },
+                    data: { bonusPoints: { increment: bonuses } },
                 }),
                 prisma.bonusHistory.create({
                     data: {
                         action: 'ADD',
-                        amount: achievement.bonusForAchievementRule.bonusesPerCrewAchievement,
+                        amount: bonuses,
                         targetUserId: data.userId,
                         actingUserId: techAdmin.id,
                         description: achievement.bonusForAchievementRule.description,
