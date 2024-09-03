@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.77.1](https://github.com/taskany-inc/crew/compare/v0.77.0...v0.77.1) (2024-09-03)
+
+
+### Bug Fixes
+
+* **bonuses:** match bonuses amount to achievements count ([8616cf9](https://github.com/taskany-inc/crew/commit/8616cf933a0c831d517b99e595f04aef235bc050))
+
 ## [0.77.0](https://github.com/taskany-inc/crew/compare/v0.76.5...v0.77.0) (2024-09-02)
 
 
