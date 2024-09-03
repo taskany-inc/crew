@@ -88,7 +88,11 @@ const usersWhere = async (data: GetUserList) => {
         };
     }
 
-    return { ...where, memberships: { some: membershipsSome } };
+    if (data.groups || data.roles) {
+        where.memberships = { some: membershipsSome };
+    }
+
+    return where;
 };
 
 export const userMethods = {
