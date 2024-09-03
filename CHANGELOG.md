@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.77.2](https://github.com/taskany-inc/crew/compare/v0.77.1...v0.77.2) (2024-09-03)
+
+
+### Bug Fixes
+
+* **userMethods:** dont search by membership if no grous or roles ([4a3c976](https://github.com/taskany-inc/crew/commit/4a3c97681824ab255ff68fc634792b7f696d712b))
+
 ## [0.77.1](https://github.com/taskany-inc/crew/compare/v0.77.0...v0.77.1) (2024-09-03)
 
 
