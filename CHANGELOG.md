@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.77.3](https://github.com/taskany-inc/crew/compare/v0.77.2...v0.77.3) (2024-09-12)
+
+
+### Bug Fixes
+
+* enabled flag for external user service ([7505f2e](https://github.com/taskany-inc/crew/commit/7505f2e228bd251c84094603645871aa548534bd))
+
 ## [0.77.2](https://github.com/taskany-inc/crew/compare/v0.77.1...v0.77.2) (2024-09-03)
 
 
