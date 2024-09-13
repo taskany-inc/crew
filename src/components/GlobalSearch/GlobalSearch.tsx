@@ -1,49 +1,27 @@
 import React, { useState, useCallback } from 'react';
 import { useDebounce } from 'use-debounce';
+import cn from 'classnames';
+import { nullable } from '@taskany/bricks';
 import {
     ListView,
     ListViewItem,
     Table,
-    nullable,
     Text,
     GlobalSearch as TaskanyGlobalSearch,
     MenuItem,
-} from '@taskany/bricks';
+} from '@taskany/bricks/harmony';
 import { IconUserOutline, IconUsersOutline } from '@taskany/icons';
-import styled from 'styled-components';
-import { gapS, gapXs, gray4 } from '@taskany/colors';
 import { Group, User } from 'prisma/prisma-client';
 
 import { trpc } from '../../trpc/trpcClient';
 import { useRouter } from '../../hooks/useRouter';
 
 import { tr } from './GlobalSearch.i18n';
+import s from './GlobalSearch.module.css';
 
 type Entity = 'user' | 'team';
 
 type ListViewItemValue = [Entity, string];
-
-const StyledGroupHeader = styled(Text)`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    box-sizing: border-box;
-
-    padding-top: ${gapS};
-    padding-bottom: ${gapXs};
-    margin: 0 ${gapS};
-
-    max-width: 392px;
-
-    border-bottom: 1px solid ${gray4};
-`;
-
-const StyledMenuItem = styled(MenuItem)`
-    border: none;
-`;
-
-const tableWidth = 400;
 
 interface SearchResultsProps {
     entity: Entity;
@@ -52,15 +30,20 @@ interface SearchResultsProps {
 }
 
 const SearchResults = ({ items, entity, onClick }: SearchResultsProps) => (
-    <Table width={tableWidth}>
+    <Table>
         {items?.map((item) => (
             <ListViewItem
                 key={item.id}
                 value={[entity, item.id]}
-                renderItem={({ active, ...props }) => (
-                    <StyledMenuItem onClick={() => onClick([entity, item.id])} focused={active} {...props}>
+                renderItem={({ active, hovered, ...props }) => (
+                    <MenuItem
+                        className={s.GlobalSearchMenuItem}
+                        onClick={() => onClick([entity, item.id])}
+                        hovered={active || hovered}
+                        {...props}
+                    >
                         {item.name}
-                    </StyledMenuItem>
+                    </MenuItem>
                 )}
             />
         ))}
@@ -82,31 +65,41 @@ export const GlobalSearch = () => {
         [router],
     );
 
+    const nothingFound = Boolean(!resultsExists && query.length);
+
     return (
         <TaskanyGlobalSearch
-            query={query}
-            setQuery={setQuery}
-            searchResultExists={resultsExists}
+            value={query}
+            onChange={setQuery}
+            searchResultExists={resultsExists || nothingFound}
             placeholder={tr('Search or jump to...')}
+            placement="bottom-end"
+            offset={[8, -40]}
+            outline
         >
             <ListView onKeyboardClick={onKeyboardNavigate}>
                 {nullable(suggestions.data?.users?.length, () => (
                     <>
-                        <StyledGroupHeader size="m" weight="bolder">
+                        <Text size="m" weight="bolder" className={s.GlobalSearchGroupHeader}>
                             {tr('Users')} <IconUserOutline size="s" />
-                        </StyledGroupHeader>
+                        </Text>
                         <SearchResults entity="user" onClick={onKeyboardNavigate} items={suggestions.data?.users} />
                     </>
                 ))}
                 {nullable(suggestions.data?.groups?.length, () => (
                     <>
-                        <StyledGroupHeader size="m" weight="bolder">
+                        <Text size="m" weight="bolder" className={s.GlobalSearchGroupHeader}>
                             {tr('Teams')} <IconUsersOutline size="s" />
-                        </StyledGroupHeader>
+                        </Text>
                         <SearchResults entity="team" onClick={onKeyboardNavigate} items={suggestions.data?.groups} />
                     </>
                 ))}
             </ListView>
+            {nullable(nothingFound, () => (
+                <Text size="m" weight="bolder" className={cn(s.GlobalSearchGroupHeader, s.GlobalSearchNothingFound)}>
+                    {tr('Nothing found')}
+                </Text>
+            ))}
         </TaskanyGlobalSearch>
     );
 };

@@ -41,7 +41,7 @@ export const UsersPage = () => {
             <PageContent>
                 {usersQuery.data?.pages.map((page, index) => (
                     <div key={`page-${index}`}>
-                        {page.total === 0 ? (
+                        {page.counter === 0 ? (
                             <Text>{tr('Nothing found')} 😔</Text>
                         ) : (
                             page.users?.map((user) => (
