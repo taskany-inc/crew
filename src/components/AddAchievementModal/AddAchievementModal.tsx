@@ -75,7 +75,7 @@ export const AddAchievementModal = ({ userId, visible, onClose }: AddAchievement
     const errorDescriptionVisible = useBoolean(false);
 
     const [search, setSearch] = useState('');
-    const achievementsQuery = trpc.achievement.getList.useQuery({ search });
+    const achievementsQuery = trpc.achievement.getList.useQuery({ search, take: 45 });
 
     const {
         register,
