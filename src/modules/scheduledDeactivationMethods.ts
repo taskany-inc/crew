@@ -91,7 +91,9 @@ export const scheduledDeactivationMethods = {
 
         const subject =
             type === 'retirement'
-                ? `${tr('Retirement')} ${user.name} (${restData.phone})`
+                ? `${tr('Retirement of')} ${user.name} (${restData.phone}) ${tr('from')} ${
+                      scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
+                  }`
                 : `${tr('Transfer from')} ${
                       scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
                   } ${tr('to')} ${
@@ -239,7 +241,11 @@ export const scheduledDeactivationMethods = {
 
         const subject =
             type === 'retirement'
-                ? `${tr('Update on retirement of')} ${scheduledDeactivation.user.name} (${restData.phone})`
+                ? `${tr('Update on retirement of')} ${scheduledDeactivation.user.name} (${restData.phone}) ${tr(
+                      'from',
+                  )} ${
+                      scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
+                  }`
                 : `${tr('Update on transfer from')} ${
                       scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
                   } ${tr('to')} ${

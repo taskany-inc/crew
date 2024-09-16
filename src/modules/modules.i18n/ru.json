@@ -48,7 +48,7 @@
     "Icon URL is required": "Ссылка на иконку обязательна",
     "Cannot edit another user": "Нельзя редактировать другого пользователя",
     "Cannot view activity of another user": "Нельзя просматривать активность другого пользователя",
-    "Retirement": "Увольнение",
+    "Retirement of": "Увольнение",
     "Transfer from": "Перевод из",
     "to": "в",
     "Obligatory field": "Обязательное поле",
@@ -81,5 +81,6 @@
     "User does not have supplemental position in this organization": "У пользователя нет дополнительной позиции в этой организации",
     "Organization": "Организация",
     "Supplemental positions": "Дополнительные организации",
-    "Cannot edit non-existent membership": "Невозможно изменить несуществующее членство в группе"
+    "Cannot edit non-existent membership": "Невозможно изменить несуществующее членство в группе",
+    "from": "из"
 }
