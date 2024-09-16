@@ -279,6 +279,7 @@ model ScheduledDeactivation {
 
   workMode        String?
   workModeComment String?
+  workPlace       String?
 
   testingDevices Json?
   devices        Json?
