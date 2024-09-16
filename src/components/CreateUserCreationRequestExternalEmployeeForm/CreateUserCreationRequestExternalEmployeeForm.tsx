@@ -1,12 +1,13 @@
-import { ChangeEvent, ComponentProps, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, ComponentProps, useCallback, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, FormAction, FormActions, FormInput, Text, nullable } from '@taskany/bricks';
-import { Checkbox, FormControl } from '@taskany/bricks/harmony';
+import { Checkbox, FormControl, Tooltip } from '@taskany/bricks/harmony';
 import { danger0, gray8 } from '@taskany/colors';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
+import { IconBulbOnOutline } from '@taskany/icons';
 
 import {
     CreateUserCreationRequestExternalEmployee,
@@ -25,6 +26,7 @@ import { AttachItem } from '../AttachItem/AttachItem';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
+import { loginAuto } from '../../utils/createUserCreationRequest';
 
 import s from './CreateUserCreationRequestExternalEmployeeForm.module.css';
 import { tr } from './CreateUserCreationRequestExternalEmployeeForm.i18n';
@@ -94,6 +96,16 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
 
     const debouncedSearchHandler = debounce(300, setIsLoginUniqueQuery);
 
+    const onNameChange = () => {
+        const login = loginAuto({
+            firstName: watch('firstName'),
+            middleName: watch('middleName'),
+            surname: watch('surname'),
+        });
+        debouncedSearchHandler(login);
+        setValue('login', login);
+    };
+
     const onLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
         debouncedSearchHandler(e.currentTarget.value);
         if (createCorporateEmail.value) {
@@ -158,6 +170,8 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
         setValue('attachIds', files.filter(({ id }) => id !== file.id).map(({ id }) => id) as [string, ...string[]]);
     };
 
+    const loginTooltipRef = useRef(null);
+
     return (
         <Form onSubmit={onFormSubmit}>
             <div className={s.NoWrap}>
@@ -177,7 +191,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     label={tr('Surname')}
                     brick="right"
                     autoComplete="off"
-                    {...register('surname', { required: tr('Required field') })}
+                    {...register('surname', { required: tr('Required field'), onChange: onNameChange })}
                     error={errors.surname}
                 />
 
@@ -185,7 +199,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     label={tr('First name')}
                     brick="right"
                     autoComplete="off"
-                    {...register('firstName', { required: tr('Required field') })}
+                    {...register('firstName', { required: tr('Required field'), onChange: onNameChange })}
                     error={errors.firstName}
                 />
 
@@ -193,8 +207,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     label={tr('Middle name')}
                     brick="right"
                     autoComplete="off"
-                    {...register('middleName')}
-                    error={errors.middleName}
+                    {...register('middleName', { onChange: onNameChange })}
                 />
 
                 <FormInput
@@ -213,13 +226,22 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     error={errors.email}
                 />
 
-                <FormInput
-                    label={tr('Login')}
-                    brick="right"
-                    autoComplete="off"
-                    {...register('login', { required: tr('Required field'), onChange: onLoginChange })}
-                    error={errors.login}
-                />
+                <div className={s.LoginInput}>
+                    <FormInput
+                        label={tr('Login')}
+                        brick="right"
+                        autoComplete="off"
+                        {...register('login', { required: tr('Required field'), onChange: onLoginChange })}
+                        error={errors.login}
+                        className={s.FormInput}
+                    />
+                    <IconBulbOnOutline ref={loginTooltipRef} size="s" />
+                    <Tooltip reference={loginTooltipRef} placement="bottom-start" arrow={false} maxWidth={250}>
+                        {tr(
+                            'The login can be changed manually if the resulting one is already taken or is completely discordant',
+                        )}
+                    </Tooltip>
+                </div>
 
                 <div className={s.InputContainer}>
                     <Text weight="bold" color={gray8}>
