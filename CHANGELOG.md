@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.78.0](https://github.com/taskany-inc/crew/compare/v0.77.3...v0.78.0) (2024-09-16)
+
+
+### Features
+
+* nothing found for global search ([6b474a7](https://github.com/taskany-inc/crew/commit/6b474a76b0573ed430c1f190b884fdbc4a4ece72))
+* update achivements limit ([10997e3](https://github.com/taskany-inc/crew/commit/10997e3b5b2dfa81e52d2ffa290f86980f66a57f))
+
 ## [0.77.3](https://github.com/taskany-inc/crew/compare/v0.77.2...v0.77.3) (2024-09-12)
 
 
