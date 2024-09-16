@@ -72,7 +72,9 @@ export const scheduledDeactivationEmailHtml = (
         <tr>
             <th>${tr('Working hours,<br/>workplace (if any)')}</th>
             <td>
-                ${data.workMode}${data.workModeComment ? `, ${data.workModeComment}` : ''}
+                ${data.workMode}
+                ${data.workPlace ? `, ${data.workPlace}` : ''}
+                ${data.workModeComment ? `, ${data.workModeComment}` : ''}
             </td>
         </tr>
     ${

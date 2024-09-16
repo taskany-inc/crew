@@ -14,7 +14,6 @@
     "Phone": "",
     "Location": "",
     "Work mode": "",
-    "Work mode comment": "",
     "Organization": "",
     "Unit ID": "",
     "Testing devices": "",
@@ -25,5 +24,6 @@
     "Mixed": "",
     "Remote": "",
     "Retirement": "",
-    "Transfer": ""
+    "Transfer": "",
+    "Work place": ""
 }

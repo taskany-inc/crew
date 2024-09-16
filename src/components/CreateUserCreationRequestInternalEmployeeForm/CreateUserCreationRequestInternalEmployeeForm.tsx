@@ -424,7 +424,7 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     />
                 </FormControl>
             </div>
-            <div className={s.FormActionWrap}>
+            <div>
                 <FormActions>
                     <FormAction left />
                     <FormAction right inline>

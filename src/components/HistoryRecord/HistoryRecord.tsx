@@ -677,6 +677,9 @@ const componentMap: {
                         <ChangeListItem title={tr('Organizational role')} after={event.after.organizationRole} />
                         <ChangeListItem title={tr('New organizational role')} after={event.after.newOrganizationRole} />
                         <ChangeListItem title={tr('Unit')} after={event.after.unitId} />
+                        <ChangeListItem title={tr('Work mode')} after={event.after.workMode} />
+                        <ChangeListItem title={tr('Work place')} after={event.after.workPlace} />
+                        <ChangeListItem title={tr('Comment')} after={event.after.comments} />
                     </>
                 ))}
             </>
@@ -757,6 +760,21 @@ const componentMap: {
                             before={event.before.newOrganizationRole}
                         />
                         <ChangeListItem title={tr('Unit')} after={event.after.unitId} before={event.before.unitId} />
+                        <ChangeListItem
+                            title={tr('Work mode')}
+                            after={event.after.workMode}
+                            before={event.before.workMode}
+                        />
+                        <ChangeListItem
+                            title={tr('Work place')}
+                            after={event.after.workPlace}
+                            before={event.before.workPlace}
+                        />
+                        <ChangeListItem
+                            title={tr('Comment')}
+                            after={event.after.comments}
+                            before={event.before.comments}
+                        />
                     </>
                 ))}
             </>

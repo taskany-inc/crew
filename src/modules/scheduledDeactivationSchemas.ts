@@ -18,6 +18,7 @@ const baseSchema = z.object({
         .string({ required_error: tr('Obligatory field') })
         .min(1, { message: tr('Obligatory field', { min: 1 }) }),
     workModeComment: z.string().optional(),
+    workPlace: z.string().optional(),
     unitId: z.number({ required_error: tr('Obligatory field') }),
     devices: z.array(z.object({ name: z.string(), id: z.string() })).optional(),
     testingDevices: z.array(z.object({ name: z.string(), id: z.string() })).optional(),

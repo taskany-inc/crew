@@ -225,6 +225,7 @@ export type ScheduledDeactivation = {
     newOrganizationalGroup: string | null;
     workMode: string | null;
     workModeComment: string | null;
+    workPlace: string | null;
     testingDevices: unknown | null;
     devices: unknown | null;
     comments: string | null;

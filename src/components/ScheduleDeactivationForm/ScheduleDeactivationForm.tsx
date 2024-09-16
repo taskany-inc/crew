@@ -141,6 +141,7 @@ export const ScheduleDeactivationForm = ({
         phone: scheduledDeactivation?.phone || phone || undefined,
         workMode: scheduledDeactivation?.workMode || undefined,
         workModeComment: scheduledDeactivation?.workModeComment || undefined,
+        workPlace: scheduledDeactivation?.workPlace || undefined,
         comments: scheduledDeactivation?.comments || undefined,
         location: scheduledDeactivation?.location || undefined,
         unitId: scheduledDeactivation?.unitId || undefined,
@@ -389,13 +390,8 @@ export const ScheduleDeactivationForm = ({
                             </MenuItem>
                         )}
                     />
-                    <StyledLabel weight="bold">{tr('Work mode comment')}</StyledLabel>
-
-                    <StyledFormInput
-                        error={errors.workModeComment}
-                        autoComplete="off"
-                        {...register('workModeComment')}
-                    />
+                    <StyledLabel weight="bold">{tr('Work place')}</StyledLabel>
+                    <StyledFormInput error={errors.workPlace} autoComplete="off" {...register('workPlace')} />
                     <StyledLabel weight="bold">{tr('Unit ID')}</StyledLabel>
                     <StyledFormInput
                         error={errors.unitId}

@@ -322,6 +322,7 @@ interface HistoryEventsData {
             organizationalGroup?: string;
             organizationRole?: string;
             workMode?: string;
+            workPlace?: string;
             organization?: string;
             comments?: string;
             newOrganizationRole?: string;
@@ -345,6 +346,7 @@ interface HistoryEventsData {
             organizationalGroup?: string;
             organizationRole?: string;
             workMode?: string;
+            workPlace?: string;
             organization?: string;
             comments?: string;
             newOrganizationRole?: string;
