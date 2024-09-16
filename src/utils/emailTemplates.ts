@@ -39,6 +39,7 @@ ${comment}`
 ${tr('Sincerely,')}
 HR-team!`;
 };
+
 export const scheduledDeactivationEmailHtml = (
     data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit,
 ) => `

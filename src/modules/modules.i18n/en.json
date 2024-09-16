@@ -48,7 +48,7 @@
     "Icon URL is required": "",
     "Cannot edit another user": "",
     "Cannot view activity of another user": "",
-    "Retirement": "",
+    "Retirement of": "",
     "Transfer from": "",
     "to": "",
     "Obligatory field": "",
@@ -81,5 +81,6 @@
     "User does not have supplemental position in this organization": "",
     "Organization": "",
     "Supplemental positions": "",
-    "Cannot edit non-existent membership": ""
+    "Cannot edit non-existent membership": "",
+    "from": ""
 }
