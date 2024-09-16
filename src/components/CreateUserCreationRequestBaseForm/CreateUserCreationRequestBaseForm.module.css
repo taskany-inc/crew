@@ -17,3 +17,9 @@
 .Date.Date {
     width: max-content;
 }
+
+.LoginInput {
+    display: flex;
+    background-color: var(--gray3);
+    align-items: center;
+}

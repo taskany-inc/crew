@@ -14,6 +14,12 @@
     max-width: 500px;
 }
 
+.LoginInput {
+    display: flex;
+    background-color: var(--gray3);
+    align-items: center;
+}
+
 .FormInputDate {
     max-width: 200px;
 }

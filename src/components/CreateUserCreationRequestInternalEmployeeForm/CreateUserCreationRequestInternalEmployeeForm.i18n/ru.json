@@ -32,5 +32,6 @@
     "Comment:": "Комменарий",
     "Enter your comment": "Введите комментарий",
     "User with login already exist": "Уже есть пользователь с таким логином",
-    "Supplemental positions:": "Дополнительные организации:"
+    "Supplemental positions:": "Дополнительные организации:",
+    "The login can be changed manually if the resulting one is already taken or is completely discordant": "Логин можно изменить вручную, если получившийся уже занят или совсем неблагозвучен"
 }

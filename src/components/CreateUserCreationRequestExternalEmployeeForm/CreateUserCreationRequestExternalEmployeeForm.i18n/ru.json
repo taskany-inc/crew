@@ -23,5 +23,6 @@
     "Access to internal systems:": "Доступ к внутренним системам",
     "Don't forget to attach NDA for external employee": "Не забудьте прикрепить NDA для внешнего сотрудника",
     "Comment:": "Комментарий",
-    "User with login already exist": "Уже есть пользователь с таким логином"
+    "User with login already exist": "Уже есть пользователь с таким логином",
+    "The login can be changed manually if the resulting one is already taken or is completely discordant": "Логин можно изменить вручную, если получившийся уже занят или совсем неблагозвучен"
 }
