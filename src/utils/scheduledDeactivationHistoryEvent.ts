@@ -28,6 +28,7 @@ export const scheduledDeactivationHistoryEvent = (
     organizationalGroup: scheduleDeactivation.organizationalGroup || undefined,
     newOrganizationalGroup: scheduleDeactivation.newOrganizationalGroup || undefined,
     organizationRole: scheduleDeactivation.organizationRole || undefined,
+    transferPercentage: scheduleDeactivation.transferPercentage || undefined,
     workMode: scheduleDeactivation.workMode || undefined,
     workPlace: scheduleDeactivation.workPlace || undefined,
     comments: scheduleDeactivation.comments || undefined,

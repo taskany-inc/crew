@@ -9,7 +9,7 @@ import { config } from '../config';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
 import { scheduledDeactivationEmailHtml } from '../utils/emailTemplates';
-import { scheduledDeactivationAllowed } from '../utils/scheduledDeactivationAllowed';
+import { getActiveScheduledDeactivation } from '../utils/getActiveScheduledDeactivation';
 
 import {
     CreateScheduledDeactivation,
@@ -53,7 +53,7 @@ export const scheduledDeactivationMethods = {
             });
         }
 
-        if (!scheduledDeactivationAllowed(user)) {
+        if (getActiveScheduledDeactivation(user)) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
                 message: 'Not allowed to schedule deactivation for inactive or already scheduled for deactivation user',
