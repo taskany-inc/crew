@@ -11,9 +11,7 @@ const baseSchema = z.object({
     teamLead: z
         .string({ required_error: tr('Obligatory field') })
         .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-    teamLeadId: z
-        .string({ required_error: tr('Obligatory field') })
-        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+    teamLeadId: z.string().optional(),
     workMode: z
         .string({ required_error: tr('Obligatory field') })
         .min(1, { message: tr('Obligatory field', { min: 1 }) }),
@@ -46,9 +44,7 @@ export const createScheduledDeactivationSchema = z
             newTeamLead: z
                 .string({ required_error: tr('Obligatory field') })
                 .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-            newTeamLeadId: z
-                .string({ required_error: tr('Obligatory field') })
-                .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+            newTeamLeadId: z.string().optional(),
             organizationRole: z
                 .string({ required_error: tr('Obligatory field') })
                 .min(1, { message: tr('Obligatory field', { min: 1 }) }),
