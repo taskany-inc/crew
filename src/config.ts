@@ -49,6 +49,9 @@ export const config = {
     sectionAmountForAchievement: process.env.SECTION_AMOUNT_FOR_ACHIEVEMENT,
     deactivateUtcHour: !Number.isNaN(Number(process.env.DEACTIVATE_UTC_HOUR))
         ? Number(process.env.DEACTIVATE_UTC_HOUR)
+        : 6,
+    deactivateJobUtcHour: !Number.isNaN(Number(process.env.DEACTIVATE_JOB_UTC_HOUR))
+        ? Number(process.env.DEACTIVATE_JOB_UTC_HOUR)
         : 20,
     employmentUtcHour: !Number.isNaN(Number(process.env.EMPLOYMENT_UTC_HOUR))
         ? Number(process.env.EMPLOYMENT_UTC_HOUR)
