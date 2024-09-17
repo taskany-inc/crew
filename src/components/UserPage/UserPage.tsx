@@ -45,7 +45,7 @@ import { ScheduleDeactivateType } from '../../modules/scheduledDeactivationTypes
 import { useLocale } from '../../hooks/useLocale';
 import { formatDate } from '../../utils/dateTime';
 import { supplementPositionListToString } from '../../utils/suplementPosition';
-import { scheduledDeactivationAllowed } from '../../utils/scheduledDeactivationAllowed';
+import { getActiveScheduledDeactivation } from '../../utils/getActiveScheduledDeactivation';
 
 import { tr } from './UserPage.i18n';
 
@@ -141,6 +141,8 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
         [],
     );
 
+    const activeScheduledDeactivation = getActiveScheduledDeactivation(user);
+
     return (
         <LayoutMain pageTitle={user.name}>
             <StyledHeader>
@@ -170,8 +172,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
 
                     {nullable(
                         (sessionUser.role?.editScheduledDeactivation || sessionUser.role?.viewScheduledDeactivation) &&
-                            user.scheduledDeactivations[0] &&
-                            user.scheduledDeactivations[0].deactivateDate > new Date(),
+                            activeScheduledDeactivation,
                         () => (
                             <Text size="s" color={gray8} weight="bold">
                                 {deactivationTypeTr[user.scheduledDeactivations[0].type as ScheduleDeactivateType]}{' '}
@@ -199,11 +200,6 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                     orgRoles={orgRoles}
                     organization={user.organizationUnit}
                     orgGroupName={orgMembership?.group.name}
-                    scheduledDeactivation={
-                        user.scheduledDeactivations[0] && user.scheduledDeactivations[0].deactivateDate > new Date()
-                            ? { ...user.scheduledDeactivations[0], user }
-                            : undefined
-                    }
                 />
                 <EditButtonsWrapper>
                     <Restricted visible={!!sessionUser.role?.editUser}>
@@ -218,9 +214,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             size="s"
                         />
                     </Restricted>
-                    <Restricted
-                        visible={scheduledDeactivationAllowed(user) && !!sessionUser.role?.editScheduledDeactivation}
-                    >
+                    <Restricted visible={!activeScheduledDeactivation && !!sessionUser.role?.editScheduledDeactivation}>
                         <Button
                             onClick={scheduleDeactivationFormVisibility.setTrue}
                             text={tr('Schedule deactivation')}
