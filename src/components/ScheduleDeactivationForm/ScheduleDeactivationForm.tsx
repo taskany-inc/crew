@@ -46,7 +46,6 @@ import {
 import { pages } from '../../hooks/useRouter';
 import { File } from '../../modules/attachTypes';
 import { AttachItem } from '../AttachItem/AttachItem';
-import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { attachFormatter } from '../../utils/attachFormatter';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 
@@ -71,11 +70,6 @@ const StyledLabel = styled(Text)`
 
 const StyledFormInput = styled(FormInput)`
     width: 60%;
-`;
-
-const StyledUserComboBox = styled.div`
-    margin: ${gapS} ${gapM};
-    width: 250px;
 `;
 
 interface ScheduleDeactivationFormProps {
@@ -168,14 +162,6 @@ export const ScheduleDeactivationForm = ({
     } = useForm<CreateScheduledDeactivation>({
         resolver: zodResolver(createScheduledDeactivationSchema),
         defaultValues,
-    });
-
-    const teamLeadQuery = trpc.user.getById.useQuery(String(scheduledDeactivation?.teamLeadId), {
-        enabled: !!scheduledDeactivation?.teamLeadId,
-    });
-
-    const newTeamLeadQuery = trpc.user.getById.useQuery(String(scheduledDeactivation?.newTeamLeadId), {
-        enabled: !!scheduledDeactivation?.newTeamLeadId,
     });
 
     useEffect(() => {
@@ -281,17 +267,7 @@ export const ScheduleDeactivationForm = ({
                         error={errors.organizationUnitId}
                     />
                     <StyledLabel weight="bold">{tr('TeamLead')}</StyledLabel>
-                    <StyledUserComboBox>
-                        <UserComboBox
-                            user={user?.supervisor || teamLeadQuery?.data}
-                            onChange={(u) => {
-                                if (u) {
-                                    setValue('teamLead', u.name || u.email);
-                                    setValue('teamLeadId', u.id);
-                                }
-                            }}
-                        />
-                    </StyledUserComboBox>
+                    <StyledFormInput error={errors.teamLead} autoComplete="off" {...register('teamLead')} />
 
                     {nullable(errors.teamLead && !watch('teamLead'), () => (
                         <Text color={danger0} size="s">
@@ -301,22 +277,16 @@ export const ScheduleDeactivationForm = ({
                     {nullable(watch('type') === 'transfer', () => (
                         <>
                             <StyledLabel weight="bold">{tr('New teamlead')}</StyledLabel>
-                            <StyledUserComboBox>
-                                <UserComboBox
-                                    user={newTeamLeadQuery?.data}
-                                    onChange={(u) => {
-                                        if (u) {
-                                            setValue('newTeamLead', u.name || u.email);
-                                            setValue('newTeamLeadId', u.id);
-                                        }
-                                    }}
-                                />
-                                {nullable(errors.newTeamLead && !watch('newTeamLead'), () => (
-                                    <Text color={danger0} size="s">
-                                        {errors.newTeamLead?.message}
-                                    </Text>
-                                ))}
-                            </StyledUserComboBox>
+                            <StyledFormInput
+                                error={errors.newTeamLead}
+                                autoComplete="off"
+                                {...register('newTeamLead')}
+                            />
+                            {nullable(errors.newTeamLead && !watch('newTeamLead'), () => (
+                                <Text color={danger0} size="s">
+                                    {errors.newTeamLead?.message}
+                                </Text>
+                            ))}
                             <StyledLabel weight="bold">{tr('Transfer to')}</StyledLabel>
                             <OrganizationUnitComboBox
                                 onChange={(group) => group && setValue('newOrganizationUnitId', group.id)}

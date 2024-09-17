@@ -84,7 +84,7 @@ export const scheduledDeactivationMethods = {
 
         const { to, users } = await userMethods.getMailingList('scheduledDeactivation', data.organizationUnitId, [
             sessionUserId,
-            restData.teamLeadId,
+            ...(restData.teamLeadId ? [restData.teamLeadId] : []),
         ]);
 
         const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
