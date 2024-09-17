@@ -37,6 +37,7 @@ export default async (_req: NextApiRequest, res: NextApiResponse) => {
                 sectionAchievementId: config.sectionAchiementId,
                 sectionAmountForAchievement: config.sectionAmountForAchievement,
                 deactivateUtcHour: config.deactivateUtcHour,
+                deactivateJobUtcHour: config.deactivateJobUtcHour,
                 employmentUtcHour: config.employmentUtcHour,
             },
         }),

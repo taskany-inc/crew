@@ -39,6 +39,8 @@ export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {
         const { userId, type, devices, testingDevices, attachIds, deactivateDate, ...restData } = data;
 
+        const deactivateJobDate = new Date(deactivateDate);
+        deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
         deactivateDate.setUTCHours(config.deactivateUtcHour);
 
         const user = await prisma.user.findUnique({
@@ -63,7 +65,7 @@ export const scheduledDeactivationMethods = {
         const job =
             data.disableAccount &&
             (await createJob('scheduledDeactivation', {
-                date: deactivateDate,
+                date: deactivateJobDate,
                 data: { userId },
             }));
 
@@ -104,8 +106,7 @@ export const scheduledDeactivationMethods = {
         const icalEvent = createIcalEventData({
             id: scheduledDeactivation.id + config.nodemailer.authUser,
             start: deactivateDate,
-            allDay: true,
-            duration: 0,
+            duration: 30,
             users,
             summary: subject,
             description: subject,
@@ -153,8 +154,12 @@ export const scheduledDeactivationMethods = {
         }
         const subject =
             scheduledDeactivation.type === 'retirement'
-                ? tr('Cancel retirement of {userName}', { userName: scheduledDeactivation.user.name! })
-                : tr('Cancel transfer of {userName}', { userName: scheduledDeactivation.user.name! });
+                ? tr('Cancel retirement of {userName}', {
+                      userName: scheduledDeactivation.user.name || scheduledDeactivation.user.email,
+                  })
+                : tr('Cancel transfer of {userName}', {
+                      userName: scheduledDeactivation.user.name || scheduledDeactivation.user.email,
+                  });
 
         if (scheduledDeactivation.organizationUnitId) {
             const { to, users } = await userMethods.getMailingList(
@@ -168,8 +173,7 @@ export const scheduledDeactivationMethods = {
             const icalEvent = createIcalEventData({
                 id: scheduledDeactivation.id + config.nodemailer.authUser,
                 start: scheduledDeactivation.deactivateDate,
-                allDay: true,
-                duration: 0,
+                duration: 30,
                 users,
                 summary: subject,
                 description: subject,
@@ -265,8 +269,7 @@ export const scheduledDeactivationMethods = {
             const icalEvent = createIcalEventData({
                 id: scheduledDeactivation.id + config.nodemailer.authUser,
                 start: data.deactivateDate,
-                allDay: true,
-                duration: 0,
+                duration: 30,
                 users,
                 summary: subject,
                 description: subject,
