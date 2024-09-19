@@ -46,5 +46,6 @@
     "Team": "Команда",
     "Coordinator": "Координатор",
     "Cancelling planned newcomer {userName} to {organization}": "Отмена выхода нового сотрудника {userName} в {organization}",
-    "Comment": "Комментарий"
+    "Comment": "Комментарий",
+    "Line manager": "Линейный руководитель"
 }

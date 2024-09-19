@@ -95,7 +95,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                 {tr('Supervisor:')}
                             </Text>
                             <UserComboBox
-                                user={user.supervisor}
+                                value={user.supervisor}
                                 onChange={(newUser) => {
                                     setValue('supervisorId', newUser?.id || null);
                                 }}
@@ -120,7 +120,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                 {user.supplementalPositions.map((position) => (
                                     <SupplementalPositionItem
                                         key={position.id}
-                                        supplementalPosition={position}
+                                        supplementalPosition={{ ...position, unitId: position.unitId || '' }}
                                         removeSupplementalPosition={() => onSupplementalPositionRemove(position.id)}
                                     />
                                 ))}

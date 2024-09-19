@@ -63,8 +63,14 @@ interface HistoryEventsData {
             coordinatorLogin?: string;
             coordinatorId?: string;
             recruiterLogin?: string;
+            lineManagerLogins?: string;
+            lineManagerIds?: string;
+            coordinatorLogins?: string;
+            coordinatorIds?: string;
             recruiterId?: string;
-            supplementalPositions?: { organizationUnitId: string; percentage: number }[];
+            supplementalPositions?: { organizationUnitId: string; percentage: number; unitId?: string }[];
+            unitId?: string;
+            workEmail?: string;
         };
     };
     cancelUserCreationRequest: {

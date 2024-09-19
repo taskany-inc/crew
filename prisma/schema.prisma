@@ -121,10 +121,12 @@ model User {
   groupAdmins          GroupAdmin[]
   userCreationRequests UserCreationRequest[]
 
-  userCreationRequestRecruiter   UserCreationRequest[] @relation("userRecruiter")
-  userCreationRequestBuddy       UserCreationRequest[] @relation("userBuddy")
-  userCreationRequestCoordinator UserCreationRequest[] @relation("userCoordinator")
-  userCreationRequestCreator     UserCreationRequest[] @relation("userCreationRequestCreator")
+  userCreationRequestRecruiter    UserCreationRequest[] @relation("userRecruiter")
+  userCreationRequestBuddy        UserCreationRequest[] @relation("userBuddy")
+  userCreationRequestCoordinator  UserCreationRequest[] @relation("userCoordinator")
+  userCreationRequestCoordinators UserCreationRequest[] @relation("userCoordinators")
+  userCreationRequestCreator      UserCreationRequest[] @relation("userCreationRequestCreator")
+  userCreationRequestLineManagers UserCreationRequest[] @relation("userLineManagers")
 
   mailingSettings MailingSettings[]
 
@@ -149,6 +151,7 @@ model UserCreationRequest {
 
   name                  String
   email                 String
+  workEmail             String?
   corporateEmail        String?
   login                 String
   title                 String?
@@ -191,6 +194,9 @@ model UserCreationRequest {
   coordinatorLogin String?
   coordinatorId    String?
   coordinator      User?   @relation(fields: [coordinatorId], references: [id], name: "userCoordinator")
+
+  coordinators User[] @relation(name: "userCoordinators")
+  lineManagers User[] @relation(name: "userLineManagers")
 
   jobId String? @unique
   job   Job?    @relation(fields: [jobId], references: [id])
@@ -692,6 +698,7 @@ model SupplementalPosition {
 
   organizationUnit   OrganizationUnit @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId String
+  unitId             String?
 
   user       User?   @relation(fields: [userId], references: [id])
   userId     String?

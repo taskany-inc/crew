@@ -19,5 +19,6 @@ export type GetOrganizationUnitList = z.infer<typeof getOrganizationUnitListSche
 
 export interface AddSupplementalPositionType {
     percentage: number;
+    unitId?: string | null;
     organizationUnit: OrganizationUnit;
 }

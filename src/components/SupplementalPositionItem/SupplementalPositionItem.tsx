@@ -17,7 +17,9 @@ export const SupplementalPositionItem = ({
 }: SupplementalPositionItemProps) => (
     <Badge
         className={s.Badge}
-        text={`${getOrgUnitTitle(supplementalPosition.organizationUnit)} ${supplementalPosition.percentage}%`}
+        text={`${getOrgUnitTitle(supplementalPosition.organizationUnit)} ${supplementalPosition.percentage}% ${
+            supplementalPosition.unitId || ''
+        }`}
         weight="thinner"
         size="s"
         view="outline"

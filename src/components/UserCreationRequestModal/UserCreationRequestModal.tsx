@@ -61,7 +61,10 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     </Text>
                     <InfoRow label={tr('Name')} text={request.name} />
                     <InfoRow label={tr('Login')} text={request.login} />
-                    <InfoRow label={tr('Email')} text={request.email} />
+                    <InfoRow
+                        label={tr('Email')}
+                        text={request.workEmail ? `${request.email} / ${request.workEmail}` : request.email}
+                    />
                     {nullable(request.type, (t) => (
                         <InfoRow
                             label={tr('Type')}
@@ -79,6 +82,9 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     ))}
                     <InfoRow label={tr('Group')} text={request.group.name} />
                     <InfoRow label={tr('Organization')} text={request.organization.name} />
+                    {nullable(request.unitId, (u) => (
+                        <InfoRow label={tr('Unit id')} text={u} />
+                    ))}
                     {nullable(!!request.supplementalPositions.length, () => (
                         <InfoRow
                             label={tr('Supplement')}
@@ -88,6 +94,13 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     {nullable(request.supervisor, (supervisor) => (
                         <InfoRow label={tr('Supervisor')}>
                             <UserListItem user={supervisor} />
+                        </InfoRow>
+                    ))}
+                    {nullable(request.lineManagers.length, () => (
+                        <InfoRow label={tr('Line managers')}>
+                            {request.lineManagers.map((l) => (
+                                <UserListItem user={l} key={`${l.id}lineManager`} />
+                            ))}
                         </InfoRow>
                     ))}
                     {nullable(request.date, (d) => (
@@ -104,6 +117,13 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     {nullable(request.coordinator, (c) => (
                         <InfoRow label={tr('Coordinator')}>
                             <UserListItem user={c} />
+                        </InfoRow>
+                    ))}
+                    {nullable(request.coordinators.length, () => (
+                        <InfoRow label={tr('Coordinators')}>
+                            {request.coordinators.map((cs) => (
+                                <UserListItem user={cs} key={`${cs.id}coordinator`} />
+                            ))}
                         </InfoRow>
                     ))}
                     {nullable(request.recruiter, (rc) => (

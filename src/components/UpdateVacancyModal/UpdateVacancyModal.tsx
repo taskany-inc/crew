@@ -132,14 +132,14 @@ export const UpdateVacancyModal = ({ visible, onClose, vacancy, groupName }: Upd
 
                             <Field name={tr('Hiring manager:')} error={errors.hiringManagerId}>
                                 <UserComboBox
-                                    user={vacancy.hiringManager}
+                                    value={vacancy.hiringManager}
                                     onChange={(user) => user && setValue('hiringManagerId', user?.id)}
                                 />
                             </Field>
 
                             <Field name={tr('HR:')} error={errors.hrId}>
                                 <UserComboBox
-                                    user={vacancy.hr}
+                                    value={vacancy.hr}
                                     onChange={(user) => user && setValue('hrId', user?.id)}
                                 />
                             </Field>

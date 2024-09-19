@@ -34,12 +34,16 @@ export const createUserCreationRequestInternalEmployeeSchema = createUserCreatio
     buddyId: z.string().optional(),
     title: z.string().min(1, { message: tr('Required field') }),
     recruiterId: z.string().min(1, { message: tr('Required field') }),
-    coordinatorId: z.string().optional(),
+    coordinatorIds: z.array(z.string()).optional(),
+    lineManagerIds: z.array(z.string()).optional(),
+    workEmail: z.string().optional(),
     location: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
     creationCause: z.string(),
-    unitId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
+    unitId: z.string().optional(),
     date: z.date(),
-    supplementalPositions: z.array(z.object({ organizationUnitId: z.string(), percentage: z.number() })).optional(),
+    supplementalPositions: z
+        .array(z.object({ organizationUnitId: z.string(), percentage: z.number(), unitId: z.string() }))
+        .optional(),
 });
 export type CreateUserCreationRequestInternalEmployee = z.infer<typeof createUserCreationRequestInternalEmployeeSchema>;
 

@@ -17,6 +17,7 @@ interface AddSupplementalPositionProps {
 
 export const AddSupplementalPosition = ({ onSubmit }: AddSupplementalPositionProps) => {
     const [percentage, setPercentage] = useState<number | null>();
+    const [unitId, setUnitId] = useState<string | null>();
     const [organizationUnit, setOrganizationUnit] = useState<null | OrganizationUnit>();
 
     const formVisibility = useBoolean(false);
@@ -28,7 +29,7 @@ export const AddSupplementalPosition = ({ onSubmit }: AddSupplementalPositionPro
     };
 
     const inLineFormSubmit = async () => {
-        organizationUnit && percentage && onSubmit({ organizationUnit, percentage });
+        organizationUnit && percentage && onSubmit({ organizationUnit, percentage, unitId });
         onReset();
     };
 
@@ -43,6 +44,12 @@ export const AddSupplementalPosition = ({ onSubmit }: AddSupplementalPositionPro
                         </div>
                         <Input
                             className={s.Input}
+                            brick="center"
+                            placeholder={tr('Unit id')}
+                            onChange={(e) => setUnitId(e.target.value)}
+                        />
+                        <Input
+                            className={s.PercentageInput}
                             brick="center"
                             type="number"
                             placeholder={tr('Percentage')}

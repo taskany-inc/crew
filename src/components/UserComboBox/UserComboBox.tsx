@@ -1,71 +1,103 @@
-import { ComboBox, Input, UserMenuItem, nullable } from '@taskany/bricks';
-import { gray10 } from '@taskany/colors';
-import { useState, ComponentProps } from 'react';
+import { nullable } from '@taskany/bricks';
+import { ChangeEvent, useState } from 'react';
 import { User } from '@prisma/client';
+import {
+    Dropdown,
+    DropdownPanel,
+    DropdownTrigger,
+    User as HarmonyUser,
+    Input,
+    ListView,
+    ListViewItem,
+    MenuItem,
+} from '@taskany/bricks/harmony';
+import { IconSearchOutline } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
 import { Nullish } from '../../utils/types';
 import { useBoolean } from '../../hooks/useBoolean';
-import { UserPic } from '../UserPic';
+import { AddInlineTrigger } from '../AddInlineTrigger/AddInlineTrigger';
 
-import { tr } from './UserComboBox.i18n';
+import s from './UserComboBox.module.css';
 
 interface UserComboBoxProps {
-    user?: Nullish<User>;
-    onChange: (user: Nullish<User>) => void;
-    brick?: ComponentProps<typeof Input>['brick'];
+    value?: Nullish<User>;
+    placeholder?: string;
+    blank?: boolean;
+
+    onChange: (value: Nullish<User>) => void;
 }
 
-export const UserComboBox = ({ user, onChange, brick }: UserComboBoxProps) => {
-    const [search, setSearch] = useState(user?.name || '');
+export const UserComboBox = ({ value, onChange, placeholder, blank }: UserComboBoxProps) => {
+    const [search, setSearch] = useState('');
+    const [selectedUser, setSelectedUser] = useState(value);
     const suggestionsVisibility = useBoolean(false);
-    const [selectedUser, setSelectedUser] = useState<Nullish<User>>(user);
-    const userListQuery = trpc.user.getList.useQuery({ search, take: 10 }, { keepPreviousData: true });
+    const userListQuery = trpc.user.getList.useQuery(
+        { search, take: 10 },
+        { keepPreviousData: true, enabled: Boolean(suggestionsVisibility.value && search) },
+    );
+
+    const onUserChange = (user: User) => {
+        onChange && onChange(user);
+        !blank && setSelectedUser(user);
+        suggestionsVisibility.setFalse();
+    };
 
     return (
-        <ComboBox
-            value={search}
-            onChange={(value: User) => {
-                setSearch(value.name || value.email);
-                setSelectedUser(value);
-                suggestionsVisibility.setFalse();
-                onChange(value);
-            }}
-            visible={suggestionsVisibility.value}
-            items={userListQuery.data?.users}
-            renderInput={(props) => (
-                <Input
-                    iconLeft={nullable(selectedUser, (s) => (
-                        <UserPic size={16} user={s} />
-                    ))}
-                    placeholder={tr('Choose user')}
-                    size="m"
-                    autoComplete="off"
-                    onFocus={suggestionsVisibility.setTrue}
-                    onChange={(e) => {
-                        setSelectedUser(null);
-                        onChange(null);
-                        setSearch(e.target.value);
-                    }}
-                    brick={brick}
-                    {...props}
+        <div className={s.CrewUserSelector}>
+            <Dropdown isOpen={suggestionsVisibility.value} onClose={suggestionsVisibility.setFalse}>
+                <DropdownTrigger
+                    renderTrigger={(props) => (
+                        <div ref={props.ref}>
+                            {nullable(
+                                selectedUser,
+                                (user) => (
+                                    <HarmonyUser
+                                        name={user.name}
+                                        email={user.email}
+                                        onClick={suggestionsVisibility.setTrue}
+                                    />
+                                ),
+                                <AddInlineTrigger
+                                    text={placeholder || ''}
+                                    onClick={suggestionsVisibility.setTrue}
+                                    ref={props.ref}
+                                />,
+                            )}
+                        </div>
+                    )}
                 />
-            )}
-            onClickOutside={(cb) => cb()}
-            onClose={suggestionsVisibility.setFalse}
-            renderItem={(props) => (
-                <UserMenuItem
-                    key={props.item.id}
-                    focused={props.cursor === props.index}
-                    name={props.item.name}
-                    email={props.item.email}
-                    image={props.item.image}
-                    onClick={props.onClick}
-                    color={gray10}
-                >
-                    {props.item.name}
-                </UserMenuItem>
-            )}
-        />
+                <DropdownPanel placement="bottom-start">
+                    <Input
+                        placeholder={placeholder}
+                        outline
+                        autoFocus
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                            setSearch(e.currentTarget.value);
+                            suggestionsVisibility.setTrue();
+                        }}
+                        iconLeft={<IconSearchOutline size="s" />}
+                    />
+                    <ListView>
+                        {userListQuery.data?.users?.map((user) => (
+                            <ListViewItem
+                                key={user.id}
+                                renderItem={({ active, hovered, ...props }) => (
+                                    <MenuItem hovered={active || hovered}>
+                                        <HarmonyUser
+                                            className={s.ListItem}
+                                            onClick={() => onUserChange(user)}
+                                            name={user.name}
+                                            email={user.email}
+                                            {...props}
+                                        />
+                                    </MenuItem>
+                                )}
+                            />
+                        ))}
+                    </ListView>
+                </DropdownPanel>
+            </Dropdown>
+        </div>
     );
 };

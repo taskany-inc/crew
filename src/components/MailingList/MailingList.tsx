@@ -66,7 +66,7 @@ export const MailingList = ({ mailingSettings, organizationUnitId }: MailingList
                 title={mailingSettingsTr[mailingSettings]}
                 titleFragment={
                     <>
-                        <UserComboBox onChange={(u) => setUser(u)} user={user} brick={user ? 'right' : undefined} />
+                        <UserComboBox onChange={(u) => setUser(u)} value={user} />
                         {user && (
                             <>
                                 <Button onClick={() => setUser(null)} text={tr('Cancel')} brick="center" outline />
