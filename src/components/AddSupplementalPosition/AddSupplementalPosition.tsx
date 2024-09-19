@@ -19,12 +19,12 @@ export const AddSupplementalPosition = ({ onSubmit }: AddSupplementalPositionPro
     const [percentage, setPercentage] = useState<number | null>();
     const [unitId, setUnitId] = useState<string | null>();
     const [organizationUnit, setOrganizationUnit] = useState<null | OrganizationUnit>();
-
     const formVisibility = useBoolean(false);
 
     const onReset = () => {
         setPercentage(null);
         setOrganizationUnit(null);
+        setUnitId(null);
         formVisibility.setFalse();
     };
 
