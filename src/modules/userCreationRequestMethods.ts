@@ -365,6 +365,7 @@ export const userCreationRequestsMethods = {
                 coordinators: true,
                 lineManagers: true,
                 recruiter: true,
+                creator: true,
                 supplementalPositions: { include: { organizationUnit: true } },
             },
         });

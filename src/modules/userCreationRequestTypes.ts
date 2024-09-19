@@ -14,5 +14,6 @@ export interface CompleteUserCreationRequest extends UserCreationRequest {
     coordinators: User[];
     lineManagers: User[];
     recruiter: User | null;
+    creator: User | null;
     supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
 }

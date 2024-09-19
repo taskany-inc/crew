@@ -91,6 +91,11 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                             text={supplementPositionListToString(request.supplementalPositions)}
                         />
                     ))}
+                    {nullable(request.creator, (creator) => (
+                        <InfoRow label={tr('Request author')}>
+                            <UserListItem user={creator} />
+                        </InfoRow>
+                    ))}
                     {nullable(request.supervisor, (supervisor) => (
                         <InfoRow label={tr('Supervisor')}>
                             <UserListItem user={supervisor} />
