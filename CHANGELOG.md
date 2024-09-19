@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.78.0](https://github.com/taskany-inc/crew/compare/v0.77.3...v0.78.0) (2024-09-19)
+
+
+### Features
+
+* auto login by fullname ([0cf1677](https://github.com/taskany-inc/crew/commit/0cf167782b40f6eb6c8749c0012ea889797f55e2))
+* **deactivation form:** work place field ([e0321e8](https://github.com/taskany-inc/crew/commit/e0321e83c7e341334b9920c920d68a1c88ca1a91))
+* new fields in internal user request ([1729cc2](https://github.com/taskany-inc/crew/commit/1729cc2303298c61ba9449106b157e5f560c5ecb))
+* nothing found for global search ([6b474a7](https://github.com/taskany-inc/crew/commit/6b474a76b0573ed430c1f190b884fdbc4a4ece72))
+* show author of user creation request ([ba1f294](https://github.com/taskany-inc/crew/commit/ba1f29400d35bd6acd8edcb9fe9bf2581e10d794))
+* update achivements limit ([10997e3](https://github.com/taskany-inc/crew/commit/10997e3b5b2dfa81e52d2ffa290f86980f66a57f))
+
+
+### Bug Fixes
+
+* **deactivations:** change meeting dates ([c4db51b](https://github.com/taskany-inc/crew/commit/c4db51ba81003ebf2ca2fdf41c4eef3a54953781))
+* **deactivations:** correctly find active user deactivation ([7b78fdd](https://github.com/taskany-inc/crew/commit/7b78fdd9681cd63f03340d87d3133a2e12a5eb66))
+* **deactivations:** team lead as string field ([91b58bc](https://github.com/taskany-inc/crew/commit/91b58bc6b2b2c691242a63335b8f63d115714c22))
+* **retirement email:** org unit in title ([a6e1a95](https://github.com/taskany-inc/crew/commit/a6e1a9587421643c680117622b4555ea5fdac572))
+
 ## [0.77.3](https://github.com/taskany-inc/crew/compare/v0.77.2...v0.77.3) (2024-09-12)
 
 
