@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.78.1](https://github.com/taskany-inc/crew/compare/v0.78.0...v0.78.1) (2024-09-19)
+
+
+### Bug Fixes
+
+* **AddSupplementalPosition:** reset unit id after close ([fd636be](https://github.com/taskany-inc/crew/commit/fd636be02515f398738457d4c814fd477e7ced81))
+
 ## [0.78.0](https://github.com/taskany-inc/crew/compare/v0.77.3...v0.78.0) (2024-09-19)
 
 
