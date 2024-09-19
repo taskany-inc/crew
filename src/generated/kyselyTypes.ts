@@ -250,6 +250,7 @@ export type Session = {
 export type SupplementalPosition = {
     id: string;
     organizationUnitId: string;
+    unitId: string | null;
     userId: string | null;
     percentage: number;
     userCreationRequestId: string | null;
@@ -282,12 +283,17 @@ export type UserAchievement = {
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
+export type userCoordinators = {
+    A: string;
+    B: string;
+};
 export type UserCreationRequest = {
     id: Generated<string>;
     type: string | null;
     creatorId: string | null;
     name: string;
     email: string;
+    workEmail: string | null;
     corporateEmail: string | null;
     login: string;
     title: string | null;
@@ -329,6 +335,10 @@ export type UserDevice = {
     active: Generated<boolean>;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
+};
+export type userLineManagers = {
+    A: string;
+    B: string;
 };
 export type UserRole = {
     code: string;
@@ -393,6 +403,8 @@ export type VerificationToken = {
 };
 export type DB = {
     _MembershipToRole: MembershipToRole;
+    _userCoordinators: userCoordinators;
+    _userLineManagers: userLineManagers;
     Account: Account;
     Achievement: Achievement;
     ApiToken: ApiToken;

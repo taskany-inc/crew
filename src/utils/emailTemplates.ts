@@ -177,9 +177,11 @@ export const htmlUserCreationRequestWithDate = (data: {
     } & {
         recruiter: User | null;
     } & {
-        coordinator: User | null;
+        coordinators: User[] | null;
     } & {
         organization: OrganizationUnit;
+    } & {
+        lineManagers: User[] | null;
     };
     date: Date;
 }) => {
@@ -217,7 +219,11 @@ export const htmlUserCreationRequestWithDate = (data: {
                     }
                     <tr>
                         <th>${tr('Email')}</th>
-                        <td>${userCreationRequest.email}</td>
+                        <td>${
+                            userCreationRequest.workEmail
+                                ? `${userCreationRequest.email} / ${userCreationRequest.workEmail}`
+                                : userCreationRequest.email
+                        }</td>
                     </tr>
                     ${
                         userCreationRequest.supervisor
@@ -237,12 +243,25 @@ export const htmlUserCreationRequestWithDate = (data: {
                             : ''
                     }
                     ${
-                        userCreationRequest.coordinator
-                            ? `
+                        userCreationRequest.coordinators && userCreationRequest.coordinators.length
+                            ? userCreationRequest.coordinators.map(
+                                  (c) => `
                             <tr>
                                 <th>${tr('Coordinator')}</th>
-                                <td>${userCreationRequest.coordinator.name}</td>
-                            </tr>`
+                                <td>${c.name}</td>
+                            </tr>`,
+                              )
+                            : ''
+                    }
+                    ${
+                        userCreationRequest.lineManagers && userCreationRequest.lineManagers.length
+                            ? userCreationRequest.lineManagers.map(
+                                  (l) => `
+                            <tr>
+                                <th>${tr('Line manager')}</th>
+                                <td>${l.name}</td>
+                            </tr>`,
+                              )
                             : ''
                     }
                     <tr>

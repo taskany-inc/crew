@@ -25,7 +25,10 @@ export const userCreationRequestRouter = router({
                 supervisorLogin: creationRequest.supervisorLogin || undefined,
                 supervisorId: creationRequest.supervisorId || undefined,
                 buddyId: creationRequest.buddyId || undefined,
-                coordinatorId: creationRequest.supervisorId || undefined,
+                coordinatorId: creationRequest.coordinatorId || undefined,
+                coordinatorIds: creationRequest.coordinators.length
+                    ? creationRequest.coordinators.map(({ id }) => id).join(', ')
+                    : undefined,
                 recruiterId: creationRequest.recruiterId || undefined,
                 type: creationRequest.type || undefined,
                 corporateEmail: creationRequest.corporateEmail || undefined,
@@ -48,12 +51,24 @@ export const userCreationRequestRouter = router({
                 buddyLogin: creationRequest.buddyLogin || undefined,
                 recruiterLogin: creationRequest.recruiterLogin || undefined,
                 coordinatorLogin: creationRequest.coordinatorLogin || undefined,
+                coordinatorLogins: creationRequest.coordinators.length
+                    ? creationRequest.coordinators.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerLogins: creationRequest.lineManagers.length
+                    ? creationRequest.lineManagers.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerIds: creationRequest.lineManagers.length
+                    ? creationRequest.lineManagers.map(({ id }) => id).join(', ')
+                    : undefined,
                 supplementalPositions: creationRequest.supplementalPositions.length
-                    ? creationRequest.supplementalPositions.map(({ organizationUnitId, percentage }) => ({
+                    ? creationRequest.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
                           organizationUnitId,
                           percentage,
+                          unitId: unitId || '',
                       }))
                     : undefined,
+                unitId: creationRequest.unitId || undefined,
+                workEmail: creationRequest.workEmail || undefined,
             },
         });
 

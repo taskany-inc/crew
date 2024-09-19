@@ -13,7 +13,7 @@ import {
     nullable,
 } from '@taskany/bricks';
 import { danger0, gray8 } from '@taskany/colors';
-import { Checkbox, FormControl, Tooltip } from '@taskany/bricks/harmony';
+import { FormControl, Tooltip, User as HarmonyUser } from '@taskany/bricks/harmony';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
 import { IconBulbOnOutline } from '@taskany/icons';
@@ -58,6 +58,8 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
     const { createUserCreationRequest } = useUserCreationRequestMutations();
 
     const [supplementalPositions, setSupplementalPositions] = useState<AddSupplementalPositionType[]>([]);
+    const [coordinators, setCoordinators] = useState<User[]>([]);
+    const [lineManagers, setLineManagers] = useState<User[]>([]);
 
     const {
         register,
@@ -78,10 +80,14 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
     const onFormSubmit = handleSubmit(async (data) => {
         await createUserCreationRequest({
             ...data,
-            supplementalPositions: supplementalPositions.map(({ percentage, organizationUnit }) => ({
+            supplementalPositions: supplementalPositions.map(({ percentage, organizationUnit, unitId }) => ({
                 percentage,
                 organizationUnitId: organizationUnit.id,
+                unitId: unitId || '',
             })),
+            corporateEmail: getCorporateEmail(getValues('login')),
+            lineManagerIds: lineManagers.map(({ id }) => id),
+            coordinatorIds: coordinators.map(({ id }) => id),
         });
         reset(defaultValues);
         onSubmit();
@@ -98,22 +104,7 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
     const removeSupplementalPosition = (id: string) =>
         setSupplementalPositions(supplementalPositions.filter((sp) => sp.organizationUnit.id !== id));
 
-    const createExternalAccount = watch('createExternalAccount');
-
-    const onCreateExternalAccountClick = (e: ChangeEvent<HTMLInputElement>) => {
-        setValue('createExternalAccount', e.target.checked);
-    };
-
     const createCorporateEmail = useBoolean(false);
-
-    const onCreateCorporateEmailClick = (e: ChangeEvent<HTMLInputElement>) => {
-        createCorporateEmail.setValue(e.target.checked);
-        if (e.target.checked) {
-            setValue('corporateEmail', getCorporateEmail(getValues('login')));
-        } else {
-            setValue('corporateEmail', undefined);
-        }
-    };
 
     const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
 
@@ -151,8 +142,11 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
         { label: tr('Transfer'), value: 'transfer' },
     ];
 
+    const [mainOrganisationName, setMainOrganisationName] = useState('');
+
     const onOrganizationChange = (group: Nullish<OrganizationUnit>) => {
         group && setValue('organizationUnitId', group.id);
+        group && setMainOrganisationName(group.name);
         trigger('organizationUnitId');
     };
 
@@ -187,25 +181,27 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                         </Text>
                     ))}
                 </div>
-                {nullable(!!supplementalPositions.length, () => (
-                    <div className={s.BadgeWrapper}>
-                        <div className={s.InputContainer}>
-                            <Text weight="bold" color={gray8}>
-                                {tr('Supplemental positions:')}
-                            </Text>
-                        </div>
-                        <div className={s.BadgeWrapperList}>
-                            {supplementalPositions.map((position) => (
-                                <SupplementalPositionItem
-                                    key={position.organizationUnit.id}
-                                    supplementalPosition={position}
-                                    removeSupplementalPosition={removeSupplementalPosition}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                ))}
-                <AddSupplementalPosition onSubmit={addSupplementalPosition} />
+                <div className={s.BadgeWrapper}>
+                    {nullable(!!supplementalPositions.length, () => (
+                        <>
+                            <div className={s.InputContainer}>
+                                <Text weight="bold" color={gray8}>
+                                    {tr('Supplemental positions:')}
+                                </Text>
+                            </div>
+                            <div className={s.BadgeWrapperList}>
+                                {supplementalPositions.map((position) => (
+                                    <SupplementalPositionItem
+                                        key={position.organizationUnit.id}
+                                        supplementalPosition={position}
+                                        removeSupplementalPosition={removeSupplementalPosition}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    ))}
+                    <AddSupplementalPosition onSubmit={addSupplementalPosition} />
+                </div>
                 <FormInput
                     label={tr('Surname')}
                     brick="right"
@@ -239,11 +235,19 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     className={s.FormInput}
                 />
                 <FormInput
-                    label={tr('Email')}
+                    label={tr('Personal email')}
                     brick="right"
                     autoComplete="off"
                     {...register('email', { required: tr('Required field') })}
                     error={errors.email}
+                    className={s.FormInput}
+                />
+                <FormInput
+                    label={tr('Work email')}
+                    brick="right"
+                    autoComplete="off"
+                    {...register('workEmail')}
+                    error={errors.workEmail}
                     className={s.FormInput}
                 />
                 <div className={s.LoginInput}>
@@ -263,23 +267,6 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     </Tooltip>
                 </div>
 
-                <div className={s.InputContainer}>
-                    <Text weight="bold" color={gray8}>
-                        {tr('Create corporate email:')}
-                    </Text>
-                    <Checkbox checked={createCorporateEmail.value} onChange={onCreateCorporateEmailClick} />
-                </div>
-
-                {nullable(createCorporateEmail.value, () => (
-                    <FormInput
-                        label={tr('Corporate email')}
-                        brick="right"
-                        autoComplete="off"
-                        {...register('corporateEmail')}
-                        error={errors.corporateEmail}
-                        className={s.FormInput}
-                    />
-                ))}
                 <FormInput
                     label={tr('Phone')}
                     brick="right"
@@ -292,35 +279,73 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     <Text weight="bold" color={gray8}>
                         {tr('Supervisor:')}
                     </Text>
-                    <UserComboBox onChange={(user) => onUserChange(user, 'supervisorId')} />
+                    <UserComboBox
+                        placeholder={tr('Add supervisor')}
+                        onChange={(user) => onUserChange(user, 'supervisorId')}
+                    />
                     {nullable(errors.supervisorId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
                         </Text>
                     ))}
                 </div>
+
+                <div className={s.InputContainer}>
+                    <Text weight="bold" color={gray8} className={s.LineManagersTitle}>
+                        {tr('Line managers:')}
+                    </Text>
+                    <div className={s.LineManagers}>
+                        {lineManagers?.map((manager) => (
+                            <HarmonyUser
+                                key={`${manager.id}lineManager`}
+                                name={manager.name}
+                                email={manager.email}
+                                onClick={() => setLineManagers(lineManagers.filter(({ id }) => manager.id !== id))}
+                            />
+                        ))}
+                        {nullable(lineManagers.length < 3, () => (
+                            <UserComboBox
+                                blank
+                                placeholder={tr('Add line manager')}
+                                onChange={(user) => user && setLineManagers((prev) => [...prev, user])}
+                            />
+                        ))}
+                    </div>
+                </div>
+
                 <div className={s.InputContainer}>
                     <Text weight="bold" color={gray8}>
                         {tr('Buddy:')}
                     </Text>
-                    <UserComboBox onChange={(user) => onUserChange(user, 'buddyId')} />
+                    <UserComboBox placeholder={tr('Add buddy')} onChange={(user) => onUserChange(user, 'buddyId')} />
                     {nullable(errors.buddyId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
                         </Text>
                     ))}
                 </div>
+
                 <div className={s.InputContainer}>
-                    <Text weight="bold" color={gray8}>
-                        {tr('Coordinator:')}
+                    <Text weight="bold" color={gray8} className={s.LineManagersTitle}>
+                        {tr('Coordinators:')}
                     </Text>
-                    <UserComboBox onChange={(user) => onUserChange(user, 'coordinatorId')} />
-                    {nullable(errors.coordinatorId, (e) => (
-                        <Text size="xs" color={danger0}>
-                            {e.message}
-                        </Text>
-                    ))}
+                    <div className={s.LineManagers}>
+                        {coordinators?.map((c) => (
+                            <HarmonyUser
+                                key={`${c.id}coordinators`}
+                                name={c.name}
+                                email={c.email}
+                                onClick={() => setCoordinators(coordinators.filter(({ id }) => c.id !== id))}
+                            />
+                        ))}
+                        <UserComboBox
+                            blank
+                            placeholder={tr('Add coordinator')}
+                            onChange={(user) => user && setCoordinators((prev) => [...prev, user])}
+                        />
+                    </div>
                 </div>
+
                 <div className={s.InputContainer}>
                     <Text weight="bold" color={gray8}>
                         {tr('Team:')}
@@ -341,7 +366,7 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     className={s.FormInputDate}
                 />
                 <FormInput
-                    label={tr('Unit id')}
+                    label={`${tr('Unit id')} ${mainOrganisationName}`}
                     brick="right"
                     autoComplete="off"
                     {...register('unitId')}
@@ -406,7 +431,10 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     <Text weight="bold" color={gray8}>
                         {tr('Recruiter:')}
                     </Text>
-                    <UserComboBox onChange={(user) => onUserChange(user, 'recruiterId')} />
+                    <UserComboBox
+                        placeholder={tr('Add reqruiter')}
+                        onChange={(user) => onUserChange(user, 'recruiterId')}
+                    />
                     {nullable(errors.recruiterId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
@@ -424,13 +452,6 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                         <FormRadioInput key={value} value={value} label={label} />
                     ))}
                 </FormRadio>
-
-                <div className={s.InputContainer}>
-                    <Text weight="bold" color={gray8}>
-                        {tr('Create external account:')}
-                    </Text>
-                    <Checkbox checked={createExternalAccount} onChange={onCreateExternalAccountClick} />
-                </div>
 
                 <div className={s.InputContainer}>
                     <Text weight="bold" color={gray8}>

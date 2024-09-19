@@ -149,14 +149,19 @@ const componentMap: {
                         <ChangeListItem title={tr('Type')} after={event.after.type} />
                         <ChangeListItem title={tr('Name')} after={event.after.name} />
                         <ChangeListItem title={tr('Email')} after={event.after.email} />
+                        <ChangeListItem title={tr('Work email')} after={event.after.workEmail} />
                         <ChangeListItem title={tr('Corporate email')} after={event.after.corporateEmail} />
                         <ChangeListItem title={tr('Login')} after={event.after.login} />
                         <ChangeListItem title={tr('Team')} after={event.after.groupId} />
                         <ChangeListItem title={tr('Organization id')} after={event.after.organizationUnitId} />
+                        <ChangeListItem title={tr('Unit id')} after={event.after.unitId} />
                         <ChangeListItem
                             title={tr('Supplemental positions')}
                             after={event.after.supplementalPositions
-                                ?.map(({ organizationUnitId, percentage }) => `${organizationUnitId}: ${percentage}%`)
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId }) =>
+                                        `${organizationUnitId}: ${percentage}% ${unitId ? `, ${unitId}` : ''}`,
+                                )
                                 .join(', ')}
                         />
                         <ChangeListItem title={tr('Supervisor login')} after={event.after.supervisorLogin} />
@@ -191,6 +196,10 @@ const componentMap: {
                         <ChangeListItem title={tr('Coordinator id')} after={event.after.coordinatorId} />
                         <ChangeListItem title={tr('Recruiter login')} after={event.after.recruiterLogin} />
                         <ChangeListItem title={tr('Recruiter id')} after={event.after.recruiterId} />
+                        <ChangeListItem title={tr('Line manager logins')} after={event.after.lineManagerLogins} />
+                        <ChangeListItem title={tr('Line manager ids')} after={event.after.lineManagerIds} />
+                        <ChangeListItem title={tr('Line manager logins')} after={event.after.coordinatorLogins} />
+                        <ChangeListItem title={tr('Line manager ids')} after={event.after.coordinatorIds} />
                     </>
                 ))}
             </>

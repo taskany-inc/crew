@@ -1,5 +1,9 @@
 .Input {
-    width: 160px;
+    width: 140px;
+}
+
+.PercentageInput {
+    width: 70px;
 }
 
 .Base {

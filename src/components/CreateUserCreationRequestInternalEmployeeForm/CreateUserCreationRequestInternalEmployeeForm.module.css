@@ -34,3 +34,13 @@
     margin-left: var(--gap-m);
     margin-bottom: var(--gap-s);
 }
+
+.LineManagersTitle {
+    align-self: start;
+    margin-top: var(--gap-xs)
+}
+
+.LineManagers {
+    display: flex;
+    flex-direction: column;
+}

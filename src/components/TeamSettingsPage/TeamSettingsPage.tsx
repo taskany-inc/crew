@@ -160,7 +160,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                                     {tr('Supervisor:')}
                                 </Text>
                                 <UserComboBox
-                                    user={group.supervisor}
+                                    value={group.supervisor}
                                     onChange={(user) =>
                                         setValue('supervisorId', user?.id || null, { shouldDirty: true })
                                     }

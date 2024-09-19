@@ -133,7 +133,7 @@ export const CreateVacancyModal = ({ visible, onClose, group }: CreateVacancyMod
 
                             <Field name={tr('Hiring manager:')} error={errors.hiringManagerId}>
                                 <UserComboBox
-                                    user={group.supervisor}
+                                    value={group.supervisor}
                                     onChange={(user) => user && setValue('hiringManagerId', user?.id)}
                                 />
                             </Field>

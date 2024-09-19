@@ -1,4 +1,4 @@
-import { UserCreationRequest, Prisma } from 'prisma/prisma-client';
+import { UserCreationRequest, Prisma, User } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
 
@@ -29,7 +29,10 @@ export const userCreationRequestsMethods = {
     create: async (
         data: CreateUserCreationRequest,
         sessionUserId: string,
-    ): Promise<UserCreationRequest & UserCreationRequestSupplementPosition> => {
+    ): Promise<
+        UserCreationRequest &
+            UserCreationRequestSupplementPosition & { coordinators: User[] } & { lineManagers: User[] }
+    > => {
         const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
 
         const isLoginUnique = await userMethods.isLoginUnique(data.login);
@@ -113,19 +116,16 @@ export const userCreationRequestsMethods = {
                 ? await prisma.user.findUniqueOrThrow({ where: { id: data.buddyId ?? undefined } })
                 : undefined;
 
-            const coordinator = data.coordinatorId
-                ? await prisma.user.findUniqueOrThrow({ where: { id: data.coordinatorId ?? undefined } })
-                : undefined;
-
             const recruiter = data.recruiterId
                 ? await prisma.user.findUniqueOrThrow({ where: { id: data.recruiterId ?? undefined } })
                 : undefined;
 
             if (data.supplementalPositions?.length) {
                 createData.supplementalPositions = {
-                    create: data.supplementalPositions.map(({ organizationUnitId, percentage }) => ({
+                    create: data.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
                         organizationUnit: { connect: { id: organizationUnitId } },
                         percentage,
+                        unitId,
                     })),
                 };
             }
@@ -135,10 +135,11 @@ export const userCreationRequestsMethods = {
             createData.equipment = data.equipment || undefined;
             createData.extraEquipment = data.extraEquipment || undefined;
             createData.workSpace = data.workSpace || undefined;
+            createData.workEmail = data.workEmail || undefined;
             createData.buddyLogin = buddy?.login || undefined;
             createData.buddyId = buddy?.id || undefined;
-            createData.coordinatorLogin = coordinator?.login || undefined;
-            createData.coordinatorId = coordinator?.id || undefined;
+            createData.coordinators = { connect: data.coordinatorIds?.map((id) => ({ id })) };
+            createData.lineManagers = { connect: data.lineManagerIds?.map((id) => ({ id })) };
             createData.recruiterLogin = recruiter?.login || undefined;
             createData.recruiterId = recruiter?.id || undefined;
             createData.location = data.location || undefined;
@@ -153,9 +154,10 @@ export const userCreationRequestsMethods = {
                 organization: true,
                 supervisor: true,
                 buddy: true,
-                coordinator: true,
+                coordinators: true,
                 recruiter: true,
                 creator: true,
+                lineManagers: true,
                 supplementalPositions: { include: { organizationUnit: true } },
             },
         });
@@ -181,7 +183,11 @@ export const userCreationRequestsMethods = {
 
             const icalSubject = `${
                 userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
-            } ${name} ${getOrgUnitTitle(userCreationRequest.organization)} ${data.phone}`;
+            } ${name} ${getOrgUnitTitle(
+                userCreationRequest.organization,
+            )} ${userCreationRequest.supplementalPositions.map(
+                (o) => `${getOrgUnitTitle(o.organizationUnit)}(${o.percentage}%)`,
+            )} ${data.phone}`;
 
             const icalEvent = createIcalEventData({
                 id: userCreationRequest.id + config.nodemailer.authUser,
@@ -253,9 +259,10 @@ export const userCreationRequestsMethods = {
                 organization: true,
                 supervisor: true,
                 buddy: true,
-                coordinator: true,
+                coordinators: true,
                 recruiter: true,
                 creator: true,
+                lineManagers: true,
             },
         });
 
@@ -355,6 +362,8 @@ export const userCreationRequestsMethods = {
                 supervisor: true,
                 buddy: true,
                 coordinator: true,
+                coordinators: true,
+                lineManagers: true,
                 recruiter: true,
                 supplementalPositions: { include: { organizationUnit: true } },
             },
