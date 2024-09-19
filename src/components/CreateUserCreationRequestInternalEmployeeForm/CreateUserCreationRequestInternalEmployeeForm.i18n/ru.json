@@ -31,11 +31,11 @@
     "Supplemental positions:": "Дополнительные организации:",
     "The login can be changed manually if the resulting one is already taken or is completely discordant": "Логин можно изменить вручную, если получившийся уже занят или совсем неблагозвучен",
     "Line managers:": "Линейные руководители",
-    "Add reqruiter": "Добавить рекрутера",
+    "Add reqruiter": "Добавить",
     "Personal email": "Личная почта",
     "Work email": "Рабочая почта",
-    "Add supervisor": "Добавить функционального руководителя",
-    "Add line manager": "Добавить линейного руководителя",
-    "Add buddy": "Добавить buddy",
-    "Add coordinator": "Добавить координатора"
+    "Add supervisor": "Добавить",
+    "Add line manager": "Добавить",
+    "Add buddy": "Добавить",
+    "Add coordinator": "Добавить"
 }
