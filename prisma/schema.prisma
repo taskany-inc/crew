@@ -151,6 +151,7 @@ model UserCreationRequest {
 
   name                  String
   email                 String
+  personalEmail         String?
   workEmail             String?
   corporateEmail        String?
   login                 String

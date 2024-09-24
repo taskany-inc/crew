@@ -69,6 +69,7 @@ export const userCreationRequestRouter = router({
                     : undefined,
                 unitId: creationRequest.unitId || undefined,
                 workEmail: creationRequest.workEmail || undefined,
+                personalEmail: creationRequest.personalEmail || undefined,
             },
         });
 

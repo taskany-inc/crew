@@ -77,6 +77,9 @@ export const UserCreationRequestModal = ({ request, visible, onClose }: UserCrea
                     {nullable(request.corporateEmail, (ce) => (
                         <InfoRow label={tr('Corporate email')} text={ce} />
                     ))}
+                    {nullable(request.personalEmail, (pe) => (
+                        <InfoRow label={tr('Personal email')} text={pe} />
+                    ))}
                     {nullable(request.osPreference, (os) => (
                         <InfoRow label={tr('OS preference')} text={os} />
                     ))}
