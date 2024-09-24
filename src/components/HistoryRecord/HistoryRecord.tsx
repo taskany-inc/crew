@@ -200,6 +200,7 @@ const componentMap: {
                         <ChangeListItem title={tr('Line manager ids')} after={event.after.lineManagerIds} />
                         <ChangeListItem title={tr('Line manager logins')} after={event.after.coordinatorLogins} />
                         <ChangeListItem title={tr('Line manager ids')} after={event.after.coordinatorIds} />
+                        <ChangeListItem title={tr('Personal email')} after={event.after.personalEmail} />
                     </>
                 ))}
             </>

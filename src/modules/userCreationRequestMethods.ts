@@ -145,6 +145,7 @@ export const userCreationRequestsMethods = {
             createData.location = data.location || undefined;
             createData.creationCause = data.creationCause || undefined;
             createData.unitId = data.unitId || undefined;
+            createData.personalEmail = data.personalEmail || undefined;
         }
 
         const userCreationRequest = await prisma.userCreationRequest.create({

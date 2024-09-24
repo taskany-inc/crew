@@ -293,6 +293,7 @@ export type UserCreationRequest = {
     creatorId: string | null;
     name: string;
     email: string;
+    personalEmail: string | null;
     workEmail: string | null;
     corporateEmail: string | null;
     login: string;

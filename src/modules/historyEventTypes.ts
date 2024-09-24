@@ -71,6 +71,7 @@ interface HistoryEventsData {
             supplementalPositions?: { organizationUnitId: string; percentage: number; unitId?: string }[];
             unitId?: string;
             workEmail?: string;
+            personalEmail?: string;
         };
     };
     cancelUserCreationRequest: {

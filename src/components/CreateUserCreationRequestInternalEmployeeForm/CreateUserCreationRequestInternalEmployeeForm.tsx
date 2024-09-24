@@ -86,6 +86,7 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                 unitId: unitId || '',
             })),
             corporateEmail: getCorporateEmail(getValues('login')),
+            email: getCorporateEmail(getValues('login')),
             lineManagerIds: lineManagers.map(({ id }) => id),
             coordinatorIds: coordinators.map(({ id }) => id),
         });
@@ -238,8 +239,8 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     label={tr('Personal email')}
                     brick="right"
                     autoComplete="off"
-                    {...register('email', { required: tr('Required field') })}
-                    error={errors.email}
+                    {...register('personalEmail')}
+                    error={errors.personalEmail}
                     className={s.FormInput}
                 />
                 <FormInput
