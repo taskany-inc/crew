@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.78.3](https://github.com/taskany-inc/crew/compare/v0.78.2...v0.78.3) (2024-09-24)
+
+
+### Bug Fixes
+
+* **CreateUserCreationRequestInternalEmployeeForm:** fix email and corporateEmail change ([7f21b9b](https://github.com/taskany-inc/crew/commit/7f21b9ba4df4428ac00c6bb6a46a41e0fde61ad4))
+
 ## [0.78.2](https://github.com/taskany-inc/crew/compare/v0.78.1...v0.78.2) (2024-09-24)
 
 
