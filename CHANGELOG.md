@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.78.2](https://github.com/taskany-inc/crew/compare/v0.78.1...v0.78.2) (2024-09-24)
+
+
+### Bug Fixes
+
+* personal email is optional in user request ([2f8b6cf](https://github.com/taskany-inc/crew/commit/2f8b6cfa9c893740dbf21ac33bd7c49612fb7ca9))
+
 ## [0.78.1](https://github.com/taskany-inc/crew/compare/v0.78.0...v0.78.1) (2024-09-19)
 
 
