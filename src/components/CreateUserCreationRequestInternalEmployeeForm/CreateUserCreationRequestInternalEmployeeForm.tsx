@@ -28,7 +28,6 @@ import {
     createUserCreationRequestInternalEmployeeSchema,
 } from '../../modules/userCreationRequestSchemas';
 import { getCorporateEmail } from '../../utils/getCorporateEmail';
-import { useBoolean } from '../../hooks/useBoolean';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
@@ -105,8 +104,6 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
     const removeSupplementalPosition = (id: string) =>
         setSupplementalPositions(supplementalPositions.filter((sp) => sp.organizationUnit.id !== id));
 
-    const createCorporateEmail = useBoolean(false);
-
     const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
 
     const isLoginUnique = trpc.user.isLoginUnique.useQuery(isLoginUniqueQuery, {
@@ -129,13 +126,14 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
         });
         debouncedSearchHandler(login);
         setValue('login', login);
+        setValue('corporateEmail', getCorporateEmail(login));
+        setValue('email', getCorporateEmail(login));
     };
 
     const onLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
         debouncedSearchHandler(e.currentTarget.value);
-        if (createCorporateEmail.value) {
-            setValue('corporateEmail', getCorporateEmail(e.target.value));
-        }
+        setValue('corporateEmail', getCorporateEmail(e.target.value));
+        setValue('email', getCorporateEmail(e.target.value));
     };
 
     const creationCauseRadioValues = [
