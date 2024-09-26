@@ -272,12 +272,7 @@ export const userMethods = {
         });
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });
 
-        // TODO this should be in query https://github.com/taskany-inc/crew/issues/629
-        const showAchievements =
-            user.settings?.showAchievements ||
-            sessionUser?.id === user.id ||
-            sessionUser?.role?.editUserAchievements ||
-            sessionUser?.role?.viewUserExtendedInfo;
+        const showAchievements = user.settings ? user.settings.showAchievements : true;
 
         const userWithGroupMeta = {
             ...user,
