@@ -27,6 +27,7 @@ import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 import { loginAuto } from '../../utils/createUserCreationRequest';
+import { PhoneField } from '../PhoneField/PhoneField';
 
 import s from './CreateUserCreationRequestExternalEmployeeForm.module.css';
 import { tr } from './CreateUserCreationRequestExternalEmployeeForm.i18n';
@@ -59,6 +60,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
         setError,
         clearErrors,
         trigger,
+        control,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateUserCreationRequestExternalEmployee>({
         defaultValues,
@@ -268,13 +270,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     error={errors.osPreference}
                 />
 
-                <FormInput
-                    label={tr('Phone')}
-                    brick="right"
-                    autoComplete="off"
-                    {...register('phone')}
-                    error={errors.phone}
-                />
+                <PhoneField name="phone" control={control} />
 
                 <FormInput
                     label={tr('Accounting id')}
