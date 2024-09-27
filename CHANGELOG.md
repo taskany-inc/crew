@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.78.4](https://github.com/taskany-inc/crew/compare/v0.78.3...v0.78.4) (2024-09-27)
+
+
+### Bug Fixes
+
+* less strict achievement visibility ([fb9e633](https://github.com/taskany-inc/crew/commit/fb9e6333f424b1a83edb853378c9161c1264fb27))
+
 ## [0.78.3](https://github.com/taskany-inc/crew/compare/v0.78.2...v0.78.3) (2024-09-24)
 
 
