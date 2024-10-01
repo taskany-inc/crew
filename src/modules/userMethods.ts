@@ -22,6 +22,7 @@ import {
     MailingSettingType,
     UserScheduledDeactivations,
     UserSupplementalPositions,
+    UserNames,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -63,10 +64,14 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: S
 };
 
 const usersWhere = async (data: GetUserList) => {
-    const where: Prisma.UserWhereInput = {};
+    const OR: Prisma.UserWhereInput[] = [];
+    const AND: Prisma.UserWhereInput[] = [];
     const membershipsSome: Prisma.MembershipWhereInput = {};
-    if (data.search) where.name = { contains: data.search, mode: 'insensitive' };
-    if (data.supervisors) where.supervisorId = { in: data.supervisors };
+    if (data.search) {
+        OR.push({ name: { contains: data.search, mode: 'insensitive' } });
+        OR.push({ otherNames: { some: { name: { contains: data.search, mode: 'insensitive' } } } });
+    }
+    if (data.supervisors) AND.push({ supervisorId: { in: data.supervisors } });
     if (data.groups) {
         let groupIds = [...data.groups];
         if (data.includeChildrenGroups) {
@@ -79,19 +84,25 @@ const usersWhere = async (data: GetUserList) => {
     }
 
     if (data.active !== undefined) {
-        where.active = data.active;
+        AND.push({ active: data.active });
     }
 
     if (data.mailingSettings) {
-        where.mailingSettings = {
-            some: { [data.mailingSettings.type]: true, organizationUnitId: data.mailingSettings.organizationUnitId },
-        };
+        AND.push({
+            mailingSettings: {
+                some: {
+                    [data.mailingSettings.type]: true,
+                    organizationUnitId: data.mailingSettings.organizationUnitId,
+                },
+            },
+        });
     }
 
     if (data.groups || data.roles) {
-        where.memberships = { some: membershipsSome };
+        AND.push({ memberships: { some: membershipsSome } });
     }
 
+    const where: Prisma.UserWhereInput = { OR: OR.length ? OR : undefined, AND: AND.length ? AND : undefined };
     return where;
 };
 
@@ -229,6 +240,7 @@ export const userMethods = {
     ): Promise<
         User &
             UserMeta &
+            UserNames &
             UserMemberships &
             UserSupervisor &
             UserAchievements &
@@ -242,6 +254,7 @@ export const userMethods = {
         const user = await prisma.user.findUnique({
             where: { id },
             include: {
+                otherNames: { select: { name: true } },
                 memberships: {
                     where: { archived: false },
                     include: {
@@ -370,7 +383,7 @@ export const userMethods = {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } }, active: { not: true } } });
     },
 
-    edit: async (data: EditUserFields) => {
+    edit: async ({ id, savePreviousName, ...data }: EditUserFields) => {
         if (data.organizationUnitId) {
             const newOrganization = await prisma.organizationUnit.findUnique({
                 where: {
@@ -386,11 +399,16 @@ export const userMethods = {
             }
         }
 
-        await externalUserMethods.update(data.id, { name: data.name, supervisorId: data.supervisorId });
-        return prisma.user.update({
-            where: { id: data.id },
-            data,
-        });
+        await externalUserMethods.update(id, { name: data.name, supervisorId: data.supervisorId });
+
+        if (savePreviousName) {
+            const userBeforeUpdate = await userMethods.getByIdOrThrow(id);
+            if (userBeforeUpdate.name) {
+                await prisma.userNames.create({ data: { userId: id, name: userBeforeUpdate.name } });
+            }
+        }
+
+        return prisma.user.update({ where: { id }, data });
     },
 
     editActiveState: async (data: EditUserActiveState): Promise<User> => {
@@ -415,6 +433,7 @@ export const userMethods = {
         const where: Prisma.UserWhereInput = {
             OR: [
                 { name: { contains: query, mode: 'insensitive' } },
+                { otherNames: { some: { name: { contains: query, mode: 'insensitive' } } } },
                 { email: { contains: query, mode: 'insensitive' } },
             ],
             AND: [{ active: true }],

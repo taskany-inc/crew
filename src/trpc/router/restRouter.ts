@@ -161,6 +161,7 @@ export const restRouter = router({
                 login: z.string(),
                 data: z.object({
                     name: z.string().optional(),
+                    savePreviousName: z.boolean().optional(),
                     registrationEmail: z.string().optional(),
                     phone: z.string().optional(),
                     organizationUnitId: z.string().optional(),
@@ -234,6 +235,7 @@ export const restRouter = router({
                     phone: phoneService?.serviceId,
                     organizationalUnitId: user.organizationUnitId,
                     supervisorId: user.supervisorId,
+                    savePreviousName: input.data.savePreviousName,
                 },
                 {
                     name: input.data.name,

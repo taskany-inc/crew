@@ -39,6 +39,10 @@ export interface UserMeta {
     meta: Record<keyof typeof userAccess, boolean>;
 }
 
+export interface UserNames {
+    otherNames: { name: string }[];
+}
+
 export interface UserMemberships {
     memberships: MembershipInfo[];
 }

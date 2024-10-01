@@ -128,5 +128,9 @@
     "Line manager ids": "Id линейных руководителей",
     "Unit id": "Id ставки",
     "Work email": "Рабочая почта",
-    "Personal email": "Личная почта"
+    "Personal email": "Личная почта",
+    "Previous name": "Предыдущее ФИО",
+    "saved": "сохранено",
+    "was_neutr": "было",
+    "was not_neutr": "не было"
 }

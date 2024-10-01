@@ -148,6 +148,7 @@ export const userRouter = router({
                 supervisorId: userBefore.supervisorId,
                 organizationalUnitId: userBefore.organizationUnitId ?? undefined,
                 email: userBefore.email,
+                savePreviousName: input.savePreviousName,
             },
             {
                 name: result.name,

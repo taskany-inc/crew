@@ -128,5 +128,9 @@
     "Line manager ids": "",
     "Unit id": "",
     "Work email": "",
-    "Personal email": ""
+    "Personal email": "",
+    "Previous name": "",
+    "saved": "",
+    "was_neutr": "was",
+    "was not_neutr": "was not"
 }
