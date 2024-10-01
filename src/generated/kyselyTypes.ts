@@ -341,6 +341,13 @@ export type userLineManagers = {
     A: string;
     B: string;
 };
+export type UserNames = {
+    id: Generated<string>;
+    userId: string;
+    name: string;
+    createdAt: Generated<Timestamp>;
+    updatedAt: Generated<Timestamp>;
+};
 export type UserRole = {
     code: string;
     name: string;
@@ -432,6 +439,7 @@ export type DB = {
     UserAchievement: UserAchievement;
     UserCreationRequest: UserCreationRequest;
     UserDevice: UserDevice;
+    UserNames: UserNames;
     UserRoleModel: UserRole;
     UserServices: UserService;
     UserSettings: UserSettings;

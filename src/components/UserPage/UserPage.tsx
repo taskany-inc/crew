@@ -33,6 +33,7 @@ import {
     UserAchievements,
     UserMemberships,
     UserMeta,
+    UserNames,
     UserOrganizationUnit,
     UserRoleData,
     UserScheduledDeactivations,
@@ -96,6 +97,7 @@ const StyledUserListWrapper = styled.div`
 interface UserPageInnerProps {
     user: User &
         UserMeta &
+        UserNames &
         UserMemberships &
         UserOrganizationUnit &
         UserSupervisor &
@@ -248,6 +250,16 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                     ))}
 
                     <UserContacts user={user} />
+
+                    {nullable(user.otherNames, (names) => (
+                        <NarrowSection title={tr('Previous names')}>
+                            {names.map(({ name }, i) => (
+                                <Text color={gray10} key={`${i}-${name}`} size="s">
+                                    {name}
+                                </Text>
+                            ))}
+                        </NarrowSection>
+                    ))}
 
                     <UserDevices user={user} />
 

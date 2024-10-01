@@ -106,6 +106,15 @@ const componentMap: {
                             before={event.before.organizationalUnitId}
                             after={event.after.organizationalUnitId}
                         />
+                        {nullable(event.before.name !== event.after.name, () => (
+                            <Text>
+                                {tr('Previous name')}{' '}
+                                <BoldText>
+                                    {event.before.savePreviousName ? tr('was_neutr') : tr('was not_neutr')}
+                                </BoldText>{' '}
+                                {tr('saved')}
+                            </Text>
+                        ))}
                     </>
                 ))}
             </>

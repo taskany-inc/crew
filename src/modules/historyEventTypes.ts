@@ -20,6 +20,7 @@ interface HistoryEventsData {
         requireBefore: true;
         data: {
             name?: string;
+            savePreviousName?: boolean;
             supervisorId?: string;
             email?: string;
             phone?: string;

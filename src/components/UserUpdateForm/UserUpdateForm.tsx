@@ -12,6 +12,7 @@ import {
     Text,
     nullable,
 } from '@taskany/bricks';
+import { Checkbox } from '@taskany/bricks/harmony';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'prisma/prisma-client';
 import { gray8 } from '@taskany/colors';
@@ -56,17 +57,21 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
         register,
         handleSubmit,
         setValue,
+        watch,
         formState: { isSubmitted },
     } = useForm<EditUserFields>({
         defaultValues: {
             id: user.id,
             supervisorId: user.supervisorId,
             name: user.name || undefined,
+            savePreviousName: undefined,
             organizationUnitId: user.organizationUnitId || undefined,
         },
         mode: 'onChange',
         resolver: zodResolver(editUserFieldsSchema),
     });
+
+    const savePreviousName = watch('savePreviousName') ?? false;
 
     const updateUser = async (data: EditUser) => {
         await editUser(data);
@@ -90,6 +95,15 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                             brick="right"
                             autoComplete="off"
                         />
+                        <div className={s.Field}>
+                            <Text className={s.Text} weight="bold" color={gray8}>
+                                {tr('Save previous name:')}
+                            </Text>
+                            <Checkbox
+                                checked={savePreviousName}
+                                onChange={(e) => setValue('savePreviousName', e.target.checked)}
+                            />
+                        </div>
                         <div className={s.Field}>
                             <Text className={s.Text} weight="bold" color={gray8}>
                                 {tr('Supervisor:')}

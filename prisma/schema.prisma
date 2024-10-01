@@ -77,6 +77,8 @@ model User {
   memberships   Membership[]
   devices       UserDevice[]
 
+  otherNames UserNames[]
+
   achievements UserAchievement[]
 
   achievementsCreated Achievement[]     @relation("achievementsCreated")
@@ -132,6 +134,18 @@ model User {
 
   workStartDate         DateTime?
   supplementalPositions SupplementalPosition[]
+
+  createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
+  updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+model UserNames {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  name String
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
