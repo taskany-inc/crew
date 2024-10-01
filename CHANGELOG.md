@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.79.0](https://github.com/taskany-inc/crew/compare/v0.78.4...v0.79.0) (2024-10-01)
+
+
+### Features
+
+* save previous user names ([5327781](https://github.com/taskany-inc/crew/commit/532778100a04c2b44dbe87997c614c564e73dc51))
+
 ## [0.78.4](https://github.com/taskany-inc/crew/compare/v0.78.3...v0.78.4) (2024-09-27)
 
 
