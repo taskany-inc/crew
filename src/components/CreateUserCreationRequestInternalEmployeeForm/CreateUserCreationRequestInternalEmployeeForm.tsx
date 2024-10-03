@@ -16,7 +16,7 @@ import { danger0, gray8 } from '@taskany/colors';
 import { FormControl, Tooltip, User as HarmonyUser } from '@taskany/bricks/harmony';
 import { Group, OrganizationUnit, User } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
-import { IconBulbOnOutline } from '@taskany/icons';
+import { IconBulbOnOutline, IconXOutline } from '@taskany/icons';
 
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
@@ -296,10 +296,17 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     <div className={s.LineManagers}>
                         {lineManagers?.map((manager) => (
                             <HarmonyUser
-                                key={`${manager.id}lineManager`}
+                                key={`lineManager${manager.id}`}
                                 name={manager.name}
                                 email={manager.email}
-                                onClick={() => setLineManagers(lineManagers.filter(({ id }) => manager.id !== id))}
+                                iconRight={
+                                    <IconXOutline
+                                        size="s"
+                                        onClick={() =>
+                                            setLineManagers(lineManagers.filter(({ id }) => manager.id !== id))
+                                        }
+                                    />
+                                }
                             />
                         ))}
                         {nullable(lineManagers.length < 3, () => (
@@ -334,7 +341,12 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                                 key={`${c.id}coordinators`}
                                 name={c.name}
                                 email={c.email}
-                                onClick={() => setCoordinators(coordinators.filter(({ id }) => c.id !== id))}
+                                iconRight={
+                                    <IconXOutline
+                                        size="s"
+                                        onClick={() => setCoordinators(coordinators.filter(({ id }) => c.id !== id))}
+                                    />
+                                }
                             />
                         ))}
                         <UserComboBox

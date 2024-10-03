@@ -11,7 +11,7 @@ import {
     ListViewItem,
     MenuItem,
 } from '@taskany/bricks/harmony';
-import { IconSearchOutline } from '@taskany/icons';
+import { IconSearchOutline, IconXOutline } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
 import { Nullish } from '../../utils/types';
@@ -55,7 +55,7 @@ export const UserComboBox = ({ value, onChange, placeholder, blank }: UserComboB
                                     <HarmonyUser
                                         name={user.name}
                                         email={user.email}
-                                        onClick={suggestionsVisibility.setTrue}
+                                        iconRight={<IconXOutline size="s" onClick={() => setSelectedUser(null)} />}
                                     />
                                 ),
                                 <AddInlineTrigger
