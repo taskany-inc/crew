@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.79.1](https://github.com/taskany-inc/crew/compare/v0.79.0...v0.79.1) (2024-10-03)
+
+
+### Bug Fixes
+
+* **UserComboBox:** set selected user to null if needed ([2f81320](https://github.com/taskany-inc/crew/commit/2f81320e59ffca4dbca8808a88a31896fad0c738))
+
 ## [0.79.0](https://github.com/taskany-inc/crew/compare/v0.78.4...v0.79.0) (2024-10-01)
 
 
