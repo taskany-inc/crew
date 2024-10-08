@@ -7,6 +7,7 @@ import {
     handleUserCreationRequest,
 } from '../../modules/userCreationRequestSchemas';
 import { accessCheck, checkRoleForAccess } from '../../utils/access';
+import { processEvent } from '../../utils/analyticsEvent';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { protectedProcedure, router } from '../trpcBackend';
 
@@ -71,6 +72,10 @@ export const userCreationRequestRouter = router({
                 workEmail: creationRequest.workEmail || undefined,
                 personalEmail: creationRequest.personalEmail || undefined,
             },
+        });
+
+        processEvent('userRequestCreate', ctx.headers.referer || '', ctx.session, ctx.headers['user-agent'], {
+            id: creationRequest.id,
         });
 
         return creationRequest;
