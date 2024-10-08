@@ -14,6 +14,7 @@ import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { groupAccess } from '../../modules/groupAccess';
 import { accessCheck, checkRoleForAccess } from '../../utils/access';
+import { processEvent } from '../../utils/analyticsEvent';
 
 export const groupRouter = router({
     create: protectedProcedure.input(createGroupSchema).mutation(async ({ input, ctx }) => {
@@ -39,6 +40,14 @@ export const groupRouter = router({
                 supervisorId: result.supervisorId || undefined,
             },
         });
+
+        const { session, headers } = ctx;
+        processEvent('groupCreate', headers.referer || '', session, headers['user-agent'], {
+            groupId: result.id,
+            virtual: result.virtual.toString(),
+            organizational: result.organizational.toString(),
+        });
+
         return result;
     }),
 

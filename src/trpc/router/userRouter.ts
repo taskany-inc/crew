@@ -20,6 +20,7 @@ import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { groupAccess } from '../../modules/groupAccess';
 import { prisma } from '../../utils/prisma';
+import { processEvent } from '../../utils/analyticsEvent';
 
 export const userRouter = router({
     create: protectedProcedure.input(createUserSchema).mutation(async ({ input, ctx }) => {
@@ -176,6 +177,14 @@ export const userRouter = router({
             before: userBefore.active,
             after: result.active,
         });
+
+        const { session, headers } = ctx;
+        processEvent('userActiveUpdate', headers.referer || '', session, headers['user-agent'], {
+            userId: result.id,
+            before: userBefore.active.toString(),
+            after: result.active.toString(),
+        });
+
         return result;
     }),
 
