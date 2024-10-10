@@ -77,6 +77,13 @@ export const editUserSchema = z.object({
     name: z.string().optional(),
     savePreviousName: z.boolean().optional(),
     supervisorId: z.string().nullish(),
+    supplementalPosition: z
+        .object({
+            organizationUnitId: z.string(),
+            percentage: z.number(),
+            unitId: z.string().optional(),
+        })
+        .optional(),
 });
 
 export type EditUser = z.infer<typeof editUserSchema>;

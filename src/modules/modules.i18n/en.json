@@ -82,5 +82,8 @@
     "Organization": "",
     "Supplemental positions": "",
     "Cannot edit non-existent membership": "",
-    "from": ""
+    "from": "",
+    "Not a valid email": "",
+    "Enter phone number in format +7(900)123-45-67": "",
+    "Please enter percentage from 0.01 to 1": ""
 }

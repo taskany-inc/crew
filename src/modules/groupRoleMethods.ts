@@ -51,16 +51,26 @@ export const groupRoleMethods = {
         });
     },
 
-    suggestions: async ({ query, include, take = suggestionsTake }: GetRoleSuggestions) => {
+    suggestions: async ({ query, include, includeName, take = suggestionsTake }: GetRoleSuggestions) => {
         const where: Prisma.RoleWhereInput = { name: { contains: query, mode: 'insensitive' } };
 
         if (include) {
             where.id = { notIn: include };
         }
+
+        if (includeName) {
+            where.AND = { name: { notIn: includeName } };
+        }
+
         const suggestions = await prisma.role.findMany({ where, take });
 
         if (include) {
             const includes = await prisma.role.findMany({ where: { id: { in: include } } });
+            suggestions.push(...includes);
+        }
+
+        if (includeName) {
+            const includes = await prisma.role.findMany({ where: { name: { in: includeName } } });
             suggestions.push(...includes);
         }
 

@@ -43,6 +43,7 @@ export const getRoleSuggestionsSchema = z.object({
     query: z.string(),
     take: z.number().optional(),
     include: z.array(z.string()).optional(),
+    includeName: z.array(z.string()).optional(),
 });
 
 export type GetRoleSuggestions = z.infer<typeof getRoleSuggestionsSchema>;
