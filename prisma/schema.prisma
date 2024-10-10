@@ -175,8 +175,8 @@ model UserCreationRequest {
   supervisorId          String?
   organization          OrganizationUnit           @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId    String
-  group                 Group                      @relation(fields: [groupId], references: [id])
-  groupId               String
+  group                 Group?                     @relation(fields: [groupId], references: [id])
+  groupId               String?
   osPreference          String?
   createExternalAccount Boolean
   status                UserCreationRequestStatus?

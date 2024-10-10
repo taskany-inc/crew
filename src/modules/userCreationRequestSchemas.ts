@@ -19,7 +19,7 @@ export const createUserCreationRequestBaseSchema = z.object({
     login: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
     accountingId: z.string().optional(),
     organizationUnitId: z.string({ required_error: tr('Required field'), invalid_type_error: tr('Required field') }),
-    groupId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+    groupId: z.string().optional(),
     supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
     title: z.string().optional(),
     corporateEmail: z.string().optional(),
