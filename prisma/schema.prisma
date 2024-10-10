@@ -183,6 +183,7 @@ model UserCreationRequest {
   comment               String?
   services              Json
   date                  DateTime?
+  percentage            Int?
 
   externalOrganizationSupervisorLogin String?
   accessToInternalSystems             Boolean?

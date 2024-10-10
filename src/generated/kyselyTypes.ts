@@ -308,6 +308,7 @@ export type UserCreationRequest = {
     comment: string | null;
     services: unknown;
     date: Timestamp | null;
+    percentage: number | null;
     externalOrganizationSupervisorLogin: string | null;
     accessToInternalSystems: boolean | null;
     workMode: string | null;

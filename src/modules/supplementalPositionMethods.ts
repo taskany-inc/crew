@@ -1,15 +1,16 @@
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
+import { percentageMultiply } from '../utils/suplementPosition';
 
 import { tr } from './modules.i18n';
 import { AddSupplementalPositionToUser, RemoveSupplementalPositionFromUser } from './supplementalPositionSchema';
 
 export const supplementalPositionMethods = {
     addToUser: async (data: AddSupplementalPositionToUser) => {
+        const { percentage, ...restData } = data;
         const supplementalPosition = await prisma.supplementalPosition.findFirst({
             where: { userId: data.userId, organizationUnitId: data.organizationUnitId },
-            include: { user: true },
         });
         if (supplementalPosition) {
             throw new TRPCError({
@@ -17,7 +18,9 @@ export const supplementalPositionMethods = {
                 message: tr('User already has supplemental position in this organization'),
             });
         }
-        return prisma.supplementalPosition.create({ data });
+        return prisma.supplementalPosition.create({
+            data: { ...restData, percentage: percentage * percentageMultiply },
+        });
     },
 
     removeFromUser: async ({ id, userId }: RemoveSupplementalPositionFromUser) => {

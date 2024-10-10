@@ -67,7 +67,7 @@
     "New user request {userName}": "Запрос на создание профиля {userName}",
     "External employees should have organizational supervisor": "Внешним сотрудникам нужен ответственный от организации",
     "External employees need an NDA attached": "Внешним сотрудникам нужен прикрепленный NDA",
-    "Required field": "Обязательное поле",
+    "Required field": "Нужно обязательно заполнить",
     "Transfer": "Перевод",
     "Employment": "Выход",
     "User with login {login} already exist": "Уже есть пользователь с логином {login}",
@@ -82,5 +82,8 @@
     "Organization": "Организация",
     "Supplemental positions": "Дополнительные организации",
     "Cannot edit non-existent membership": "Невозможно изменить несуществующее членство в группе",
-    "from": "из"
+    "from": "из",
+    "Not a valid email": "Невалидный емейл",
+    "Enter phone number in format +7(900)123-45-67": "Укажите телефон в формате +7 (900) 123-45-67",
+    "Please enter percentage from 0.01 to 1": "Укажите значение от 0,01 до 1"
 }

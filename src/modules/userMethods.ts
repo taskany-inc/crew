@@ -43,6 +43,7 @@ import { tr } from './modules.i18n';
 import { addCalculatedGroupFields, groupMethods } from './groupMethods';
 import { userAccess } from './userAccess';
 import { externalUserMethods } from './externalUserMethods';
+import { supplementalPositionMethods } from './supplementalPositionMethods';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -383,7 +384,7 @@ export const userMethods = {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } }, active: { not: true } } });
     },
 
-    edit: async ({ id, savePreviousName, ...data }: EditUserFields) => {
+    edit: async ({ id, savePreviousName, supplementalPosition, ...data }: EditUserFields) => {
         if (data.organizationUnitId) {
             const newOrganization = await prisma.organizationUnit.findUnique({
                 where: {
@@ -397,6 +398,23 @@ export const userMethods = {
                     message: `No organization with id ${data.organizationUnitId}`,
                 });
             }
+        }
+
+        if (supplementalPosition) {
+            const supplementalOrganization = await prisma.organizationUnit.findUnique({
+                where: {
+                    id: supplementalPosition.organizationUnitId,
+                },
+            });
+
+            if (!supplementalOrganization) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: `No organization with id ${supplementalPosition.organizationUnitId}`,
+                });
+            }
+
+            await supplementalPositionMethods.addToUser({ userId: id, ...supplementalPosition });
         }
 
         await externalUserMethods.update(id, { name: data.name, supervisorId: data.supervisorId });

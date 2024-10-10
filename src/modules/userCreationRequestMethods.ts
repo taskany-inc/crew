@@ -13,6 +13,7 @@ import {
 import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
 import { jobUpdate, jobDelete } from '../worker/jobOperations';
+import { percentageMultiply } from '../utils/suplementPosition';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
@@ -124,7 +125,7 @@ export const userCreationRequestsMethods = {
                 createData.supplementalPositions = {
                     create: data.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
                         organizationUnit: { connect: { id: organizationUnitId } },
-                        percentage,
+                        percentage: percentage * percentageMultiply,
                         unitId,
                     })),
                 };
@@ -146,6 +147,7 @@ export const userCreationRequestsMethods = {
             createData.creationCause = data.creationCause || undefined;
             createData.unitId = data.unitId || undefined;
             createData.personalEmail = data.personalEmail || undefined;
+            createData.percentage = data.percentage * percentageMultiply || undefined;
         }
 
         const userCreationRequest = await prisma.userCreationRequest.create({
@@ -187,7 +189,7 @@ export const userCreationRequestsMethods = {
             } ${name} ${getOrgUnitTitle(
                 userCreationRequest.organization,
             )} ${userCreationRequest.supplementalPositions.map(
-                (o) => `${getOrgUnitTitle(o.organizationUnit)}(${o.percentage}%)`,
+                (o) => `${getOrgUnitTitle(o.organizationUnit)}(${o.percentage / percentageMultiply})`,
             )} ${data.phone}`;
 
             const icalEvent = createIcalEventData({

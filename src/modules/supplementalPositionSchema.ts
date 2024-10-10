@@ -4,6 +4,7 @@ export const addSupplementalPositionToUserSchema = z.object({
     userId: z.string(),
     organizationUnitId: z.string(),
     percentage: z.number(),
+    unitId: z.string().optional(),
 });
 
 export type AddSupplementalPositionToUser = z.infer<typeof addSupplementalPositionToUserSchema>;
