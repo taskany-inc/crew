@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.80.0](https://github.com/taskany-inc/crew/compare/v0.79.1...v0.80.0) (2024-10-10)
+
+
+### Features
+
+* **Analytics:** added custom events options ([6c2cd0f](https://github.com/taskany-inc/crew/commit/6c2cd0f4aad6dbe6d1b1548831d72b3321350098))
+
 ## [0.79.1](https://github.com/taskany-inc/crew/compare/v0.79.0...v0.79.1) (2024-10-03)
 
 
