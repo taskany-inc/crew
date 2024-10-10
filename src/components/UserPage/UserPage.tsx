@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { PageSep } from '../PageSep';
 import { trpc } from '../../trpc/trpcClient';
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { UserSummary } from '../UserSummary/UserSummary';
 import { UserContacts } from '../UserContacts/UserContacts';
 import { UserMembershipsList } from '../UserMembershipsList/UserMembershipsList';

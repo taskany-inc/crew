@@ -25,7 +25,7 @@ import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { loginAuto } from '../../utils/createUserCreationRequest';
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { WorkModeCombobox } from '../WorkModeCombobox/WorkModeCombobox';
 import { RoleSelect } from '../RoleSelect/RoleSelect';
 import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';

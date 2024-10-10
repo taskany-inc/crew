@@ -2,7 +2,7 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { TabsMenu, TabsMenuItem } from '@taskany/bricks';
 
-import { LayoutMain, PageContent } from './LayoutMain';
+import { LayoutMain, PageContent } from './LayoutMain/LayoutMain';
 import { Link } from './Link';
 
 interface TabsMenuOptions {

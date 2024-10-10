@@ -4,7 +4,7 @@ import { gapL, gapM } from '@taskany/colors';
 
 import { trpc } from '../trpc/trpcClient';
 
-import { LayoutMain } from './LayoutMain';
+import { LayoutMain } from './LayoutMain/LayoutMain';
 import { GroupTreeViewNode } from './GroupTreeViewNode';
 import { TeamPageHeader } from './TeamPageHeader/TeamPageHeader';
 import { PageSep } from './PageSep';

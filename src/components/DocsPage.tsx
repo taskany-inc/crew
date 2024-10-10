@@ -7,7 +7,7 @@ import { gapM, gapXl } from '@taskany/colors';
 import { downloadAsFile } from '../utils/downloadAsFile';
 
 import { Link } from './Link';
-import { LayoutMain } from './LayoutMain';
+import { LayoutMain } from './LayoutMain/LayoutMain';
 import { tr } from './components.i18n';
 
 interface DocsPageProps {
