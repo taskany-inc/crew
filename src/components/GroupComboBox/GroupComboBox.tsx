@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Group } from 'prisma/prisma-client';
 import { nullable } from '@taskany/bricks';
-import { Select, SelectPanel, SelectTrigger, Input, Text } from '@taskany/bricks/harmony';
+import { Select, SelectPanel, SelectTrigger, Input, Text, Badge } from '@taskany/bricks/harmony';
+import { IconXCircleOutline } from '@taskany/icons';
 
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
@@ -14,10 +15,11 @@ interface GroupComboBoxProps {
     onChange: (group: Nullish<Group>) => void;
     error?: React.ComponentProps<typeof SelectTrigger>['error'];
 
+    onReset?: () => void;
     className?: string;
 }
 
-export const GroupComboBox = ({ defaultGroupId, onChange, error, className }: GroupComboBoxProps) => {
+export const GroupComboBox = ({ defaultGroupId, onChange, error, className, onReset }: GroupComboBoxProps) => {
     const [search, setSearch] = useState('');
     const sessionUser = useSessionUser();
 
@@ -54,7 +56,13 @@ export const GroupComboBox = ({ defaultGroupId, onChange, error, className }: Gr
             )}
         >
             <SelectTrigger error={error} placeholder={tr('Choose team')} view="outline" className={className}>
-                {nullable(value && value[0], (g) => g.name)}
+                {nullable(value && value[0], (g) => (
+                    <Badge
+                        weight="regular"
+                        text={g.name}
+                        iconRight={onReset && <IconXCircleOutline size="s" onClick={onReset} />}
+                    />
+                ))}
             </SelectTrigger>
             <SelectPanel placement="bottom-start" title={tr('Suggestions')}>
                 <Input autoFocus placeholder={tr('Search')} onChange={(e) => setSearch(e.target.value)} />

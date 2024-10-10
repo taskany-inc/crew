@@ -172,7 +172,7 @@ ${tr('Sincerely,')}<br/>HR-team!
 `;
 
 export const htmlUserCreationRequestWithDate = (data: {
-    userCreationRequest: UserCreationRequest & { group: Group } & { supervisor: User | null } & {
+    userCreationRequest: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
         buddy: User | null;
     } & {
         recruiter: User | null;
@@ -221,10 +221,20 @@ export const htmlUserCreationRequestWithDate = (data: {
                         <th>${tr('Email')}</th>
                         <td>${
                             userCreationRequest.workEmail
-                                ? `${userCreationRequest.email} / ${userCreationRequest.workEmail}`
-                                : userCreationRequest.email
+                                ? `${userCreationRequest.corporateEmail || userCreationRequest.email} / ${
+                                      userCreationRequest.workEmail
+                                  }`
+                                : userCreationRequest.corporateEmail || userCreationRequest.email
                         }</td>
                     </tr>
+                    ${
+                        userCreationRequest.personalEmail
+                            ? `<tr>
+                        <th>${tr('Personal mail')}</th>
+                        <td>${userCreationRequest.personalEmail}</td>
+                    </tr>`
+                            : ''
+                    }
                     ${
                         userCreationRequest.supervisor
                             ? `
@@ -266,7 +276,7 @@ export const htmlUserCreationRequestWithDate = (data: {
                     }
                     <tr>
                         <th>${tr('Team')}</th>
-                        <td>${userCreationRequest.group.name}</td>
+                        <td>${userCreationRequest.group ? userCreationRequest.group.name : ''}</td>
                     </tr>
                     <tr>
                     <tr>

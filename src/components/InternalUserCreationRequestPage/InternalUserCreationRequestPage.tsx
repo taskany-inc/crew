@@ -89,7 +89,7 @@ export const InternalUserCreationRequestPage = () => {
 
         await createUserCreationRequest(data);
         reset(defaultValues);
-        return router.userRequestList();
+        return router.userRequests();
     });
 
     useEffect(() => {
@@ -177,7 +177,7 @@ export const InternalUserCreationRequestPage = () => {
                     <WarningModal
                         visible={cancelWarningVisible.value}
                         onCancel={cancelWarningVisible.setFalse}
-                        onConfirm={router.userRequestList}
+                        onConfirm={router.userRequests}
                         warningText={tr('cancel confirmation')}
                     />
                     <div className={s.Body}>
@@ -187,6 +187,7 @@ export const InternalUserCreationRequestPage = () => {
                                 <div className={s.ThreeInputsRow}>
                                     <FormControl label={tr('Surname')} required error={errors.surname}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             outline
                                             placeholder={tr('Write surname')}
                                             {...register('surname', {
@@ -197,6 +198,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('First name')} required error={errors.firstName}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             outline
                                             placeholder={tr('Write name')}
                                             {...register('firstName', {
@@ -207,6 +209,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Second name')} error={errors.middleName}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             placeholder={tr('Write second name')}
                                             outline
                                             {...register('middleName', {
@@ -225,6 +228,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Phone')} required error={errors.phone}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             placeholder="+7(___)__-__-___"
                                             outline
                                             {...register('phone', { required: tr('Required field') })}
@@ -232,6 +236,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Login')} required error={errors.login}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             placeholder={tr('In format vvivanov')}
                                             outline
                                             {...register('login', {
@@ -250,6 +255,7 @@ export const InternalUserCreationRequestPage = () => {
                                 <div className={s.TwoInputsRow}>
                                     <FormControl label={tr('Personal')} error={errors.personalEmail}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             placeholder="name@mail.com"
                                             outline
                                             {...register('personalEmail', { onChange: onEmailChange })}
@@ -257,6 +263,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Work')} error={errors.workEmail}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             placeholder="email@example.com"
                                             outline
                                             {...register('workEmail', { onChange: onEmailChange })}
@@ -279,6 +286,7 @@ export const InternalUserCreationRequestPage = () => {
                                 <div className={s.TwoInputsRow}>
                                     <FormControl label={tr('Unit ID')} error={errors.unitId}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             placeholder={tr('Write unit ID')}
                                             outline
                                             {...register('unitId')}
@@ -286,6 +294,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Percentage')} error={errors.percentage}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             placeholder={tr('Write the percentage')}
                                             outline
                                             type="number"
@@ -300,6 +309,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl required label={tr('Start date')} error={errors.date}>
                                         <FormControlInput
                                             outline
+                                            autoComplete="off"
                                             type="date"
                                             {...register('date', { valueAsDate: true })}
                                         />
@@ -379,12 +389,13 @@ export const InternalUserCreationRequestPage = () => {
                                             onReset={() => setValue('buddyId', undefined)}
                                         />
                                     </FormControl>
-                                    <FormControl label={tr('OrgGroup')} required>
+                                    <FormControl label={tr('OrgGroup')}>
                                         <GroupComboBox
                                             defaultGroupId={watch('groupId')}
                                             onChange={onTeamChange}
                                             error={errors.groupId}
                                             className={s.FormControlInput}
+                                            onReset={() => setValue('groupId', undefined)}
                                         />
                                     </FormControl>
                                     <FormControl label={tr('Coordinators')}>
@@ -423,6 +434,7 @@ export const InternalUserCreationRequestPage = () => {
                                 <div className={s.TwoInputsRow}>
                                     <FormControl label={tr('Work space application')} error={errors.workSpace}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             placeholder={tr('Write the application text')}
                                             outline
                                             {...register('workSpace')}
@@ -430,6 +442,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Location')} required error={errors.location}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             outline
                                             placeholder={tr('Write the location name')}
                                             {...register('location', { required: tr('Required field') })}
@@ -446,6 +459,7 @@ export const InternalUserCreationRequestPage = () => {
 
                                     <FormControl label={tr('Work mode comment')} error={errors.workModeComment}>
                                         <FormControlInput
+                                            autoComplete="off"
                                             outline
                                             placeholder={tr('Write work mode comment')}
                                             {...register('workModeComment')}
