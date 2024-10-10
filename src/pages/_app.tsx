@@ -13,6 +13,8 @@ import { Previews } from '../components/Previews';
 
 import '@taskany/icons/style.css';
 
+import './_app.css';
+
 const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
     setSSRLocale(router.locale as TLocale);
 

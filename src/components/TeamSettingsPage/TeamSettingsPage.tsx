@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import { trpc } from '../../trpc/trpcClient';
 import { PageSep } from '../PageSep';
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { SettingsCard, SettingsContainer } from '../Settings';
 import { EditGroup, editGroupSchema } from '../../modules/groupSchemas';
 import { GroupMeta, GroupParent, GroupSupervisor } from '../../modules/groupTypes';

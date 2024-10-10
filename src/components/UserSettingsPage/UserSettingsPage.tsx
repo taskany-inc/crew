@@ -9,7 +9,7 @@ import { trpc } from '../../trpc/trpcClient';
 import { EditUserSettings } from '../../modules/userSchemas';
 import { SettingsCard, SettingsContainer } from '../Settings';
 import { useUserMutations } from '../../modules/userHooks';
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { PageSep } from '../PageSep';
 import { CommonHeader } from '../CommonHeader';
 import { languages } from '../../utils/getLang';

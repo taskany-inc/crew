@@ -1,0 +1,8 @@
+.PageMain {
+    /* presses the footer to the bottom*/
+    min-height: calc(100vh - 160px);
+}
+
+.PageContent {
+    padding: var(--gap-m) var(--gap-l) var(--gap-l) var(--gap-l);
+}

@@ -3,7 +3,7 @@ import { nullable } from '@taskany/bricks';
 
 import { useBoolean } from '../../hooks/useBoolean';
 import { CommonHeader } from '../CommonHeader';
-import { PageContent } from '../LayoutMain';
+import { PageContent } from '../LayoutMain/LayoutMain';
 import { UserCreationRequestModal } from '../UserCreationRequestModal/UserCreationRequestModal';
 import { UserCreateRequestsTable } from '../UserCreateRequestsTable/UserCreateRequestsTable';
 import { UserRequest } from '../../trpc/inferredTypes';

@@ -3,7 +3,7 @@ import { Button, Text } from '@taskany/bricks';
 import styled from 'styled-components';
 
 import { trpc } from '../../trpc/trpcClient';
-import { LayoutMain, PageContent } from '../LayoutMain';
+import { LayoutMain, PageContent } from '../LayoutMain/LayoutMain';
 import { UsersPageFiltersPanel } from '../UsersPageFilterPanel/UsersPageFilterPanel';
 import { CommonHeader } from '../CommonHeader';
 import { UserListItem } from '../UserListItem/UserListItem';

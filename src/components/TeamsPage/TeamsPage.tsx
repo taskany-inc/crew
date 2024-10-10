@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { TreeView } from '@taskany/bricks';
 import { gapL, gapM } from '@taskany/colors';
 
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { trpc } from '../../trpc/trpcClient';
 import { GroupTreeViewNode } from '../GroupTreeViewNode';
 import { CommonHeader } from '../CommonHeader';
