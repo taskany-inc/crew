@@ -26,6 +26,7 @@ import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 import { loginAuto } from '../../utils/createUserCreationRequest';
+import { PhoneField } from '../PhoneField/PhoneField';
 
 import s from './CreateUserCreationRequestBaseForm.module.css';
 import { tr } from './CreateUserCreationRequestBaseForm.i18n';
@@ -53,6 +54,7 @@ export const CreateUserCreationRequestBaseForm = ({ onClose, onSubmit }: CreateU
         setError,
         clearErrors,
         trigger,
+        control,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateUserCreationRequestBase>({
         defaultValues,
@@ -239,13 +241,7 @@ export const CreateUserCreationRequestBaseForm = ({ onClose, onSubmit }: CreateU
                     error={errors.osPreference}
                 />
 
-                <FormInput
-                    label={tr('Phone')}
-                    brick="right"
-                    autoComplete="off"
-                    {...register('phone')}
-                    error={errors.phone}
-                />
+                <PhoneField name="phone" control={control} />
 
                 <FormInput
                     label={tr('Accounting id')}

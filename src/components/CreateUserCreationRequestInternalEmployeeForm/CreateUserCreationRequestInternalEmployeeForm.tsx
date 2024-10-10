@@ -35,6 +35,7 @@ import { AddSupplementalPositionType } from '../../modules/organizationUnitSchem
 import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';
 import { loginAuto } from '../../utils/createUserCreationRequest';
 import { SupplementalPositionItem } from '../SupplementalPositionItem/SupplementalPositionItem';
+import { PhoneField } from '../PhoneField/PhoneField';
 
 import { tr } from './CreateUserCreationRequestInternalEmployeeForm.i18n';
 import s from './CreateUserCreationRequestInternalEmployeeForm.module.css';
@@ -67,6 +68,7 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
         setValue,
         getValues,
         reset,
+        control,
         trigger,
         setError,
         clearErrors,
@@ -266,14 +268,8 @@ export const CreateUserCreationRequestInternalEmployeeForm = ({
                     </Tooltip>
                 </div>
 
-                <FormInput
-                    label={tr('Phone')}
-                    brick="right"
-                    autoComplete="off"
-                    {...register('phone')}
-                    error={errors.phone}
-                    className={s.FormInput}
-                />
+                <PhoneField name="phone" control={control} />
+
                 <div className={s.InputContainer}>
                     <Text weight="bold" color={gray8}>
                         {tr('Supervisor:')}
