@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.81.0](https://github.com/taskany-inc/crew/compare/v0.80.0...v0.81.0) (2024-10-10)
+
+
+### Features
+
+* additions to new internal user request ([958ceab](https://github.com/taskany-inc/crew/commit/958ceab84c2728b2ce0c0338f1429cfc74023dae))
+* backend changes to new internal user request ([58b2c90](https://github.com/taskany-inc/crew/commit/58b2c902baa9b881e41bcb65b5f6b09043c4425a))
+* new internal user request ([ca486eb](https://github.com/taskany-inc/crew/commit/ca486eb53c0247679431f9b74e894c1d40ae22fb))
+
 ## [0.80.0](https://github.com/taskany-inc/crew/compare/v0.79.1...v0.80.0) (2024-10-10)
 
 
