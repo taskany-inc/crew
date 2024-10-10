@@ -25,7 +25,6 @@ import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/Organizati
 import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';
 import { SupplementalPositionItem } from '../SupplementalPositionItem/SupplementalPositionItem';
 import { useSupplementalPositionMutations } from '../../modules/supplementalPositionHooks';
-import { AddSupplementalPositionType } from '../../modules/organizationUnitSchemas';
 
 import { tr } from './UserUpdateForm.i18n';
 import s from './UserUpdateForm.module.css';
@@ -39,15 +38,7 @@ interface UserDataFormProps {
 export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
     const { editUser } = useUserMutations();
 
-    const { addSupplementalPositionToUser, removeSupplementalPositionFromUser } = useSupplementalPositionMutations();
-
-    const onSupplementalPositionSubmit = (data: AddSupplementalPositionType) => {
-        addSupplementalPositionToUser({
-            userId: user.id,
-            percentage: data.percentage,
-            organizationUnitId: data.organizationUnit.id,
-        });
-    };
+    const { removeSupplementalPositionFromUser } = useSupplementalPositionMutations();
 
     const onSupplementalPositionRemove = (id: string) => {
         removeSupplementalPositionFromUser({ id, userId: user.id });
@@ -58,7 +49,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
         handleSubmit,
         setValue,
         watch,
-        formState: { isSubmitted },
+        formState: { isSubmitted, errors },
     } = useForm<EditUserFields>({
         defaultValues: {
             id: user.id,
@@ -120,7 +111,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                 {tr('Organization')}:
                             </Text>
                             <OrganizationUnitComboBox
-                                organizationUnit={user.organizationUnit}
+                                organizationUnitId={watch('organizationUnitId')}
                                 onChange={(organizationUnit) => {
                                     setValue('organizationUnitId', organizationUnit?.id);
                                 }}
@@ -140,7 +131,23 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                 ))}
                             </div>
                         ))}
-                        <AddSupplementalPosition onSubmit={onSupplementalPositionSubmit} />
+                        <AddSupplementalPosition
+                            setPercentage={(percentage) =>
+                                percentage && setValue('supplementalPosition.percentage', percentage)
+                            }
+                            onClose={() => setValue('supplementalPosition', undefined)}
+                            onOrganizatioUnitChange={(id) =>
+                                id && setValue('supplementalPosition.organizationUnitId', id)
+                            }
+                            percentage={watch('supplementalPosition.percentage')}
+                            organizationUnitId={watch('supplementalPosition.organizationUnitId')}
+                            unitId={watch('supplementalPosition.unitId')}
+                            setUnitId={(unitId) => unitId && setValue('supplementalPosition.unitId', unitId)}
+                            errors={{
+                                percentage: errors.supplementalPosition?.percentage,
+                                organizationUnitId: errors.supplementalPosition?.organizationUnitId,
+                            }}
+                        />
                     </div>
 
                     <FormActions flat="top">
