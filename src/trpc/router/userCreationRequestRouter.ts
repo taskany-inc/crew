@@ -23,6 +23,7 @@ export const userCreationRequestRouter = router({
             before: undefined,
             after: {
                 ...creationRequest,
+                groupId: creationRequest.groupId || undefined,
                 supervisorLogin: creationRequest.supervisorLogin || undefined,
                 supervisorId: creationRequest.supervisorId || undefined,
                 buddyId: creationRequest.buddyId || undefined,

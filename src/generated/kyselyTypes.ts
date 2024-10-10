@@ -301,7 +301,7 @@ export type UserCreationRequest = {
     supervisorLogin: string | null;
     supervisorId: string | null;
     organizationUnitId: string;
-    groupId: string;
+    groupId: string | null;
     osPreference: string | null;
     createExternalAccount: boolean;
     status: UserCreationRequestStatus | null;

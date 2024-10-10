@@ -47,9 +47,6 @@ export const userCreationRequestsMethods = {
 
         const supervisor = await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } });
 
-        if (!data.groupId) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Group is required' });
-        }
         data.date && data.date.setUTCHours(config.employmentUtcHour);
 
         const [phoneService, accountingService] = await Promise.all([

@@ -45,7 +45,7 @@ interface HistoryEventsData {
             supervisorLogin?: string;
             supervisorId?: string;
             organizationUnitId: string;
-            groupId: string;
+            groupId?: string;
             date?: string;
             services?: { serviceName: string; serviceId: string }[] | null;
             createExternalAccount?: boolean;

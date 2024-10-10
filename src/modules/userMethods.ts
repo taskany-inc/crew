@@ -592,10 +592,22 @@ export const userMethods = {
 
         const services = request.services as { serviceId: string; serviceName: string }[];
 
-        if (request.corporateEmail) {
+        if (request.corporateEmail && !request.email) {
             const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
             if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
             services.push({ serviceName: emailService.name, serviceId: request.email });
+        }
+
+        if (request.personalEmail) {
+            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
+            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
+            services.push({ serviceName: emailService.name, serviceId: request.personalEmail });
+        }
+
+        if (request.workEmail) {
+            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
+            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
+            services.push({ serviceName: emailService.name, serviceId: request.workEmail });
         }
 
         if (request.createExternalAccount) {
@@ -626,7 +638,7 @@ export const userMethods = {
                 supervisor: { connect: { id: request.supervisorId || undefined } },
                 login: request.login,
                 title: request.title,
-                memberships: { create: { groupId: request.groupId } },
+                memberships: request.groupId ? { create: { groupId: request.groupId } } : undefined,
                 organizationUnit: { connect: { id: request.organizationUnitId } },
                 services: { createMany: { data: services } },
                 workStartDate: request.date,

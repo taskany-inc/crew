@@ -7,7 +7,7 @@ export interface UserCreationRequestSupplementPosition {
 export interface CompleteUserCreationRequest extends UserCreationRequest {
     supervisor: User | null;
     organization: OrganizationUnit;
-    group: Group;
+    group: Group | null;
     services: Record<'serviceName' | 'serviceId', string>[] | null;
     buddy: User | null;
     coordinator: User | null;
