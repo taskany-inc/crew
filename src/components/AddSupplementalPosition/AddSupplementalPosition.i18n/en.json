@@ -1,7 +1,10 @@
 {
-    "Add supplemental position": "",
-    "Add": "",
+    "Supplemental position": "",
+    "Remove supplemental position": "",
+    "Supplemental organization": "",
+    "Unit ID": "",
+    "Write unit ID": "",
     "Percentage": "",
-    "Cancel": "",
-    "Unit id": ""
+    "Write percentage from 0.01 to 1": "",
+    "Add supplemental position": ""
 }

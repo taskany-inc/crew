@@ -1,8 +1,7 @@
-import { useMemo, useState } from 'react';
-import { ComboBox, FormInput, Input, MenuItem, Text } from '@taskany/bricks';
+import { nullable } from '@taskany/bricks';
+import { Select, SelectPanel, SelectTrigger, Text } from '@taskany/bricks/harmony';
 
 import { Nullish } from '../../utils/types';
-import { useBoolean } from '../../hooks/useBoolean';
 
 import { tr } from './WorkModeCombobox.i18n';
 
@@ -11,49 +10,31 @@ interface WorkModeComboboxProps {
     onChange: (value: string) => void;
     placeholder?: string;
     label?: string;
-    error?: React.ComponentProps<typeof FormInput>['error'];
+    error?: React.ComponentProps<typeof SelectTrigger>['error'];
+    className?: string;
 }
 
 const workModeItems = [tr('Office'), tr('Mixed'), tr('Remote')];
 
-export const WorkModeCombobox = ({ value, onChange, placeholder }: WorkModeComboboxProps) => {
-    const [search, setSearch] = useState(value ?? '');
-    const suggestionsVisibility = useBoolean(false);
-
-    const filtered = useMemo(() => workModeItems.filter((item) => item.includes(search)), [search]);
-
+export const WorkModeCombobox = ({ value, onChange, className, error }: WorkModeComboboxProps) => {
     return (
-        <ComboBox
-            value={search}
-            onChange={(mode: string) => {
-                setSearch(mode);
-                suggestionsVisibility.setFalse();
-                onChange(mode);
-            }}
-            visible={suggestionsVisibility.value}
-            items={filtered}
-            renderInput={(props) => (
-                <Input
-                    placeholder={placeholder ?? tr('Choose work mode')}
-                    size="m"
-                    autoComplete="off"
-                    onFocus={suggestionsVisibility.setTrue}
-                    onChange={(e) => {
-                        onChange('');
-                        setSearch(e.target.value);
-                    }}
-                    {...props}
-                />
-            )}
-            onClickOutside={(cb) => cb()}
-            onClose={suggestionsVisibility.setFalse}
+        <Select
+            arrow
+            value={value ? [{ id: value }] : undefined}
+            items={workModeItems.map((i) => ({ id: i }))}
+            onChange={(items) => onChange(items[0].id)}
+            selectable
+            mode="single"
             renderItem={(props) => (
-                <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
-                    <Text size="s" ellipsis>
-                        {props.item}
-                    </Text>
-                </MenuItem>
+                <Text key={props.item.id} size="s" ellipsis>
+                    {props.item.id}
+                </Text>
             )}
-        />
+        >
+            <SelectTrigger error={error} placeholder={tr('Choose work mode')} view="outline" className={className}>
+                {nullable(value, (mode) => mode)}
+            </SelectTrigger>
+            <SelectPanel placement="bottom-start" />
+        </Select>
     );
 };

@@ -1,16 +1,21 @@
-.Input {
-    width: 140px;
-}
-
-.PercentageInput {
-    width: 70px;
-}
-
 .Base {
-    background-color: var(--gray3);
-    padding-left: var(--gap-m);
+    padding-top: var(--gap-m);
 }
 
-.InputWrapper {
+.Header {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.TwoInputsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-m);
+    margin-top: var(--gap-m);
+    margin-bottom: var(--gap-m);
+}
+
+.Input {
+    margin-top: var(--gap-s);
 }
