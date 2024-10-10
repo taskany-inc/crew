@@ -261,7 +261,7 @@ export const ScheduleDeactivationForm = ({
                     <StyledFormInput error={errors.email} autoComplete="off" {...register('email')} />
                     <StyledLabel weight="bold">{tr('Organization')}</StyledLabel>
                     <OrganizationUnitComboBox
-                        organizationUnit={scheduledDeactivation?.organizationUnit || organization}
+                        organizationUnitId={watch('organizationUnitId')}
                         onChange={(group) => group && setValue('organizationUnitId', group.id)}
                         inline
                         error={errors.organizationUnitId}
@@ -291,7 +291,7 @@ export const ScheduleDeactivationForm = ({
                             <OrganizationUnitComboBox
                                 onChange={(group) => group && setValue('newOrganizationUnitId', group.id)}
                                 inline
-                                organizationUnit={scheduledDeactivation?.newOrganizationUnit}
+                                organizationUnitId={watch('newOrganizationUnitId')}
                                 error={
                                     !watch('newOrganizationUnitId') && errors.newOrganizationUnitId
                                         ? errors.newOrganizationUnitId

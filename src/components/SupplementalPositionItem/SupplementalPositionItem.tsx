@@ -3,6 +3,7 @@ import { Badge } from '@taskany/bricks/harmony';
 
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { AddSupplementalPositionType } from '../../modules/organizationUnitSchemas';
+import { percentageMultiply } from '../../utils/suplementPosition';
 
 import s from './SupplementalPositionItem.module.css';
 
@@ -17,9 +18,9 @@ export const SupplementalPositionItem = ({
 }: SupplementalPositionItemProps) => (
     <Badge
         className={s.Badge}
-        text={`${getOrgUnitTitle(supplementalPosition.organizationUnit)} ${supplementalPosition.percentage}% ${
-            supplementalPosition.unitId || ''
-        }`}
+        text={`${getOrgUnitTitle(supplementalPosition.organizationUnit)} ${
+            supplementalPosition.percentage / percentageMultiply
+        } ${supplementalPosition.unitId || ''}`}
         weight="thinner"
         size="s"
         view="outline"

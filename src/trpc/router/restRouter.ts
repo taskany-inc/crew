@@ -14,7 +14,7 @@ import { vacancyMethods } from '../../modules/vacancyMethods';
 import { getVacancyListSchema } from '../../modules/vacancySchemas';
 import { getAchievementListSchema, giveAchievementSchema } from '../../modules/achievementSchemas';
 import { achievementMethods } from '../../modules/achievementMethods';
-import { getOrganizationUnitListSchema } from '../../modules/organizationUnitSchemas';
+import { organizationUnitSearchTypes } from '../../modules/organizationUnitSchemas';
 import { organizationUnitMethods } from '../../modules/organizationUnitMethods';
 import { getServiceListSchema } from '../../modules/serviceSchemas';
 import { serviceMethods } from '../../modules/serviceMethods';
@@ -769,7 +769,17 @@ export const restRouter = router({
                 summary: 'Get list of organizational units with filtering',
             },
         })
-        .input(getOrganizationUnitListSchema)
+        .input(
+            z.object({
+                search: z.string().optional(),
+                searchType: z.enum(organizationUnitSearchTypes).optional(),
+                take: z
+                    .number()
+                    .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
+                    .optional(),
+                skip: z.number().optional(),
+            }),
+        )
         .output(
             z.array(
                 z.object({

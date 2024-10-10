@@ -46,7 +46,7 @@ export const TeamChildren = ({ group, groupChildren, isEditable }: GroupTeamsPro
             <CreateGroupModal
                 visible={createGroupModalVisibility.value}
                 onClose={createGroupModalVisibility.setFalse}
-                parent={group}
+                parentId={group.id}
             />
         </NarrowSection>
     );

@@ -33,7 +33,7 @@ import { tr } from './CreateGroupModal.i18n';
 interface CreateGroupModalProps {
     visible: boolean;
     onClose: VoidFunction;
-    parent?: ComponentProps<typeof GroupComboBox>['defaultGroup'];
+    parentId?: ComponentProps<typeof GroupComboBox>['defaultGroupId'];
 }
 
 const StyledInputContainer = styled.div`
@@ -50,7 +50,7 @@ const StyledTip = styled(Tip)`
 
 type GroupType = 'regular' | 'virtual' | 'organizational';
 
-export const CreateGroupModal = ({ visible, onClose, parent }: CreateGroupModalProps) => {
+export const CreateGroupModal = ({ visible, onClose, parentId }: CreateGroupModalProps) => {
     const sessionUser = useSessionUser();
     const { createGroup } = useGroupMutations();
     const router = useRouter();
@@ -74,7 +74,7 @@ export const CreateGroupModal = ({ visible, onClose, parent }: CreateGroupModalP
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateGroup>({
         resolver: zodResolver(createGroupSchema),
-        defaultValues: { name: '', parentId: type !== 'virtual' && parent ? parent.id : undefined },
+        defaultValues: { name: '', parentId: type !== 'virtual' && parentId ? parentId : undefined },
     });
 
     const onSubmit = handleSubmit(async (value) => {
@@ -129,7 +129,7 @@ export const CreateGroupModal = ({ visible, onClose, parent }: CreateGroupModalP
                                     {tr('Parent team:')}
                                 </Text>
                                 <GroupComboBox
-                                    defaultGroup={parent}
+                                    defaultGroupId={parentId}
                                     onChange={(group) => setValue('parentId', group?.id)}
                                 />
                             </StyledInputContainer>
