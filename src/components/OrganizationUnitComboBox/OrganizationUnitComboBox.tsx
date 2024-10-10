@@ -1,97 +1,63 @@
 import { useState } from 'react';
 import { OrganizationUnit } from 'prisma/prisma-client';
-import { ComboBox, FormInput, Input, MenuItem, Text, nullable } from '@taskany/bricks';
-import { IconHomeAltOutline } from '@taskany/icons';
-import { gray9 } from '@taskany/colors';
+import { nullable } from '@taskany/bricks';
+import { Select, SelectPanel, SelectTrigger, Input, Text } from '@taskany/bricks/harmony';
 
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
-import { useBoolean } from '../../hooks/useBoolean';
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { OrganizationUnitSearchType } from '../../modules/organizationUnitSchemas';
 
 import { tr } from './OrganizationUnitComboBox.i18n';
 
 interface OrganizationUnitComboBoxProps {
-    organizationUnit?: Nullish<OrganizationUnit>;
+    organizationUnitId?: string;
     searchType?: OrganizationUnitSearchType;
     onChange: (organizationUnit: Nullish<OrganizationUnit>) => void;
     inline?: boolean;
     placeholder?: string;
     label?: string;
-    error?: React.ComponentProps<typeof FormInput>['error'];
+    error?: React.ComponentProps<typeof SelectTrigger>['error'];
+
+    className?: string;
 }
 
 export const OrganizationUnitComboBox = ({
-    organizationUnit,
+    organizationUnitId,
     searchType,
     onChange,
-    inline,
-    placeholder,
-    label,
+    className,
     error,
 }: OrganizationUnitComboBoxProps) => {
-    const [search, setSearch] = useState(organizationUnit ? getOrgUnitTitle(organizationUnit) : '');
-    const suggestionsVisibility = useBoolean(false);
-    const [selectedValue, setSelectedValue] = useState(organizationUnit);
+    const [search, setSearch] = useState('');
+
     const organizationUnitQuery = trpc.organizationUnit.getList.useQuery(
-        { search, take: 10, searchType },
+        { search, take: 10, searchType, include: organizationUnitId ? [organizationUnitId] : undefined },
         { keepPreviousData: true },
     );
 
+    const value = organizationUnitQuery.data?.filter(({ id }) => id === organizationUnitId);
+
     return (
-        <ComboBox
-            value={search}
-            onChange={(value: OrganizationUnit) => {
-                setSearch(getOrgUnitTitle(value));
-                setSelectedValue(value);
-                suggestionsVisibility.setFalse();
-                onChange(value);
-            }}
-            visible={suggestionsVisibility.value}
+        <Select
+            arrow
+            value={value}
             items={organizationUnitQuery.data}
-            renderInput={(props) =>
-                inline ? (
-                    <FormInput
-                        label={label}
-                        placeholder={placeholder || tr('Choose organization')}
-                        autoComplete="off"
-                        onFocus={suggestionsVisibility.setTrue}
-                        onChange={(e) => {
-                            setSelectedValue(null);
-                            onChange(null);
-                            setSearch(e.target.value);
-                        }}
-                        error={error}
-                        {...props}
-                    />
-                ) : (
-                    <Input
-                        iconLeft={nullable(selectedValue, () => (
-                            <IconHomeAltOutline size={16} color={gray9} />
-                        ))}
-                        placeholder={tr('Choose organization')}
-                        size="m"
-                        autoComplete="off"
-                        onFocus={suggestionsVisibility.setTrue}
-                        onChange={(e) => {
-                            setSelectedValue(null);
-                            onChange(null);
-                            setSearch(e.target.value);
-                        }}
-                        {...props}
-                    />
-                )
-            }
-            onClickOutside={(cb) => cb()}
-            onClose={suggestionsVisibility.setFalse}
+            onChange={(orgs) => onChange(orgs[0])}
+            selectable
+            mode="single"
             renderItem={(props) => (
-                <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
-                    <Text size="s" ellipsis>
-                        {getOrgUnitTitle(props.item)}
-                    </Text>
-                </MenuItem>
+                <Text key={props.item.id} size="s" ellipsis>
+                    {getOrgUnitTitle(props.item)}
+                </Text>
             )}
-        />
+        >
+            <SelectTrigger error={error} placeholder={tr('Choose organization')} view="outline" className={className}>
+                {nullable(value && value[0], (o) => getOrgUnitTitle(o))}
+            </SelectTrigger>
+            <SelectPanel placement="bottom-start" title={tr('Suggestions')}>
+                <Input autoFocus placeholder={tr('Search')} onChange={(e) => setSearch(e.target.value)} />
+            </SelectPanel>
+        </Select>
     );
 };

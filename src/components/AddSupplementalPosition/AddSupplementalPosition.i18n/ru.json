@@ -1,7 +1,10 @@
 {
-    "Add supplemental position": "Добавить дополнительную организацию",
-    "Add": "Добавить",
-    "Percentage": "Процент",
-    "Cancel": "Отмена",
-    "Unit id": "Id ставки"
+    "Supplemental position": "Дополнительная организация",
+    "Remove supplemental position": "Удалить дополнительную организацию",
+    "Supplemental organization": "Совмещение в",
+    "Unit ID": "ID ставки",
+    "Write unit ID": "Введите ID ставки",
+    "Percentage": "Доля",
+    "Write percentage from 0.01 to 1": "Укажите значение от 0,01 до 100",
+    "Add supplemental position": "Добавить дополнительную организацию"
 }

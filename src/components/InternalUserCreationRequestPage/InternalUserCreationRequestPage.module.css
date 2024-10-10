@@ -1,0 +1,76 @@
+.Wrapper {
+    padding: var(--gap-m) var(--gap-l);
+}
+
+.Header {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    margin-bottom: var(--gap-l);
+    height: 40px;
+}
+
+.Body {
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    max-height: calc(100vh - 260px);
+}
+
+.FormActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-s);
+}
+
+.FormBlock {
+    padding: 0 0 0 var(--gap-m);
+    margin-bottom: var(--gap-xl);
+}
+
+.ThreeInputsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap-m);
+    margin-bottom: var(--gap-m);
+}
+
+.FormControlInput {
+    margin-top: var(--gap-s);
+}
+
+.TwoInputsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-m);
+    margin-top: var(--gap-s);
+    margin-bottom: var(--gap-m);
+}
+
+.FormScroll {
+    overflow-y: auto;
+    max-height: calc(100vh - 260px);
+    padding-right: var(--gap-m);
+}
+
+.Switch {
+    justify-content: flex-start;
+    margin-top: var(--gap-s);
+    background: var(--background-color);
+}
+
+.FormEditor {
+    margin-top: var(--gap-s);
+    margin-bottom: -20px;
+}
+
+.Required {
+    color: var(--danger-400)
+}
+
+.AddSupplementalPosition {
+    margin-top: var(--gap-s)
+}
+
+.OrganizationCombobox {
+    margin-bottom: var(--gap-m);
+}

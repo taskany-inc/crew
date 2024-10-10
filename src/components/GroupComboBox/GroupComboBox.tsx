@@ -1,33 +1,33 @@
 import { useState } from 'react';
 import { Group } from 'prisma/prisma-client';
-import { ComboBox, Input, MenuItem, Text, nullable } from '@taskany/bricks';
-import { IconUsersOutline } from '@taskany/icons';
-import { gray9 } from '@taskany/colors';
+import { nullable } from '@taskany/bricks';
+import { Select, SelectPanel, SelectTrigger, Input, Text } from '@taskany/bricks/harmony';
 
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
-import { useBoolean } from '../../hooks/useBoolean';
 import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './GroupComboBox.i18n';
 
 interface GroupComboBoxProps {
-    defaultGroup?: Nullish<Group>;
+    defaultGroupId?: string;
     onChange: (group: Nullish<Group>) => void;
+    error?: React.ComponentProps<typeof SelectTrigger>['error'];
+
+    className?: string;
 }
 
-export const GroupComboBox = ({ defaultGroup, onChange }: GroupComboBoxProps) => {
-    const [search, setSearch] = useState(defaultGroup?.name || '');
-    const suggestionsVisibility = useBoolean(false);
+export const GroupComboBox = ({ defaultGroupId, onChange, error, className }: GroupComboBoxProps) => {
+    const [search, setSearch] = useState('');
     const sessionUser = useSessionUser();
-    const [selectedGroup, setSelectedGroup] = useState(defaultGroup);
 
     const showUserGroups = !sessionUser?.role?.editFullGroupTree;
 
-    const { data: groupsList = [] } = trpc.group.getList.useQuery(
-        { search },
+    const { data: groupsList = [] } = trpc.group.suggestions.useQuery(
+        { query: search, include: defaultGroupId ? [defaultGroupId] : undefined },
         { keepPreviousData: true, enabled: !showUserGroups },
     );
+    const value = groupsList.filter(({ id }) => id === defaultGroupId);
 
     const { data: userGroupList = [] } = trpc.group.getUserList.useQuery(
         {
@@ -40,42 +40,25 @@ export const GroupComboBox = ({ defaultGroup, onChange }: GroupComboBoxProps) =>
     );
 
     return (
-        <ComboBox
-            value={search}
-            onChange={(value: Group) => {
-                setSearch(value.name);
-                setSelectedGroup(value);
-                suggestionsVisibility.setFalse();
-                onChange(value);
-            }}
-            visible={suggestionsVisibility.value}
+        <Select
+            arrow
+            value={value}
             items={showUserGroups ? userGroupList : groupsList}
-            renderInput={(props) => (
-                <Input
-                    iconLeft={nullable(selectedGroup, () => (
-                        <IconUsersOutline size={16} color={gray9} />
-                    ))}
-                    placeholder={tr('Choose team')}
-                    size="m"
-                    autoComplete="off"
-                    onFocus={suggestionsVisibility.setTrue}
-                    onChange={(e) => {
-                        setSelectedGroup(null);
-                        onChange(null);
-                        setSearch(e.target.value);
-                    }}
-                    {...props}
-                />
-            )}
-            onClickOutside={(cb) => cb()}
-            onClose={suggestionsVisibility.setFalse}
+            onChange={(groups) => onChange(groups[0])}
+            selectable
+            mode="single"
             renderItem={(props) => (
-                <MenuItem key={props.item.id} focused={props.cursor === props.index} onClick={props.onClick} ghost>
-                    <Text size="s" ellipsis>
-                        {props.item.name}
-                    </Text>
-                </MenuItem>
+                <Text key={props.item.id} size="s" ellipsis>
+                    {props.item.name}
+                </Text>
             )}
-        />
+        >
+            <SelectTrigger error={error} placeholder={tr('Choose team')} view="outline" className={className}>
+                {nullable(value && value[0], (g) => g.name)}
+            </SelectTrigger>
+            <SelectPanel placement="bottom-start" title={tr('Suggestions')}>
+                <Input autoFocus placeholder={tr('Search')} onChange={(e) => setSearch(e.target.value)} />
+            </SelectPanel>
+        </Select>
     );
 };
