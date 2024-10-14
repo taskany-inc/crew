@@ -2,29 +2,28 @@ import { useMemo } from 'react';
 import { Button, Dropdown, MenuItem } from '@taskany/bricks';
 import { IconDownSmallSolid, IconUpSmallSolid } from '@taskany/icons';
 
+import { CreateUserModal } from '../CreateUserModal/CreateUserModal';
 import { CreateGroupModal } from '../CreateGroupModal/CreateGroupModal';
 import { useBoolean } from '../../hooks/useBoolean';
 import { UserSettings } from '../../modules/userTypes';
 import { useSessionUser } from '../../hooks/useSessionUser';
-import { useRouter } from '../../hooks/useRouter';
 
 import { tr } from './PageHeaderActionButton.i18n';
 
 export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ userSettings }) => {
     const sessionUser = useSessionUser();
 
-    const router = useRouter();
-
+    const createUserModalVisibility = useBoolean(false);
     const createGroupModalVisibility = useBoolean(false);
 
     const items: { title: string; action: VoidFunction }[] = useMemo(() => {
         const result = [];
         if (sessionUser.role?.createUser) {
-            result.push({ title: tr('User'), action: router.newInternalUserRequest });
+            result.push({ title: tr('User'), action: createUserModalVisibility.setTrue });
         }
         result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });
         return result;
-    }, [sessionUser.role, createGroupModalVisibility.setTrue, router, userSettings]);
+    }, [sessionUser.role, createGroupModalVisibility.setTrue, createUserModalVisibility.setTrue, userSettings]);
 
     if (items.length === 0) return null;
 
@@ -56,7 +55,7 @@ export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: Us
                     </MenuItem>
                 )}
             />
-
+            <CreateUserModal visible={createUserModalVisibility.value} onClose={createUserModalVisibility.setFalse} />
             <CreateGroupModal
                 visible={createGroupModalVisibility.value}
                 onClose={createGroupModalVisibility.setFalse}

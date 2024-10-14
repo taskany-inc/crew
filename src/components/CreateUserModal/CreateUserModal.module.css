@@ -1,0 +1,13 @@
+.Modal {
+    display: flex;
+    flex-direction: column;
+}
+
+.ModalContent {
+    overflow-y: auto;
+    height: 100%;
+}
+
+.TypeSwitch {
+    margin-bottom: var(--gap-m);
+}

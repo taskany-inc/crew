@@ -1,0 +1,25 @@
+.NoWrap {
+    white-space: nowrap;
+}
+
+.InputContainer {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+    padding: var(--gap-xs) var(--gap-m);
+    background-color: var(--gray3);
+}
+
+.DateContainer {
+    background-color: var(--gray3);
+}
+
+.Date.Date {
+    width: max-content;
+}
+
+.LoginInput {
+    display: flex;
+    background-color: var(--gray3);
+    align-items: center;
+}
