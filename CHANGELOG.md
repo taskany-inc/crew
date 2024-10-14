@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.82.0](https://github.com/taskany-inc/crew/compare/v0.81.0...v0.82.0) (2024-10-14)
+
+
+### Features
+
+* **INTERNAL-1189:** optional team for internal newcomer request ([a4d4d46](https://github.com/taskany-inc/crew/commit/a4d4d46e2ec3acd2685fe4944d88c682d6efa334))
+
 ## [0.81.0](https://github.com/taskany-inc/crew/compare/v0.80.0...v0.81.0) (2024-10-10)
 
 
