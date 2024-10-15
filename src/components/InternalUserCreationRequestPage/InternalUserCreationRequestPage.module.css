@@ -50,8 +50,6 @@
 
 .Switch {
     justify-content: flex-start;
-    margin-top: var(--gap-s);
-    background: var(--background-color);
 }
 
 .FormEditor {
