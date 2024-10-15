@@ -34,10 +34,6 @@
     margin-bottom: var(--gap-m);
 }
 
-.FormControlInput {
-    margin-top: var(--gap-s);
-}
-
 .TwoInputsRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -59,12 +55,11 @@
 }
 
 .FormEditor {
-    margin-top: var(--gap-s);
     margin-bottom: -20px;
 }
 
 .Required {
-    color: var(--danger-400)
+    color: var(--danger-500)
 }
 
 .AddSupplementalPosition {
@@ -72,5 +67,9 @@
 }
 
 .OrganizationCombobox {
+    margin-bottom: var(--gap-m);
+}
+
+.SectionHeader {
     margin-bottom: var(--gap-m);
 }

@@ -6,7 +6,7 @@ import { gapS, gapL, gray9 } from '@taskany/colors';
 import { CommonHeader } from '../CommonHeader';
 import { TrpcRouterOutput, trpc } from '../../trpc/trpcClient';
 import { HistoryRecord } from '../HistoryRecord/HistoryRecord';
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { HistoryEventData } from '../../modules/historyEventTypes';
 import { UserActivityPageFilterPanel } from '../UserActivityPageFilterPanel/UserActivityPageFilterPanel';
 import { useUserActivityFilterUrlParams } from '../../hooks/useUserActivityFilter';

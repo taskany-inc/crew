@@ -1,8 +1,6 @@
 import { nullable } from '@taskany/bricks';
-import { FormControl as HarmonyFormControl, FormControlLabel, FormControlError, Text } from '@taskany/bricks/harmony';
+import { FormControl as HarmonyFormControl, FormControlLabel, FormControlError } from '@taskany/bricks/harmony';
 import { ReactNode } from 'react';
-
-import s from './FormControl.module.css';
 
 interface FormControlProps {
     label: string;
@@ -13,17 +11,9 @@ interface FormControlProps {
 
 export const FormControl = ({ label, required, error, children }: FormControlProps) => {
     return (
-        <HarmonyFormControl>
-            <FormControlLabel>
-                {label}
-                {required && (
-                    <Text as="span" className={s.Required}>
-                        {' '}
-                        *
-                    </Text>
-                )}
-            </FormControlLabel>
-            <div className={s.FormControlInput}>{children}</div>
+        <HarmonyFormControl required={required}>
+            <FormControlLabel>{label}</FormControlLabel>
+            {children}
             {nullable(error, (e) => (
                 <FormControlError error={e} />
             ))}

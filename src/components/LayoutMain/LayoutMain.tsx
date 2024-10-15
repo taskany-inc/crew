@@ -1,24 +1,19 @@
 import { FC, ReactNode, useEffect } from 'react';
 import Head from 'next/head';
 import { useTheme } from 'next-themes';
-import styled from 'styled-components';
 import { gapL, gapM, gray4, radiusM, textColor } from '@taskany/colors';
 import { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/router';
+import styled from 'styled-components';
 
-import { trpc } from '../trpc/trpcClient';
-import { getFavicon } from '../utils/getFavicon';
+import { trpc } from '../../trpc/trpcClient';
+import { getFavicon } from '../../utils/getFavicon';
+import { Theme } from '../Theme';
+import { PageHeader } from '../PageHeader/PageHeader';
+import { PageFooter } from '../PageFooter/PageFooter';
+import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
 
-import { Theme } from './Theme';
-import { PageHeader } from './PageHeader/PageHeader';
-import { PageFooter } from './PageFooter/PageFooter';
-import { GlobalStyle } from './GlobalStyle';
-import { OfflineBanner } from './OfflineBanner/OfflineBanner';
-
-const StyledContent = styled.div`
-    /* presses the footer to the bottom*/
-    min-height: calc(100vh - 160px);
-`;
+import s from './LayoutMain.module.css';
 
 export const PageContent = styled.div`
     padding: ${gapM} ${gapL} ${gapL} ${gapL};
@@ -61,10 +56,9 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
             </Head>
             <OfflineBanner />
 
-            <GlobalStyle />
             <PageHeader logo={appConfig.data?.logo ?? undefined} userSettings={userSettings} />
             <Theme theme={theme} />
-            <StyledContent>{children}</StyledContent>
+            <div className={s.PageMain}>{children}</div>
 
             <Toaster
                 toastOptions={{

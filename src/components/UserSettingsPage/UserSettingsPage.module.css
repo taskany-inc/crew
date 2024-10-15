@@ -1,0 +1,22 @@
+.FormControlLabel {
+    padding: var(--gap-s);
+    padding-left: var(--gap-m);
+    min-width: 80px;
+    color: var(--gray9);
+}
+
+.FormControl {
+    display: flex;
+    align-items: center;
+}
+
+.StyledInputContainer {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+    padding:var(--gap-xs) var(--gap-m);
+}
+
+.AchievementsInput {
+    color: var(--gray9)
+}

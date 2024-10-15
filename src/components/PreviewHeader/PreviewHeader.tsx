@@ -1,6 +1,6 @@
 import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { gapM, gapS, gray10, gray6, gray8, textColor } from '@taskany/colors';
+import { gapM, gapS, gray10, gray8, textColor } from '@taskany/colors';
 import { ModalHeader, Text, nullable } from '@taskany/bricks';
 
 import { Link } from '../Link';
@@ -36,7 +36,7 @@ export const PreviewHeader: React.FC<PreviewHeaderProps> = ({ preTitle, title, s
 
             <div>
                 {nullable(preTitle, (pre) => (
-                    <Text size="s" weight="bold" color={gray6}>
+                    <Text size="s" weight="bold" color={gray8}>
                         {pre}
                     </Text>
                 ))}
