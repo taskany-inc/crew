@@ -1,34 +1,25 @@
 import { User } from 'prisma/prisma-client';
 import { useTheme } from 'next-themes';
-import { CheckboxInput, Fieldset, Form, FormRadio, FormRadioInput, Text } from '@taskany/bricks';
-import styled from 'styled-components';
-import { gapM, gapS, gapXs, gray3, gray8 } from '@taskany/colors';
+import { Fieldset, RadioControl, RadioGroup, RadioGroupLabel, Checkbox, Text } from '@taskany/bricks/harmony';
 import { ChangeEvent } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
 import { EditUserSettings } from '../../modules/userSchemas';
 import { SettingsCard, SettingsContainer } from '../Settings';
 import { useUserMutations } from '../../modules/userHooks';
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { PageSep } from '../PageSep';
 import { CommonHeader } from '../CommonHeader';
 import { languages } from '../../utils/getLang';
 import { Theme, themes } from '../../utils/theme';
 
 import { tr } from './UserSettingsPage.i18n';
+import s from './UserSettingsPage.module.css';
 
 interface UserSettingPageBaseProps {
     user: User;
     settings: EditUserSettings;
 }
-
-const StyledInputContainer = styled.div`
-    display: flex;
-    gap: ${gapS};
-    align-items: center;
-    padding: ${gapXs} ${gapM};
-    background-color: ${gray3};
-`;
 
 export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProps) => {
     const { setTheme } = useTheme();
@@ -62,42 +53,48 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
 
             <SettingsContainer>
                 <SettingsCard>
-                    <Form>
+                    <form>
                         <Fieldset title={tr('Appearance')}>
-                            <FormRadio
-                                label={tr('Theme')}
+                            <RadioGroup
                                 name="theme"
+                                className={s.FormControl}
                                 value={settings.theme}
-                                onChange={(v) => onThemeChange(v as Theme)}
+                                onChange={(e) => onThemeChange(e.target.value as Theme)}
                             >
+                                <RadioGroupLabel className={s.FormControlLabel}>{tr('Theme')}</RadioGroupLabel>
                                 {themes.map((t) => (
-                                    <FormRadioInput key={t} value={t} label={t} />
+                                    <RadioControl key={t} value={t}>
+                                        {t}
+                                    </RadioControl>
                                 ))}
-                            </FormRadio>
+                            </RadioGroup>
 
-                            <FormRadio
-                                label={tr('Locale')}
+                            <RadioGroup
+                                className={s.FormControl}
                                 name="locale"
                                 value={settings.locale}
-                                onChange={(v) => onLocaleChange(v)}
+                                onChange={(e) => onLocaleChange(e.target.value)}
                             >
+                                <RadioGroupLabel className={s.FormControlLabel}>{tr('Locale')}</RadioGroupLabel>
                                 {languages.map((language) => (
-                                    <FormRadioInput key={language} value={language} label={language} />
+                                    <RadioControl value={language} key={language}>
+                                        {language}
+                                    </RadioControl>
                                 ))}
-                            </FormRadio>
+                            </RadioGroup>
 
-                            <StyledInputContainer>
-                                <Text weight="bold" color={gray8}>
+                            <div className={s.StyledInputContainer}>
+                                <Text weight="bold" className={s.AchievementsInput}>
                                     {tr('Show achievements: ')}
                                 </Text>
-                                <CheckboxInput
+                                <Checkbox
                                     value="createExternalAccount"
                                     checked={settings.showAchievements}
                                     onChange={onShowAchievementsChange}
                                 />
-                            </StyledInputContainer>
+                            </div>
                         </Fieldset>
-                    </Form>
+                    </form>
                 </SettingsCard>
             </SettingsContainer>
         </LayoutMain>

@@ -1,4 +1,4 @@
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 
 import { tr } from './ServicesPage.i18n';
 

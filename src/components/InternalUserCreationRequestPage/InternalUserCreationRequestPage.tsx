@@ -25,7 +25,7 @@ import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
 import { loginAuto } from '../../utils/createUserCreationRequest';
-import { LayoutMain } from '../LayoutMain';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { WorkModeCombobox } from '../WorkModeCombobox/WorkModeCombobox';
 import { RoleSelect } from '../RoleSelect/RoleSelect';
 import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';
@@ -183,7 +183,9 @@ export const InternalUserCreationRequestPage = () => {
                     <div className={s.Body}>
                         <div className={s.FormScroll}>
                             <div className={s.FormBlock}>
-                                <Text as="h3">{tr('Personal data')}</Text>
+                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                    {tr('Personal data')}
+                                </Text>
                                 <div className={s.ThreeInputsRow}>
                                     <FormControl label={tr('Surname')} required error={errors.surname}>
                                         <FormControlInput
@@ -220,7 +222,6 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Role')} required>
                                         <RoleSelect
-                                            className={s.FormControlInput}
                                             onChange={onRoleChange}
                                             roleName={watch('title')}
                                             error={errors.title}
@@ -246,7 +247,7 @@ export const InternalUserCreationRequestPage = () => {
                                         />
                                     </FormControl>
                                 </div>
-                                <Text as="h4">
+                                <Text as="h3">
                                     {tr('Email')}{' '}
                                     <Text as="span" className={s.Required}>
                                         *
@@ -272,13 +273,14 @@ export const InternalUserCreationRequestPage = () => {
                                 </div>
                             </div>
                             <div className={s.FormBlock}>
-                                <Text as="h3">{tr('Registration')}</Text>
+                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                    {tr('Registration')}
+                                </Text>
                                 <div className={s.OrganizationCombobox}>
                                     <FormControl label={tr('Organization')} required>
                                         <OrganizationUnitComboBox
                                             organizationUnitId={watch('organizationUnitId')}
                                             onChange={onOrganizationChange}
-                                            className={s.FormControlInput}
                                             error={errors.organizationUnitId}
                                         />
                                     </FormControl>
@@ -329,7 +331,6 @@ export const InternalUserCreationRequestPage = () => {
 
                                 <FormControl label={tr('Recruiter')}>
                                     <UserSelect
-                                        className={s.FormControlInput}
                                         mode="single"
                                         selectedUsers={selectedReqruiterId ? [selectedReqruiterId] : undefined}
                                         onChange={(users) => onUserChange(users[0], 'recruiterId')}
@@ -358,11 +359,12 @@ export const InternalUserCreationRequestPage = () => {
                                 />
                             </div>
                             <div className={s.FormBlock}>
-                                <Text as="h3">{tr('Team')}</Text>
+                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                    {tr('Team')}
+                                </Text>
                                 <div className={s.TwoInputsRow}>
                                     <FormControl label={tr('Supervisor')} required>
                                         <UserSelect
-                                            className={s.FormControlInput}
                                             mode="single"
                                             selectedUsers={watch('supervisorId') ? [watch('supervisorId')] : undefined}
                                             onChange={(users) => onUserChange(users[0], 'supervisorId')}
@@ -371,7 +373,6 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Line managers')}>
                                         <UserSelect
-                                            className={s.FormControlInput}
                                             mode="multiple"
                                             selectedUsers={lineManagerIds}
                                             onChange={(users) => setLineManagerIds(users.map(({ id }) => id))}
@@ -382,7 +383,6 @@ export const InternalUserCreationRequestPage = () => {
                                 <div className={s.ThreeInputsRow}>
                                     <FormControl label="Buddy">
                                         <UserSelect
-                                            className={s.FormControlInput}
                                             mode="single"
                                             selectedUsers={selectedBuddyId ? [selectedBuddyId] : undefined}
                                             onChange={(users) => onUserChange(users[0], 'buddyId')}
@@ -394,13 +394,11 @@ export const InternalUserCreationRequestPage = () => {
                                             defaultGroupId={watch('groupId')}
                                             onChange={onTeamChange}
                                             error={errors.groupId}
-                                            className={s.FormControlInput}
                                             onReset={() => setValue('groupId', undefined)}
                                         />
                                     </FormControl>
                                     <FormControl label={tr('Coordinators')}>
                                         <UserSelect
-                                            className={s.FormControlInput}
                                             mode="multiple"
                                             selectedUsers={coordinatorIds}
                                             onChange={(users) => setCoordinatorIds(users.map(({ id }) => id))}
@@ -409,7 +407,9 @@ export const InternalUserCreationRequestPage = () => {
                                 </div>
                             </div>
                             <div className={s.FormBlock}>
-                                <Text as="h3">{tr('Work space')}</Text>
+                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                    {tr('Work space')}
+                                </Text>
                                 <FormControl label={tr('Equipment')} required error={errors.equipment}>
                                     <FormControlEditor
                                         className={s.FormEditor}
@@ -450,7 +450,6 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                     <FormControl label={tr('Work mode')} required>
                                         <WorkModeCombobox
-                                            className={s.FormControlInput}
                                             onChange={onWorkModeChange}
                                             value={watch('workMode')}
                                             error={errors.workMode}
@@ -468,10 +467,11 @@ export const InternalUserCreationRequestPage = () => {
                                 </div>
                             </div>
                             <div className={s.FormBlock}>
-                                <Text as="h3">{tr('Comments')}</Text>
+                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                    {tr('Comments')}
+                                </Text>
 
                                 <FormEditor
-                                    className={s.FormControlInput}
                                     outline
                                     onChange={(comment) => comment && setValue('comment', comment)}
                                     placeholder={tr('Write some comments if needed')}

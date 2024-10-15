@@ -179,7 +179,11 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     <Text weight="bold" color={gray8}>
                         {tr('Organization:')}
                     </Text>
-                    <OrganizationUnitComboBox onChange={onOrganizationChange} searchType="external" />
+                    <OrganizationUnitComboBox
+                        organizationUnitId={watch('organizationUnitId')}
+                        onChange={onOrganizationChange}
+                        searchType="external"
+                    />
                     {nullable(errors.organizationUnitId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
@@ -300,7 +304,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
                     <Text weight="bold" color={gray8}>
                         {tr('Team:')}
                     </Text>
-                    <GroupComboBox onChange={onTeamChange} />
+                    <GroupComboBox defaultGroupId={watch('groupId')} onChange={onTeamChange} />
                     {nullable(errors.groupId, (e) => (
                         <Text size="xs" color={danger0}>
                             {e.message}
