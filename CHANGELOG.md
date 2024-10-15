@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.82.0](https://github.com/taskany-inc/crew/compare/v0.81.0...v0.82.0) (2024-10-15)
+
+
+### Features
+
+* **INTERNAL-1189:** optional team for internal newcomer request ([a4d4d46](https://github.com/taskany-inc/crew/commit/a4d4d46e2ec3acd2685fe4944d88c682d6efa334))
+* **INTERNAL-1190:** harmony colors ([098848d](https://github.com/taskany-inc/crew/commit/098848dcd4b340c0981ab3a59888ef7524be9bc5))
+* **INTERNAL-1205:** return create user modal ([e4a17e8](https://github.com/taskany-inc/crew/commit/e4a17e8a8bb8561c30156d47629d842dc7d4645a))
+
 ## [0.81.0](https://github.com/taskany-inc/crew/compare/v0.80.0...v0.81.0) (2024-10-10)
 
 
