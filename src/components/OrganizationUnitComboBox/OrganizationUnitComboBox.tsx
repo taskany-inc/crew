@@ -52,7 +52,13 @@ export const OrganizationUnitComboBox = ({
                 </Text>
             )}
         >
-            <SelectTrigger error={error} placeholder={tr('Choose organization')} view="outline" className={className}>
+            <SelectTrigger
+                size="m"
+                error={error}
+                placeholder={tr('Choose organization')}
+                view="outline"
+                className={className}
+            >
                 {nullable(value && value[0], (o) => getOrgUnitTitle(o))}
             </SelectTrigger>
             <SelectPanel placement="bottom-start" title={tr('Suggestions')}>

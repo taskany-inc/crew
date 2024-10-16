@@ -1,15 +1,7 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-    Button,
-    Text,
-    FormControlInput,
-    Switch,
-    SwitchControl,
-    FormControlEditor,
-    FormEditor,
-} from '@taskany/bricks/harmony';
+import { Button, Text, FormControlInput, Switch, SwitchControl, FormControlEditor } from '@taskany/bricks/harmony';
 import { Group, OrganizationUnit, User, Role } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
 
@@ -70,6 +62,7 @@ export const InternalUserCreationRequestPage = () => {
         getValues,
         setError,
         clearErrors,
+        control,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateUserCreationRequestInternalEmployee>({
         resolver: zodResolver(createUserCreationRequestInternalEmployeeSchema),
@@ -96,8 +89,8 @@ export const InternalUserCreationRequestPage = () => {
     useEffect(() => {
         if (isLoginUnique.data === false) {
             setError('login', { message: tr('User with login already exist') });
-        } else clearErrors('login');
-    }, [isLoginUnique.data, setError, clearErrors]);
+        } else trigger('login');
+    }, [isLoginUnique.data, setError, trigger]);
 
     const debouncedSearchHandler = debounce(300, setIsLoginUniqueQuery);
 
@@ -185,13 +178,14 @@ export const InternalUserCreationRequestPage = () => {
                     <div className={s.Body}>
                         <div className={s.Form}>
                             <div className={s.FormBlock} id="personal-data">
-                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                <Text className={s.SectionHeader} weight="bold" size="lg">
                                     {tr('Personal data')}
                                 </Text>
                                 <div className={s.ThreeInputsRow}>
                                     <FormControl label={tr('Surname')} required error={errors.surname}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             outline
                                             placeholder={tr('Write surname')}
                                             {...register('surname', {
@@ -203,6 +197,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('First name')} required error={errors.firstName}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             outline
                                             placeholder={tr('Write name')}
                                             {...register('firstName', {
@@ -214,6 +209,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Second name')} error={errors.middleName}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             placeholder={tr('Write second name')}
                                             outline
                                             {...register('middleName', {
@@ -232,6 +228,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Phone')} required error={errors.phone}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             placeholder="+7(___)__-__-___"
                                             outline
                                             {...register('phone', { required: tr('Required field') })}
@@ -240,6 +237,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Login')} required error={errors.login}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             placeholder={tr('In format vvivanov')}
                                             outline
                                             {...register('login', {
@@ -259,6 +257,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Personal')} error={errors.personalEmail}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             placeholder="name@mail.com"
                                             outline
                                             {...register('personalEmail', { onChange: onEmailChange })}
@@ -267,6 +266,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Work')} error={errors.workEmail}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             placeholder="email@example.com"
                                             outline
                                             {...register('workEmail', { onChange: onEmailChange })}
@@ -275,12 +275,13 @@ export const InternalUserCreationRequestPage = () => {
                                 </div>
                             </div>
                             <div className={s.FormBlock} id="registration">
-                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                <Text className={s.SectionHeader} weight="bold" size="lg">
                                     {tr('Registration')}
                                 </Text>
                                 <div className={s.OrganizationCombobox}>
                                     <FormControl label={tr('Organization')} required>
                                         <OrganizationUnitComboBox
+                                            searchType="internal"
                                             organizationUnitId={watch('organizationUnitId')}
                                             onChange={onOrganizationChange}
                                             error={errors.organizationUnitId}
@@ -291,6 +292,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Unit ID')} error={errors.unitId}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             placeholder={tr('Write unit ID')}
                                             outline
                                             {...register('unitId')}
@@ -299,6 +301,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Percentage')} error={errors.percentage}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             placeholder={tr('Write the percentage')}
                                             outline
                                             type="number"
@@ -314,6 +317,7 @@ export const InternalUserCreationRequestPage = () => {
                                         <FormControlInput
                                             outline
                                             autoComplete="off"
+                                            size="m"
                                             type="date"
                                             {...register('date', { valueAsDate: true })}
                                         />
@@ -325,8 +329,8 @@ export const InternalUserCreationRequestPage = () => {
                                             value={watch('creationCause')}
                                             onChange={(_e, a) => setValue('creationCause', a)}
                                         >
-                                            <SwitchControl text={tr('Start')} value="start" />
-                                            <SwitchControl text={tr('Transfer')} value="transfer" />
+                                            <SwitchControl size="m" text={tr('Start')} value="start" />
+                                            <SwitchControl size="m" text={tr('Transfer')} value="transfer" />
                                         </Switch>
                                     </FormControl>
                                 </div>
@@ -361,7 +365,7 @@ export const InternalUserCreationRequestPage = () => {
                                 />
                             </div>
                             <div className={s.FormBlock} id="team">
-                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                <Text className={s.SectionHeader} weight="bold" size="lg">
                                     {tr('Team')}
                                 </Text>
                                 <div className={s.TwoInputsRow}>
@@ -409,34 +413,45 @@ export const InternalUserCreationRequestPage = () => {
                                 </div>
                             </div>
                             <div className={s.FormBlock} id="work-space">
-                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                <Text className={s.SectionHeader} weight="bold" size="lg">
                                     {tr('Work space')}
                                 </Text>
-                                <FormControl label={tr('Equipment')} required error={errors.equipment}>
-                                    <FormControlEditor
-                                        className={s.FormEditor}
-                                        outline
-                                        disableAttaches
-                                        onChange={(eq) => {
-                                            eq && setValue('equipment', eq);
-                                            trigger('equipment');
-                                        }}
-                                        placeholder={tr('Write equipment list')}
-                                    />
-                                </FormControl>
-                                <FormControl label={tr('Extra equipment')} error={errors.extraEquipment}>
-                                    <FormControlEditor
-                                        className={s.FormEditor}
-                                        outline
-                                        disableAttaches
-                                        onChange={(exEq) => exEq && setValue('extraEquipment', exEq)}
-                                        placeholder={tr('Write equipment list')}
-                                    />
-                                </FormControl>
+                                <Controller
+                                    name="equipment"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormControl label={tr('Equipment')} required error={errors.equipment}>
+                                            <FormControlEditor
+                                                className={s.FormEditor}
+                                                outline
+                                                disableAttaches
+                                                placeholder={tr('Write equipment list')}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="extraEquipment"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormControl label={tr('Extra equipment')} error={errors.extraEquipment}>
+                                            <FormControlEditor
+                                                className={s.FormEditor}
+                                                outline
+                                                disableAttaches
+                                                placeholder={tr('Write equipment list')}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                    )}
+                                />
                                 <div className={s.TwoInputsRow}>
                                     <FormControl label={tr('Work space application')} error={errors.workSpace}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             placeholder={tr('Write the application text')}
                                             outline
                                             {...register('workSpace')}
@@ -445,6 +460,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Location')} required error={errors.location}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             outline
                                             placeholder={tr('Write the location name')}
                                             {...register('location', { required: tr('Required field') })}
@@ -461,6 +477,7 @@ export const InternalUserCreationRequestPage = () => {
                                     <FormControl label={tr('Work mode comment')} error={errors.workModeComment}>
                                         <FormControlInput
                                             autoComplete="off"
+                                            size="m"
                                             outline
                                             placeholder={tr('Write work mode comment')}
                                             {...register('workModeComment')}
@@ -469,14 +486,22 @@ export const InternalUserCreationRequestPage = () => {
                                 </div>
                             </div>
                             <div id="comments" className={s.FormBlock}>
-                                <Text className={s.SectionHeader} weight="bold" size="l">
+                                <Text className={s.SectionHeader} weight="bold" size="lg">
                                     {tr('Comments')}
                                 </Text>
 
-                                <FormEditor
-                                    outline
-                                    onChange={(comment) => comment && setValue('comment', comment)}
-                                    placeholder={tr('Write some comments if needed')}
+                                <Controller
+                                    name="comment"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormControl>
+                                            <FormControlEditor
+                                                outline
+                                                placeholder={tr('Write some comments if needed')}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                    )}
                                 />
                             </div>
                         </div>

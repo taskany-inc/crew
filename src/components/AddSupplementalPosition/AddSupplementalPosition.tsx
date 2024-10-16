@@ -3,7 +3,7 @@ import { FormControlInput, Text } from '@taskany/bricks/harmony';
 import { IconBinOutline, IconPlusCircleOutline } from '@taskany/icons';
 
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
-import { InlineTrigger } from '../InlineTrigger';
+import { AddInlineTrigger } from '../AddInlineTrigger/AddInlineTrigger';
 import { useBoolean } from '../../hooks/useBoolean';
 import { FormControl } from '../FormControl/FormControl';
 
@@ -52,7 +52,7 @@ export const AddSupplementalPosition = ({
                         <div className={s.Header}>
                             <Text as="h3">{tr('Supplemental position')}</Text>
 
-                            <InlineTrigger
+                            <AddInlineTrigger
                                 text={tr('Remove supplemental position')}
                                 icon={<IconBinOutline size="s" />}
                                 onClick={onReset}
@@ -60,7 +60,7 @@ export const AddSupplementalPosition = ({
                         </div>
                         <FormControl label={tr('Supplemental organization')} required>
                             <OrganizationUnitComboBox
-                                className={s.Input}
+                                searchType="internal"
                                 onChange={(orgUnit) => orgUnit && onOrganizatioUnitChange(orgUnit.id)}
                                 organizationUnitId={organizationUnitId}
                                 error={errors?.organizationUnitId}
@@ -71,6 +71,8 @@ export const AddSupplementalPosition = ({
                                 <FormControlInput
                                     value={unitId}
                                     outline
+                                    autoComplete="off"
+                                    size="m"
                                     placeholder={tr('Write unit ID')}
                                     onChange={(e) => setUnitId(e.currentTarget.value)}
                                 />
@@ -79,6 +81,8 @@ export const AddSupplementalPosition = ({
                                 <FormControlInput
                                     placeholder={tr('Write percentage from 0.01 to 1')}
                                     outline
+                                    size="m"
+                                    autoComplete="off"
                                     type="number"
                                     step={0.01}
                                     value={percentage}
@@ -88,11 +92,13 @@ export const AddSupplementalPosition = ({
                         </div>
                     </div>
                 ),
-                <InlineTrigger
-                    text={tr('Add supplemental position')}
-                    icon={<IconPlusCircleOutline size="s" />}
-                    onClick={onOpen}
-                />,
+                <div className={s.InlineTrigger}>
+                    <AddInlineTrigger
+                        text={tr('Add supplemental position')}
+                        icon={<IconPlusCircleOutline size="s" className={s.Icon} />}
+                        onClick={onOpen}
+                    />
+                </div>,
             )}
         </div>
     );

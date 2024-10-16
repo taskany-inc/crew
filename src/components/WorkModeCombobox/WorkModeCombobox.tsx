@@ -14,9 +14,9 @@ interface WorkModeComboboxProps {
     className?: string;
 }
 
-const workModeItems = [tr('Office'), tr('Mixed'), tr('Remote')];
-
 export const WorkModeCombobox = ({ value, onChange, className, error }: WorkModeComboboxProps) => {
+    const workModeItems = [tr('Office'), tr('Mixed'), tr('Remote')];
+
     return (
         <Select
             arrow
@@ -31,7 +31,13 @@ export const WorkModeCombobox = ({ value, onChange, className, error }: WorkMode
                 </Text>
             )}
         >
-            <SelectTrigger error={error} placeholder={tr('Choose work mode')} view="outline" className={className}>
+            <SelectTrigger
+                size="m"
+                error={error}
+                placeholder={tr('Choose work mode')}
+                view="outline"
+                className={className}
+            >
                 {nullable(value, (mode) => mode)}
             </SelectTrigger>
             <SelectPanel placement="bottom-start" />

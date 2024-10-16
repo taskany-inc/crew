@@ -1,7 +1,7 @@
 import { IconPlusCircleOutline } from '@taskany/icons';
 import { forwardRef } from 'react';
 import cn from 'classnames';
-import { Badge } from '@taskany/bricks/harmony';
+import { Badge, Text } from '@taskany/bricks/harmony';
 
 import s from './AddInlineTrigger.module.css';
 
@@ -17,7 +17,8 @@ export const AddInlineTrigger = forwardRef<HTMLDivElement, AddInlineTriggerProps
         <Badge
             ref={ref}
             iconLeft={icon}
-            text={text}
+            weight="regular"
+            text={<Text className={s.Text}>{text}</Text>}
             onClick={onClick}
             className={cn(s.InlineTrigger, { [s.InlineTrigger_centered]: centered })}
             view="secondary"

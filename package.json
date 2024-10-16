@@ -32,7 +32,7 @@
     "@swc/core": "1.5.7",
     "@tanstack/react-query": "4.35.7",
     "@tanstack/react-query-devtools": "4.35.7",
-    "@taskany/bricks": "5.52.2",
+    "@taskany/bricks": "5.53.1",
     "@taskany/colors": "1.13.1",
     "@taskany/icons": "2.0.7",
     "@trpc/client": "10.36.0",

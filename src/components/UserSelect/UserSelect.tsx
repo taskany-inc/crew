@@ -49,7 +49,13 @@ export const UserSelect = ({ mode, selectedUsers, onClose, onChange, onReset, cl
             mode={mode}
             renderItem={({ item }) => <HarmonyUser name={item.name} email={item.email} />}
         >
-            <SelectTrigger placeholder={tr('Choose from the list')} view="outline" className={className} error={error}>
+            <SelectTrigger
+                size="m"
+                placeholder={tr('Choose from the list')}
+                view="outline"
+                className={className}
+                error={error}
+            >
                 {nullable(
                     selectedUsers && selectedUsers?.length > 1,
                     () => (
