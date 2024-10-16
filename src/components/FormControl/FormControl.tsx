@@ -3,7 +3,7 @@ import { FormControl as HarmonyFormControl, FormControlLabel, FormControlError }
 import { ReactNode } from 'react';
 
 interface FormControlProps {
-    label: string;
+    label?: string;
     required?: boolean;
     error?: { message?: string };
     children: ReactNode;
@@ -12,7 +12,9 @@ interface FormControlProps {
 export const FormControl = ({ label, required, error, children }: FormControlProps) => {
     return (
         <HarmonyFormControl required={required}>
-            <FormControlLabel>{label}</FormControlLabel>
+            {nullable(label, (l) => (
+                <FormControlLabel>{l}</FormControlLabel>
+            ))}
             {children}
             {nullable(error, (e) => (
                 <FormControlError error={e} />

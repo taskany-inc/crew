@@ -6,6 +6,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: var(--gap-m);
+    margin-top: var(--gap-m);
 }
 
 .TwoInputsRow {
@@ -13,9 +15,4 @@
     grid-template-columns: 1fr 1fr;
     gap: var(--gap-m);
     margin-top: var(--gap-m);
-    margin-bottom: var(--gap-m);
-}
-
-.Input {
-    margin-top: var(--gap-s);
 }

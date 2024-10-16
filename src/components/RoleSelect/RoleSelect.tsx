@@ -43,7 +43,7 @@ export const RoleSelect = ({ onChange, error, className, roleName }: RoleSelectP
                 </Text>
             )}
         >
-            <SelectTrigger error={error} placeholder={tr('Choose role')} view="outline" className={className}>
+            <SelectTrigger size="m" error={error} placeholder={tr('Choose role')} view="outline" className={className}>
                 {nullable(value && value[0], (r) => r.name)}
             </SelectTrigger>
             <SelectPanel placement="bottom-start" title={tr('Suggestions')}>

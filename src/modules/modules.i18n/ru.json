@@ -85,5 +85,6 @@
     "from": "из",
     "Not a valid email": "Невалидный емейл",
     "Enter phone number in format +7(900)123-45-67": "Укажите телефон в формате +7 (900) 123-45-67",
-    "Please enter percentage from 0.01 to 1": "Укажите значение от 0,01 до 1"
+    "Please enter percentage from 0.01 to 1": "Укажите значение от 0,01 до 1",
+    "Login should contain only lowercase letters and digits": "Логин может содержать только латинские буквы в нижнем регистре и цифры"
 }

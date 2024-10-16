@@ -16,7 +16,10 @@ export const createUserCreationRequestBaseSchema = z.object({
         .string({ required_error: tr('Enter phone number in format +7(900)123-45-67') })
         .min(1, { message: tr('Enter phone number in format +7(900)123-45-67') })
         .min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
-    login: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+    login: z
+        .string({ required_error: tr('Required field') })
+        .min(1, { message: tr('Required field') })
+        .regex(/^[a-z0-9]+$/, { message: tr('Login should contain only lowercase letters and digits') }),
     accountingId: z.string().optional(),
     organizationUnitId: z.string({ required_error: tr('Required field'), invalid_type_error: tr('Required field') }),
     groupId: z.string().optional(),

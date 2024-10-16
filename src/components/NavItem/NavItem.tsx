@@ -12,9 +12,7 @@ interface NevItemProp {
 export const NavItem = ({ id, title }: NevItemProp) => {
     const [active, setActive] = useState(false);
     useEffect(() => {
-        const options = {
-            threshold: 0.7,
-        };
+        const options = { threshold: 0.7 };
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
                 setActive(true);

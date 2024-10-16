@@ -55,7 +55,7 @@ export const GroupComboBox = ({ defaultGroupId, onChange, error, className, onRe
                 </Text>
             )}
         >
-            <SelectTrigger error={error} placeholder={tr('Choose team')} view="outline" className={className}>
+            <SelectTrigger size="m" error={error} placeholder={tr('Choose team')} view="outline" className={className}>
                 {nullable(value && value[0], (g) => (
                     <Badge
                         weight="regular"
