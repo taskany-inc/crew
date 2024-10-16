@@ -1,0 +1,17 @@
+.Link {
+    text-decoration: none;
+}
+
+.Button {
+    width: 100%;
+    justify-content: start;
+    color: var(--text-color)
+}
+
+.Link:hover {
+    background-color: var(--switch-background-hovered);
+}
+
+.Button_active {
+    background-color: var(--switch-background-active);
+}
