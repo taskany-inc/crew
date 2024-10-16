@@ -1,0 +1,7 @@
+.Container {
+    position: sticky;
+    top: 0;
+    border-left: 1px solid var(--gray-800);
+    padding-left: var(--gap-m);
+    padding-right: var(--gap-l);
+}

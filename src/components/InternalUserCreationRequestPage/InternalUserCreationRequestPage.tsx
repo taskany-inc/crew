@@ -33,6 +33,7 @@ import { useRouter } from '../../hooks/useRouter';
 import { FormControl } from '../FormControl/FormControl';
 import { useBoolean } from '../../hooks/useBoolean';
 import { WarningModal } from '../WarningModal/WarningModal';
+import { NavMenu } from '../NavMenu/NavMenu';
 
 import s from './InternalUserCreationRequestPage.module.css';
 import { tr } from './InternalUserCreationRequestPage.i18n';
@@ -165,8 +166,9 @@ export const InternalUserCreationRequestPage = () => {
                     <div className={s.Header}>
                         <Text as="h2">{tr('Create a planned newcommer')}</Text>
                         <div className={s.FormActions}>
-                            <Button type="button" text={tr('Cancel')} onClick={cancelWarningVisible.setTrue} />
+                            <Button size="m" type="button" text={tr('Cancel')} onClick={cancelWarningVisible.setTrue} />
                             <Button
+                                size="m"
                                 type="submit"
                                 text={tr('Create')}
                                 view="primary"
@@ -181,8 +183,8 @@ export const InternalUserCreationRequestPage = () => {
                         warningText={tr('cancel confirmation')}
                     />
                     <div className={s.Body}>
-                        <div className={s.FormScroll}>
-                            <div className={s.FormBlock}>
+                        <div className={s.Form}>
+                            <div className={s.FormBlock} id="personal-data">
                                 <Text className={s.SectionHeader} weight="bold" size="l">
                                     {tr('Personal data')}
                                 </Text>
@@ -272,7 +274,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                 </div>
                             </div>
-                            <div className={s.FormBlock}>
+                            <div className={s.FormBlock} id="registration">
                                 <Text className={s.SectionHeader} weight="bold" size="l">
                                     {tr('Registration')}
                                 </Text>
@@ -358,7 +360,7 @@ export const InternalUserCreationRequestPage = () => {
                                     errors={errors.supplementalPositions && errors.supplementalPositions[0]}
                                 />
                             </div>
-                            <div className={s.FormBlock}>
+                            <div className={s.FormBlock} id="team">
                                 <Text className={s.SectionHeader} weight="bold" size="l">
                                     {tr('Team')}
                                 </Text>
@@ -406,7 +408,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                 </div>
                             </div>
-                            <div className={s.FormBlock}>
+                            <div className={s.FormBlock} id="work-space">
                                 <Text className={s.SectionHeader} weight="bold" size="l">
                                     {tr('Work space')}
                                 </Text>
@@ -466,7 +468,7 @@ export const InternalUserCreationRequestPage = () => {
                                     </FormControl>
                                 </div>
                             </div>
-                            <div className={s.FormBlock}>
+                            <div id="comments" className={s.FormBlock}>
                                 <Text className={s.SectionHeader} weight="bold" size="l">
                                     {tr('Comments')}
                                 </Text>
@@ -478,7 +480,30 @@ export const InternalUserCreationRequestPage = () => {
                                 />
                             </div>
                         </div>
-                        <div>{/* Here will be navigation */}</div>
+                        <NavMenu
+                            navMenu={[
+                                {
+                                    title: tr('Personal data'),
+                                    id: 'personal-data',
+                                },
+                                {
+                                    title: tr('Registration'),
+                                    id: 'registration',
+                                },
+                                {
+                                    title: tr('Team'),
+                                    id: 'team',
+                                },
+                                {
+                                    title: tr('Work space'),
+                                    id: 'work-space',
+                                },
+                                {
+                                    title: tr('Comments'),
+                                    id: 'comments',
+                                },
+                            ]}
+                        />
                     </div>
                 </form>
             </div>
