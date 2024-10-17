@@ -46,7 +46,7 @@ export const externalUserMethods = {
             throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'External user service is not configured' });
         }
         const user = await prisma.user.findFirstOrThrow({ where: { id: userId } });
-        const fullData: ExternalUserUpdate = { email: user.email, ...data };
+        const fullData: ExternalUserUpdate = { email: user.email, login: user.login || undefined, ...data };
         const response = await fetch(config.externalUserService.apiUrlUpdate, {
             method: 'POST',
             body: JSON.stringify(fullData),
