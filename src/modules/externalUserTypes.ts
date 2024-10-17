@@ -3,4 +3,5 @@ export interface ExternalUserUpdate {
     name?: string;
     supervisorId?: string | null;
     active?: boolean;
+    login?: string;
 }
