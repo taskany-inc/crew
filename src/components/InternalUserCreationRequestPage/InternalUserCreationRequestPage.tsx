@@ -175,7 +175,7 @@ export const InternalUserCreationRequestPage = () => {
                         onConfirm={router.userRequests}
                         warningText={tr('cancel confirmation')}
                     />
-                    <div className={s.Body}>
+                    <div className={s.Body} id="rootscroll">
                         <div className={s.Form}>
                             <div className={s.FormBlock} id="personal-data">
                                 <Text className={s.SectionHeader} weight="bold" size="lg">
