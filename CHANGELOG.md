@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.83.1](https://github.com/taskany-inc/crew/compare/v0.83.0...v0.83.1) (2024-10-18)
+
+
+### Bug Fixes
+
+* **INTERNAL-1237:** do not immediately trigger empty login ([35f81c4](https://github.com/taskany-inc/crew/commit/35f81c4e14d1b351a94827425c8fd7551f1c50e0))
+
 ## [0.83.0](https://github.com/taskany-inc/crew/compare/v0.82.1...v0.83.0) (2024-10-17)
 
 
