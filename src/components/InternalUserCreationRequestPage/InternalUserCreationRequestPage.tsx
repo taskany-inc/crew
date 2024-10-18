@@ -87,9 +87,9 @@ export const InternalUserCreationRequestPage = () => {
     });
 
     useEffect(() => {
-        if (isLoginUnique.data === false) {
+        if (getValues('login') && isLoginUnique.data === false) {
             setError('login', { message: tr('User with login already exist') });
-        } else trigger('login');
+        } else if (getValues('login')) trigger('login');
     }, [isLoginUnique.data, setError, trigger]);
 
     const debouncedSearchHandler = debounce(300, setIsLoginUniqueQuery);
