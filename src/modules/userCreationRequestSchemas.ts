@@ -1,6 +1,12 @@
 import { z } from 'zod';
+import parsePhoneNumber from 'libphonenumber-js';
 
 import { tr } from './modules.i18n';
+
+const phone = z
+    .string({ required_error: tr('Enter phone number in format +7(900)123-45-67') })
+    .refine((e) => parsePhoneNumber(e, 'RU')?.isValid(), tr('Enter phone number in format +7(900)123-45-67'))
+    .transform((e) => String(parsePhoneNumber(e, 'RU')?.number));
 
 export const createUserCreationRequestBaseSchema = z.object({
     type: z.literal('base'),
@@ -12,10 +18,7 @@ export const createUserCreationRequestBaseSchema = z.object({
         .min(1, { message: tr('Required field') })
         .min(5, { message: tr('Minimum {min} symbols', { min: 5 }) })
         .email(tr('Not a valid email')),
-    phone: z
-        .string({ required_error: tr('Enter phone number in format +7(900)123-45-67') })
-        .min(1, { message: tr('Enter phone number in format +7(900)123-45-67') })
-        .min(5, { message: tr('Minimum {min} symbols', { min: 5 }) }),
+    phone,
     login: z
         .string({ required_error: tr('Required field') })
         .min(1, { message: tr('Required field') })
@@ -36,6 +39,7 @@ export type CreateUserCreationRequestBase = z.infer<typeof createUserCreationReq
 
 export const createUserCreationRequestInternalEmployeeSchema = createUserCreationRequestBaseSchema.extend({
     type: z.literal('internalEmployee'),
+    phone,
     workMode: z
         .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
         .min(1, { message: tr('Required field') }),

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Text, FormControlInput, Switch, SwitchControl, FormControlEditor } from '@taskany/bricks/harmony';
 import { Group, OrganizationUnit, User, Role } from '@prisma/client';
 import { debounce } from 'throttle-debounce';
+import { AsYouType } from 'libphonenumber-js';
 
 import {
     CreateUserCreationRequestInternalEmployee,
@@ -89,7 +90,7 @@ export const InternalUserCreationRequestPage = () => {
     useEffect(() => {
         if (getValues('login') && isLoginUnique.data === false) {
             setError('login', { message: tr('User with login already exist') });
-        } else if (getValues('login')) trigger('login');
+        }
     }, [isLoginUnique.data, setError, trigger]);
 
     const debouncedSearchHandler = debounce(300, setIsLoginUniqueQuery);
@@ -110,6 +111,15 @@ export const InternalUserCreationRequestPage = () => {
         debouncedSearchHandler(e.target.value);
         setValue('corporateEmail', getCorporateEmail(e.target.value));
         setValue('email', getCorporateEmail(e.target.value));
+        trigger('login');
+    };
+
+    const onPhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const asYouType = new AsYouType('RU');
+
+        setValue('phone', asYouType.input(e.target.value));
+
+        errors.phone && trigger('phone');
     };
 
     const onRoleChange = (r: Nullish<Role>) => {
@@ -231,7 +241,11 @@ export const InternalUserCreationRequestPage = () => {
                                             size="m"
                                             placeholder="+7(___)__-__-___"
                                             outline
-                                            {...register('phone', { required: tr('Required field') })}
+                                            {...register('phone', {
+                                                required: tr('Required field'),
+                                                onChange: onPhoneChange,
+                                                onBlur: () => trigger('phone'),
+                                            })}
                                         />
                                     </FormControl>
                                     <FormControl label={tr('Login')} required error={errors.login}>
