@@ -14,9 +14,7 @@
 .Body {
     display: grid;
     grid-template-columns: 4fr 1fr;
-    max-height: calc(100vh - 270px);
     overflow-y: auto;
-    scroll-behavior: smooth;
 }
 
 .FormActions {
@@ -46,8 +44,8 @@
 }
 
 .Form {
-    max-height: calc(100vh - 270px);
     padding-right: var(--gap-l);
+    max-height: calc(100vh - 270px);
 }
 
 .Switch {

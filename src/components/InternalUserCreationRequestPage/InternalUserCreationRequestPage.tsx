@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Text, FormControlInput, Switch, SwitchControl, FormControlEditor } from '@taskany/bricks/harmony';
@@ -27,6 +27,7 @@ import { FormControl } from '../FormControl/FormControl';
 import { useBoolean } from '../../hooks/useBoolean';
 import { WarningModal } from '../WarningModal/WarningModal';
 import { NavMenu } from '../NavMenu/NavMenu';
+import { useSpyNav } from '../../hooks/useSpyNav';
 
 import s from './InternalUserCreationRequestPage.module.css';
 import { tr } from './InternalUserCreationRequestPage.i18n';
@@ -44,6 +45,7 @@ export const InternalUserCreationRequestPage = () => {
     const [coordinatorIds, setCoordinatorIds] = useState<string[]>([]);
     const [lineManagerIds, setLineManagerIds] = useState<string[]>([]);
     const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
+    const rootRef = useRef<HTMLDivElement>(null);
 
     const isLoginUnique = trpc.user.isLoginUnique.useQuery(isLoginUniqueQuery, {
         enabled: isLoginUniqueQuery.length > 1,
@@ -91,7 +93,7 @@ export const InternalUserCreationRequestPage = () => {
         if (getValues('login') && isLoginUnique.data === false) {
             setError('login', { message: tr('User with login already exist') });
         }
-    }, [isLoginUnique.data, setError, trigger]);
+    }, [getValues, isLoginUnique.data, setError, trigger]);
 
     const debouncedSearchHandler = debounce(300, setIsLoginUniqueQuery);
 
@@ -162,6 +164,8 @@ export const InternalUserCreationRequestPage = () => {
         trigger(type);
     };
 
+    const { activeId, onClick, onScroll } = useSpyNav(rootRef);
+
     return (
         <LayoutMain pageTitle={tr('Request')}>
             <div className={s.Wrapper}>
@@ -185,8 +189,8 @@ export const InternalUserCreationRequestPage = () => {
                         onConfirm={router.userRequests}
                         warningText={tr('cancel confirmation')}
                     />
-                    <div className={s.Body}>
-                        <div className={s.Form}>
+                    <div className={s.Body} onScroll={onScroll}>
+                        <div className={s.Form} ref={rootRef}>
                             <div className={s.FormBlock} id="personal-data">
                                 <Text className={s.SectionHeader} weight="bold" size="lg">
                                     {tr('Personal data')}
@@ -520,6 +524,8 @@ export const InternalUserCreationRequestPage = () => {
                             </div>
                         </div>
                         <NavMenu
+                            active={activeId}
+                            onClick={onClick}
                             navMenu={[
                                 {
                                     title: tr('Personal data'),
