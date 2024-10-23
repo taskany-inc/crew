@@ -206,7 +206,10 @@ export const scheduledDeactivationMethods = {
         const scheduledDeactivationBeforeUpdate = await prisma.scheduledDeactivation.findUnique({ where: { id } });
 
         if (!scheduledDeactivationBeforeUpdate) {
-            throw new TRPCError({ message: `No scheduled deactivation with id ${id}`, code: 'NOT_FOUND' });
+            throw new TRPCError({
+                message: `No scheduled deactivation with id ${id}`,
+                code: 'NOT_FOUND',
+            });
         }
         await userMethods.getByIdOrThrow(userId);
 

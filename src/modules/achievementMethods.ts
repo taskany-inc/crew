@@ -87,7 +87,8 @@ export const achievementMethods = {
                 subject: tr('New achievement!'),
                 text: `${tr('Congratulations! You have new achievement: {achievement}', {
                     achievement: achievement.title,
-                })}\n${tr('Nomination:')} ${achievement.nomination}`,
+                })}\n${tr('Nomination:')} ${achievement.nomination}\n
+                ${tr('See in Crew:')} ${process.env.NEXTAUTH_URL}`,
             });
         }
 
