@@ -1,0 +1,17 @@
+{
+    "Personal data": "Персональные данные",
+    "Surname": "Фамилия",
+    "Write surname": "Введите фамилию",
+    "Required field": "Нужно обязательно заполнить",
+    "First name": "Имя",
+    "Write name": "Введите имя",
+    "Second name": "Отчество",
+    "Write second name": "Введите отчество (если имеется)",
+    "Role": "Роль/должность",
+    "Phone": "Телефон",
+    "Login": "Логин",
+    "In format vvivanov": "Введите логин в формате vvivanov",
+    "Email": "Электронная почта",
+    "Personal": "Личная",
+    "Work": "Рабочая"
+}

@@ -1,0 +1,9 @@
+.FormActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-s);
+}
+
+.ResetButton {
+    color: var(--text-color)
+}
