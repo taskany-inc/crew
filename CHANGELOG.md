@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.85.0](https://github.com/taskany-inc/crew/compare/v0.84.0...v0.85.0) (2024-10-28)
+
+
+### Features
+
+* **INTERNAL-1275:** decompose InternalUserCreationPage ([05fbee4](https://github.com/taskany-inc/crew/commit/05fbee4246c56835f258fc52e25d168815cb9e3d))
+
+
+### Bug Fixes
+
+* **sendMail:** add link to the service ([9375c71](https://github.com/taskany-inc/crew/commit/9375c71f2d30e8321c0b71833b2ae1e5554d5344))
+
 ## [0.84.0](https://github.com/taskany-inc/crew/compare/v0.83.1...v0.84.0) (2024-10-24)
 
 
