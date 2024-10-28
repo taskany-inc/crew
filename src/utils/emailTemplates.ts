@@ -32,7 +32,7 @@ ${tr('Cancelling planned newcomer {userName} to {organization}', { userName: nam
 ${
     comment
         ? `${tr('Comment')}:
-${comment}`
+${comment || ''}`
         : ''
 }
             
@@ -164,7 +164,7 @@ export const scheduledDeactivationEmailHtml = (
     }
         <tr>
             <th>${tr('Comments')}</th>
-            <td>${data.comments}</td>
+            <td>${data.comments || ''}</td>
         </tr>
     </table>
 ${tr('Sincerely,')}<br/>HR-team!
