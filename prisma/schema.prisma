@@ -129,6 +129,7 @@ model User {
   userCreationRequestCoordinators UserCreationRequest[] @relation("userCoordinators")
   userCreationRequestCreator      UserCreationRequest[] @relation("userCreationRequestCreator")
   userCreationRequestLineManagers UserCreationRequest[] @relation("userLineManagers")
+  userCreationRequestCurators     UserCreationRequest[] @relation("userCurators")
 
   mailingSettings MailingSettings[]
 
@@ -213,11 +214,16 @@ model UserCreationRequest {
 
   coordinators User[] @relation(name: "userCoordinators")
   lineManagers User[] @relation(name: "userLineManagers")
+  curators     User[] @relation(name: "userCurators")
 
   jobId String? @unique
   job   Job?    @relation(fields: [jobId], references: [id])
 
   supplementalPositions SupplementalPosition[]
+
+  permissionServices PermissionService[]
+
+  reasonToGrantPermissionToServices String?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -722,4 +728,11 @@ model SupplementalPosition {
 
   userCreationRequest   UserCreationRequest? @relation(fields: [userCreationRequestId], references: [id])
   userCreationRequestId String?
+}
+
+model PermissionService {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  name                String
+  userCreationRequest UserCreationRequest[]
 }

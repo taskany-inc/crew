@@ -195,6 +195,14 @@ export type OrganizationUnit = {
     description: string | null;
     external: Generated<boolean>;
 };
+export type PermissionService = {
+    id: Generated<string>;
+    name: string;
+};
+export type PermissionServiceToUserCreationRequest = {
+    A: string;
+    B: string;
+};
 export type Role = {
     id: Generated<string>;
     name: string;
@@ -327,8 +335,13 @@ export type UserCreationRequest = {
     coordinatorLogin: string | null;
     coordinatorId: string | null;
     jobId: string | null;
+    reasonToGrantPermissionToServices: string | null;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
+};
+export type userCurators = {
+    A: string;
+    B: string;
 };
 export type UserDevice = {
     userId: string;
@@ -412,7 +425,9 @@ export type VerificationToken = {
 };
 export type DB = {
     _MembershipToRole: MembershipToRole;
+    _PermissionServiceToUserCreationRequest: PermissionServiceToUserCreationRequest;
     _userCoordinators: userCoordinators;
+    _userCurators: userCurators;
     _userLineManagers: userLineManagers;
     Account: Account;
     Achievement: Achievement;
@@ -432,6 +447,7 @@ export type DB = {
     Membership: Membership;
     OrganizationDomain: OrganizationDomain;
     OrganizationUnit: OrganizationUnit;
+    PermissionService: PermissionService;
     Role: Role;
     ScheduledDeactivation: ScheduledDeactivation;
     Session: Session;

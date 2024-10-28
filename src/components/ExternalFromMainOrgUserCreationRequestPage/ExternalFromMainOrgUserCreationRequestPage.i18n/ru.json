@@ -1,0 +1,10 @@
+{
+    "User with login already exist": "Такой логин уже существует",
+    "Request": "Заявка",
+    "Create access to employee from {mainOrgName} (external)": "Создать доступ сотрудникам {mainOrgName} (внешние)",
+    "Registration": "Оформление",
+    "Organization": "Организация",
+    "Team": "Команда",
+    "Personal data": "Персональные данные",
+    "Extra information": "Дополнительная информация"
+}

@@ -72,6 +72,16 @@ export const userCreationRequestRouter = router({
                 unitId: creationRequest.unitId || undefined,
                 workEmail: creationRequest.workEmail || undefined,
                 personalEmail: creationRequest.personalEmail || undefined,
+                reasonToGrantPermissionToServices: creationRequest.reasonToGrantPermissionToServices || undefined,
+                curatorLogins: creationRequest.curators.length
+                    ? creationRequest.curators.map(({ login }) => login).join(', ')
+                    : undefined,
+                curatorIds: creationRequest.curators.length
+                    ? creationRequest.curators.map(({ id }) => id).join(', ')
+                    : undefined,
+                permissionServices: creationRequest.permissionServices.length
+                    ? creationRequest.permissionServices.map(({ name }) => name).join(', ')
+                    : undefined,
             },
         });
 

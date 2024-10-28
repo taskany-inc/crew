@@ -132,5 +132,10 @@
     "Previous name": "Предыдущее ФИО",
     "saved": "сохранено",
     "was_neutr": "было",
-    "was not_neutr": "не было"
+    "was not_neutr": "не было",
+    "Curator logins": "Логины кураторов",
+    "Curator ids": "ID кураторов",
+    "Access to services": "Доступ к сервисам",
+    "Reason for granting access": "Обоснование предоставления доступа",
+    "to grant access": "на предоставлениe доступа"
 }

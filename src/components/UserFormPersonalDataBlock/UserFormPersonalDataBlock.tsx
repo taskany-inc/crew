@@ -3,6 +3,7 @@ import { FormControlInput, Text } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { Role } from 'prisma/prisma-client';
 import { AsYouType } from 'libphonenumber-js';
+import { nullable } from '@taskany/bricks';
 
 import { FormControl } from '../FormControl/FormControl';
 import { RoleSelect } from '../RoleSelect/RoleSelect';
@@ -17,9 +18,10 @@ interface UserFormPersonalDataBlockProps {
     className: string;
     id: string;
     onIsLoginUniqueChange?: (arg: string) => void;
+    type: string;
 }
 
-interface PersonalDataBlockType {
+interface UserFormPersonalDataBlockType {
     firstName: string;
     surname: string;
     middleName?: string;
@@ -32,7 +34,12 @@ interface PersonalDataBlockType {
     phone: string;
 }
 
-export const UserFormPersonalDataBlock = ({ className, id, onIsLoginUniqueChange }: UserFormPersonalDataBlockProps) => {
+export const UserFormPersonalDataBlock = ({
+    className,
+    id,
+    onIsLoginUniqueChange,
+    type,
+}: UserFormPersonalDataBlockProps) => {
     const {
         register,
         setValue,
@@ -41,7 +48,7 @@ export const UserFormPersonalDataBlock = ({ className, id, onIsLoginUniqueChange
         watch,
         clearErrors,
         formState: { errors },
-    } = useFormContext<PersonalDataBlockType>();
+    } = useFormContext<UserFormPersonalDataBlockType>();
 
     const onNameChange = () => {
         const login = loginAuto({
@@ -150,23 +157,31 @@ export const UserFormPersonalDataBlock = ({ className, id, onIsLoginUniqueChange
                     />
                 </FormControl>
             </div>
-            <Text as="h3">
-                {tr('Email')}{' '}
-                <Text as="span" className={s.Required}>
-                    *
+            {nullable(type === 'internal', () => (
+                <Text as="h3">
+                    {tr('Email')}{' '}
+                    <Text as="span" className={s.Required}>
+                        *
+                    </Text>
                 </Text>
-            </Text>
+            ))}
             <div className={s.TwoInputsRow}>
-                <FormControl label={tr('Personal')} error={errors.personalEmail}>
-                    <FormControlInput
-                        autoComplete="off"
-                        size="m"
-                        placeholder="name@mail.com"
-                        outline
-                        {...register('personalEmail', { onChange: onEmailChange })}
-                    />
-                </FormControl>
-                <FormControl label={tr('Work')} error={errors.workEmail}>
+                {nullable(type === 'internal', () => (
+                    <FormControl label={tr('Personal')} error={errors.personalEmail}>
+                        <FormControlInput
+                            autoComplete="off"
+                            size="m"
+                            placeholder="name@mail.com"
+                            outline
+                            {...register('personalEmail', { onChange: onEmailChange })}
+                        />
+                    </FormControl>
+                ))}
+                <FormControl
+                    label={tr('Work')}
+                    error={errors.workEmail}
+                    required={type === 'externalFromMainOrgEmployee'}
+                >
                     <FormControlInput
                         autoComplete="off"
                         size="m"

@@ -1,4 +1,4 @@
-import { UserCreationRequest, Prisma, User } from 'prisma/prisma-client';
+import { UserCreationRequest, Prisma, User, PermissionService } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
 
@@ -32,7 +32,9 @@ export const userCreationRequestsMethods = {
         sessionUserId: string,
     ): Promise<
         UserCreationRequest &
-            UserCreationRequestSupplementPosition & { coordinators: User[] } & { lineManagers: User[] }
+            UserCreationRequestSupplementPosition & { coordinators: User[] } & { lineManagers: User[] } & {
+                curators: User[];
+            } & { permissionServices: PermissionService[] }
     > => {
         const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
 
@@ -45,7 +47,16 @@ export const userCreationRequestsMethods = {
             });
         }
 
-        const supervisor = await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } });
+        if (data.type !== 'externalFromMainOrgEmployee' && !data.supervisorId) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: tr('Supervisor ID is required'),
+            });
+        }
+
+        const supervisor = data.supervisorId
+            ? await prisma.user.findUniqueOrThrow({ where: { id: data.supervisorId ?? undefined } })
+            : undefined;
 
         data.date && data.date.setUTCHours(config.employmentUtcHour);
 
@@ -76,7 +87,7 @@ export const userCreationRequestsMethods = {
             login: data.login,
             organizationUnitId: data.organizationUnitId,
             groupId: data.groupId,
-            supervisorLogin: supervisor.login,
+            supervisorLogin: supervisor?.login,
             supervisorId: data.supervisorId,
             title: data.title || undefined,
             corporateEmail: data.corporateEmail || undefined,
@@ -147,6 +158,14 @@ export const userCreationRequestsMethods = {
             createData.percentage = data.percentage * percentageMultiply || undefined;
         }
 
+        if (data.type === 'externalFromMainOrgEmployee') {
+            createData.permissionServices = { connect: data.permissionToServices?.map((id) => ({ id })) };
+            createData.curators = { connect: data.curatorIds?.map((id) => ({ id })) };
+            createData.lineManagers = { connect: data.lineManagerIds?.map((id) => ({ id })) };
+            createData.reasonToGrantPermissionToServices = data.reason;
+            createData.workEmail = data.workEmail;
+        }
+
         const userCreationRequest = await prisma.userCreationRequest.create({
             data: createData,
             include: {
@@ -159,6 +178,8 @@ export const userCreationRequestsMethods = {
                 creator: true,
                 lineManagers: true,
                 supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
             },
         });
 
