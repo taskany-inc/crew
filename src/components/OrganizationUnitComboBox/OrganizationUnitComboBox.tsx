@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { OrganizationUnit } from 'prisma/prisma-client';
 import { nullable } from '@taskany/bricks';
-import { Select, SelectPanel, SelectTrigger, Input, Text } from '@taskany/bricks/harmony';
+import { Select, SelectPanel, SelectTrigger, Input, Text, Tooltip } from '@taskany/bricks/harmony';
 
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
@@ -13,11 +13,12 @@ import { tr } from './OrganizationUnitComboBox.i18n';
 interface OrganizationUnitComboBoxProps {
     organizationUnitId?: string;
     searchType?: OrganizationUnitSearchType;
-    onChange: (organizationUnit: Nullish<OrganizationUnit>) => void;
+    onChange?: (organizationUnit: Nullish<OrganizationUnit>) => void;
     inline?: boolean;
     placeholder?: string;
     label?: string;
     error?: React.ComponentProps<typeof SelectTrigger>['error'];
+    readOnly?: boolean;
 
     className?: string;
 }
@@ -28,6 +29,7 @@ export const OrganizationUnitComboBox = ({
     onChange,
     className,
     error,
+    readOnly,
 }: OrganizationUnitComboBoxProps) => {
     const [search, setSearch] = useState('');
 
@@ -37,13 +39,14 @@ export const OrganizationUnitComboBox = ({
     );
 
     const value = organizationUnitQuery.data?.filter(({ id }) => id === organizationUnitId);
+    const organizationUnitComboBoxRef = useRef(null);
 
     return (
         <Select
             arrow
             value={value}
             items={organizationUnitQuery.data}
-            onChange={(orgs) => onChange(orgs[0])}
+            onChange={(orgs) => onChange && onChange(orgs[0])}
             selectable
             mode="single"
             renderItem={(props) => (
@@ -52,15 +55,23 @@ export const OrganizationUnitComboBox = ({
                 </Text>
             )}
         >
-            <SelectTrigger
-                size="m"
-                error={error}
-                placeholder={tr('Choose organization')}
-                view="outline"
-                className={className}
-            >
-                {nullable(value && value[0], (o) => getOrgUnitTitle(o))}
-            </SelectTrigger>
+            <div ref={organizationUnitComboBoxRef}>
+                <SelectTrigger
+                    size="m"
+                    readOnly={readOnly}
+                    error={error}
+                    placeholder={tr('Choose organization')}
+                    view="outline"
+                    className={className}
+                >
+                    {nullable(value && value[0], (o) => getOrgUnitTitle(o))}
+                </SelectTrigger>
+            </div>
+            {nullable(readOnly, () => (
+                <Tooltip reference={organizationUnitComboBoxRef} placement="bottom" arrow={false}>
+                    {tr('This data cannot be edited')}
+                </Tooltip>
+            ))}
             <SelectPanel placement="bottom-start" title={tr('Suggestions')}>
                 <Input autoFocus placeholder={tr('Search')} onChange={(e) => setSearch(e.target.value)} />
             </SelectPanel>

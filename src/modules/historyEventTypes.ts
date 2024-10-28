@@ -73,6 +73,10 @@ interface HistoryEventsData {
             unitId?: string;
             workEmail?: string;
             personalEmail?: string;
+            curatorIds?: string;
+            curatorLogins?: string;
+            reasonToGrantPermissionToServices?: string;
+            permissionServices?: string;
         };
     };
     cancelUserCreationRequest: {

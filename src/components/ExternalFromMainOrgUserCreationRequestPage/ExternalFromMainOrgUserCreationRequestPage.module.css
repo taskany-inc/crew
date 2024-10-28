@@ -17,12 +17,19 @@
     overflow-y: auto;
 }
 
+.Form {
+    padding-right: var(--gap-l);
+    max-height: calc(100vh - 270px);
+}
+
+
 .FormBlock {
     padding: 0 0 0 var(--gap-m);
     margin-bottom: var(--gap-xl);
 }
 
-.Form {
-    padding-right: var(--gap-l);
-    max-height: calc(100vh - 270px);
+.SectionHeader {
+    display: inline-block;
+    margin-top: var(--gap-s);
+    margin-bottom: var(--gap-m);
 }

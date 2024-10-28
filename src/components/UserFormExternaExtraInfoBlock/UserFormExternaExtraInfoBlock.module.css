@@ -3,3 +3,7 @@
     margin-top: var(--gap-s);
     margin-bottom: var(--gap-m);
 }
+
+.PermissionServiceSelect {
+    margin-bottom: var(--gap-m);
+}

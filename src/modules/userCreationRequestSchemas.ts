@@ -85,7 +85,6 @@ export type CreateUserCreationRequestInternalEmployee = z.infer<typeof createUse
 
 export const createUserCreationRequestExternalEmployeeSchema = createUserCreationRequestBaseSchema.extend({
     type: z.literal('externalEmployee'),
-    accountingId: z.string().min(1, { message: tr('Minimum {min} symbols', { min: 1 }) }),
     externalOrganizationSupervisorLogin: z
         .string()
         .min(1, { message: tr('External employees should have organizational supervisor') }),
@@ -97,10 +96,32 @@ export const createUserCreationRequestExternalEmployeeSchema = createUserCreatio
 });
 export type CreateUserCreationRequestExternalEmployee = z.infer<typeof createUserCreationRequestExternalEmployeeSchema>;
 
+export const createUserCreationRequestexternalFromMainOrgEmployeeSchema = createUserCreationRequestBaseSchema.extend({
+    type: z.literal('externalFromMainOrgEmployee'),
+    lineManagerIds: z.array(z.string()).optional(),
+    curatorIds: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
+    workEmail: z
+        .string({ required_error: tr('Required field') })
+        .min(1, { message: tr('Required field') })
+        .email(tr('Not a valid email')),
+    reason: z
+        .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+        .min(1, { message: tr('Required field') }),
+    title: z
+        .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+        .min(1, { message: tr('Required field') }),
+    permissionToServices: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
+    supervisorId: z.string().optional(),
+});
+export type CreateUserCreationRequestexternalFromMainOrgEmployee = z.infer<
+    typeof createUserCreationRequestexternalFromMainOrgEmployeeSchema
+>;
+
 export const createUserCreationRequestSchema = z.discriminatedUnion('type', [
     createUserCreationRequestBaseSchema,
     createUserCreationRequestInternalEmployeeSchema,
     createUserCreationRequestExternalEmployeeSchema,
+    createUserCreationRequestexternalFromMainOrgEmployeeSchema,
 ]);
 export type CreateUserCreationRequest = z.infer<typeof createUserCreationRequestSchema>;
 

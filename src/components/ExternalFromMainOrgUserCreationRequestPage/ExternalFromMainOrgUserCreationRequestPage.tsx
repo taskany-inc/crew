@@ -1,76 +1,73 @@
 import { useEffect, useRef, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Text } from '@taskany/bricks/harmony';
 import { debounce } from 'throttle-debounce';
 
 import {
-    CreateUserCreationRequestInternalEmployee,
-    createUserCreationRequestInternalEmployeeSchema,
+    CreateUserCreationRequestexternalFromMainOrgEmployee,
+    createUserCreationRequestexternalFromMainOrgEmployeeSchema,
 } from '../../modules/userCreationRequestSchemas';
-import { UserFormRegistrationBlock } from '../UserFormRegistrationBlock/UserFormRegistrationBlock';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
-import { UserFormWorkSpaceBlock } from '../UserFormWorkSpaceBlock/UserFormWorkSpaceBlock';
 import { UserFormPersonalDataBlock } from '../UserFormPersonalDataBlock/UserFormPersonalDataBlock';
 import { useRouter } from '../../hooks/useRouter';
 import { UserFormFormActions } from '../UserFormFormActions/UserFormFormActions';
 import { NavMenu } from '../NavMenu/NavMenu';
-import { useSpyNav } from '../../hooks/useSpyNav';
 import { trpc } from '../../trpc/trpcClient';
-import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
-import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
+import { FormControl } from '../FormControl/FormControl';
+import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
+import { config } from '../../config';
+import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserFormExternalTeamBlock';
+import { UserFormExternaExtraInfoBlock } from '../UserFormExternaExtraInfoBlock/UserFormExternaExtraInfoBlock';
+import { useSpyNav } from '../../hooks/useSpyNav';
 
-import s from './InternalUserCreationRequestPage.module.css';
-import { tr } from './InternalUserCreationRequestPage.i18n';
+import s from './ExternalFromMainOrgUserCreationRequestPage.module.css';
+import { tr } from './ExternalFromMainOrgUserCreationRequestPage.i18n';
 
-const defaultValues: Partial<CreateUserCreationRequestInternalEmployee> = {
-    type: 'internalEmployee',
-    createExternalAccount: true,
-    creationCause: 'start',
-    percentage: 1,
+const defaultValues: Partial<CreateUserCreationRequestexternalFromMainOrgEmployee> = {
+    type: 'externalFromMainOrgEmployee',
+    organizationUnitId: config.mainOrganizationId,
     surname: '',
     firstName: '',
     middleName: '',
     login: '',
-    comment: '',
-    workSpace: '',
+    createExternalAccount: true,
     phone: '',
     email: '',
     workEmail: '',
-    personalEmail: '',
     corporateEmail: '',
-    workModeComment: '',
-    equipment: '',
-    extraEquipment: '',
-    location: '',
-    unitId: '',
+    curatorIds: [],
+    lineManagerIds: [],
     title: '',
-    // TODO reset date also maybe like this https://github.com/colinhacks/zod/issues/1206
+    groupId: '',
+    permissionToServices: [],
+    reason: '',
 };
 
-export const InternalUserCreationRequestPage = () => {
+export const ExternalFromMainOrgUserCreationRequestPage = () => {
     const { createUserCreationRequest } = useUserCreationRequestMutations();
 
     const router = useRouter();
 
-    const methods = useForm<CreateUserCreationRequestInternalEmployee>({
-        resolver: zodResolver(createUserCreationRequestInternalEmployeeSchema),
+    const methods = useForm<CreateUserCreationRequestexternalFromMainOrgEmployee>({
+        resolver: zodResolver(createUserCreationRequestexternalFromMainOrgEmployeeSchema),
         defaultValues,
     });
 
+    const rootRef = useRef<HTMLDivElement>(null);
+
     const {
         handleSubmit,
-        watch,
         reset,
         setError,
         trigger,
         getValues,
+        watch,
         formState: { isSubmitting, isSubmitSuccessful },
     } = methods;
 
     const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
-    const rootRef = useRef<HTMLDivElement>(null);
 
     const isLoginUnique = trpc.user.isLoginUnique.useQuery(isLoginUniqueQuery, {
         enabled: isLoginUniqueQuery.length > 1,
@@ -85,17 +82,10 @@ export const InternalUserCreationRequestPage = () => {
     const debouncedLoginSearchHandler = debounce(300, setIsLoginUniqueQuery);
 
     const onFormSubmit = handleSubmit(async (data) => {
-        if (!watch('personalEmail') && !watch('workEmail')) {
-            setError('personalEmail', { message: tr('Enter Email') });
-            setError('workEmail', { message: tr('Enter Email') });
-            return;
-        }
-
         if (isLoginUnique.data === false) {
             setError('login', { message: tr('User with login already exist') });
             return;
         }
-
         await createUserCreationRequest(data);
         reset(defaultValues);
         return router.userRequests();
@@ -109,7 +99,11 @@ export const InternalUserCreationRequestPage = () => {
                 <FormProvider {...methods}>
                     <form onSubmit={onFormSubmit}>
                         <div className={s.Header}>
-                            <Text as="h2">{tr('Create a planned newcommer')}</Text>
+                            <Text as="h2">
+                                {tr('Create access to employee from {mainOrgName} (external)', {
+                                    mainOrgName: config.mainOrganizationName || 'Main',
+                                })}
+                            </Text>
                             <UserFormFormActions
                                 submitDisabled={isSubmitting || isSubmitSuccessful}
                                 onCancel={router.userRequests}
@@ -119,19 +113,29 @@ export const InternalUserCreationRequestPage = () => {
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>
                                 <UserFormPersonalDataBlock
-                                    type="internal"
+                                    type="externalFromMainOrgEmployee"
                                     onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
                                     id="personal-data"
                                 />
 
-                                <UserFormRegistrationBlock className={s.FormBlock} id="registration" />
+                                <div className={s.FormBlock} id="registration">
+                                    <Text className={s.SectionHeader} weight="bold" size="lg">
+                                        {tr('Registration')}
+                                    </Text>
+                                    <div className={s.OrganizationCombobox}>
+                                        <FormControl label={tr('Organization')} required>
+                                            <OrganizationUnitComboBox
+                                                readOnly
+                                                organizationUnitId={watch('organizationUnitId')}
+                                            />
+                                        </FormControl>
+                                    </div>
+                                </div>
 
-                                <UserFormTeamBlock className={s.FormBlock} id="team" />
+                                <UserFormExternalTeamBlock className={s.FormBlock} id="team" />
 
-                                <UserFormWorkSpaceBlock id="work-space" className={s.FormBlock} />
-
-                                <UserFormCommentsBlock id="comments" className={s.FormBlock} />
+                                <UserFormExternaExtraInfoBlock className={s.FormBlock} id="extra-info" />
                             </div>
 
                             <NavMenu
@@ -151,12 +155,8 @@ export const InternalUserCreationRequestPage = () => {
                                         id: 'team',
                                     },
                                     {
-                                        title: tr('Work space'),
-                                        id: 'work-space',
-                                    },
-                                    {
-                                        title: tr('Comments'),
-                                        id: 'comments',
+                                        title: tr('Extra information'),
+                                        id: 'extra-info',
                                     },
                                 ]}
                             />

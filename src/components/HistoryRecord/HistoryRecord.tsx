@@ -147,7 +147,8 @@ const componentMap: {
         return (
             <>
                 <div className={s.Row}>
-                    {tr('created request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
+                    {tr('created request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {event.after.type === 'externalFromMainOrgEmployee' ? tr('to grant access') : tr('to create user')}{' '}
                     <BoldText>
                         {event.after.name} ({event.after.email})
                     </BoldText>
@@ -207,9 +208,14 @@ const componentMap: {
                         <ChangeListItem title={tr('Recruiter id')} after={event.after.recruiterId} />
                         <ChangeListItem title={tr('Line manager logins')} after={event.after.lineManagerLogins} />
                         <ChangeListItem title={tr('Line manager ids')} after={event.after.lineManagerIds} />
-                        <ChangeListItem title={tr('Line manager logins')} after={event.after.coordinatorLogins} />
-                        <ChangeListItem title={tr('Line manager ids')} after={event.after.coordinatorIds} />
                         <ChangeListItem title={tr('Personal email')} after={event.after.personalEmail} />
+                        <ChangeListItem title={tr('Curator logins')} after={event.after.curatorLogins} />
+                        <ChangeListItem title={tr('Curator ids')} after={event.after.curatorIds} />
+                        <ChangeListItem title={tr('Access to services')} after={event.after.permissionServices} />
+                        <ChangeListItem
+                            title={tr('Reason for granting access')}
+                            after={event.after.reasonToGrantPermissionToServices}
+                        />
                     </>
                 ))}
             </>
