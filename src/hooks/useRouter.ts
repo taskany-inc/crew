@@ -13,6 +13,8 @@ export const pages = {
     userSettings: '/users/settings',
     userRequests: '/requests/users',
     accessCoordination: '/requests/access',
+    userRequestList: '/requests/list',
+    toDecree: (userId: string) => `/requests/users/decree/to/${userId}`,
 
     signIn: '/api/auth/signin',
     signOut: '/api/auth/signout',
@@ -53,6 +55,7 @@ export const useRouter = () => {
         users: () => router.push(pages.users),
         user: (userId: string) => router.push(pages.user(userId)),
         userActivity: (userId: string) => router.push(pages.userActivity(userId)),
+        toDecree: (userId: string) => router.push(pages.toDecree(userId)),
         userSettings: () => router.push(pages.userSettings),
         userRequests: () => router.push(pages.userRequests),
         accessCoordination: () => router.push(pages.accessCoordination),

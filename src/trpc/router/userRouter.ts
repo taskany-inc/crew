@@ -21,6 +21,7 @@ import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFro
 import { groupAccess } from '../../modules/groupAccess';
 import { prisma } from '../../utils/prisma';
 import { processEvent } from '../../utils/analyticsEvent';
+import { userToDecreeSchema } from '../../modules/userDecreeRequestSchemas';
 
 export const userRouter = router({
     create: protectedProcedure.input(createUserSchema).mutation(async ({ input, ctx }) => {
@@ -217,5 +218,9 @@ export const userRouter = router({
 
     isLoginUnique: protectedProcedure.input(z.string()).query(({ input }) => {
         return userMethods.isLoginUnique(input);
+    }),
+
+    toDecree: protectedProcedure.input(userToDecreeSchema).mutation(async ({ input }) => {
+        return userMethods.toDecree(input);
     }),
 });

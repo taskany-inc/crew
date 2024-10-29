@@ -1,6 +1,7 @@
 import { trpc } from '../trpc/trpcClient';
 import { notifyPromise } from '../utils/notifications/notifyPromise';
 
+import { UserToDecreeSchema } from './userDecreeRequestSchemas';
 import {
     AddUserToGroup,
     CreateUser,
@@ -86,6 +87,12 @@ export const useUserMutations = () => {
         },
     });
 
+    const toDecree = trpc.user.toDecree.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+        },
+    });
+
     return {
         createUser: (data: CreateUser) => notifyPromise(createUser.mutateAsync(data), 'userCreate'),
 
@@ -109,5 +116,7 @@ export const useUserMutations = () => {
 
         editUserActiveState: (data: EditUserActiveState) =>
             notifyPromise(editUserActiveState.mutateAsync(data), 'userUpdate'),
+
+        toDecree: (data: UserToDecreeSchema) => notifyPromise(toDecree.mutateAsync(data), 'userUpdate'),
     };
 };

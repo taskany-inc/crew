@@ -25,6 +25,7 @@ import {
     UserScheduledDeactivations,
     UserSupplementalPositions,
     UserNames,
+    UserServices,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -46,6 +47,7 @@ import { addCalculatedGroupFields, groupMethods } from './groupMethods';
 import { userAccess } from './userAccess';
 import { externalUserMethods } from './externalUserMethods';
 import { supplementalPositionMethods } from './supplementalPositionMethods';
+import { UserToDecreeSchema } from './userDecreeRequestSchemas';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -263,7 +265,8 @@ export const userMethods = {
             UserOrganizationUnit &
             UserRoleData &
             UserScheduledDeactivations &
-            UserSupplementalPositions
+            UserSupplementalPositions &
+            UserServices
     > => {
         const user = await prisma.user.findUnique({
             where: { id },
@@ -282,6 +285,7 @@ export const userMethods = {
                     },
                     orderBy: { group: { name: 'asc' } },
                 },
+                services: true,
                 supervisor: true,
                 achievements: { include: { achievement: true }, where: { achievement: { hidden: false } } },
                 settings: true,
@@ -724,5 +728,77 @@ export const userMethods = {
             include: { services: true },
         });
         return newUser;
+    },
+    toDecree: async (data: UserToDecreeSchema) => {
+        const currentUser = await userMethods.getById(data.userId);
+        const { workEndDate } = data.positions[0];
+
+        const updatedPositions = currentUser.supplementalPositions.reduce<
+            {
+                status: PositionStatus;
+                percentage: number;
+                id: string;
+                role: string;
+                unitId?: string;
+                workEndDate: Date | null;
+            }[]
+        >((acum, item) => {
+            if (item.status !== 'ACTIVE' || item.organizationUnitId === data.firedOrganizationUnitId) {
+                return acum;
+            }
+
+            const updatedData = data.positions.find((p) => p.organizationUnitId === item.organizationUnitId);
+
+            if (updatedData) {
+                acum.push({
+                    status: 'DECREE',
+                    percentage: updatedData.percentage * percentageMultiply,
+                    id: item.id,
+                    workEndDate,
+                    role: data.title,
+                    unitId: updatedData.unitId,
+                });
+            } else if (item.role !== data.title) {
+                acum.push({
+                    status: item.status,
+                    percentage: item.percentage,
+                    id: item.id,
+                    workEndDate: item.workEndDate,
+                    role: data.title,
+                });
+            }
+
+            return acum;
+        }, []);
+
+        if (data.firedOrganizationUnitId) {
+            const position = currentUser.supplementalPositions.find(
+                (item) => item.status === 'ACTIVE' && item.organizationUnitId === data.firedOrganizationUnitId,
+            );
+
+            if (position) {
+                updatedPositions.push({
+                    status: 'FIRED',
+                    id: position.id,
+                    percentage: position.percentage,
+                    role: data.title,
+                    workEndDate,
+                    unitId: position.unitId ?? undefined,
+                });
+            }
+        }
+
+        await prisma.$transaction(
+            updatedPositions.map(({ id, ...data }) =>
+                prisma.supplementalPosition.update({
+                    where: {
+                        id,
+                    },
+                    data,
+                }),
+            ),
+        );
+
+        return userMethods.getById(data.userId);
     },
 };

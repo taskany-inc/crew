@@ -1,0 +1,11 @@
+{
+    "Registration": "Оформление",
+    "Organization": "Организация",
+    "Unit ID": "ID ставки",
+    "Write unit ID": "Введите ID ставки",
+    "Decree start date": "Дата выхода в декрет",
+    "Percentage": "Доля",
+    "Write the percentage": "Введите долю",
+    "Please enter percentage from 0.01 to 1": "Укажите значение от 0,01 до 1",
+    "Dismissal from the organization": "Увольнение из организации"
+}
