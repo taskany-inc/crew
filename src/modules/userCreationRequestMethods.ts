@@ -7,6 +7,8 @@ import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import {
     cancelUserCreationMailText,
+    htmlFromDecreeRequest,
+    htmlToDecreeRequest,
     htmlUserCreationRequestWithDate,
     userCreationMailText,
 } from '../utils/emailTemplates';
@@ -17,7 +19,7 @@ import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
 
 import { userMethods } from './userMethods';
-import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
+import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import {
     CreateUserCreationRequest,
@@ -27,6 +29,7 @@ import {
     EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
+    UserDecreeSchema,
 } from './userCreationRequestSchemas';
 import { CompleteUserCreationRequest, UserCreationRequestSupplementPosition } from './userCreationRequestTypes';
 
@@ -278,6 +281,184 @@ export const userCreationRequestsMethods = {
         }
 
         return userCreationRequest;
+    },
+
+    createDecreeRequest: async (data: UserDecreeSchema, sessionUserId: string) => {
+        const currentUser = await userMethods.getById(data.userTargetId);
+
+        const findExisted = (id: string) =>
+            currentUser.supplementalPositions.find(
+                (p) =>
+                    p.organizationUnitId === id &&
+                    (data.type === 'toDecree' ? p.status === 'ACTIVE' : p.status !== 'ACTIVE'),
+            );
+
+        const createSupplemental = (
+            existed: SupplementalPosition,
+            item: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId: string | null;
+            },
+            status: PositionStatus,
+        ): Prisma.SupplementalPositionCreateInput => {
+            return {
+                organizationUnit: { connect: { id: item.organizationUnitId } },
+                percentage: item.percentage * percentageMultiply,
+                main: existed.main,
+                role: data.title,
+                unitId: item.unitId,
+                workEndDate: data.type === 'toDecree' ? data.date : null,
+                workStartDate: data.type === 'fromDecree' ? data.date : existed.workStartDate,
+                status,
+            };
+        };
+
+        const status = data.type === 'toDecree' ? PositionStatus.DECREE : PositionStatus.ACTIVE;
+
+        const supplementalPositions =
+            data.supplementalPositions?.reduce<Prisma.SupplementalPositionCreateInput[]>((acum, item) => {
+                const existed = findExisted(item.organizationUnitId);
+
+                if (existed) {
+                    acum.push(
+                        createSupplemental(
+                            existed,
+                            {
+                                organizationUnitId: item.organizationUnitId,
+                                percentage: item.percentage,
+                                unitId: item.unitId || null,
+                            },
+                            status,
+                        ),
+                    );
+                }
+
+                return acum;
+            }, []) || [];
+
+        const position = findExisted(data.organizationUnitId);
+
+        if (position) {
+            supplementalPositions.push(
+                createSupplemental(
+                    position,
+                    {
+                        organizationUnitId: data.organizationUnitId,
+                        percentage: data.percentage || 1,
+                        unitId: data.unitId || null,
+                    },
+                    status,
+                ),
+            );
+        }
+
+        if (data.type === 'toDecree' && data.firedOrganizationUnitId) {
+            const positionToFire = findExisted(data.organizationUnitId);
+
+            if (positionToFire) {
+                supplementalPositions.push(
+                    createSupplemental(
+                        positionToFire,
+                        {
+                            organizationUnitId: data.firedOrganizationUnitId,
+                            percentage: positionToFire.percentage,
+                            unitId: positionToFire.unitId,
+                        },
+                        PositionStatus.FIRED,
+                    ),
+                );
+            }
+        }
+
+        const buddy = data.buddyId
+            ? await prisma.user.findUnique({ where: { id: data.buddyId ?? undefined } })
+            : undefined;
+
+        const supervisor = data.supervisorId
+            ? await prisma.user.findUnique({ where: { id: data.supervisorId ?? undefined } })
+            : undefined;
+
+        const request = await prisma.userCreationRequest.create({
+            data: {
+                type: data.type,
+                name: currentUser.name ?? '',
+                userTargetId: data.userTargetId,
+                creatorId: sessionUserId,
+                email: data.email,
+                login: data.login,
+                organizationUnitId: data.organizationUnitId,
+                groupId: data.groupId || undefined,
+                supervisorLogin: supervisor?.login,
+                supervisorId: data.supervisorId || undefined,
+                buddyLogin: buddy?.login || undefined,
+                buddyId: buddy?.id || undefined,
+                coordinators: { connect: data.coordinatorIds?.map((id) => ({ id })) },
+                title: data.title || undefined,
+                corporateEmail: data.corporateEmail || undefined,
+                createExternalAccount: Boolean(data.createExternalAccount),
+                services: {},
+                workMode: data.workMode,
+                workModeComment: data.workModeComment,
+                equipment: data.equipment,
+                extraEquipment: data.extraEquipment,
+                workSpace: data.workSpace,
+                location: data.location,
+                date: data.date,
+                comment: data.comment || undefined,
+                workEmail: data.workEmail || undefined,
+                personalEmail: data.personalEmail || undefined,
+                lineManagers: data.lineManagerIds?.length
+                    ? { connect: data.lineManagerIds?.map((id) => ({ id })) }
+                    : undefined,
+                attaches: data.attachIds?.length ? { connect: data.attachIds.map((id) => ({ id })) } : undefined,
+                supplementalPositions: {
+                    create: supplementalPositions,
+                },
+            },
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+                buddy: true,
+                coordinators: true,
+                recruiter: true,
+                creator: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
+                attaches: true,
+            },
+        });
+
+        if (request.date) {
+            await createJob('resolveDecree', {
+                data: { userCreationRequestId: request.id },
+                date: request.date,
+            });
+        }
+
+        const html = data.type === 'fromDecree' ? htmlFromDecreeRequest(request) : htmlToDecreeRequest(request);
+
+        const { to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest', data.organizationUnitId, [
+            sessionUserId,
+        ]);
+
+        const attachments = await nodemailerAttachments(request.attaches);
+
+        const subject = `${data.type === 'fromDecree' ? tr('From decree') : tr('To decree')} ${
+            request.name
+        } ${getOrgUnitTitle(request.organization)} ${data.phone}`;
+
+        sendMail({
+            to: mailTo,
+            subject,
+            html,
+            attachments,
+        });
+
+        return request;
     },
 
     getById: async (id: string) => {
@@ -764,14 +945,18 @@ export const userCreationRequestsMethods = {
 
         let user = null;
 
-        try {
-            user = await userMethods.getByLogin(userCreationRequest.login);
-        } catch (error) {
-            /* empty */
-        }
+        const isDecreeRequest = userCreationRequest.type === 'toDecree' || userCreationRequest.type === 'fromDecree';
 
-        if (user) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'User already exists' });
+        if (!isDecreeRequest) {
+            try {
+                user = await userMethods.getByLogin(userCreationRequest.login);
+            } catch (error) {
+                /* empty */
+            }
+
+            if (user) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'User already exists' });
+            }
         }
 
         const acceptedRequest = await prisma.userCreationRequest.update({
@@ -781,10 +966,17 @@ export const userCreationRequestsMethods = {
         });
 
         if (userCreationRequest.date) {
-            await createJob('createProfile', {
-                data: { userCreationRequestId: userCreationRequest.id },
-                date: userCreationRequest.date,
-            });
+            if (isDecreeRequest) {
+                await createJob('resolveDecree', {
+                    data: { userCreationRequestId: userCreationRequest.id },
+                    date: userCreationRequest.date,
+                });
+            } else {
+                await createJob('createProfile', {
+                    data: { userCreationRequestId: userCreationRequest.id },
+                    date: userCreationRequest.date,
+                });
+            }
         }
 
         return acceptedRequest as CompleteUserCreationRequest;
@@ -798,15 +990,11 @@ export const userCreationRequestsMethods = {
         }
 
         if (data.status !== undefined) {
-            where.status = null;
+            where.status = data.status;
         }
 
         if (data.search) {
             where.name = { contains: data.search, mode: 'insensitive' };
-        }
-
-        if (data.active) {
-            where.status = null;
         }
 
         let orderBy: Prisma.UserCreationRequestOrderByWithRelationAndSearchRelevanceInput[] = [];

@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client';
+import { Prisma, SupplementalPosition, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
@@ -9,6 +9,7 @@ import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
+import { getLastSupplementalPositions } from '../utils/supplementalPositions';
 
 import {
     MembershipInfo,
@@ -25,6 +26,7 @@ import {
     UserScheduledDeactivations,
     UserSupplementalPositions,
     UserNames,
+    UserServices,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -263,7 +265,8 @@ export const userMethods = {
             UserOrganizationUnit &
             UserRoleData &
             UserScheduledDeactivations &
-            UserSupplementalPositions
+            UserSupplementalPositions &
+            UserServices
     > => {
         const user = await prisma.user.findUnique({
             where: { id },
@@ -282,6 +285,7 @@ export const userMethods = {
                     },
                     orderBy: { group: { name: 'asc' } },
                 },
+                services: true,
                 supervisor: true,
                 achievements: { include: { achievement: true }, where: { achievement: { hidden: false } } },
                 settings: true,
@@ -473,34 +477,12 @@ export const userMethods = {
                 },
             });
         } else {
-            const { ids } = positions.reduce<{ ids: string[]; endDate: Date | null }>(
-                (acum, position) => {
-                    const lastEndDate = acum.endDate?.valueOf() || 0;
-                    const currentEndDate = position.workEndDate?.valueOf() || 0;
-
-                    if (position.status !== 'ACTIVE') {
-                        if (lastEndDate < currentEndDate) {
-                            acum.endDate = position.workEndDate;
-                            acum.ids = [position.id];
-                        }
-
-                        if (lastEndDate === currentEndDate) {
-                            acum.ids.push(position.id);
-                        }
-                    }
-
-                    return acum;
-                },
-                {
-                    ids: [],
-                    endDate: null,
-                },
-            );
+            const { positions: selectedPosition } = getLastSupplementalPositions(positions);
 
             await prisma.supplementalPosition.updateMany({
                 where: {
                     id: {
-                        in: ids,
+                        in: selectedPosition.map((p) => p.id),
                     },
                 },
                 data: {
@@ -723,6 +705,121 @@ export const userMethods = {
             },
             include: { services: true },
         });
+
         return newUser;
+    },
+
+    resolveDecreeRequest: async (userCreationRequestId: string) => {
+        const request = await prisma.userCreationRequest.findUnique({
+            where: { id: userCreationRequestId },
+            include: { supplementalPositions: true },
+        });
+
+        if (!request) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No user decree request by id ${userCreationRequestId}`,
+            });
+        }
+
+        if (!request.userTargetId) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: 'No related User id provided',
+            });
+        }
+
+        const currentUser = await userMethods.getById(request.userTargetId);
+
+        if (!currentUser) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No User with id ${request.userTargetId}`,
+            });
+        }
+
+        if (request.type === 'toDecree') {
+            const updatedPositions = currentUser.supplementalPositions.reduce<SupplementalPosition[]>((acum, p) => {
+                if (p.status !== 'ACTIVE') {
+                    return acum;
+                }
+                const updatedPositions = request.supplementalPositions.find(
+                    (item) => item.organizationUnitId === p.organizationUnitId,
+                );
+
+                if (updatedPositions) {
+                    acum.push({
+                        ...updatedPositions,
+                        id: p.id,
+                        userId: currentUser.id,
+                    });
+                }
+                return acum;
+            }, []);
+
+            await prisma.$transaction(
+                updatedPositions.map(({ id, ...data }) =>
+                    prisma.supplementalPosition.update({
+                        where: {
+                            id,
+                        },
+                        data,
+                    }),
+                ),
+            );
+        }
+
+        const userData: Prisma.UserUpdateInput = {};
+
+        if (request.type === 'fromDecree') {
+            userData.supplementalPositions = {
+                connect: request.supplementalPositions.map(({ id }) => ({
+                    id,
+                })),
+            };
+        }
+
+        if (currentUser.supervisorId !== request.supervisorId) {
+            userData.supervisor = {};
+
+            if (request.supervisorId) {
+                userData.supervisor.connect = { id: request.supervisorId };
+            }
+            if (currentUser.supervisorId) {
+                userData.supervisor.disconnect = { id: currentUser.supervisorId };
+            }
+        }
+
+        const currentOrgGroup = currentUser.memberships.find((m) => m.group.organizational);
+
+        if (currentOrgGroup?.group.id !== request.groupId) {
+            userData.memberships = {};
+
+            if (currentOrgGroup?.id) {
+                await prisma.membership.update({
+                    where: {
+                        id: currentOrgGroup.id,
+                    },
+                    data: {
+                        archived: true,
+                    },
+                });
+            }
+
+            if (request.groupId) {
+                userData.memberships.create = { groupId: request.groupId };
+            }
+        }
+
+        if (Object.keys(userData)) {
+            await prisma.user.update({
+                where: {
+                    id: currentUser.id,
+                },
+                data: userData,
+            });
+        }
+
+        return userMethods.getById(request.userTargetId);
     },
 };

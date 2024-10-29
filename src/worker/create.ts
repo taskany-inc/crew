@@ -14,6 +14,9 @@ export interface JobDataMap {
     createProfile: {
         userCreationRequestId: string;
     };
+    resolveDecree: {
+        userCreationRequestId: string;
+    };
 }
 
 export type JobKind = keyof JobDataMap;
@@ -44,7 +47,7 @@ export async function createJob<K extends keyof JobDataMap>(
         .returningAll()
         .executeTakeFirstOrThrow();
 
-    if (kind === 'createProfile') {
+    if (kind === 'createProfile' || kind === 'resolveDecree') {
         const { userCreationRequestId } = data as JobDataMap['createProfile'];
         await db
             .updateTable('UserCreationRequest')

@@ -25,6 +25,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'device', 'AddToUser' | 'Delete'>
     | NamespacedAction<'achievement', 'Give'>
     | NamespacedAction<'userCreationRequest', 'Create' | 'Decline' | 'Accept' | 'Edit' | 'Cancel'>
+    | NamespacedAction<'userDecreeRequest', 'Create' | 'Decline' | 'Accept' | 'Edit' | 'Cancel'>
     | NamespacedAction<'scheduledDeactivation', 'Create' | 'Edit' | 'Cancel'>
     | NamespacedAction<'bonusPoints', 'Change'>
     | NamespacedAction<'userRole', 'ChangeScope'>
@@ -160,6 +161,26 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         userCreationRequestCancel: {
             success: tr('User creation request was cancelled'),
             loading: tr('Cancelling a user creation request...'),
+        },
+        userDecreeRequestCreate: {
+            success: tr('Voila! User decree request is created 🎉'),
+            loading: tr('Creating a user decree request...'),
+        },
+        userDecreeRequestDecline: {
+            success: tr('Voila! User decree request was declined 🎉'),
+            loading: tr('Declining a user decree request...'),
+        },
+        userDecreeRequestAccept: {
+            success: tr('Voila! User decree request was completed 🎉'),
+            loading: tr('Processing a user decree request...'),
+        },
+        userDecreeRequestEdit: {
+            success: tr('Voila! User decree request is edited 🎉'),
+            loading: tr('Editing a user decree request...'),
+        },
+        userDecreeRequestCancel: {
+            success: tr('Voila! User decree request was cancelled 🎉'),
+            loading: tr('Cancelling a user decree request...'),
         },
         scheduledDeactivationCreate: {
             success: tr('Profile deactivation is scheduled!'),

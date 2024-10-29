@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormControlEditor, FormControlInput, Text } from '@taskany/bricks/harmony';
 import { Controller, useFormContext } from 'react-hook-form';
-import { useCopyToClipboard } from '@taskany/bricks';
+import { nullable, useCopyToClipboard } from '@taskany/bricks';
 
 import { notifyPromise } from '../../utils/notifications/notifyPromise';
 import { FormControl } from '../FormControl/FormControl';
@@ -14,6 +14,7 @@ interface UserFormWorkSpaceBlockProps {
     className: string;
     id: string;
     readOnly?: boolean;
+    type?: 'dismissal' | 'employment';
 }
 
 interface UserFormWorkSpaceBlockType {
@@ -25,7 +26,12 @@ interface UserFormWorkSpaceBlockType {
     workModeComment?: string;
 }
 
-export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWorkSpaceBlockProps) => {
+export const UserFormWorkSpaceBlock = ({
+    className,
+    id,
+    readOnly,
+    type = 'employment',
+}: UserFormWorkSpaceBlockProps) => {
     const {
         register,
         setValue,
@@ -54,7 +60,11 @@ export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWork
                     name="equipment"
                     control={control}
                     render={({ field }) => (
-                        <FormControl label={tr('Equipment')} required error={errors.equipment}>
+                        <FormControl
+                            label={type === 'employment' ? tr('Required euipment') : tr('Equipment')}
+                            required
+                            error={errors.equipment}
+                        >
                             <FormControlEditor
                                 disabled={readOnly}
                                 className={s.FormEditor}
@@ -74,7 +84,10 @@ export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWork
                     name="extraEquipment"
                     control={control}
                     render={({ field }) => (
-                        <FormControl label={tr('Extra equipment')} error={errors.extraEquipment}>
+                        <FormControl
+                            label={type === 'employment' ? tr('Extra equipment') : tr('Test devices')}
+                            error={errors.extraEquipment}
+                        >
                             <FormControlEditor
                                 disabled={readOnly}
                                 className={s.FormEditor}
@@ -89,17 +102,20 @@ export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWork
                 />
             </div>
             <div className={s.TwoInputsRow}>
-                <FormControl label={tr('Work space application')} error={errors.workSpace}>
-                    <FormControlInput
-                        readOnly={readOnly}
-                        autoComplete="off"
-                        size="m"
-                        placeholder={tr('Write the application text')}
-                        value={readOnly && !watch('workSpace') ? tr('Not specified') : undefined}
-                        outline
-                        {...register('workSpace')}
-                    />
-                </FormControl>
+                {nullable(type === 'employment', () => (
+                    <FormControl label={tr('Work space application')} error={errors.workSpace}>
+                        <FormControlInput
+                            readOnly={readOnly}
+                            autoComplete="off"
+                            size="m"
+                            placeholder={tr('Write the application text')}
+                            value={readOnly && !watch('workSpace') ? tr('Not specified') : undefined}
+                            outline
+                            {...register('workSpace')}
+                        />
+                    </FormControl>
+                ))}
+
                 <FormControl label={tr('Location')} required error={errors.location}>
                     <FormControlInput
                         readOnly={readOnly}
@@ -119,17 +135,19 @@ export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWork
                     />
                 </FormControl>
 
-                <FormControl label={tr('Work mode comment')} error={errors.workModeComment}>
-                    <FormControlInput
-                        readOnly={readOnly}
-                        autoComplete="off"
-                        size="m"
-                        outline
-                        value={readOnly && !watch('workModeComment') ? tr('Not specified') : undefined}
-                        placeholder={tr('Write work mode comment')}
-                        {...register('workModeComment')}
-                    />
-                </FormControl>
+                {nullable(type === 'employment', () => (
+                    <FormControl label={tr('Work mode comment')} error={errors.workModeComment}>
+                        <FormControlInput
+                            readOnly={readOnly}
+                            autoComplete="off"
+                            size="m"
+                            outline
+                            value={readOnly && !watch('workModeComment') ? tr('Not specified') : undefined}
+                            placeholder={tr('Write work mode comment')}
+                            {...register('workModeComment')}
+                        />
+                    </FormControl>
+                ))}
             </div>
         </div>
     );

@@ -46,3 +46,15 @@ export const createProfile = async ({ userCreationRequestId }: JobDataMap['creat
         });
     }
 };
+
+export const resolveDecree = async ({ userCreationRequestId }: JobDataMap['createProfile']) => {
+    try {
+        const user = await userMethods.resolveDecreeRequest(userCreationRequestId);
+
+        return user;
+    } catch (error) {
+        Sentry.captureException(error, {
+            fingerprint: ['worker', 'resolve'],
+        });
+    }
+};

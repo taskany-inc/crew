@@ -15,15 +15,6 @@ import { config } from '../../config';
 import s from './UserFormPersonalDataBlock.module.css';
 import { tr } from './UserFormPersonalDataBlock.i18n';
 
-interface UserFormPersonalDataBlockProps {
-    className: string;
-    id: string;
-    onIsLoginUniqueChange?: (arg: string) => void;
-    type: 'internal' | 'existing' | 'externalEmployee' | 'externalFromMainOrgEmployee';
-    readOnly?: boolean;
-    defaultValue?: UserFormPersonalDataBlockType;
-}
-
 interface UserFormPersonalDataBlockType {
     firstName: string;
     surname: string;
@@ -39,12 +30,23 @@ interface UserFormPersonalDataBlockType {
     accountingId?: string;
 }
 
+type ReadOnlyMap = Partial<Record<keyof UserFormPersonalDataBlockType, boolean>>;
+
+interface UserFormPersonalDataBlockProps {
+    className: string;
+    id: string;
+    onIsLoginUniqueChange?: (arg: string) => void;
+    type: 'internal' | 'existing' | 'externalEmployee' | 'externalFromMainOrgEmployee';
+    readOnly?: boolean | ReadOnlyMap;
+    defaultValue?: UserFormPersonalDataBlockType;
+}
+
 export const UserFormPersonalDataBlock = ({
     className,
     id,
     onIsLoginUniqueChange,
     type,
-    readOnly,
+    readOnly = true,
 }: UserFormPersonalDataBlockProps) => {
     const {
         register,
@@ -97,6 +99,13 @@ export const UserFormPersonalDataBlock = ({
         errors.phone && trigger('phone');
     };
 
+    const getReadOnly = (key: keyof ReadOnlyMap) => {
+        if (typeof readOnly === 'boolean') {
+            return readOnly;
+        }
+        return Boolean(readOnly[key]);
+    };
+
     const emailDomainSelectRef = useRef(null);
 
     return (
@@ -107,7 +116,7 @@ export const UserFormPersonalDataBlock = ({
             {nullable(type === 'existing', () => (
                 <div className={s.Checkbox}>
                     <Checkbox
-                        readOnly={readOnly}
+                        readOnly={getReadOnly('createExternalAccount')}
                         label={tr('Create external account')}
                         checked={createExternalAccount}
                         onChange={onCreateExternalAccountClick}
@@ -117,7 +126,7 @@ export const UserFormPersonalDataBlock = ({
             <div className={s.ThreeInputsRow}>
                 <FormControl label={tr('Surname')} required error={errors.surname}>
                     <FormControlInput
-                        readOnly={readOnly}
+                        readOnly={getReadOnly('surname')}
                         autoComplete="off"
                         size="m"
                         outline
@@ -130,7 +139,7 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
                 <FormControl label={tr('First name')} required error={errors.firstName}>
                     <FormControlInput
-                        readOnly={readOnly}
+                        readOnly={getReadOnly('firstName')}
                         autoComplete="off"
                         size="m"
                         outline
@@ -143,7 +152,7 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
                 <FormControl label={tr('Second name')} error={errors.middleName}>
                     <FormControlInput
-                        readOnly={readOnly}
+                        readOnly={getReadOnly('middleName')}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write second name')}
@@ -157,7 +166,7 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
                 <FormControl label={tr('Role')} required>
                     <RoleSelect
-                        readOnly={readOnly}
+                        readOnly={getReadOnly('title')}
                         onChange={onRoleChange}
                         roleName={watch('title')}
                         error={errors.title}
@@ -165,7 +174,7 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
                 <FormControl label={tr('Phone')} required error={errors.phone}>
                     <FormControlInput
-                        readOnly={readOnly}
+                        readOnly={getReadOnly('phone')}
                         autoComplete="off"
                         size="m"
                         placeholder="+7(___)__-__-___"
@@ -179,7 +188,7 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
                 <FormControl label={tr('Login')} required error={errors.login}>
                     <FormControlInput
-                        readOnly={readOnly}
+                        readOnly={getReadOnly('login')}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('In format vvivanov')}
@@ -193,7 +202,7 @@ export const UserFormPersonalDataBlock = ({
                 {nullable(type === 'existing', () => (
                     <FormControl label={tr('Accouting ID')} error={errors.accountingId}>
                         <FormControlInput
-                            readOnly={readOnly}
+                            readOnly={getReadOnly('accountingId')}
                             autoComplete="off"
                             size="m"
                             placeholder={tr('Enter ID')}
@@ -219,7 +228,7 @@ export const UserFormPersonalDataBlock = ({
                         required={type === 'externalEmployee'}
                     >
                         <FormControlInput
-                            readOnly={readOnly}
+                            readOnly={getReadOnly('personalEmail')}
                             value={readOnly && !watch('personalEmail') ? tr('Not specified') : undefined}
                             autoComplete="off"
                             size="m"
@@ -236,7 +245,7 @@ export const UserFormPersonalDataBlock = ({
                         required={type === 'externalFromMainOrgEmployee'}
                     >
                         <FormControlInput
-                            readOnly={readOnly}
+                            readOnly={getReadOnly('workEmail')}
                             value={readOnly && !watch('workEmail') ? tr('Not specified') : undefined}
                             autoComplete="off"
                             size="m"

@@ -18,10 +18,18 @@ interface RequestFormActionsProps {
     onEdit?: () => void;
     onDecide?: () => void;
     requestStatus?: UserCreationRequestStatus;
+    requestType?: 'decree' | 'creation';
     small?: boolean;
 }
 
-export const RequestFormActions = ({ requestId, onDecide, requestStatus, small, onEdit }: RequestFormActionsProps) => {
+export const RequestFormActions = ({
+    requestId,
+    requestType,
+    onDecide,
+    requestStatus,
+    small,
+    onEdit,
+}: RequestFormActionsProps) => {
     const acceptWarningVisible = useBoolean(false);
     const declineWarningVisible = useBoolean(false);
 
@@ -35,11 +43,13 @@ export const RequestFormActions = ({ requestId, onDecide, requestStatus, small, 
     const commentRef = useLatest(comment);
 
     const handleSubmit = useCallback(
-        (callbackUserRequest: (data: { id: string; comment?: string }) => void) => (id: string) => () => {
-            callbackUserRequest({ id, comment: commentRef.current });
-            onDecide && onDecide();
-        },
-        [commentRef, acceptWarningVisible, declineWarningVisible],
+        (callbackUserRequest: (data: { id: string; comment?: string }, type?: string) => void) =>
+            (id: string) =>
+            () => {
+                callbackUserRequest({ id, comment: commentRef.current }, requestType);
+                onDecide && onDecide();
+            },
+        [commentRef, requestType, onDecide],
     );
 
     const handleChangeComment = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +83,7 @@ export const RequestFormActions = ({ requestId, onDecide, requestStatus, small, 
 
     return (
         <div className={s.FormActions}>
-            {nullable(session.role?.editUserCreationRequests, () => (
+            {nullable(session.role?.editUserCreationRequests && requestType !== 'decree', () => (
                 <div
                     className={cn(s.FormActions, {
                         [s.Separator]: small && session.role?.editUserCreationRequests && session.role?.createUser,
@@ -102,6 +112,7 @@ export const RequestFormActions = ({ requestId, onDecide, requestStatus, small, 
                         onClick={acceptWarningVisible.setTrue}
                         disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
                     />
+
                     {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
                         <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
                             {tooltipText}
@@ -139,17 +150,20 @@ export const RequestFormActions = ({ requestId, onDecide, requestStatus, small, 
             ))}
             {nullable(session.role?.createUser, () => (
                 <>
-                    <Button
-                        ref={editRef}
-                        className={cn({ [s.EditButton]: !small })}
-                        iconLeft={<IconEditOutline size="s" />}
-                        size={small ? 's' : 'm'}
-                        type="button"
-                        text={small ? undefined : tr('Edit Form')}
-                        view={small ? 'default' : 'ghost'}
-                        onClick={onEdit}
-                        disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
-                    />
+                    {nullable(onEdit, () => (
+                        <Button
+                            ref={editRef}
+                            className={cn({ [s.EditButton]: !small })}
+                            iconLeft={<IconEditOutline size="s" />}
+                            size={small ? 's' : 'm'}
+                            type="button"
+                            text={small ? undefined : tr('Edit Form')}
+                            view={small ? 'default' : 'ghost'}
+                            onClick={onEdit}
+                            disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
+                        />
+                    ))}
+
                     <div ref={tooltipRef}>
                         <Button
                             ref={cancelRef}
