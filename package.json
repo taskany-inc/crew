@@ -65,7 +65,7 @@
     "react-hot-toast": "2.4.1",
     "styled-components": "5.3.11",
     "superjson": "1.13.1",
-    "swagger-ui-react": "5.12.3",
+    "swagger-ui-react": "5.17.14",
     "throttle-debounce": "5.0.0",
     "trpc-openapi": "1.2.0",
     "use-debounce": "10.0.0",
