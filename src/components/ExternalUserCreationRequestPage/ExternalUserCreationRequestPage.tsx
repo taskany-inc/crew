@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Text } from '@taskany/bricks/harmony';
+import { FormControlInput, Text } from '@taskany/bricks/harmony';
 import { debounce } from 'throttle-debounce';
+import { OrganizationUnit } from 'prisma/prisma-client';
 
 import {
-    CreateUserCreationRequestexternalFromMainOrgEmployee,
-    getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema,
+    CreateUserCreationRequestExternalEmployee,
+    getCreateUserCreationRequestExternalEmployeeSchema,
 } from '../../modules/userCreationRequestSchemas';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
@@ -17,17 +18,17 @@ import { NavMenu } from '../NavMenu/NavMenu';
 import { trpc } from '../../trpc/trpcClient';
 import { FormControl } from '../FormControl/FormControl';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
-import { config } from '../../config';
 import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserFormExternalTeamBlock';
 import { UserFormExternaExtraInfoBlock } from '../UserFormExternaExtraInfoBlock/UserFormExternaExtraInfoBlock';
 import { useSpyNav } from '../../hooks/useSpyNav';
+import { Nullish } from '../../utils/types';
 
-import s from './ExternalFromMainOrgUserCreationRequestPage.module.css';
-import { tr } from './ExternalFromMainOrgUserCreationRequestPage.i18n';
+import s from './ExternalUserCreationRequestPage.module.css';
+import { tr } from './ExternalUserCreationRequestPage.i18n';
 
-const defaultValues: Partial<CreateUserCreationRequestexternalFromMainOrgEmployee> = {
-    type: 'externalFromMainOrgEmployee',
-    organizationUnitId: config.mainOrganizationId,
+const defaultValues: Partial<CreateUserCreationRequestExternalEmployee> = {
+    type: 'externalEmployee',
+    organizationUnitId: '',
     surname: '',
     firstName: '',
     middleName: '',
@@ -35,7 +36,7 @@ const defaultValues: Partial<CreateUserCreationRequestexternalFromMainOrgEmploye
     createExternalAccount: true,
     phone: '',
     email: '',
-    workEmail: '',
+    personalEmail: '',
     corporateEmail: '',
     curatorIds: [],
     lineManagerIds: [],
@@ -43,15 +44,16 @@ const defaultValues: Partial<CreateUserCreationRequestexternalFromMainOrgEmploye
     groupId: '',
     permissionToServices: [],
     reason: '',
+    accessToInternalSystems: true,
 };
 
-export const ExternalFromMainOrgUserCreationRequestPage = () => {
+export const ExternalUserCreationRequestPage = () => {
     const { createUserCreationRequest } = useUserCreationRequestMutations();
 
     const router = useRouter();
 
-    const methods = useForm<CreateUserCreationRequestexternalFromMainOrgEmployee>({
-        resolver: zodResolver(getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema()),
+    const methods = useForm<CreateUserCreationRequestExternalEmployee>({
+        resolver: zodResolver(getCreateUserCreationRequestExternalEmployeeSchema()),
         defaultValues,
     });
 
@@ -64,7 +66,9 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
         trigger,
         getValues,
         watch,
-        formState: { isSubmitting, isSubmitSuccessful },
+        setValue,
+        register,
+        formState: { errors, isSubmitting, isSubmitSuccessful },
     } = methods;
 
     const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
@@ -91,6 +95,11 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
         return router.userRequests();
     });
 
+    const onOrganizationChange = (group: Nullish<OrganizationUnit>) => {
+        group && setValue('organizationUnitId', group.id);
+        trigger('organizationUnitId');
+    };
+
     const { activeId, onClick, onScroll } = useSpyNav(rootRef);
 
     return (
@@ -99,11 +108,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
                 <FormProvider {...methods}>
                     <form onSubmit={onFormSubmit}>
                         <div className={s.Header}>
-                            <Text as="h2">
-                                {tr('Create access to employee from {mainOrgName} (external)', {
-                                    mainOrgName: config.mainOrganizationName || 'Main',
-                                })}
-                            </Text>
+                            <Text as="h2">{tr('Create access to external employee')}</Text>
                             <UserFormFormActions
                                 submitDisabled={isSubmitting || isSubmitSuccessful}
                                 onCancel={router.userRequests}
@@ -113,7 +118,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>
                                 <UserFormPersonalDataBlock
-                                    type="externalFromMainOrgEmployee"
+                                    type="externalEmployee"
                                     onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
                                     id="personal-data"
@@ -123,19 +128,44 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
                                     <Text className={s.SectionHeader} weight="bold" size="lg">
                                         {tr('Registration')}
                                     </Text>
-                                    <div className={s.OrganizationCombobox}>
-                                        <FormControl label={tr('Organization')} required>
-                                            <OrganizationUnitComboBox
-                                                readOnly
-                                                organizationUnitId={watch('organizationUnitId')}
+                                    <div className={s.TwoInputsRow}>
+                                        <div className={s.OrganizationCombobox}>
+                                            <FormControl label={tr('Organization')} required>
+                                                <OrganizationUnitComboBox
+                                                    searchType="external"
+                                                    onChange={onOrganizationChange}
+                                                    organizationUnitId={watch('organizationUnitId')}
+                                                />
+                                            </FormControl>
+                                        </div>
+                                        <FormControl required label={tr('Start date')} error={errors.date}>
+                                            <FormControlInput
+                                                outline
+                                                autoComplete="off"
+                                                size="m"
+                                                type="date"
+                                                {...register('date', { valueAsDate: true })}
                                             />
                                         </FormControl>
                                     </div>
+                                    <FormControl required label={tr('OS preference')} error={errors.date}>
+                                        <FormControlInput
+                                            outline
+                                            placeholder={tr('Enter OS name')}
+                                            autoComplete="off"
+                                            size="m"
+                                            {...register('osPreference')}
+                                        />
+                                    </FormControl>
                                 </div>
 
                                 <UserFormExternalTeamBlock className={s.FormBlock} id="team" />
 
-                                <UserFormExternaExtraInfoBlock className={s.FormBlock} id="extra-info" />
+                                <UserFormExternaExtraInfoBlock
+                                    className={s.FormBlock}
+                                    id="extra-info"
+                                    type="externalEmployee"
+                                />
                             </div>
 
                             <NavMenu

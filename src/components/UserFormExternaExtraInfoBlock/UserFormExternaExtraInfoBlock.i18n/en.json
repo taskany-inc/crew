@@ -3,5 +3,11 @@
     "Permission to services": "",
     "Reason for granting permission": "",
     "Write reason": "",
-    "Required field": ""
+    "Required field": "",
+    "Choose file": "",
+    "Drop file here": "",
+    "Loading": "",
+    "Loaded": "",
+    "File doesn't load": "",
+    "In *.pdf or *.doc / *.docx format": ""
 }

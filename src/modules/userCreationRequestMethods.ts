@@ -47,7 +47,7 @@ export const userCreationRequestsMethods = {
             });
         }
 
-        if (data.type !== 'externalFromMainOrgEmployee' && !data.supervisorId) {
+        if (data.type === 'internalEmployee' && !data.supervisorId) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
                 message: tr('Supervisor ID is required'),
@@ -88,7 +88,7 @@ export const userCreationRequestsMethods = {
             organizationUnitId: data.organizationUnitId,
             groupId: data.groupId || undefined,
             supervisorLogin: supervisor?.login,
-            supervisorId: data.supervisorId,
+            supervisorId: data.supervisorId || undefined,
             title: data.title || undefined,
             corporateEmail: data.corporateEmail || undefined,
             osPreference: data.osPreference || undefined,
@@ -109,7 +109,6 @@ export const userCreationRequestsMethods = {
                 });
             }
 
-            createData.externalOrganizationSupervisorLogin = data.externalOrganizationSupervisorLogin || undefined;
             createData.accessToInternalSystems = data.accessToInternalSystems;
         }
 

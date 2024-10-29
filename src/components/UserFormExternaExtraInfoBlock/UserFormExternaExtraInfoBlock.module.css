@@ -7,3 +7,7 @@
 .PermissionServiceSelect {
     margin-bottom: var(--gap-m);
 }
+
+.Nda {
+    margin-top:  var(--gap-m);
+}

@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from 'react';
 
 import { File } from '../modules/attachTypes';
 
-const getFileIdFromPath = (
+export const getFileIdFromPath = (
     /** /api/attach?id=... */
     path: string,
 ) => path.substring(15);

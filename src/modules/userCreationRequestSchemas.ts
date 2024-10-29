@@ -31,7 +31,7 @@ export const getCreateUserCreationRequestBaseSchema = () =>
             invalid_type_error: tr('Required field'),
         }),
         groupId: z.string().optional(),
-        supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+        supervisorId: z.string().optional(),
         title: z.string().optional(),
         corporateEmail: z.string().optional(),
         osPreference: z.string().optional(),
@@ -86,28 +86,41 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
                 }),
             )
             .optional(),
+        supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
     });
 export type CreateUserCreationRequestInternalEmployee = z.infer<
     ReturnType<typeof getCreateUserCreationRequestInternalEmployeeSchema>
 >;
-
 export const getCreateUserCreationRequestExternalEmployeeSchema = () =>
     getCreateUserCreationRequestBaseSchema().extend({
         type: z.literal('externalEmployee'),
-        externalOrganizationSupervisorLogin: z
-            .string()
-            .min(1, { message: tr('External employees should have organizational supervisor') }),
         accessToInternalSystems: z.boolean(),
         attachIds: z
             .string()
             .array()
             .nonempty({ message: tr('External employees need an NDA attached') }),
+        personalEmail: z
+            .string({ required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') })
+            .email(tr('Not a valid email')),
+        osPreference: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+        date: z.date({ invalid_type_error: tr('Required field'), required_error: tr('Required field') }),
+        lineManagerIds: z.array(z.string()).optional(),
+        curatorIds: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
+        reason: z
+            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') }),
+        title: z
+            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') }),
+        permissionToServices: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
+        supervisorId: z.string().optional(),
     });
 export type CreateUserCreationRequestExternalEmployee = z.infer<
     ReturnType<typeof getCreateUserCreationRequestExternalEmployeeSchema>
 >;
 
-export const getCreateUserCreationRequestexternalFromMainOrgEmployeeSchema = () =>
+export const getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema = () =>
     getCreateUserCreationRequestBaseSchema().extend({
         type: z.literal('externalFromMainOrgEmployee'),
         lineManagerIds: z.array(z.string()).optional(),
@@ -125,8 +138,9 @@ export const getCreateUserCreationRequestexternalFromMainOrgEmployeeSchema = () 
         permissionToServices: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
         supervisorId: z.string().optional(),
     });
+
 export type CreateUserCreationRequestexternalFromMainOrgEmployee = z.infer<
-    ReturnType<typeof getCreateUserCreationRequestexternalFromMainOrgEmployeeSchema>
+    ReturnType<typeof getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema>
 >;
 
 // schema for backend validation
@@ -134,7 +148,7 @@ export const createUserCreationRequestSchema = z.discriminatedUnion('type', [
     getCreateUserCreationRequestBaseSchema(),
     getCreateUserCreationRequestInternalEmployeeSchema(),
     getCreateUserCreationRequestExternalEmployeeSchema(),
-    getCreateUserCreationRequestexternalFromMainOrgEmployeeSchema(),
+    getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema(),
 ]);
 export type CreateUserCreationRequest = z.infer<typeof createUserCreationRequestSchema>;
 

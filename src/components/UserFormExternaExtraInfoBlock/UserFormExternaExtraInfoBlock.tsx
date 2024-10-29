@@ -1,9 +1,12 @@
-import React from 'react';
-import { FormControlInput, Text } from '@taskany/bricks/harmony';
+import React, { useCallback } from 'react';
+import { FormControlInput, FormConrolFileUpload, Text } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
+import { nullable } from '@taskany/bricks';
 
 import { FormControl } from '../FormControl/FormControl';
 import { PermissionServiceSelect } from '../PermissionServiceSelect/PermissionServiceSelect';
+import { getFileIdFromPath } from '../../utils/attachFormatter';
+import { pages } from '../../hooks/useRouter';
 
 import s from './UserFormExternaExtraInfoBlock.module.css';
 import { tr } from './UserFormExternaExtraInfoBlock.i18n';
@@ -11,9 +14,10 @@ import { tr } from './UserFormExternaExtraInfoBlock.i18n';
 interface UserFormExternaExtraInfoBlockProps {
     className: string;
     id: string;
+    type?: string;
 }
 
-export const UserFormExternaExtraInfoBlock = ({ className, id }: UserFormExternaExtraInfoBlockProps) => {
+export const UserFormExternaExtraInfoBlock = ({ className, id, type }: UserFormExternaExtraInfoBlockProps) => {
     const {
         setValue,
         watch,
@@ -23,7 +27,15 @@ export const UserFormExternaExtraInfoBlock = ({ className, id }: UserFormExterna
     } = useFormContext<{
         permissionToServices: string[];
         reason: string;
+        attachIds: string[];
     }>();
+
+    const onFileChange = useCallback((files: { type: string; filePath: string; name: string }[]) => {
+        setValue(
+            'attachIds',
+            files.map(({ filePath }) => getFileIdFromPath(filePath)),
+        );
+    }, []);
 
     return (
         <div className={className} id={id}>
@@ -58,6 +70,29 @@ export const UserFormExternaExtraInfoBlock = ({ className, id }: UserFormExterna
                     })}
                 />
             </FormControl>
+            {nullable(type === 'externalEmployee', () => (
+                <div className={s.Nda}>
+                    <FormControl label="NDA" error={errors.attachIds} required>
+                        <FormConrolFileUpload
+                            accept={{
+                                'application/pdf': [],
+                                'application/msword': [],
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+                            }}
+                            translates={{
+                                idle: tr('Choose file'),
+                                active: tr('Drop file here'),
+                                loading: tr('Loading'),
+                                accepted: tr('Loaded'),
+                                error: tr("File doesn't load"),
+                                fileExtensionsText: tr('In *.pdf or *.doc / *.docx format'),
+                            }}
+                            uploadLink={pages.attaches}
+                            onChange={onFileChange}
+                        />
+                    </FormControl>
+                </div>
+            ))}
         </div>
     );
 };

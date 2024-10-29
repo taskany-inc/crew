@@ -1,0 +1,43 @@
+.Wrapper {
+    padding: var(--gap-l) 0 var(--gap-m) var(--gap-l);
+}
+
+.Header {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    margin-bottom: var(--gap-l);
+    padding-right: var(--gap-l);
+    height: 40px;
+}
+
+.Body {
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    overflow-y: auto;
+}
+
+.Form {
+    padding-right: var(--gap-l);
+    max-height: calc(100vh - 270px);
+}
+
+
+.FormBlock {
+    padding: 0 0 0 var(--gap-m);
+    margin-bottom: var(--gap-xl);
+}
+
+.SectionHeader {
+    display: inline-block;
+    margin-top: var(--gap-s);
+    margin-bottom: var(--gap-m);
+}
+
+.TwoInputsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-m);
+    margin-top: var(--gap-s);
+    margin-bottom: var(--gap-m);
+}
