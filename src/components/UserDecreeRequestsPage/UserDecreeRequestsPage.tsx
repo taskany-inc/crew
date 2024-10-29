@@ -1,7 +1,8 @@
 import { getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
-import { useRef, useState } from 'react';
+import { useRef, useState, FC, forwardRef } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
+import { pages } from '../../hooks/useRouter';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { useSessionUser } from '../../hooks/useSessionUser';
@@ -10,18 +11,28 @@ import { tr } from './UserDecreeRequestsPage.i18n';
 import s from './UserDecreeRequestsPage.module.css';
 
 interface tableData {
-    type: string;
     name: string;
-    title?: string;
-    team?: string;
+    email?: string;
+    organization?: string;
+    group: string;
     supervisor?: string;
-    author?: string;
-    coordinators: string;
     date?: string;
     id: string;
 }
 
-export const UserDecreeRequestsPage = () => {
+interface UserDecreeRequestsPageProps {
+    type: 'fromDecree' | 'toDecree';
+}
+
+const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => {
+    return (
+        <a href={pages.decreeRequest(props.item.id)} className={s.TableRowLink}>
+            <TableRow {...props} ref={ref} />
+        </a>
+    );
+});
+
+export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }) => {
     const sessionUser = useSessionUser();
     const dateTitleRef = useRef(null);
 
@@ -32,7 +43,7 @@ export const UserDecreeRequestsPage = () => {
     ]);
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
-        type: ['fromDecree', 'toDecree'],
+        type: [type],
         status: null,
         orderBy: {
             name: sorting.find(({ key }) => key === 'name')?.dir,
@@ -41,10 +52,10 @@ export const UserDecreeRequestsPage = () => {
     });
 
     const data: tableData[] = userRequests.map((request) => ({
-        type: request.type === 'toDecree' ? tr('To decree') : tr('From decree'),
         name: request.name,
-        title: request.title || '',
-        team: request.group?.name || '',
+        email: request.email || '',
+        organization: request.organization.name || '',
+        group: request.group?.name || '',
         supervisor: request.supervisor?.name || '',
         author: request.creator?.name || '',
         coordinators: request.coordinators.map(({ name }) => name).join(', '),
@@ -59,25 +70,23 @@ export const UserDecreeRequestsPage = () => {
                 sorting={sorting}
                 onSort={(val) => setSorting([val])}
                 className={s.Table}
-                rowComponent={TableRow}
+                rowComponent={ClickableRow}
             >
-                <DataTableColumn name="name" value="name" title={tr('Name')} width="9vw" fixed />
-                <DataTableColumn name="type" value="type" title={tr('Type')} width="9vw" fixed />
-                <DataTableColumn sortable={false} name="title" value="title" width="9vw" title={tr('Role')} />
-                <DataTableColumn name="team" width="9vw" value="team" title={tr('Team')} sortable={false} />
+                <DataTableColumn name="name" value="name" title={tr('Name')} width="17vw" fixed />
+                <DataTableColumn sortable={false} name="title" value="email" width="17vw" title={tr('Email')} />
                 <DataTableColumn
-                    name="supervisor"
-                    width="9vw"
-                    value="supervisor"
-                    title={tr('Supervisor')}
+                    name="team"
+                    width="15vw"
+                    value="organization"
+                    title={tr('Organization')}
                     sortable={false}
                 />
-                <DataTableColumn name="author" width="9vw" value="author" title={tr('Author')} sortable={false} />
+                <DataTableColumn name="group" width="15vw" value="group" title={tr('Group')} sortable={false} />
                 <DataTableColumn
-                    name="coordinators"
-                    width="9vw"
-                    value="coordinators"
-                    title={tr('Coordinator')}
+                    name="supervisor"
+                    width="17vw"
+                    value="supervisor"
+                    title={tr('Supervisor')}
                     sortable={false}
                 />
                 <DataTableColumn
@@ -101,11 +110,16 @@ export const UserDecreeRequestsPage = () => {
                     name="actions"
                     title={tr('Actions')}
                     width={
-                        sessionUser.role?.createUser && sessionUser.role.editUserCreationRequests ? '180px' : '100px'
+                        sessionUser.role?.createUser && sessionUser.role.editUserCreationRequests ? '110px' : '110px'
                     }
                     renderCell={({ id }) => (
                         <div onClick={(e) => e.preventDefault()}>
-                            <RequestFormActions requestId={id} small requestType="decree" />
+                            <RequestFormActions
+                                requestId={id}
+                                onEdit={() => pages.decreeRequestEdit(id)}
+                                small
+                                requestType="decree"
+                            />
                         </div>
                     )}
                 />
