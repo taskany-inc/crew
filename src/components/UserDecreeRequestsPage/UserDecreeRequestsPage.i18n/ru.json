@@ -1,14 +1,9 @@
 {
     "Name": "ФИО",
     "Supervisor": "Руководитель",
-    "Under concideration": "На согласовании",
-    "Role": "Роль",
-    "Team": "Команда",
-    "Author": "Автор запроса",
-    "Coordinator": "Координатор",
     "Start date": "Дата выхода",
     "Actions": "Действия",
-    "Type": "Тип",
-    "To decree": "В декрет",
-    "From decree": "Из декрета"
+    "Organization": "Организация",
+    "Group": "Подразделение",
+    "Email": "Эл. почта"
 }

@@ -57,3 +57,7 @@
 .StatusDotDenied {
     background-color: var(--status-failed);
 }
+
+.TableRowLink {
+    display: contents;
+}
