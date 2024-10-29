@@ -15,7 +15,7 @@ import { UserDevices } from '../UserDevices/UserDevices';
 import { UserPic } from '../UserPic';
 import { DeactivateProfileForm } from '../DeactivateProfileForm/DeactivateProvileForm';
 import { Link } from '../Link';
-import { pages } from '../../hooks/useRouter';
+import { pages, useRouter } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
 import { UserBonusPoints } from '../UserBonusPoints/UserBonusPoints';
 import { UserAchievementList } from '../UserAchievementList/UserAchievementList';
@@ -116,6 +116,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const deactivateUserFormVisibility = useBoolean(false);
     const scheduleDeactivationFormVisibility = useBoolean(false);
     const sessionUser = useSessionUser();
+    const router = useRouter();
 
     const orgMembership = user.memberships.find((m) => m.group.organizational);
     const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
@@ -171,6 +172,9 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
 
     const activeScheduledDeactivation = getActiveScheduledDeactivation(user);
 
+    const activePosition =
+        !user.supplementalPositions.length || user.supplementalPositions.find((p) => p.status === 'ACTIVE');
+
     return (
         <LayoutMain pageTitle={user.name}>
             <StyledHeader>
@@ -210,9 +214,9 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             </Text>
                         ),
                     )}
-                    <Text size="xxl" weight="bold" color={user.active ? textColor : gray8}>
+                    <Text size="xxl" weight="bold" color={user.active && activePosition ? textColor : gray8}>
                         {user.name}
-                        {!user.active && tr(' [inactive]')}
+                        {(!user.active || !activePosition) && tr(' [inactive]')}
                     </Text>
                 </StyledUserNameWrapper>
                 <Modal visible={updateUserFormVisibility.value} width={600}>
@@ -241,6 +245,27 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             outline
                             size="s"
                         />
+                    </Restricted>
+                    <Restricted visible={!!sessionUser.role?.editUserActiveState}>
+                        {nullable(
+                            activePosition,
+                            () => (
+                                <Button
+                                    onClick={() => router.toDecree(user.id)}
+                                    text={tr('To decree')}
+                                    view="danger"
+                                    outline
+                                    size="s"
+                                />
+                            ),
+                            <Button
+                                onClick={() => router.fromDecree(user.id)}
+                                text={tr('From decree')}
+                                view="primary"
+                                outline
+                                size="s"
+                            />,
+                        )}
                     </Restricted>
                     <Restricted visible={!activeScheduledDeactivation && !!sessionUser.role?.editScheduledDeactivation}>
                         <Button

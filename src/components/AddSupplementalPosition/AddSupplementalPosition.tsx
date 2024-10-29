@@ -1,3 +1,4 @@
+import { OrganizationUnit } from 'prisma/prisma-client';
 import { nullable } from '@taskany/bricks';
 import { FormControlInput, Text } from '@taskany/bricks/harmony';
 import { IconBinOutline, IconPlusCircleOutline } from '@taskany/icons';
@@ -13,6 +14,7 @@ import { tr } from './AddSupplementalPosition.i18n';
 interface AddSupplementalPositionProps {
     onClose?: () => void;
     onOrganizatioUnitChange: (id?: string) => void;
+    organizationUnits?: OrganizationUnit[];
     organizationUnitId?: string;
     percentage?: number;
     setPercentage: (p?: number) => void;
@@ -27,6 +29,7 @@ export const AddSupplementalPosition = ({
     onClose,
     onOrganizatioUnitChange,
     organizationUnitId,
+    organizationUnits,
     percentage,
     setPercentage,
     unitId,
@@ -71,6 +74,7 @@ export const AddSupplementalPosition = ({
                                     searchType="internal"
                                     onChange={(orgUnit) => orgUnit && onOrganizatioUnitChange(orgUnit.id)}
                                     organizationUnitId={organizationUnitId}
+                                    items={organizationUnits}
                                     error={errors?.organizationUnitId}
                                 />
                             </FormControl>

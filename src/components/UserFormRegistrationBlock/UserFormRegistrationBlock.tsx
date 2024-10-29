@@ -16,7 +16,11 @@ import { tr } from './UserFormRegistrationBlock.i18n';
 interface UserFormRegistrationBlockProps {
     className: string;
     id: string;
-    type: 'internal' | 'existing';
+    type: 'internal' | 'existing' | 'toDecree' | 'fromDecree';
+    organizationUnits?: OrganizationUnit[];
+    onOrganistaionUnitChange?: (orgId: string) => void;
+    onSupplementalOrganistaionUnitChange?: (orgId: string) => void;
+    onFiredOrganizationUnitChange?: (orgId: string) => void;
     readOnly?: boolean;
     edit?: boolean;
 }
@@ -25,6 +29,7 @@ interface UserFormRegistrationBlockType {
     organizationUnitId: string;
     percentage: number;
     supplementalPositions?: Array<{ organizationUnitId: string; percentage: number; unitId?: string }>;
+    firedOrganizationUnitId?: string;
     unitId?: string;
     date: Date;
     creationCause: string;
@@ -32,7 +37,17 @@ interface UserFormRegistrationBlockType {
     osPreference?: string;
 }
 
-export const UserFormRegistrationBlock = ({ className, id, type, readOnly, edit }: UserFormRegistrationBlockProps) => {
+export const UserFormRegistrationBlock = ({
+    className,
+    id,
+    type,
+    readOnly,
+    edit,
+    organizationUnits,
+    onOrganistaionUnitChange,
+    onSupplementalOrganistaionUnitChange,
+    onFiredOrganizationUnitChange,
+}: UserFormRegistrationBlockProps) => {
     const {
         register,
         setValue,
@@ -43,9 +58,28 @@ export const UserFormRegistrationBlock = ({ className, id, type, readOnly, edit 
     } = useFormContext<UserFormRegistrationBlockType>();
 
     const onOrganizationChange = (o: Nullish<OrganizationUnit>) => {
-        o && setValue('organizationUnitId', o.id);
-        trigger('organizationUnitId');
+        if (o) {
+            setValue('organizationUnitId', o.id);
+            trigger('organizationUnitId');
+            onOrganistaionUnitChange?.(o.id);
+        }
     };
+
+    const onFiredOrganizationChange = (o: Nullish<OrganizationUnit>) => {
+        if (o) {
+            setValue('firedOrganizationUnitId', o.id);
+            onFiredOrganizationUnitChange?.(o.id);
+        }
+        trigger('firedOrganizationUnitId');
+    };
+
+    const onSuplementalPositionChange = (orgId: string | undefined) => {
+        if (orgId) {
+            setValue('supplementalPositions.0.organizationUnitId', orgId);
+            onSupplementalOrganistaionUnitChange?.(orgId);
+        }
+    };
+
     const onPercentageChange = (
         percentage: number,
         percentageType: 'percentage' | 'supplementalPositions.0.percentage',
@@ -78,6 +112,7 @@ export const UserFormRegistrationBlock = ({ className, id, type, readOnly, edit 
                         organizationUnitId={watch('organizationUnitId')}
                         onChange={onOrganizationChange}
                         error={errors.organizationUnitId}
+                        items={organizationUnits}
                     />
                 </FormControl>
                 <FormControl label={tr('Unit ID')} error={errors.unitId}>
@@ -134,20 +169,19 @@ export const UserFormRegistrationBlock = ({ className, id, type, readOnly, edit 
                         />
                     </FormControl>
                 ))}
-                {nullable(
-                    type === 'internal',
-                    () => (
-                        <FormControl label={tr('Cause')} required error={errors.creationCause}>
-                            <Switch
-                                className={s.Switch}
-                                value={watch('creationCause')}
-                                onChange={(_e, a) => setValue('creationCause', a)}
-                            >
-                                <SwitchControl disabled={readOnly} size="m" text={tr('Start')} value="start" />
-                                <SwitchControl disabled={readOnly} size="m" text={tr('Transfer')} value="transfer" />
-                            </Switch>
-                        </FormControl>
-                    ),
+                {nullable(type === 'internal', () => (
+                    <FormControl label={tr('Cause')} required error={errors.creationCause}>
+                        <Switch
+                            className={s.Switch}
+                            value={watch('creationCause')}
+                            onChange={(_e, a) => setValue('creationCause', a)}
+                        >
+                            <SwitchControl disabled={readOnly} size="m" text={tr('Start')} value="start" />
+                            <SwitchControl disabled={readOnly} size="m" text={tr('Transfer')} value="transfer" />
+                        </Switch>
+                    </FormControl>
+                ))}
+                {nullable(type === 'existing', () => (
                     <FormControl label={tr('OS preference')} error={errors.osPreference} required>
                         <FormControlInput
                             autoComplete="off"
@@ -156,17 +190,26 @@ export const UserFormRegistrationBlock = ({ className, id, type, readOnly, edit 
                             outline
                             {...register('osPreference')}
                         />
-                    </FormControl>,
-                )}
+                    </FormControl>
+                ))}
+                {nullable(type === 'toDecree', () => (
+                    <FormControl label={tr('Dismissal from the organization')}>
+                        <OrganizationUnitComboBox
+                            searchType="internal"
+                            organizationUnitId={watch('firedOrganizationUnitId')}
+                            onChange={onFiredOrganizationChange}
+                            error={errors.firedOrganizationUnitId}
+                            items={organizationUnits}
+                        />
+                    </FormControl>
+                ))}
             </div>
 
             <div className={s.AddSupplementalPosition}></div>
             <AddSupplementalPosition
                 visible={!!watch('supplementalPositions.0.organizationUnitId')}
                 readOnly={readOnly}
-                onOrganizatioUnitChange={(orgId) =>
-                    orgId && setValue('supplementalPositions.0.organizationUnitId', orgId)
-                }
+                onOrganizatioUnitChange={onSuplementalPositionChange}
                 organizationUnitId={watch('supplementalPositions.0.organizationUnitId')}
                 percentage={watch('supplementalPositions.0.percentage')}
                 setPercentage={(percentage) => {
@@ -177,6 +220,7 @@ export const UserFormRegistrationBlock = ({ className, id, type, readOnly, edit 
                     setValue('supplementalPositions', undefined);
                     trigger('supplementalPositions');
                 }}
+                organizationUnits={organizationUnits}
                 unitId={watch('supplementalPositions.0.unitId')}
                 setUnitId={(unitId) => unitId && setValue('supplementalPositions.0.unitId', unitId)}
                 errors={errors.supplementalPositions instanceof Array && errors.supplementalPositions[0]}

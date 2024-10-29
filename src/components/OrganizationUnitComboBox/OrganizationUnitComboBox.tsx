@@ -14,6 +14,7 @@ interface OrganizationUnitComboBoxProps {
     organizationUnitId?: string;
     searchType?: OrganizationUnitSearchType;
     onChange?: (organizationUnit: Nullish<OrganizationUnit>) => void;
+    items?: OrganizationUnit[];
     inline?: boolean;
     placeholder?: string;
     label?: string;
@@ -28,6 +29,7 @@ export const OrganizationUnitComboBox = ({
     searchType,
     onChange,
     className,
+    items,
     error,
     readOnly,
 }: OrganizationUnitComboBoxProps) => {
@@ -35,17 +37,19 @@ export const OrganizationUnitComboBox = ({
 
     const organizationUnitQuery = trpc.organizationUnit.getList.useQuery(
         { search, take: 10, searchType, include: organizationUnitId ? [organizationUnitId] : undefined },
-        { keepPreviousData: true },
+        { keepPreviousData: true, enabled: !items },
     );
 
-    const value = organizationUnitQuery.data?.filter(({ id }) => id === organizationUnitId);
+    const orgs = items || organizationUnitQuery.data;
+
+    const value = orgs?.filter(({ id }) => id === organizationUnitId);
     const organizationUnitComboBoxRef = useRef(null);
 
     return (
         <Select
             arrow
             value={value}
-            items={organizationUnitQuery.data}
+            items={orgs}
             onChange={(orgs) => onChange && onChange(orgs[0])}
             selectable
             mode="single"

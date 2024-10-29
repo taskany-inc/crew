@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client';
+import { Prisma, SupplementalPosition, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
@@ -25,6 +25,7 @@ import {
     UserScheduledDeactivations,
     UserSupplementalPositions,
     UserNames,
+    UserServices,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -263,7 +264,8 @@ export const userMethods = {
             UserOrganizationUnit &
             UserRoleData &
             UserScheduledDeactivations &
-            UserSupplementalPositions
+            UserSupplementalPositions &
+            UserServices
     > => {
         const user = await prisma.user.findUnique({
             where: { id },
@@ -282,6 +284,7 @@ export const userMethods = {
                     },
                     orderBy: { group: { name: 'asc' } },
                 },
+                services: true,
                 supervisor: true,
                 achievements: { include: { achievement: true }, where: { achievement: { hidden: false } } },
                 settings: true,
@@ -723,6 +726,85 @@ export const userMethods = {
             },
             include: { services: true },
         });
+
         return newUser;
+    },
+
+    resolveDecreeRequest: async (userCreationRequestId: string) => {
+        const request = await prisma.userCreationRequest.findUnique({
+            where: { id: userCreationRequestId },
+            include: { supplementalPositions: true },
+        });
+
+        if (!request) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No user decree request by id ${userCreationRequestId}`,
+            });
+        }
+
+        if (!request.userTargetId) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: 'No related User id provided',
+            });
+        }
+
+        const currentUser = await userMethods.getById(request.userTargetId);
+
+        if (!currentUser) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No User with id ${request.userTargetId}`,
+            });
+        }
+
+        if (request.type === 'toDecree') {
+            const updatedPositions = currentUser.supplementalPositions.reduce<SupplementalPosition[]>((acum, p) => {
+                if (p.status !== 'ACTIVE') {
+                    return acum;
+                }
+                const updatedPositions = request.supplementalPositions.find(
+                    (item) => item.organizationUnitId === p.organizationUnitId,
+                );
+
+                if (updatedPositions) {
+                    acum.push({
+                        ...updatedPositions,
+                        id: p.id,
+                        userId: currentUser.id,
+                    });
+                }
+                return acum;
+            }, []);
+
+            await prisma.$transaction(
+                updatedPositions.map(({ id, ...data }) =>
+                    prisma.supplementalPosition.update({
+                        where: {
+                            id,
+                        },
+                        data,
+                    }),
+                ),
+            );
+        }
+
+        if (request.type === 'fromDecree') {
+            await prisma.user.update({
+                where: {
+                    id: currentUser.id,
+                },
+                data: {
+                    supplementalPositions: {
+                        connect: request.supplementalPositions.map(({ id }) => ({
+                            id,
+                        })),
+                    },
+                },
+            });
+        }
+
+        return userMethods.getById(request.userTargetId);
     },
 };
