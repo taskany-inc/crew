@@ -28,7 +28,10 @@ export const CancelUserCreationRequestModal = ({ visible, request, onClose }: Ca
     const [comment, setComment] = useState('');
 
     const onYesClick = async () => {
-        await cancelUserRequest({ id: request.id, comment });
+        await cancelUserRequest(
+            { id: request.id, comment },
+            request.type === 'toDecree' || request.type === 'fromDecree' ? 'decree' : 'creation',
+        );
         onClose();
     };
 

@@ -346,6 +346,7 @@ export type UserCreationRequest = {
     recruiterId: string | null;
     coordinatorLogin: string | null;
     coordinatorId: string | null;
+    userTargetId: string | null;
     jobId: string | null;
     reasonToGrantPermissionToServices: string | null;
     createdAt: Generated<Timestamp>;

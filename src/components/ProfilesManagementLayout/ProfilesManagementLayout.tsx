@@ -37,6 +37,11 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
                                     !!sessionUser.role?.editScheduledDeactivation ||
                                     !!sessionUser.role?.viewScheduledDeactivation,
                             },
+                            {
+                                title: tr('Decrees'),
+                                href: pages.decreeRequests,
+                                visible: !!sessionUser.role?.editUserActiveState,
+                            },
                         ]}
                     />
                 </div>

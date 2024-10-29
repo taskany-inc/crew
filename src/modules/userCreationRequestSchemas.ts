@@ -4,7 +4,7 @@ import { UserCreationRequestStatus } from 'prisma/prisma-client';
 
 import { tr } from './modules.i18n';
 
-const getPhoneSchema = () =>
+export const getPhoneSchema = () =>
     z
         .string({ required_error: tr('Enter phone number in format +7(900)123-45-67') })
         .refine((e) => parsePhoneNumber(e, 'RU')?.isValid(), tr('Enter phone number in format +7(900)123-45-67'))
@@ -158,6 +158,37 @@ export const getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema = () 
 export type CreateUserCreationRequestexternalFromMainOrgEmployee = z.infer<
     ReturnType<typeof getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema>
 >;
+
+const getBaseDecreeSchema = () =>
+    getCreateUserCreationRequestBaseSchema()
+        .omit({
+            osPreference: true,
+            supervisorId: true,
+        })
+        .extend({
+            userTargetId: z.string(),
+            osPreference: z.string().optional(),
+            supervisorId: z.string().optional(),
+        });
+
+export const getUserToDecreeSchema = () =>
+    getBaseDecreeSchema().extend({
+        type: z.literal('toDecree'),
+        firedOrganizationUnitId: z.string().optional(),
+    });
+
+export type UserToDecreeSchema = z.infer<ReturnType<typeof getUserToDecreeSchema>>;
+
+export const getUserFromDecreeSchema = () =>
+    getBaseDecreeSchema().extend({
+        type: z.literal('fromDecree'),
+    });
+
+export type UserFromDecreeSchema = z.infer<ReturnType<typeof getUserFromDecreeSchema>>;
+
+export const userDecreeSchema = z.discriminatedUnion('type', [getUserToDecreeSchema(), getUserFromDecreeSchema()]);
+
+export type UserDecreeSchema = z.infer<typeof userDecreeSchema>;
 
 // schema for backend validation
 export const createUserCreationRequestSchema = z.discriminatedUnion('type', [

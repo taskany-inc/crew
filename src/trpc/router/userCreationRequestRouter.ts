@@ -7,6 +7,7 @@ import {
     editUserCreationRequestSchema,
     getUserCreationRequestListSchema,
     handleUserCreationRequest,
+    userDecreeSchema,
 } from '../../modules/userCreationRequestSchemas';
 import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 import { processEvent } from '../../utils/analyticsEvent';
@@ -96,6 +97,14 @@ export const userCreationRequestRouter = router({
                 id: creationRequest.id,
             },
         });
+
+        return creationRequest;
+    }),
+
+    createDecreeRequest: protectedProcedure.input(userDecreeSchema).mutation(async ({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
+
+        const creationRequest = await userCreationRequestsMethods.createDecreeRequest(input, ctx.session.user.id);
 
         return creationRequest;
     }),
