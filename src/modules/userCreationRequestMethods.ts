@@ -27,6 +27,7 @@ import {
     EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
+    UserDecreeSchema,
 } from './userCreationRequestSchemas';
 import { CompleteUserCreationRequest, UserCreationRequestSupplementPosition } from './userCreationRequestTypes';
 
@@ -278,6 +279,125 @@ export const userCreationRequestsMethods = {
         }
 
         return userCreationRequest;
+    },
+
+    createDecreeRequest: async (data: UserDecreeSchema, sessionUserId: string) => {
+        const currentUser = await userMethods.getById(data.userTargetId);
+
+        const findExisted = (id: string) =>
+            currentUser.supplementalPositions.find(
+                (p) =>
+                    p.organizationUnitId === id &&
+                    (data.type === 'toDecree' ? p.status === 'ACTIVE' : p.status !== 'ACTIVE'),
+            );
+
+        const createSupplemental = (
+            existed: SupplementalPosition,
+            item: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId: string | null;
+            },
+            status: PositionStatus,
+        ): Prisma.SupplementalPositionCreateInput => {
+            return {
+                organizationUnit: { connect: { id: item.organizationUnitId } },
+                percentage: item.percentage * percentageMultiply,
+                main: existed.main,
+                role: data.title,
+                unitId: item.unitId,
+                workEndDate: data.type === 'toDecree' ? data.date : null,
+                workStartDate: data.type === 'fromDecree' ? data.date : existed.workStartDate,
+                status,
+            };
+        };
+
+        const status = data.type === 'toDecree' ? PositionStatus.DECREE : PositionStatus.ACTIVE;
+
+        const supplementalPositions =
+            data.supplementalPositions?.reduce<Prisma.SupplementalPositionCreateInput[]>((acum, item) => {
+                const existed = findExisted(item.organizationUnitId);
+
+                if (existed) {
+                    acum.push(
+                        createSupplemental(
+                            existed,
+                            {
+                                organizationUnitId: item.organizationUnitId,
+                                percentage: item.percentage,
+                                unitId: item.unitId || null,
+                            },
+                            status,
+                        ),
+                    );
+                }
+
+                return acum;
+            }, []) || [];
+
+        const position = findExisted(data.organizationUnitId);
+
+        if (position) {
+            supplementalPositions.push(
+                createSupplemental(
+                    position,
+                    {
+                        organizationUnitId: data.organizationUnitId,
+                        percentage: data.percentage || 1,
+                        unitId: data.unitId || null,
+                    },
+                    status,
+                ),
+            );
+        }
+
+        if (data.type === 'toDecree' && data.firedOrganizationUnitId) {
+            const positionToFire = findExisted(data.organizationUnitId);
+
+            if (positionToFire) {
+                supplementalPositions.push(
+                    createSupplemental(
+                        positionToFire,
+                        {
+                            organizationUnitId: data.firedOrganizationUnitId,
+                            percentage: positionToFire.percentage,
+                            unitId: positionToFire.unitId,
+                        },
+                        PositionStatus.FIRED,
+                    ),
+                );
+            }
+        }
+
+        // TODO: send mail with information
+
+        await prisma.userCreationRequest.create({
+            data: {
+                type: data.type,
+                name: currentUser.name ?? '',
+                userTargetId: data.userTargetId,
+                creatorId: sessionUserId,
+                email: data.email,
+                login: data.login,
+                organizationUnitId: data.organizationUnitId,
+                groupId: data.groupId || undefined,
+                // supervisorLogin: supervisor?.login,
+                // supervisorId: data.supervisorId || undefined,
+                title: data.title || undefined,
+                corporateEmail: data.corporateEmail || undefined,
+                osPreference: data.osPreference || undefined,
+                createExternalAccount: Boolean(data.createExternalAccount),
+                services: {},
+                date: data.date,
+                comment: data.comment || undefined,
+                workEmail: data.workEmail || undefined,
+                personalEmail: data.personalEmail || undefined,
+                attaches: data.attachIds?.length ? { connect: data.attachIds.map((id) => ({ id })) } : undefined,
+                supplementalPositions: {
+                    create: supplementalPositions,
+                },
+            },
+        });
     },
 
     getById: async (id: string) => {
@@ -764,14 +884,18 @@ export const userCreationRequestsMethods = {
 
         let user = null;
 
-        try {
-            user = await userMethods.getByLogin(userCreationRequest.login);
-        } catch (error) {
-            /* empty */
-        }
+        const isDecreeRequest = userCreationRequest.type === 'toDecree' || userCreationRequest.type === 'fromDecree';
 
-        if (user) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'User already exists' });
+        if (!isDecreeRequest) {
+            try {
+                user = await userMethods.getByLogin(userCreationRequest.login);
+            } catch (error) {
+                /* empty */
+            }
+
+            if (user) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'User already exists' });
+            }
         }
 
         const acceptedRequest = await prisma.userCreationRequest.update({
@@ -781,10 +905,17 @@ export const userCreationRequestsMethods = {
         });
 
         if (userCreationRequest.date) {
-            await createJob('createProfile', {
-                data: { userCreationRequestId: userCreationRequest.id },
-                date: userCreationRequest.date,
-            });
+            if (isDecreeRequest) {
+                await createJob('resolveDecree', {
+                    data: { userCreationRequestId: userCreationRequest.id },
+                    date: userCreationRequest.date,
+                });
+            } else {
+                await createJob('createProfile', {
+                    data: { userCreationRequestId: userCreationRequest.id },
+                    date: userCreationRequest.date,
+                });
+            }
         }
 
         return acceptedRequest as CompleteUserCreationRequest;

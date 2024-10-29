@@ -133,6 +133,7 @@ model User {
   userCreationRequestCreator      UserCreationRequest[] @relation("userCreationRequestCreator")
   userCreationRequestLineManagers UserCreationRequest[] @relation("userLineManagers")
   userCreationRequestCurators     UserCreationRequest[] @relation("userCurators")
+  userCreationRequestTarget       UserCreationRequest[] @relation("userCreationRequestTarget")
 
   mailingSettings       MailingSettings[]
   // TODO: remove
@@ -161,8 +162,8 @@ enum UserCreationRequestStatus {
 }
 
 model UserCreationRequest {
-  id   String  @id @default(nanoid())
-  type String?
+  id            String  @id @default(nanoid())
+  type          String?
 
   creatorId String?
   creator   User?   @relation(fields: [creatorId], references: [id], name: "userCreationRequestCreator")
@@ -214,6 +215,9 @@ model UserCreationRequest {
   coordinatorLogin String?
   coordinatorId    String?
   coordinator      User?   @relation(fields: [coordinatorId], references: [id], name: "userCoordinator")
+
+  userTargetId String?
+  userTarget   User?   @relation(fields: [userTargetId], references: [id], name: "userCreationRequestTarget")
 
   coordinators User[] @relation(name: "userCoordinators")
   lineManagers User[] @relation(name: "userLineManagers")

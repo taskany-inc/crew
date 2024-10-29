@@ -14,6 +14,9 @@ export interface JobDataMap {
     createProfile: {
         userCreationRequestId: string;
     };
+    resolveDecree: {
+        userCreationRequestId: string;
+    };
 }
 
 export type JobKind = keyof JobDataMap;

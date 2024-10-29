@@ -1,7 +1,7 @@
 import { trpc } from '../trpc/trpcClient';
 import { notifyPromise } from '../utils/notifications/notifyPromise';
 
-import { CreateUserCreationRequest, EditUserCreationRequest } from './userCreationRequestSchemas';
+import { CreateUserCreationRequest, EditUserCreationRequest, UserDecreeSchema } from './userCreationRequestSchemas';
 
 export const useUserCreationRequestMutations = () => {
     const utils = trpc.useContext();
@@ -40,20 +40,43 @@ export const useUserCreationRequestMutations = () => {
             utils.userCreationRequest.invalidate();
         },
     });
+
+    const createDecreeRequest = trpc.userCreationRequest.createDecreeRequest.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
+
     return {
         createUserCreationRequest: (data: CreateUserCreationRequest) =>
             notifyPromise(createUserCreationRequest.mutateAsync(data), 'userCreationRequestCreate'),
 
-        declineUserRequest: (data: { id: string; comment?: string }) =>
-            notifyPromise(declineUserRequest.mutateAsync(data), 'userCreationRequestDecline'),
+        declineUserRequest: (data: { id: string; comment?: string }, type?: string) =>
+            notifyPromise(
+                declineUserRequest.mutateAsync(data),
+                type === 'decree' ? 'userDecreeRequestDecline' : 'userCreationRequestDecline',
+            ),
 
-        acceptUserRequest: (data: { id: string; comment?: string }) =>
-            notifyPromise(acceptUserRequest.mutateAsync(data), 'userCreationRequestAccept'),
+        acceptUserRequest: (data: { id: string; comment?: string }, type?: string) =>
+            notifyPromise(
+                acceptUserRequest.mutateAsync(data),
+                type === 'decree' ? 'userDecreeRequestAccept' : 'userCreationRequestAccept',
+            ),
 
-        editUserCreationRequest: (data: EditUserCreationRequest) =>
-            notifyPromise(editUserCreationRequest.mutateAsync(data), 'userCreationRequestEdit'),
+        editUserCreationRequest: (data: EditUserCreationRequest, type?: string) =>
+            notifyPromise(
+                editUserCreationRequest.mutateAsync(data),
+                type === 'decree' ? 'userDecreeRequestEdit' : 'userCreationRequestEdit',
+            ),
 
-        cancelUserRequest: (data: { id: string; comment?: string }) =>
-            notifyPromise(cancelUserRequest.mutateAsync(data), 'userCreationRequestCancel'),
+        cancelUserRequest: (data: { id: string; comment?: string }, type?: string) =>
+            notifyPromise(
+                cancelUserRequest.mutateAsync(data),
+                type === 'decree' ? 'userDecreeRequestCancel' : 'userCreationRequestCancel',
+            ),
+
+        createDecreeRequest: (data: UserDecreeSchema) =>
+            notifyPromise(createDecreeRequest.mutateAsync(data), 'userDecreeRequestCreate'),
     };
 };
