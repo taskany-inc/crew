@@ -1,0 +1,13 @@
+{
+    "User with login already exist": "Такой логин уже существует",
+    "Request": "Заявка",
+    "Create access to external employee": "Создать доступ внешним сотрудникам",
+    "Registration": "Оформление",
+    "Organization": "Организация",
+    "Team": "Команда",
+    "Personal data": "Персональные данные",
+    "Extra information": "Дополнительная информация",
+    "Start date": "Дата приема",
+    "OS preference": "ОС оборудования",
+    "Enter OS name": "Введите название ОС"
+}

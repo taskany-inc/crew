@@ -13,5 +13,7 @@
     "In format vvivanov": "Введите логин в формате vvivanov",
     "Email": "Электронная почта",
     "Personal": "Личная",
-    "Work": "Рабочая"
+    "Work": "Рабочая",
+    "This data cannot be edited": "Домен нельзя изменить",
+    "New email domain": "Домен новой почты"
 }

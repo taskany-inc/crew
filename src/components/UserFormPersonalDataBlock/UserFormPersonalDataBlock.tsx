@@ -1,5 +1,5 @@
-import React, { ChangeEvent } from 'react';
-import { FormControlInput, Text } from '@taskany/bricks/harmony';
+import React, { ChangeEvent, useRef } from 'react';
+import { FormControlInput, SelectTrigger, Text, Tooltip } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { Role } from 'prisma/prisma-client';
 import { AsYouType } from 'libphonenumber-js';
@@ -10,6 +10,7 @@ import { RoleSelect } from '../RoleSelect/RoleSelect';
 import { loginAuto } from '../../utils/createUserCreationRequest';
 import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { Nullish } from '../../utils/types';
+import { config } from '../../config';
 
 import s from './UserFormPersonalDataBlock.module.css';
 import { tr } from './UserFormPersonalDataBlock.i18n';
@@ -85,6 +86,8 @@ export const UserFormPersonalDataBlock = ({
 
         errors.phone && trigger('phone');
     };
+
+    const emailDomainSelectRef = useRef(null);
 
     return (
         <div className={className} id={id}>
@@ -166,8 +169,12 @@ export const UserFormPersonalDataBlock = ({
                 </Text>
             ))}
             <div className={s.TwoInputsRow}>
-                {nullable(type === 'internal', () => (
-                    <FormControl label={tr('Personal')} error={errors.personalEmail}>
+                {nullable(type === 'internal' || type === 'externalEmployee', () => (
+                    <FormControl
+                        label={tr('Personal')}
+                        error={errors.personalEmail}
+                        required={type === 'externalEmployee'}
+                    >
                         <FormControlInput
                             autoComplete="off"
                             size="m"
@@ -177,19 +184,35 @@ export const UserFormPersonalDataBlock = ({
                         />
                     </FormControl>
                 ))}
-                <FormControl
-                    label={tr('Work')}
-                    error={errors.workEmail}
-                    required={type === 'externalFromMainOrgEmployee'}
-                >
-                    <FormControlInput
-                        autoComplete="off"
-                        size="m"
-                        placeholder="email@example.com"
-                        outline
-                        {...register('workEmail', { onChange: onEmailChange })}
-                    />
-                </FormControl>
+                {nullable(type === 'internal' || type === 'externalFromMainOrgEmployee', () => (
+                    <FormControl
+                        label={tr('Work')}
+                        error={errors.workEmail}
+                        required={type === 'externalFromMainOrgEmployee'}
+                    >
+                        <FormControlInput
+                            autoComplete="off"
+                            size="m"
+                            placeholder="email@example.com"
+                            outline
+                            {...register('workEmail', { onChange: onEmailChange })}
+                        />
+                    </FormControl>
+                ))}
+                {nullable(type === 'externalEmployee', () => (
+                    <>
+                        <div ref={emailDomainSelectRef}>
+                            <FormControl label={tr('New email domain')} required>
+                                <SelectTrigger size="m" view="outline" readOnly>
+                                    {config.corporateEmailDomain}
+                                </SelectTrigger>
+                            </FormControl>
+                        </div>
+                        <Tooltip reference={emailDomainSelectRef} placement="bottom" arrow={false}>
+                            {tr('This data cannot be edited')}
+                        </Tooltip>
+                    </>
+                ))}
             </div>
         </div>
     );

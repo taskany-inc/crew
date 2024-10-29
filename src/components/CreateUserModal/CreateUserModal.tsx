@@ -1,10 +1,6 @@
-import { useState } from 'react';
-import { FormTitle, Modal, ModalContent, ModalCross, ModalHeader, nullable } from '@taskany/bricks';
-import { Switch, SwitchControl } from '@taskany/bricks/harmony';
+import { FormTitle, Modal, ModalContent, ModalCross, ModalHeader } from '@taskany/bricks';
 
-import { CreateUserCreationRequest } from '../../modules/userCreationRequestSchemas';
 import { CreateUserCreationRequestBaseForm } from '../CreateUserCreationRequestBaseForm/CreateUserCreationRequestBaseForm';
-import { CreateUserCreationRequestExternalEmployeeForm } from '../CreateUserCreationRequestExternalEmployeeForm/CreateUserCreationRequestExternalEmployeeForm';
 
 import s from './CreateUserModal.module.css';
 import { tr } from './CreateUserModal.i18n';
@@ -15,35 +11,15 @@ interface CreateUserModalProps {
 }
 
 export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
-    const [type, setType] = useState<CreateUserCreationRequest['type']>('externalEmployee');
-    let title = tr('Create request for user creation');
-
-    if (type === 'externalEmployee') title = tr('Create access for external user');
-
     return (
         <Modal visible={visible} onClose={onClose} width={600} className={s.Modal}>
             <ModalHeader>
-                <FormTitle>{title}</FormTitle>
+                <FormTitle>{tr('Create request for user creation')}</FormTitle>
                 <ModalCross onClick={onClose} />
             </ModalHeader>
 
             <ModalContent className={s.ModalContent}>
-                <Switch
-                    value={type}
-                    onChange={(e, active) => setType(active as CreateUserCreationRequest['type'])}
-                    className={s.TypeSwitch}
-                >
-                    <SwitchControl text={tr('External employee')} value="externalEmployee" />
-                    <SwitchControl text={tr('Existing')} value="base" />
-                </Switch>
-
-                {nullable(type === 'base', () => (
-                    <CreateUserCreationRequestBaseForm onClose={onClose} onSubmit={onClose} />
-                ))}
-
-                {nullable(type === 'externalEmployee', () => (
-                    <CreateUserCreationRequestExternalEmployeeForm onClose={onClose} onSubmit={onClose} />
-                ))}
+                <CreateUserCreationRequestBaseForm onClose={onClose} onSubmit={onClose} />
             </ModalContent>
         </Modal>
     );

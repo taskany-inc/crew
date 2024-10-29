@@ -3,5 +3,11 @@
     "Permission to services": "Доступ к сервисам SD",
     "Reason for granting permission": "Обоснование предоставления доступа",
     "Write reason": "Введите обоснование",
-    "Required field": "Нужно обязательно заполнить"
+    "Required field": "Нужно обязательно заполнить",
+    "Choose file": "Загрузить файл",
+    "Drop file here": "Перетащите файл сюда",
+    "Loading": "Загружаем...",
+    "Loaded": "Загружено",
+    "File doesn't load": "Файл не загружен",
+    "In *.pdf or *.doc / *.docx format": "В формате PDF или DOC"
 }
