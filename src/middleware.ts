@@ -12,9 +12,19 @@ export async function middleware(request: NextRequest) {
     };
     const session = await getSession({ req: requestForNextAuth });
 
-    const { url } = request;
+    const {
+        url,
+        nextUrl: { searchParams, pathname },
+    } = request;
 
-    processEvent('pageview', url, session, request.headers.get('user-agent') || undefined);
+    processEvent({
+        eventType: searchParams.size === 0 ? 'pageview' : 'query',
+        url,
+        pathname,
+        searchParams: Object.fromEntries(searchParams),
+        session,
+        uaHeader: request.headers.get('user-agent') || undefined,
+    });
 
     const response = NextResponse.next();
 
@@ -31,7 +41,7 @@ export const config = {
          * - favicon.ico (favicon file)
          */
         {
-            source: '/((?!api|_next/static|_next/image|favicon|theme).*)',
+            source: '/((?!api|_next/static|_next/image|_next/data|favicon|theme).*)',
             missing: [
                 { type: 'header', key: 'next-router-prefetch' },
                 { type: 'header', key: 'purpose', value: 'prefetch' },

@@ -2,7 +2,15 @@ import { userAgentFromString } from 'next/server';
 
 import { TrpcContext } from '../trpc/trpcContext';
 
-type EventType = 'pageview' | 'click' | 'searchQuery' | 'userRequestCreate' | 'userActiveUpdate' | 'groupCreate';
+type EventType =
+    | 'pageview'
+    | 'query'
+    | 'click'
+    | 'searchQuery'
+    | 'userRequestCreate'
+    | 'userActiveUpdate'
+    | 'groupCreate';
+
 export interface AnalyticsEvent {
     event_type: EventType;
     event_properties: {
@@ -25,13 +33,25 @@ export interface AnalyticsEvent {
     os_version?: string;
 }
 
-const constructEvent = (
-    eventType: EventType,
-    url: string,
-    session: TrpcContext['session'],
-    uaHeader?: string,
-    additionalData?: Record<string, string>,
-) => {
+interface ProcessEventOptions {
+    eventType: EventType;
+    url: string;
+    session: TrpcContext['session'];
+    pathname?: string;
+    searchParams?: Record<string, string | number>;
+    uaHeader?: string;
+    additionalData?: Record<string, string>;
+}
+
+const constructEvent = ({
+    eventType,
+    url,
+    pathname,
+    searchParams,
+    session,
+    uaHeader,
+    additionalData,
+}: ProcessEventOptions) => {
     const parts = url.split('/');
     let locale = parts[3];
     const host = parts[2];
@@ -52,9 +72,10 @@ const constructEvent = (
             time: Date.now(),
             user_agent: ua.ua,
             url,
+            path: pathname || path,
+            query: JSON.stringify(searchParams),
             locale,
             host,
-            path,
             appHost: process.env.NEXTAUTH_URL || '',
             ...additionalData,
         },
@@ -80,17 +101,13 @@ export const trackEvent = (events: AnalyticsEvent[]) => {
                 'Content-Type': 'application/json',
             },
         });
+    } else {
+        console.log('TELEMETRY EVENT', JSON.stringify(events));
     }
 };
 
-export const processEvent = (
-    eventType: EventType,
-    url: string,
-    session: TrpcContext['session'],
-    uaHeader?: string,
-    additionalData?: Record<string, string>,
-) => {
-    const fullEvent = constructEvent(eventType, url, session, uaHeader, additionalData);
+export const processEvent = (options: ProcessEventOptions) => {
+    const fullEvent = constructEvent(options);
 
     trackEvent([fullEvent]);
 };

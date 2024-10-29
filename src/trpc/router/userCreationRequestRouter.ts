@@ -85,8 +85,14 @@ export const userCreationRequestRouter = router({
             },
         });
 
-        processEvent('userRequestCreate', ctx.headers.referer || '', ctx.session, ctx.headers['user-agent'], {
-            id: creationRequest.id,
+        processEvent({
+            eventType: 'userRequestCreate',
+            url: ctx.headers.referer || '',
+            session: ctx.session,
+            uaHeader: ctx.headers['user-agent'],
+            additionalData: {
+                id: creationRequest.id,
+            },
         });
 
         return creationRequest;
