@@ -179,10 +179,16 @@ export const userRouter = router({
         });
 
         const { session, headers } = ctx;
-        processEvent('userActiveUpdate', headers.referer || '', session, headers['user-agent'], {
-            userId: result.id,
-            before: userBefore.active.toString(),
-            after: result.active.toString(),
+        processEvent({
+            eventType: 'userActiveUpdate',
+            url: headers.referer || '',
+            session,
+            uaHeader: headers['user-agent'],
+            additionalData: {
+                userId: result.id,
+                before: userBefore.active.toString(),
+                after: result.active.toString(),
+            },
         });
 
         return result;

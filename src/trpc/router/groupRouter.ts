@@ -42,10 +42,16 @@ export const groupRouter = router({
         });
 
         const { session, headers } = ctx;
-        processEvent('groupCreate', headers.referer || '', session, headers['user-agent'], {
-            groupId: result.id,
-            virtual: result.virtual.toString(),
-            organizational: result.organizational.toString(),
+        processEvent({
+            eventType: 'groupCreate',
+            url: headers.referer || '',
+            session,
+            uaHeader: headers['user-agent'],
+            additionalData: {
+                groupId: result.id,
+                virtual: result.virtual.toString(),
+                organizational: result.organizational.toString(),
+            },
         });
 
         return result;
