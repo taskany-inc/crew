@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.85.1](https://github.com/taskany-inc/crew/compare/v0.85.0...v0.85.1) (2024-10-29)
+
+
+### Bug Fixes
+
+* **INTERNAL-1100:** more data to events and drop next data ([62cbae6](https://github.com/taskany-inc/crew/commit/62cbae64529a0c837409a56b6a063664108b3ea4))
+* **INTERNAL-1299:** fix groupId in creation user request ([dd9594d](https://github.com/taskany-inc/crew/commit/dd9594d2f991899a8c9919783597fa6dfa1d209c))
+
 ## [0.85.0](https://github.com/taskany-inc/crew/compare/v0.84.0...v0.85.0) (2024-10-28)
 
 
