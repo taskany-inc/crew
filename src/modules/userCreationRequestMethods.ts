@@ -86,7 +86,7 @@ export const userCreationRequestsMethods = {
             email: data.email,
             login: data.login,
             organizationUnitId: data.organizationUnitId,
-            groupId: data.groupId,
+            groupId: data.groupId || undefined,
             supervisorLogin: supervisor?.login,
             supervisorId: data.supervisorId,
             title: data.title || undefined,
@@ -97,8 +97,8 @@ export const userCreationRequestsMethods = {
                 toJSON: () => servicesData,
             },
             date: data.date,
-            comment: data.comment,
-            attaches: data.attachIds ? { connect: data.attachIds.map((id) => ({ id })) } : undefined,
+            comment: data.comment || undefined,
+            attaches: data.attachIds?.length ? { connect: data.attachIds.map((id) => ({ id })) } : undefined,
         };
 
         if (data.type === 'externalEmployee') {
@@ -389,6 +389,7 @@ export const userCreationRequestsMethods = {
                 creator: true,
                 supplementalPositions: { include: { organizationUnit: true } },
             },
+            orderBy: { date: 'desc' },
         });
 
         return requests as CompleteUserCreationRequest[];
