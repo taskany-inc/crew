@@ -1,3 +1,13 @@
 {
-    "Create request for user creation": ""
+    "Which request you want to create?": "",
+    "Create a planned newcommer": "",
+    "Informing about the departure of a new employee": "",
+    "Cancel": "",
+    "Create": "",
+    "Create access to employee from {mainOrgName} (external)": "",
+    "external from main description {mainOrgName}": "Creating an account to access internal SD resources for an employee of a neighboring {mainOrgName} division",
+    "Access to external employees": "",
+    "external  description": "Creating an account to access internal SD resources for an employee of an external organization",
+    "Access employee": "",
+    "existing  description": "Creating an account to access internal SD resources for an internal SD employee"
 }

@@ -1,9 +1,30 @@
-.Modal {
+.RequestType {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--gap-m);
 }
 
-.ModalContent {
-    overflow-y: auto;
-    height: 100%;
+.Description {
+    color: var(--text-secondary)
+}
+
+.Text {
+    cursor: pointer;
+}
+
+.Text_active {
+    color: var(--link0)
+}
+
+.FormActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-s);
+}
+
+.IconTick {
+    color: var(--link0);
+    align-self: start;
+    margin-top: var(--gap-xs);
 }

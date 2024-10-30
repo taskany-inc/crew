@@ -27,6 +27,9 @@ export const pages = {
     attach: (attachId: string) => `/api/attach?id=${attachId}`,
 
     newInternalUserRequest: '/requests/users/new/internal',
+    newExternalUserRequest: '/requests/users/new/external',
+    newExternalFromMainUserRequest: '/requests/users/new/external-from-main',
+    newExistingUserRequest: '/requests/users/new/existing',
 };
 
 export const useRouter = () => {
@@ -59,5 +62,8 @@ export const useRouter = () => {
         attach: (attachId: string) => () => router.push(pages.attach(attachId)),
 
         newInternalUserRequest: () => router.push(pages.newInternalUserRequest),
+        newExternalUserRequest: () => router.push(pages.newExternalUserRequest),
+        newExternalFromMainUserRequest: () => router.push(pages.newExternalFromMainUserRequest),
+        newExistingUserRequest: () => router.push(pages.newExistingUserRequest),
     };
 };

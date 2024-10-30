@@ -1,3 +1,13 @@
 {
-    "Create request for user creation": "Создать запрос на добавление пользователя"
+    "Which request you want to create?": "Какую заявку хотите создать?",
+    "Create a planned newcommer": "Плановый выход сотрудника SD",
+    "Informing about the departure of a new employee": "Информирование о выходе нового сотрудника SD",
+    "Cancel": "Отмена",
+    "Create": "Создать",
+    "Create access to employee from {mainOrgName} (external)": "Доступ сотрудникам {mainOrgName} (внешние)",
+    "external from main description {mainOrgName}": "Создание учетной записи для доступа во внутренние ресурсы SD для сотрудника соседнего подразделения {mainOrgName}",
+    "Access to external employees": "Доступ внешним сотрудникам",
+    "external  description": "Создание учетной записи для доступа во внутренние ресурсы SD для сотрудника внешней организации",
+    "Access employee": "Доступ сотрудникам SD",
+    "existing  description": "Создание учетной записи для доступа во внутренние ресурсы SD для внутреннего сотрудника SD"
 }
