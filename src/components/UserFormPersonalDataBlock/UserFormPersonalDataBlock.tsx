@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useRef } from 'react';
-import { FormControlInput, SelectTrigger, Text, Tooltip } from '@taskany/bricks/harmony';
+import { Checkbox, FormControlInput, SelectTrigger, Text, Tooltip } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { Role } from 'prisma/prisma-client';
 import { AsYouType } from 'libphonenumber-js';
@@ -19,7 +19,7 @@ interface UserFormPersonalDataBlockProps {
     className: string;
     id: string;
     onIsLoginUniqueChange?: (arg: string) => void;
-    type: string;
+    type: 'internal' | 'existing' | 'externalEmployee' | 'externalFromMainOrgEmployee';
 }
 
 interface UserFormPersonalDataBlockType {
@@ -33,6 +33,8 @@ interface UserFormPersonalDataBlockType {
     workEmail?: string;
     personalEmail?: string;
     phone: string;
+    createExternalAccount?: boolean;
+    accountingId?: string;
 }
 
 export const UserFormPersonalDataBlock = ({
@@ -51,6 +53,11 @@ export const UserFormPersonalDataBlock = ({
         formState: { errors },
     } = useFormContext<UserFormPersonalDataBlockType>();
 
+    const createExternalAccount = watch('createExternalAccount');
+
+    const onCreateExternalAccountClick = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue('createExternalAccount', e.target.checked);
+    };
     const onNameChange = () => {
         const login = loginAuto({
             firstName: getValues('firstName'),
@@ -94,6 +101,15 @@ export const UserFormPersonalDataBlock = ({
             <Text className={s.SectionHeader} weight="bold" size="lg">
                 {tr('Personal data')}
             </Text>
+            {nullable(type === 'existing', () => (
+                <div className={s.Checkbox}>
+                    <Checkbox
+                        label={tr('Create external account')}
+                        checked={createExternalAccount}
+                        onChange={onCreateExternalAccountClick}
+                    />
+                </div>
+            ))}
             <div className={s.ThreeInputsRow}>
                 <FormControl label={tr('Surname')} required error={errors.surname}>
                     <FormControlInput
@@ -160,7 +176,18 @@ export const UserFormPersonalDataBlock = ({
                     />
                 </FormControl>
             </div>
-            {nullable(type === 'internal', () => (
+            {nullable(type === 'existing', () => (
+                <FormControl label={tr('Accouting ID')} error={errors.accountingId}>
+                    <FormControlInput
+                        autoComplete="off"
+                        size="m"
+                        placeholder={tr('Enter ID')}
+                        outline
+                        {...register('accountingId')}
+                    />
+                </FormControl>
+            ))}
+            {nullable(type === 'internal' || type === 'existing', () => (
                 <Text as="h3">
                     {tr('Email')}{' '}
                     <Text as="span" className={s.Required}>
@@ -169,7 +196,7 @@ export const UserFormPersonalDataBlock = ({
                 </Text>
             ))}
             <div className={s.TwoInputsRow}>
-                {nullable(type === 'internal' || type === 'externalEmployee', () => (
+                {nullable(type === 'internal' || type === 'externalEmployee' || type === 'existing', () => (
                     <FormControl
                         label={tr('Personal')}
                         error={errors.personalEmail}
@@ -184,7 +211,7 @@ export const UserFormPersonalDataBlock = ({
                         />
                     </FormControl>
                 ))}
-                {nullable(type === 'internal' || type === 'externalFromMainOrgEmployee', () => (
+                {nullable(type === 'internal' || type === 'externalFromMainOrgEmployee' || type === 'existing', () => (
                     <FormControl
                         label={tr('Work')}
                         error={errors.workEmail}

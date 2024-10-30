@@ -8,16 +8,16 @@ import { PermissionServiceSelect } from '../PermissionServiceSelect/PermissionSe
 import { getFileIdFromPath } from '../../utils/attachFormatter';
 import { pages } from '../../hooks/useRouter';
 
-import s from './UserFormExternaExtraInfoBlock.module.css';
-import { tr } from './UserFormExternaExtraInfoBlock.i18n';
+import s from './UserFormExternalExtraInfoBlock.module.css';
+import { tr } from './UserFormExternalExtraInfoBlock.i18n';
 
-interface UserFormExternaExtraInfoBlockProps {
+interface UserFormExternalExtraInfoBlockProps {
     className: string;
     id: string;
     type?: string;
 }
 
-export const UserFormExternaExtraInfoBlock = ({ className, id, type }: UserFormExternaExtraInfoBlockProps) => {
+export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserFormExternalExtraInfoBlockProps) => {
     const {
         setValue,
         watch,
@@ -35,6 +35,7 @@ export const UserFormExternaExtraInfoBlock = ({ className, id, type }: UserFormE
             'attachIds',
             files.map(({ filePath }) => getFileIdFromPath(filePath)),
         );
+        trigger('attachIds');
     }, []);
 
     return (

@@ -22,3 +22,7 @@
 .Required {
     color: var(--danger-500)
 }
+
+.Checkbox {
+    margin-bottom: var(--gap-m);
+}

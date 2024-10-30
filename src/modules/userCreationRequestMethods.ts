@@ -47,7 +47,7 @@ export const userCreationRequestsMethods = {
             });
         }
 
-        if (data.type === 'internalEmployee' && !data.supervisorId) {
+        if ((data.type === 'internalEmployee' || data.type === 'existing') && !data.supervisorId) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
                 message: tr('Supervisor ID is required'),
@@ -98,8 +98,23 @@ export const userCreationRequestsMethods = {
             },
             date: data.date,
             comment: data.comment || undefined,
+            workEmail: data.workEmail || undefined,
+            personalEmail: data.personalEmail || undefined,
             attaches: data.attachIds?.length ? { connect: data.attachIds.map((id) => ({ id })) } : undefined,
+            lineManagers: data.lineManagerIds?.length
+                ? { connect: data.lineManagerIds?.map((id) => ({ id })) }
+                : undefined,
         };
+
+        if (data.supplementalPositions?.length && data.type === 'existing') {
+            createData.supplementalPositions = {
+                create: data.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
+                    organizationUnit: { connect: { id: organizationUnitId } },
+                    percentage: percentage * percentageMultiply,
+                    unitId,
+                })),
+            };
+        }
 
         if (data.type === 'externalEmployee') {
             if (!organizationUnit?.external) {
@@ -143,11 +158,10 @@ export const userCreationRequestsMethods = {
             createData.equipment = data.equipment || undefined;
             createData.extraEquipment = data.extraEquipment || undefined;
             createData.workSpace = data.workSpace || undefined;
-            createData.workEmail = data.workEmail || undefined;
             createData.buddyLogin = buddy?.login || undefined;
             createData.buddyId = buddy?.id || undefined;
             createData.coordinators = { connect: data.coordinatorIds?.map((id) => ({ id })) };
-            createData.lineManagers = { connect: data.lineManagerIds?.map((id) => ({ id })) };
+
             createData.recruiterLogin = recruiter?.login || undefined;
             createData.recruiterId = recruiter?.id || undefined;
             createData.location = data.location || undefined;
@@ -160,7 +174,6 @@ export const userCreationRequestsMethods = {
         if (data.type === 'externalFromMainOrgEmployee') {
             createData.permissionServices = { connect: data.permissionToServices?.map((id) => ({ id })) };
             createData.curators = { connect: data.curatorIds?.map((id) => ({ id })) };
-            createData.lineManagers = { connect: data.lineManagerIds?.map((id) => ({ id })) };
             createData.reasonToGrantPermissionToServices = data.reason;
             createData.workEmail = data.workEmail;
         }

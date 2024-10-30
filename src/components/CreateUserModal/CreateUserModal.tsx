@@ -1,7 +1,5 @@
 import { FormTitle, Modal, ModalContent, ModalCross, ModalHeader } from '@taskany/bricks';
 
-import { CreateUserCreationRequestBaseForm } from '../CreateUserCreationRequestBaseForm/CreateUserCreationRequestBaseForm';
-
 import s from './CreateUserModal.module.css';
 import { tr } from './CreateUserModal.i18n';
 
@@ -18,9 +16,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                 <ModalCross onClick={onClose} />
             </ModalHeader>
 
-            <ModalContent className={s.ModalContent}>
-                <CreateUserCreationRequestBaseForm onClose={onClose} onSubmit={onClose} />
-            </ModalContent>
+            <ModalContent className={s.ModalContent}></ModalContent>
         </Modal>
     );
 };

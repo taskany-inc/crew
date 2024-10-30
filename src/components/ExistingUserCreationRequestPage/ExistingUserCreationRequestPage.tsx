@@ -5,13 +5,12 @@ import { Text } from '@taskany/bricks/harmony';
 import { debounce } from 'throttle-debounce';
 
 import {
-    CreateUserCreationRequestInternalEmployee,
-    getCreateUserCreationRequestInternalEmployeeSchema,
+    CreateUserCreationRequestBase,
+    getCreateUserCreationRequestBaseSchema,
 } from '../../modules/userCreationRequestSchemas';
 import { UserFormRegistrationBlock } from '../UserFormRegistrationBlock/UserFormRegistrationBlock';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
-import { UserFormWorkSpaceBlock } from '../UserFormWorkSpaceBlock/UserFormWorkSpaceBlock';
 import { UserFormPersonalDataBlock } from '../UserFormPersonalDataBlock/UserFormPersonalDataBlock';
 import { useRouter } from '../../hooks/useRouter';
 import { UserFormFormActions } from '../UserFormFormActions/UserFormFormActions';
@@ -21,41 +20,37 @@ import { trpc } from '../../trpc/trpcClient';
 import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
 
-import s from './InternalUserCreationRequestPage.module.css';
-import { tr } from './InternalUserCreationRequestPage.i18n';
+import s from './ExistingUserCreationRequestPage.module.css';
+import { tr } from './ExistingUserCreationRequestPage.i18n';
 
-const defaultValues: Partial<CreateUserCreationRequestInternalEmployee> = {
-    type: 'internalEmployee',
+const defaultValues: Partial<CreateUserCreationRequestBase> = {
+    type: 'existing',
     createExternalAccount: true,
-    creationCause: 'start',
     percentage: 1,
     surname: '',
     firstName: '',
     middleName: '',
     login: '',
     comment: '',
-    workSpace: '',
     phone: '',
     email: '',
     workEmail: '',
     personalEmail: '',
     corporateEmail: '',
-    workModeComment: '',
-    equipment: '',
-    extraEquipment: '',
-    location: '',
     unitId: '',
     title: '',
+    accountingId: '',
+    osPreference: '',
     // TODO reset date also maybe like this https://github.com/colinhacks/zod/issues/1206
 };
 
-export const InternalUserCreationRequestPage = () => {
+export const ExistingUserCreationRequestPage = () => {
     const { createUserCreationRequest } = useUserCreationRequestMutations();
 
     const router = useRouter();
 
-    const methods = useForm<CreateUserCreationRequestInternalEmployee>({
-        resolver: zodResolver(getCreateUserCreationRequestInternalEmployeeSchema()),
+    const methods = useForm<CreateUserCreationRequestBase>({
+        resolver: zodResolver(getCreateUserCreationRequestBaseSchema()),
         defaultValues,
     });
 
@@ -109,7 +104,7 @@ export const InternalUserCreationRequestPage = () => {
                 <FormProvider {...methods}>
                     <form onSubmit={onFormSubmit}>
                         <div className={s.Header}>
-                            <Text as="h2">{tr('Create a planned newcommer')}</Text>
+                            <Text as="h2">{tr('Create profile for internal employee')}</Text>
                             <UserFormFormActions
                                 submitDisabled={isSubmitting || isSubmitSuccessful}
                                 onCancel={router.userRequests}
@@ -119,17 +114,15 @@ export const InternalUserCreationRequestPage = () => {
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>
                                 <UserFormPersonalDataBlock
-                                    type="internal"
+                                    type="existing"
                                     onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
                                     id="personal-data"
                                 />
 
-                                <UserFormRegistrationBlock className={s.FormBlock} id="registration" type="internal" />
+                                <UserFormRegistrationBlock className={s.FormBlock} id="registration" type="existing" />
 
-                                <UserFormTeamBlock className={s.FormBlock} id="team" type="internal" />
-
-                                <UserFormWorkSpaceBlock id="work-space" className={s.FormBlock} />
+                                <UserFormTeamBlock className={s.FormBlock} id="team" type="existing" />
 
                                 <UserFormCommentsBlock id="comments" className={s.FormBlock} />
                             </div>
@@ -149,10 +142,6 @@ export const InternalUserCreationRequestPage = () => {
                                     {
                                         title: tr('Team'),
                                         id: 'team',
-                                    },
-                                    {
-                                        title: tr('Work space'),
-                                        id: 'work-space',
                                     },
                                     {
                                         title: tr('Comments'),
