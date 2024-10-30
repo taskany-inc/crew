@@ -11,7 +11,7 @@ const getPhoneSchema = () =>
 
 export const getCreateUserCreationRequestBaseSchema = () =>
     z.object({
-        type: z.literal('base'),
+        type: z.literal('existing'),
         surname: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         firstName: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         middleName: z.string().optional(),
@@ -31,14 +31,42 @@ export const getCreateUserCreationRequestBaseSchema = () =>
             invalid_type_error: tr('Required field'),
         }),
         groupId: z.string().optional(),
-        supervisorId: z.string().optional(),
-        title: z.string().optional(),
+        supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+        title: z
+            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') }),
         corporateEmail: z.string().optional(),
-        osPreference: z.string().optional(),
+        osPreference: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         createExternalAccount: z.boolean().optional(),
-        date: z.date().optional(),
+        date: z.date({
+            errorMap: () => ({
+                message: tr('Required field'),
+            }),
+        }),
         comment: z.string().optional(),
         attachIds: z.string().array().optional(),
+        workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        percentage: z
+            .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
+            .multipleOf(0.01)
+            .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
+            .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
+        unitId: z.string().optional(),
+        supplementalPositions: z
+            .array(
+                z.object({
+                    organizationUnitId: z.string().min(1, { message: tr('Required field') }),
+                    percentage: z
+                        .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
+                        .multipleOf(0.01)
+                        .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
+                        .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
+                    unitId: z.string().optional(),
+                }),
+            )
+            .optional(),
+        lineManagerIds: z.array(z.string()).optional(),
     });
 export type CreateUserCreationRequestBase = z.infer<ReturnType<typeof getCreateUserCreationRequestBaseSchema>>;
 
@@ -57,9 +85,6 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
         workSpace: z.string().optional(),
         personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
         buddyId: z.string().optional(),
-        title: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
         recruiterId: z.string().optional(),
         coordinatorIds: z.array(z.string()).optional(),
         lineManagerIds: z.array(z.string()).optional(),
@@ -67,7 +92,11 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
         location: z.string().min(1, { message: tr('Required field') }),
         creationCause: z.string(),
         unitId: z.string().optional(),
-        date: z.date({ invalid_type_error: tr('Required field'), required_error: tr('Required field') }),
+        date: z.date({
+            errorMap: () => ({
+                message: tr('Required field'),
+            }),
+        }),
         percentage: z
             .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
             .multipleOf(0.01)
@@ -86,11 +115,12 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
                 }),
             )
             .optional(),
-        supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+        osPreference: z.string().optional(),
     });
 export type CreateUserCreationRequestInternalEmployee = z.infer<
     ReturnType<typeof getCreateUserCreationRequestInternalEmployeeSchema>
 >;
+
 export const getCreateUserCreationRequestExternalEmployeeSchema = () =>
     getCreateUserCreationRequestBaseSchema().extend({
         type: z.literal('externalEmployee'),
@@ -104,17 +134,19 @@ export const getCreateUserCreationRequestExternalEmployeeSchema = () =>
             .min(1, { message: tr('Required field') })
             .email(tr('Not a valid email')),
         osPreference: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
-        date: z.date({ invalid_type_error: tr('Required field'), required_error: tr('Required field') }),
+        date: z.date({
+            errorMap: () => ({
+                message: tr('Required field'),
+            }),
+        }),
         lineManagerIds: z.array(z.string()).optional(),
         curatorIds: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
         reason: z
             .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
             .min(1, { message: tr('Required field') }),
-        title: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
         permissionToServices: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
         supervisorId: z.string().optional(),
+        percentage: z.number().optional(),
     });
 export type CreateUserCreationRequestExternalEmployee = z.infer<
     ReturnType<typeof getCreateUserCreationRequestExternalEmployeeSchema>
@@ -132,11 +164,11 @@ export const getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema = () 
         reason: z
             .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
             .min(1, { message: tr('Required field') }),
-        title: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
         permissionToServices: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
         supervisorId: z.string().optional(),
+        osPreference: z.string().optional(),
+        date: z.date().optional(),
+        percentage: z.number().optional(),
     });
 
 export type CreateUserCreationRequestexternalFromMainOrgEmployee = z.infer<

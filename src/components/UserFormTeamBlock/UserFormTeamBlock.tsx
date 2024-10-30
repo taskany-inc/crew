@@ -2,6 +2,7 @@ import React from 'react';
 import { Text } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { Group, User } from 'prisma/prisma-client';
+import { nullable } from '@taskany/bricks';
 
 import { FormControl } from '../FormControl/FormControl';
 import { UserSelect } from '../UserSelect/UserSelect';
@@ -14,6 +15,7 @@ import { tr } from './UserFormTeamBlock.i18n';
 interface UserFormTeamBlockProps {
     className: string;
     id: string;
+    type: 'internal' | 'existing';
 }
 
 interface UserFormTeamBlockType {
@@ -24,7 +26,7 @@ interface UserFormTeamBlockType {
     coordinatorIds: string[];
 }
 
-export const UserFormTeamBlock = ({ className, id }: UserFormTeamBlockProps) => {
+export const UserFormTeamBlock = ({ className, id, type }: UserFormTeamBlockProps) => {
     const {
         setValue,
         trigger,
@@ -32,9 +34,9 @@ export const UserFormTeamBlock = ({ className, id }: UserFormTeamBlockProps) => 
         formState: { errors },
     } = useFormContext<UserFormTeamBlockType>();
 
-    const onUserChange = (user: Nullish<User>, type: keyof UserFormTeamBlockType) => {
-        user && setValue(type, user.id);
-        trigger(type);
+    const onUserChange = (user: Nullish<User>, userType: keyof UserFormTeamBlockType) => {
+        user && setValue(userType, user.id);
+        trigger(userType);
     };
 
     const onTeamChange = (group: Nullish<Group>) => {
@@ -72,15 +74,40 @@ export const UserFormTeamBlock = ({ className, id }: UserFormTeamBlockProps) => 
                 </FormControl>
             </div>
 
-            <div className={s.ThreeInputsRow}>
-                <FormControl label="Buddy">
-                    <UserSelect
-                        mode="single"
-                        selectedUsers={selectedBuddyId ? [selectedBuddyId] : undefined}
-                        onChange={(users) => onUserChange(users[0], 'buddyId')}
-                        onReset={() => setValue('buddyId', undefined)}
-                    />
-                </FormControl>
+            {nullable(
+                type === 'internal',
+                () => (
+                    <div className={s.ThreeInputsRow}>
+                        <FormControl label="Buddy">
+                            <UserSelect
+                                mode="single"
+                                selectedUsers={selectedBuddyId ? [selectedBuddyId] : undefined}
+                                onChange={(users) => onUserChange(users[0], 'buddyId')}
+                                onReset={() => setValue('buddyId', undefined)}
+                            />
+                        </FormControl>
+                        <FormControl label={tr('OrgGroup')}>
+                            <GroupComboBox
+                                defaultGroupId={watch('groupId')}
+                                onChange={onTeamChange}
+                                error={errors.groupId}
+                                onReset={() => setValue('groupId', undefined)}
+                            />
+                        </FormControl>
+                        <FormControl label={tr('Coordinators')}>
+                            <UserSelect
+                                mode="multiple"
+                                selectedUsers={watch('coordinatorIds')}
+                                onChange={(users) =>
+                                    setValue(
+                                        'coordinatorIds',
+                                        users.map((user) => user.id),
+                                    )
+                                }
+                            />
+                        </FormControl>
+                    </div>
+                ),
                 <FormControl label={tr('OrgGroup')}>
                     <GroupComboBox
                         defaultGroupId={watch('groupId')}
@@ -88,20 +115,8 @@ export const UserFormTeamBlock = ({ className, id }: UserFormTeamBlockProps) => 
                         error={errors.groupId}
                         onReset={() => setValue('groupId', undefined)}
                     />
-                </FormControl>
-                <FormControl label={tr('Coordinators')}>
-                    <UserSelect
-                        mode="multiple"
-                        selectedUsers={watch('coordinatorIds')}
-                        onChange={(users) =>
-                            setValue(
-                                'coordinatorIds',
-                                users.map((user) => user.id),
-                            )
-                        }
-                    />
-                </FormControl>
-            </div>
+                </FormControl>,
+            )}
         </div>
     );
 };

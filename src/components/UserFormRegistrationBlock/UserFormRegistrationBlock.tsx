@@ -2,6 +2,7 @@ import React from 'react';
 import { FormControlInput, Switch, SwitchControl, Text } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { OrganizationUnit, User } from 'prisma/prisma-client';
+import { nullable } from '@taskany/bricks';
 
 import { FormControl } from '../FormControl/FormControl';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
@@ -15,6 +16,7 @@ import { tr } from './UserFormRegistrationBlock.i18n';
 interface UserFormRegistrationBlockProps {
     className: string;
     id: string;
+    type: 'internal' | 'existing';
 }
 
 interface UserFormRegistrationBlockType {
@@ -25,9 +27,10 @@ interface UserFormRegistrationBlockType {
     date: Date;
     creationCause: string;
     recruiterId?: string;
+    osPreference?: string;
 }
 
-export const UserFormRegistrationBlock = ({ className, id }: UserFormRegistrationBlockProps) => {
+export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegistrationBlockProps) => {
     const {
         register,
         setValue,
@@ -41,16 +44,19 @@ export const UserFormRegistrationBlock = ({ className, id }: UserFormRegistratio
         o && setValue('organizationUnitId', o.id);
         trigger('organizationUnitId');
     };
-    const onPercentageChange = (percentage: number, type: 'percentage' | 'supplementalPositions.0.percentage') => {
+    const onPercentageChange = (
+        percentage: number,
+        percentageType: 'percentage' | 'supplementalPositions.0.percentage',
+    ) => {
         if (percentage > 1 || percentage < 0.01) {
-            setError(type, { message: tr('Please enter percentage from 0.01 to 1') });
+            setError(percentageType, { message: tr('Please enter percentage from 0.01 to 1') });
         }
-        trigger(type);
+        trigger(percentageType);
     };
 
-    const onUserChange = (user: Nullish<User>, type: keyof UserFormRegistrationBlockType) => {
-        user && setValue(type, user.id);
-        trigger(type);
+    const onUserChange = (user: Nullish<User>, userType: keyof UserFormRegistrationBlockType) => {
+        user && setValue(userType, user.id);
+        trigger(userType);
     };
 
     const selectedReqruiterId = watch('recruiterId');
@@ -105,26 +111,42 @@ export const UserFormRegistrationBlock = ({ className, id }: UserFormRegistratio
                     />
                 </FormControl>
 
-                <FormControl label={tr('Cause')} required error={errors.creationCause}>
-                    <Switch
-                        className={s.Switch}
-                        value={watch('creationCause')}
-                        onChange={(_e, a) => setValue('creationCause', a)}
-                    >
-                        <SwitchControl size="m" text={tr('Start')} value="start" />
-                        <SwitchControl size="m" text={tr('Transfer')} value="transfer" />
-                    </Switch>
-                </FormControl>
+                {nullable(
+                    type === 'internal',
+                    () => (
+                        <FormControl label={tr('Cause')} required error={errors.creationCause}>
+                            <Switch
+                                className={s.Switch}
+                                value={watch('creationCause')}
+                                onChange={(_e, a) => setValue('creationCause', a)}
+                            >
+                                <SwitchControl size="m" text={tr('Start')} value="start" />
+                                <SwitchControl size="m" text={tr('Transfer')} value="transfer" />
+                            </Switch>
+                        </FormControl>
+                    ),
+                    <FormControl label={tr('OS preference')} error={errors.osPreference} required>
+                        <FormControlInput
+                            autoComplete="off"
+                            size="m"
+                            placeholder={tr('Enter OS name')}
+                            outline
+                            {...register('osPreference')}
+                        />
+                    </FormControl>,
+                )}
             </div>
 
-            <FormControl label={tr('Recruiter')}>
-                <UserSelect
-                    mode="single"
-                    selectedUsers={selectedReqruiterId ? [selectedReqruiterId] : undefined}
-                    onChange={(users) => onUserChange(users[0], 'recruiterId')}
-                    onReset={() => setValue('recruiterId', undefined)}
-                />
-            </FormControl>
+            {nullable(type === 'internal', () => (
+                <FormControl label={tr('Recruiter')}>
+                    <UserSelect
+                        mode="single"
+                        selectedUsers={selectedReqruiterId ? [selectedReqruiterId] : undefined}
+                        onChange={(users) => onUserChange(users[0], 'recruiterId')}
+                        onReset={() => setValue('recruiterId', undefined)}
+                    />
+                </FormControl>
+            ))}
             <div className={s.AddSupplementalPosition}></div>
             <AddSupplementalPosition
                 onOrganizatioUnitChange={(orgId) =>

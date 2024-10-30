@@ -19,7 +19,7 @@ import { FormControl } from '../FormControl/FormControl';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { config } from '../../config';
 import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserFormExternalTeamBlock';
-import { UserFormExternaExtraInfoBlock } from '../UserFormExternaExtraInfoBlock/UserFormExternaExtraInfoBlock';
+import { UserFormExternalExtraInfoBlock } from '../UserFormExternalExtraInfoBlock/UserFormExternalExtraInfoBlock';
 import { useSpyNav } from '../../hooks/useSpyNav';
 
 import s from './ExternalFromMainOrgUserCreationRequestPage.module.css';
@@ -135,7 +135,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
 
                                 <UserFormExternalTeamBlock className={s.FormBlock} id="team" />
 
-                                <UserFormExternaExtraInfoBlock className={s.FormBlock} id="extra-info" />
+                                <UserFormExternalExtraInfoBlock className={s.FormBlock} id="extra-info" />
                             </div>
 
                             <NavMenu

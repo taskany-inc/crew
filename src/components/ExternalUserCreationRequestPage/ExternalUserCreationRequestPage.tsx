@@ -19,7 +19,7 @@ import { trpc } from '../../trpc/trpcClient';
 import { FormControl } from '../FormControl/FormControl';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserFormExternalTeamBlock';
-import { UserFormExternaExtraInfoBlock } from '../UserFormExternaExtraInfoBlock/UserFormExternaExtraInfoBlock';
+import { UserFormExternalExtraInfoBlock } from '../UserFormExternalExtraInfoBlock/UserFormExternalExtraInfoBlock';
 import { useSpyNav } from '../../hooks/useSpyNav';
 import { Nullish } from '../../utils/types';
 
@@ -148,7 +148,7 @@ export const ExternalUserCreationRequestPage = () => {
                                             />
                                         </FormControl>
                                     </div>
-                                    <FormControl required label={tr('OS preference')} error={errors.date}>
+                                    <FormControl required label={tr('OS preference')} error={errors.osPreference}>
                                         <FormControlInput
                                             outline
                                             placeholder={tr('Enter OS name')}
@@ -161,7 +161,7 @@ export const ExternalUserCreationRequestPage = () => {
 
                                 <UserFormExternalTeamBlock className={s.FormBlock} id="team" />
 
-                                <UserFormExternaExtraInfoBlock
+                                <UserFormExternalExtraInfoBlock
                                     className={s.FormBlock}
                                     id="extra-info"
                                     type="externalEmployee"

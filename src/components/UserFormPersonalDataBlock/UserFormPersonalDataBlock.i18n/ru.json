@@ -15,5 +15,8 @@
     "Personal": "Личная",
     "Work": "Рабочая",
     "This data cannot be edited": "Домен нельзя изменить",
-    "New email domain": "Домен новой почты"
+    "New email domain": "Домен новой почты",
+    "Create external account": "Создать учетную запись Cloud",
+    "Accouting ID": "ID в 1C (для сотрудников ДЗО)",
+    "Enter ID": "Введите ID"
 }
