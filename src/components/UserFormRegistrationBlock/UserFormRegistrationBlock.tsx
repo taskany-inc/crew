@@ -17,6 +17,7 @@ interface UserFormRegistrationBlockProps {
     className: string;
     id: string;
     type: 'internal' | 'existing';
+    readOnly?: boolean;
 }
 
 interface UserFormRegistrationBlockType {
@@ -30,7 +31,7 @@ interface UserFormRegistrationBlockType {
     osPreference?: string;
 }
 
-export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegistrationBlockProps) => {
+export const UserFormRegistrationBlock = ({ className, id, type, readOnly }: UserFormRegistrationBlockProps) => {
     const {
         register,
         setValue,
@@ -59,7 +60,9 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
         trigger(userType);
     };
 
+    const unitId = watch('unitId');
     const selectedReqruiterId = watch('recruiterId');
+    const date = watch('date');
 
     return (
         <div className={className} id={id}>
@@ -70,6 +73,7 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
             <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Organization')} required>
                     <OrganizationUnitComboBox
+                        readOnly={readOnly}
                         searchType="internal"
                         organizationUnitId={watch('organizationUnitId')}
                         onChange={onOrganizationChange}
@@ -78,21 +82,24 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
                 </FormControl>
                 <FormControl label={tr('Unit ID')} error={errors.unitId}>
                     <FormControlInput
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write unit ID')}
+                        value={readOnly && !unitId ? tr('Not specified') : unitId}
                         outline
                         {...register('unitId')}
                     />
                 </FormControl>
                 <FormControl label={tr('Percentage')} error={errors.percentage}>
                     <FormControlInput
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write the percentage')}
                         outline
                         type="number"
-                        value={watch('percentage')}
+                        value={readOnly && !watch('percentage') ? tr('Not specified') : watch('percentage')}
                         {...register('percentage', {
                             valueAsNumber: true,
                             onChange: (e) => onPercentageChange(+e.target.value, 'percentage'),
@@ -102,10 +109,12 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
                 </FormControl>
                 <FormControl required label={tr('Start date')} error={errors.date}>
                     <FormControlInput
+                        readOnly={readOnly}
                         outline
                         autoComplete="off"
                         size="m"
                         type="date"
+                        value={readOnly ? date?.toISOString().substring(0, 10) : undefined}
                         {...register('date', { valueAsDate: true })}
                     />
                 </FormControl>
@@ -113,6 +122,7 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
                 {nullable(type === 'internal', () => (
                     <FormControl label={tr('Recruiter')}>
                         <UserSelect
+                            readOnly={readOnly}
                             mode="single"
                             selectedUsers={selectedReqruiterId ? [selectedReqruiterId] : undefined}
                             onChange={(users) => onUserChange(users[0], 'recruiterId')}
@@ -129,8 +139,8 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
                                 value={watch('creationCause')}
                                 onChange={(_e, a) => setValue('creationCause', a)}
                             >
-                                <SwitchControl size="m" text={tr('Start')} value="start" />
-                                <SwitchControl size="m" text={tr('Transfer')} value="transfer" />
+                                <SwitchControl disabled={readOnly} size="m" text={tr('Start')} value="start" />
+                                <SwitchControl disabled={readOnly} size="m" text={tr('Transfer')} value="transfer" />
                             </Switch>
                         </FormControl>
                     ),
@@ -148,6 +158,7 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
 
             <div className={s.AddSupplementalPosition}></div>
             <AddSupplementalPosition
+                readOnly={readOnly}
                 onOrganizatioUnitChange={(orgId) =>
                     orgId && setValue('supplementalPositions.0.organizationUnitId', orgId)
                 }

@@ -16,6 +16,7 @@ interface UserFormTeamBlockProps {
     className: string;
     id: string;
     type: 'internal' | 'existing';
+    readOnly?: boolean;
 }
 
 interface UserFormTeamBlockType {
@@ -26,7 +27,7 @@ interface UserFormTeamBlockType {
     coordinatorIds: string[];
 }
 
-export const UserFormTeamBlock = ({ className, id, type }: UserFormTeamBlockProps) => {
+export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTeamBlockProps) => {
     const {
         setValue,
         trigger,
@@ -54,6 +55,7 @@ export const UserFormTeamBlock = ({ className, id, type }: UserFormTeamBlockProp
             <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Supervisor')} required>
                     <UserSelect
+                        readOnly={readOnly}
                         mode="single"
                         selectedUsers={watch('supervisorId') ? [watch('supervisorId')] : undefined}
                         onChange={(users) => onUserChange(users[0], 'supervisorId')}
@@ -62,6 +64,7 @@ export const UserFormTeamBlock = ({ className, id, type }: UserFormTeamBlockProp
                 </FormControl>
                 <FormControl label={tr('Line managers')}>
                     <UserSelect
+                        readOnly={readOnly}
                         mode="multiple"
                         selectedUsers={watch('lineManagerIds')}
                         onChange={(users) =>
@@ -80,6 +83,7 @@ export const UserFormTeamBlock = ({ className, id, type }: UserFormTeamBlockProp
                     <div className={s.ThreeInputsRow}>
                         <FormControl label="Buddy">
                             <UserSelect
+                                readOnly={readOnly}
                                 mode="single"
                                 selectedUsers={selectedBuddyId ? [selectedBuddyId] : undefined}
                                 onChange={(users) => onUserChange(users[0], 'buddyId')}
@@ -88,6 +92,7 @@ export const UserFormTeamBlock = ({ className, id, type }: UserFormTeamBlockProp
                         </FormControl>
                         <FormControl label={tr('OrgGroup')}>
                             <GroupComboBox
+                                readOnly={readOnly}
                                 defaultGroupId={watch('groupId')}
                                 onChange={onTeamChange}
                                 error={errors.groupId}
@@ -96,6 +101,7 @@ export const UserFormTeamBlock = ({ className, id, type }: UserFormTeamBlockProp
                         </FormControl>
                         <FormControl label={tr('Coordinators')}>
                             <UserSelect
+                                readOnly={readOnly}
                                 mode="multiple"
                                 selectedUsers={watch('coordinatorIds')}
                                 onChange={(users) =>

@@ -23,6 +23,7 @@ import {
     CreateUserCreationRequest,
     CreateUserCreationRequestExternalEmployee,
     CreateUserCreationRequestexternalFromMainOrgEmployee,
+    CreateUserCreationRequestInternalEmployee,
     EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
@@ -683,5 +684,119 @@ export const userCreationRequestsMethods = {
         }
 
         return canceledRequest;
+    },
+    getRequestForInternalEmployeeById: async (id: string): Promise<CreateUserCreationRequestInternalEmployee> => {
+        const request = await prisma.userCreationRequest.findUnique({
+            where: { id },
+            include: {
+                coordinators: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+            },
+        });
+        if (!request) {
+            throw new TRPCError({ message: `No user creation request with id ${id}`, code: 'NOT_FOUND' });
+        }
+
+        if (request.type !== 'internalEmployee') {
+            throw new TRPCError({
+                message: `Wrong request type ${request.type} instead of InternalEmployee for request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        const {
+            services,
+            name,
+            type,
+            title,
+            recruiterId,
+            buddyId,
+            supervisorId,
+            date,
+            percentage,
+            workMode,
+            equipment,
+            location,
+            creationCause,
+            groupId,
+            corporateEmail,
+            comment,
+            workModeComment,
+            extraEquipment,
+            workSpace,
+            personalEmail,
+            workEmail,
+            unitId,
+            osPreference,
+            supplementalPositions,
+            coordinators,
+            lineManagers,
+            ...restRequest
+        } = request;
+
+        const fullNameArray = name.split(' ');
+
+        const s = services as { serviceId: string; serviceName: string }[];
+
+        const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
+
+        if (
+            !date ||
+            !title ||
+            !phone ||
+            !supervisorId ||
+            !percentage ||
+            !workMode ||
+            !equipment ||
+            !location ||
+            !creationCause ||
+            !coordinators
+        ) {
+            throw new TRPCError({
+                message: `Some data is missing for request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        if (!phone) {
+            throw new TRPCError({ message: 'No phone creation request', code: 'NOT_FOUND' });
+        }
+
+        return {
+            ...restRequest,
+            type: 'internalEmployee',
+            title,
+            phone,
+            date,
+            supervisorId,
+            buddyId: buddyId || undefined,
+            recruiterId: recruiterId || undefined,
+            percentage,
+            workMode,
+            equipment,
+            location,
+            creationCause,
+            coordinatorIds: coordinators.map(({ id }) => id) || undefined,
+            lineManagerIds: lineManagers.map(({ id }) => id),
+            groupId: groupId || undefined,
+            corporateEmail: corporateEmail || undefined,
+            comment: comment || undefined,
+            workModeComment: workModeComment || undefined,
+            extraEquipment: extraEquipment || undefined,
+            workSpace: workSpace || undefined,
+            personalEmail: personalEmail || undefined,
+            workEmail: workEmail || undefined,
+            supplementalPositions: supplementalPositions.map(({ organizationUnitId, unitId, percentage }) => ({
+                organizationUnitId,
+                unitId: unitId || undefined,
+                percentage,
+            })),
+            osPreference: osPreference || undefined,
+            unitId: unitId || undefined,
+            surname: fullNameArray[0],
+            firstName: fullNameArray[1],
+            middleName: fullNameArray[2],
+        };
     },
 };

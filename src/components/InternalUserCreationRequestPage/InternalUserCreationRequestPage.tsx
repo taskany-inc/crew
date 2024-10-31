@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Text } from '@taskany/bricks/harmony';
 import { debounce } from 'throttle-debounce';
+import { nullable } from '@taskany/bricks';
+import { UserCreationRequestStatus } from 'prisma/prisma-client';
 
 import {
     CreateUserCreationRequestInternalEmployee,
@@ -20,37 +22,60 @@ import { useSpyNav } from '../../hooks/useSpyNav';
 import { trpc } from '../../trpc/trpcClient';
 import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
+import { DecideOnRequestFormActions } from '../DecideOnRequestFormActions/DecideOnRequestFormActions';
 
 import s from './InternalUserCreationRequestPage.module.css';
 import { tr } from './InternalUserCreationRequestPage.i18n';
 
-const defaultValues: Partial<CreateUserCreationRequestInternalEmployee> = {
-    type: 'internalEmployee',
-    createExternalAccount: true,
-    creationCause: 'start',
-    percentage: 1,
-    surname: '',
-    firstName: '',
-    middleName: '',
-    login: '',
-    comment: '',
-    workSpace: '',
-    phone: '',
-    email: '',
-    workEmail: '',
-    personalEmail: '',
-    corporateEmail: '',
-    workModeComment: '',
-    equipment: '',
-    extraEquipment: '',
-    location: '',
-    unitId: '',
-    title: '',
-    // TODO reset date also maybe like this https://github.com/colinhacks/zod/issues/1206
-};
+interface InternalUserCreationRequestPageProps {
+    request: CreateUserCreationRequestInternalEmployee;
+    requestId: string;
+    requestStatus?: UserCreationRequestStatus;
+    type: 'new' | 'readOnly' | 'edit';
+}
 
-export const InternalUserCreationRequestPage = () => {
+export const InternalUserCreationRequestPage = ({
+    requestId,
+    type = 'new',
+    requestStatus,
+    request,
+}: InternalUserCreationRequestPageProps) => {
     const { createUserCreationRequest } = useUserCreationRequestMutations();
+
+    const defaultValues: Partial<CreateUserCreationRequestInternalEmployee> = useMemo(
+        () => ({
+            type: 'internalEmployee',
+            creationCause: request?.creationCause,
+            percentage: 1,
+            surname: request?.surname,
+            firstName: request?.firstName,
+            middleName: request?.middleName,
+            login: request?.login,
+            comment: request?.comment,
+            workSpace: request?.workSpace,
+            phone: request?.phone,
+            email: request?.email,
+            workEmail: request?.workEmail,
+            personalEmail: request?.personalEmail,
+            corporateEmail: request?.corporateEmail,
+            workModeComment: request?.workModeComment,
+            equipment: request?.equipment,
+            extraEquipment: request?.extraEquipment,
+            location: request?.location,
+            unitId: request?.unitId,
+            title: request?.title,
+            supervisorId: request?.supervisorId,
+            recruiterId: request?.recruiterId,
+            buddyId: request?.buddyId,
+            workMode: request?.workMode,
+            organizationUnitId: request?.organizationUnitId,
+            lineManagerIds: request?.lineManagerIds,
+            coordinatorIds: request?.coordinatorIds,
+            date: request?.date,
+            groupId: request?.groupId,
+        }),
+        [request],
+    );
 
     const router = useRouter();
 
@@ -108,30 +133,63 @@ export const InternalUserCreationRequestPage = () => {
             <div className={s.Wrapper}>
                 <FormProvider {...methods}>
                     <form onSubmit={onFormSubmit}>
-                        <div className={s.Header}>
-                            <Text as="h2">{tr('Create a planned newcommer')}</Text>
-                            <UserFormFormActions
-                                submitDisabled={isSubmitting || isSubmitSuccessful}
-                                onCancel={router.userRequests}
-                                onReset={() => reset(defaultValues)}
-                            />
-                        </div>
+                        {nullable(type === 'new', () => (
+                            <div className={s.Header}>
+                                <Text as="h2">{tr('Create a planned newcommer')}</Text>
+                                <UserFormFormActions
+                                    submitDisabled={isSubmitting || isSubmitSuccessful}
+                                    onCancel={router.userRequests}
+                                    onReset={() => reset(defaultValues)}
+                                />
+                            </div>
+                        ))}
+
+                        {nullable(type === 'readOnly' && requestId, (requestId) => (
+                            <div className={s.Header}>
+                                <Text as="h2">{tr('Request for a planned employee work start')}</Text>
+                                <DecideOnRequestFormActions
+                                    requestStatus={requestStatus}
+                                    requestId={requestId}
+                                    onDecide={router.userRequests}
+                                />
+                            </div>
+                        ))}
+
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>
                                 <UserFormPersonalDataBlock
                                     type="internal"
+                                    readOnly={type === 'readOnly'}
                                     onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
                                     id="personal-data"
                                 />
 
-                                <UserFormRegistrationBlock className={s.FormBlock} id="registration" type="internal" />
+                                <UserFormRegistrationBlock
+                                    readOnly={type === 'readOnly'}
+                                    className={s.FormBlock}
+                                    id="registration"
+                                    type="internal"
+                                />
 
-                                <UserFormTeamBlock className={s.FormBlock} id="team" type="internal" />
+                                <UserFormTeamBlock
+                                    readOnly={type === 'readOnly'}
+                                    className={s.FormBlock}
+                                    id="team"
+                                    type="internal"
+                                />
 
-                                <UserFormWorkSpaceBlock id="work-space" className={s.FormBlock} />
+                                <UserFormWorkSpaceBlock
+                                    readOnly={type === 'readOnly'}
+                                    id="work-space"
+                                    className={s.FormBlock}
+                                />
 
-                                <UserFormCommentsBlock id="comments" className={s.FormBlock} />
+                                <UserFormCommentsBlock
+                                    readOnly={type === 'readOnly'}
+                                    id="comments"
+                                    className={s.FormBlock}
+                                />
                             </div>
 
                             <NavMenu

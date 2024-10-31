@@ -51,7 +51,6 @@ export const GroupComboBox = ({
 
     return (
         <Select
-            arrow
             value={value}
             items={showUserGroups ? userGroupList : groupsList}
             onChange={(groups) => onChange(groups[0])}
