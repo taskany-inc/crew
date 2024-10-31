@@ -7,6 +7,8 @@ import { suggestionsTake } from '../utils/suggestions';
 import { trimAndJoin } from '../utils/trimAndJoin';
 import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
+import { percentageMultiply } from '../utils/suplementPosition';
+import { PositionStatus } from '../generated/kyselyTypes';
 
 import {
     MembershipInfo,
@@ -138,6 +140,17 @@ export const userMethods = {
                 login: data.login,
                 memberships: data.groupId ? { create: { groupId: data.groupId } } : undefined,
                 organizationUnitId: data.organizationUnitId,
+                supplementalPositions: {
+                    create: [
+                        {
+                            organizationUnit: { connect: { id: data.organizationUnitId } },
+                            percentage: 1 * percentageMultiply,
+                            main: true,
+                            status: PositionStatus.ACTIVE,
+                            workStartDate: data.date,
+                        },
+                    ],
+                },
                 services: { createMany: { data: servicesData } },
             },
         });
@@ -431,13 +444,75 @@ export const userMethods = {
 
     editActiveState: async (data: EditUserActiveState): Promise<User> => {
         await externalUserMethods.update(data.id, { active: data.active });
+
+        const positions = await prisma.supplementalPosition.findMany({
+            where: {
+                userId: data.id,
+            },
+        });
+
+        const workEndDate = new Date();
+
         if (data.active === false) {
             await prisma.membership.deleteMany({ where: { userId: data.id, group: { organizational: true } } });
+
+            await prisma.supplementalPosition.updateMany({
+                where: {
+                    id: {
+                        in: positions.reduce<string[]>((acum, position) => {
+                            if (position.status === 'ACTIVE') {
+                                acum.push(position.id);
+                            }
+                            return acum;
+                        }, []),
+                    },
+                },
+                data: {
+                    status: 'FIRED',
+                    workEndDate,
+                },
+            });
+        } else {
+            const { ids } = positions.reduce<{ ids: string[]; endDate: Date | null }>(
+                (acum, position) => {
+                    const lastEndDate = acum.endDate?.valueOf() || 0;
+                    const currentEndDate = position.workEndDate?.valueOf() || 0;
+
+                    if (position.status !== 'ACTIVE') {
+                        if (lastEndDate < currentEndDate) {
+                            acum.endDate = position.workEndDate;
+                            acum.ids = [position.id];
+                        }
+
+                        if (lastEndDate === currentEndDate) {
+                            acum.ids.push(position.id);
+                        }
+                    }
+
+                    return acum;
+                },
+                {
+                    ids: [],
+                    endDate: null,
+                },
+            );
+
+            await prisma.supplementalPosition.updateMany({
+                where: {
+                    id: {
+                        in: ids,
+                    },
+                },
+                data: {
+                    status: 'ACTIVE',
+                    workEndDate: null,
+                },
+            });
         }
         await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: !data.active } });
         return prisma.user.update({
             where: { id: data.id },
-            data: { active: data.active, deactivatedAt: data.active ? null : new Date() },
+            data: { active: data.active, deactivatedAt: data.active ? null : workEndDate },
         });
     },
 
@@ -639,9 +714,7 @@ export const userMethods = {
                 login: request.login,
                 title: request.title,
                 memberships: request.groupId ? { create: { groupId: request.groupId } } : undefined,
-                organizationUnit: { connect: { id: request.organizationUnitId } },
                 services: { createMany: { data: services } },
-                workStartDate: request.date,
                 supplementalPositions: {
                     connect: request.supplementalPositions.map(({ id }) => ({
                         id,
