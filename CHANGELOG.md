@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.86.0](https://github.com/taskany-inc/crew/compare/v0.85.1...v0.86.0) (2024-10-31)
+
+
+### Features
+
+* **INTERNAL-1259:** existing user form ([9824280](https://github.com/taskany-inc/crew/commit/9824280bacb16fd908e22920e668bf44d66c2aeb))
+* **INTERNAL-1260:** form to external user access ([8ff24e6](https://github.com/taskany-inc/crew/commit/8ff24e647e3b5786171e8e1da9be07e174353761))
+* **INTERNAL-1285:** personnel number in organization ([beca60d](https://github.com/taskany-inc/crew/commit/beca60dda54253afed4209471fbd17994393e2d6))
+* **INTERNAL-1292:** modal to user request forms ([5f697f2](https://github.com/taskany-inc/crew/commit/5f697f2ed14446309ea9ec5608829b9505807189))
+* **INTERNAL-1300:** org/users groups tabs ([f659e63](https://github.com/taskany-inc/crew/commit/f659e63d3883c225e35796a85b54243adab7b633))
+
+
+### Bug Fixes
+
+* **INTERNAL-1296:** translation errors ([c6f0dae](https://github.com/taskany-inc/crew/commit/c6f0daedba87a368403292659aeaada404b94713))
+
 ## [0.85.1](https://github.com/taskany-inc/crew/compare/v0.85.0...v0.85.1) (2024-10-29)
 
 
