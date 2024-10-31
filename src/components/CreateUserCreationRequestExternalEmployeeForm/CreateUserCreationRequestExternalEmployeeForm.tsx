@@ -11,7 +11,7 @@ import { IconBulbOnOutline } from '@taskany/icons';
 
 import {
     CreateUserCreationRequestExternalEmployee,
-    createUserCreationRequestExternalEmployeeSchema,
+    getCreateUserCreationRequestExternalEmployeeSchema,
 } from '../../modules/userCreationRequestSchemas';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { useBoolean } from '../../hooks/useBoolean';
@@ -62,7 +62,7 @@ export const CreateUserCreationRequestExternalEmployeeForm = ({
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateUserCreationRequestExternalEmployee>({
         defaultValues,
-        resolver: zodResolver(createUserCreationRequestExternalEmployeeSchema),
+        resolver: zodResolver(getCreateUserCreationRequestExternalEmployeeSchema()),
     });
 
     const createExternalAccount = watch('createExternalAccount');

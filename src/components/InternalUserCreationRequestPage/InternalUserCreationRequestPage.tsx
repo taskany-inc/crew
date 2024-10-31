@@ -6,7 +6,7 @@ import { debounce } from 'throttle-debounce';
 
 import {
     CreateUserCreationRequestInternalEmployee,
-    createUserCreationRequestInternalEmployeeSchema,
+    getCreateUserCreationRequestInternalEmployeeSchema,
 } from '../../modules/userCreationRequestSchemas';
 import { UserFormRegistrationBlock } from '../UserFormRegistrationBlock/UserFormRegistrationBlock';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
@@ -55,7 +55,7 @@ export const InternalUserCreationRequestPage = () => {
     const router = useRouter();
 
     const methods = useForm<CreateUserCreationRequestInternalEmployee>({
-        resolver: zodResolver(createUserCreationRequestInternalEmployeeSchema),
+        resolver: zodResolver(getCreateUserCreationRequestInternalEmployeeSchema()),
         defaultValues,
     });
 

@@ -10,7 +10,7 @@ import { IconBulbOnOutline } from '@taskany/icons';
 
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import {
-    createUserCreationRequestBaseSchema,
+    getCreateUserCreationRequestBaseSchema,
     CreateUserCreationRequestBase,
 } from '../../modules/userCreationRequestSchemas';
 import { useBoolean } from '../../hooks/useBoolean';
@@ -56,7 +56,7 @@ export const CreateUserCreationRequestBaseForm = ({ onClose, onSubmit }: CreateU
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateUserCreationRequestBase>({
         defaultValues,
-        resolver: zodResolver(createUserCreationRequestBaseSchema),
+        resolver: zodResolver(getCreateUserCreationRequestBaseSchema()),
     });
 
     const createExternalAccount = watch('createExternalAccount');
