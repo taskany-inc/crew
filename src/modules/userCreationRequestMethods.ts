@@ -14,6 +14,7 @@ import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
 import { jobUpdate, jobDelete } from '../worker/jobOperations';
 import { percentageMultiply } from '../utils/suplementPosition';
+import { PositionStatus } from '../generated/kyselyTypes';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
@@ -80,6 +81,15 @@ export const userCreationRequestsMethods = {
             },
         });
 
+        const mainPosition = {
+            organizationUnit: { connect: { id: data.organizationUnitId } },
+            percentage: 1 * percentageMultiply,
+            main: true,
+            role: data.title || undefined,
+            status: PositionStatus.ACTIVE,
+            workStartDate: data.date,
+        };
+
         const createData: Prisma.UserCreationRequestUncheckedCreateInput = {
             type: data.type,
             name,
@@ -105,6 +115,9 @@ export const userCreationRequestsMethods = {
             lineManagers: data.lineManagerIds?.length
                 ? { connect: data.lineManagerIds?.map((id) => ({ id })) }
                 : undefined,
+            supplementalPositions: {
+                create: [mainPosition],
+            },
         };
 
         if (data.supplementalPositions?.length && data.type === 'existing') {
@@ -144,16 +157,20 @@ export const userCreationRequestsMethods = {
                 ? await prisma.user.findUniqueOrThrow({ where: { id: data.recruiterId ?? undefined } })
                 : undefined;
 
-            if (data.supplementalPositions?.length) {
-                createData.supplementalPositions = {
-                    create: data.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
+            createData.supplementalPositions = {
+                create: [
+                    mainPosition,
+                    ...(data.supplementalPositions?.map(({ organizationUnitId, percentage, unitId }) => ({
                         organizationUnit: { connect: { id: organizationUnitId } },
                         percentage: percentage * percentageMultiply,
+                        main: false,
+                        role: data.title || undefined,
+                        status: PositionStatus.ACTIVE,
+                        workStartDate: data.date,
                         unitId,
-                    })),
-                };
-            }
-
+                    })) || []),
+                ],
+            };
             createData.workMode = data.workMode || undefined;
             createData.workModeComment = data.workModeComment || undefined;
             createData.equipment = data.equipment || undefined;

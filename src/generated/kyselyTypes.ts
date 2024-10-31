@@ -26,6 +26,12 @@ export const VacancyStatus = {
     ON_CONFIRMATION: 'ON_CONFIRMATION',
 } as const;
 export type VacancyStatus = (typeof VacancyStatus)[keyof typeof VacancyStatus];
+export const PositionStatus = {
+    ACTIVE: 'ACTIVE',
+    DECREE: 'DECREE',
+    FIRED: 'FIRED',
+} as const;
+export type PositionStatus = (typeof PositionStatus)[keyof typeof PositionStatus];
 export type Account = {
     id: Generated<string>;
     type: string;
@@ -262,6 +268,11 @@ export type SupplementalPosition = {
     personnelNumber: number | null;
     userId: string | null;
     percentage: number;
+    workStartDate: Timestamp | null;
+    workEndDate: Timestamp | null;
+    status: Generated<PositionStatus>;
+    role: string | null;
+    main: Generated<boolean>;
     userCreationRequestId: string | null;
 };
 export type User = {
