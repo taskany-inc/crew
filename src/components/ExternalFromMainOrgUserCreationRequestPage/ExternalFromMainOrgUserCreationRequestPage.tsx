@@ -6,7 +6,7 @@ import { debounce } from 'throttle-debounce';
 
 import {
     CreateUserCreationRequestexternalFromMainOrgEmployee,
-    createUserCreationRequestexternalFromMainOrgEmployeeSchema,
+    getCreateUserCreationRequestexternalFromMainOrgEmployeeSchema,
 } from '../../modules/userCreationRequestSchemas';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
@@ -51,7 +51,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
     const router = useRouter();
 
     const methods = useForm<CreateUserCreationRequestexternalFromMainOrgEmployee>({
-        resolver: zodResolver(createUserCreationRequestexternalFromMainOrgEmployeeSchema),
+        resolver: zodResolver(getCreateUserCreationRequestexternalFromMainOrgEmployeeSchema()),
         defaultValues,
     });
 
