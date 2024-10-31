@@ -1,11 +1,13 @@
 import styled from 'styled-components';
-import { TreeView } from '@taskany/bricks';
+import { nullable, TreeView } from '@taskany/bricks';
 import { gapL, gapM } from '@taskany/colors';
 
 import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { trpc } from '../../trpc/trpcClient';
 import { GroupTreeViewNode } from '../GroupTreeViewNode';
 import { CommonHeader } from '../CommonHeader';
+import { config } from '../../config';
+import { OrganizationUserGroupSwitch } from '../OrganizationUserGroupSwitch/OrganizationUserGroupSwitch';
 
 import { tr } from './TeamsPage.i18n';
 
@@ -19,7 +21,10 @@ export const TeamsPage = () => {
 
     return (
         <LayoutMain pageTitle={tr('Teams')}>
-            <CommonHeader title={tr('Teams')} description={tr('All active teams')} />
+            <CommonHeader title={tr('Teams')} />
+            {nullable(config.orgGroupId, () => (
+                <OrganizationUserGroupSwitch value="users" />
+            ))}
 
             <StyledTreeContainer>
                 <TreeView>

@@ -24,6 +24,7 @@ import { useSessionUser } from '../../hooks/useSessionUser';
 import { AccessOperation } from '../../utils/access';
 import { objKeys } from '../../utils/objKeys';
 import { Restricted } from '../Restricted';
+import { config } from '../../config';
 
 import { tr } from './PageHeader.i18n';
 
@@ -51,7 +52,7 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
     const sessionUser = useSessionUser();
     const entityListMenuItems = useMemo(() => {
         const items: HeaderLink[] = [
-            { path: pages.teams, text: tr('Teams'), visible: true },
+            { path: config.orgGroupId ? pages.team(config.orgGroupId) : pages.teams, text: tr('Teams'), visible: true },
             { path: pages.users, text: tr('Users'), visible: true },
 
             { path: pages.logs, text: tr('Logs'), visible: !!sessionUser.role?.viewHistoryEvents },

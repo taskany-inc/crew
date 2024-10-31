@@ -12,6 +12,8 @@ import { trpc } from '../../trpc/trpcClient';
 import { Link } from '../Link';
 import { pages } from '../../hooks/useRouter';
 import { GroupBreadcrumbListItem } from '../GroupBreadcrumbListItem';
+import { config } from '../../config';
+import { OrganizationUserGroupSwitch } from '../OrganizationUserGroupSwitch/OrganizationUserGroupSwitch';
 
 import { tr } from './TeamPageHeader.i18n';
 
@@ -64,13 +66,19 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
                 description={group.description}
             />
 
-            <StyledTabsMenu>
-                {tabsMenuOptions.map(([title, href]) => (
-                    <Link key={title} href={href}>
-                        <TabsMenuItem active={router.asPath === href}>{title}</TabsMenuItem>
-                    </Link>
-                ))}
-            </StyledTabsMenu>
+            {nullable(
+                group.id === config.orgGroupId,
+                () => (
+                    <OrganizationUserGroupSwitch value="org" />
+                ),
+                <StyledTabsMenu>
+                    {tabsMenuOptions.map(([title, href]) => (
+                        <Link key={title} href={href}>
+                            <TabsMenuItem active={router.asPath === href}>{title}</TabsMenuItem>
+                        </Link>
+                    ))}
+                </StyledTabsMenu>,
+            )}
         </>
     );
 };
