@@ -58,4 +58,5 @@ export const config = {
         : 4,
     mainOrganizationId: process.env.NEXT_PUBLIC_MAIN_ORG_ID || '1',
     mainOrganizationName: process.env.NEXT_PUBLIC_MAIN_ORG_NAME,
+    orgGroupId: process.env.NEXT_PUBLIC_ORG_GROUP_ID,
 };

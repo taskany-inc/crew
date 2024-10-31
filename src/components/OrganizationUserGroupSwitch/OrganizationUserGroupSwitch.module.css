@@ -1,0 +1,5 @@
+.Switch {
+    justify-content: flex-start;
+    margin-left: var(--gap-l);
+    margin-top: var(--gap-m);
+}
