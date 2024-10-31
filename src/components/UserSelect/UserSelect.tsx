@@ -54,7 +54,6 @@ export const UserSelect = ({
 
     return (
         <Select
-            arrow
             value={userValue}
             items={users.map((user) => ({
                 ...user,
@@ -94,7 +93,7 @@ export const UserSelect = ({
                     ),
                 )}
             </SelectTrigger>
-            <SelectPanel placement="bottom-start" title={tr('Suggestions')}>
+            <SelectPanel disabled={readOnly} placement="bottom-start" title={tr('Suggestions')}>
                 <Input autoFocus placeholder={tr('Search')} onChange={(e) => setUserQuery(e.target.value)} />
             </SelectPanel>
         </Select>

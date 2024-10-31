@@ -28,6 +28,7 @@ export const UserFormFormActions = ({ submitDisabled, onReset, onCancel }: UserF
                 text={tr('Reset form')}
                 onClick={resetWarningVisible.setTrue}
             />
+
             <Button size="m" type="button" text={tr('Cancel')} onClick={cancelWarningVisible.setTrue} />
             <Button size="m" type="submit" text={tr('Create')} view="primary" disabled={submitDisabled} />
             <WarningModal

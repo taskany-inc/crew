@@ -217,4 +217,8 @@ export const userCreationRequestRouter = router({
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
         return userCreationRequestsMethods.getRequestForExternalFromMainEmployeeById(input);
     }),
+    getRequestForInternalEmployeeById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        return userCreationRequestsMethods.getRequestForInternalEmployeeById(input);
+    }),
 });

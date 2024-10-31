@@ -66,7 +66,7 @@ export const DecideOnRequestFormActions = ({ requestId, onDecide, requestStatus 
                             size="m"
                             view="danger"
                             type="button"
-                            text={tr('Dectline')}
+                            text={tr('Decline')}
                             onClick={declineWarningVisible.setTrue}
                             disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
                         />

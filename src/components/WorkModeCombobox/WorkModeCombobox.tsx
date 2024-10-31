@@ -12,14 +12,14 @@ interface WorkModeComboboxProps {
     label?: string;
     error?: React.ComponentProps<typeof SelectTrigger>['error'];
     className?: string;
+    readOnly?: boolean;
 }
 
-export const WorkModeCombobox = ({ value, onChange, className, error }: WorkModeComboboxProps) => {
+export const WorkModeCombobox = ({ value, onChange, className, error, readOnly = true }: WorkModeComboboxProps) => {
     const workModeItems = [tr('Office'), tr('Mixed'), tr('Remote')];
 
     return (
         <Select
-            arrow
             value={value ? [{ id: value }] : undefined}
             items={workModeItems.map((i) => ({ id: i }))}
             onChange={(items) => onChange(items[0].id)}
@@ -32,6 +32,7 @@ export const WorkModeCombobox = ({ value, onChange, className, error }: WorkMode
             )}
         >
             <SelectTrigger
+                readOnly={readOnly}
                 size="m"
                 error={error}
                 placeholder={tr('Choose work mode')}

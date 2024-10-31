@@ -21,6 +21,7 @@ interface UserFormPersonalDataBlockProps {
     onIsLoginUniqueChange?: (arg: string) => void;
     type: 'internal' | 'existing' | 'externalEmployee' | 'externalFromMainOrgEmployee';
     readOnly?: boolean;
+    defaultValue?: UserFormPersonalDataBlockType;
 }
 
 interface UserFormPersonalDataBlockType {

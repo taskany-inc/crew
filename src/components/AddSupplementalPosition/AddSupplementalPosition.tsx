@@ -19,6 +19,7 @@ interface AddSupplementalPositionProps {
     unitId?: string;
     setUnitId: (unitId?: string) => void;
     errors?: { percentage?: { message?: string }; organizationUnitId?: { message?: string } };
+    readOnly?: boolean;
 }
 
 export const AddSupplementalPosition = ({
@@ -30,6 +31,7 @@ export const AddSupplementalPosition = ({
     unitId,
     setUnitId,
     errors,
+    readOnly,
 }: AddSupplementalPositionProps) => {
     const formVisibility = useBoolean(false);
 
@@ -75,7 +77,7 @@ export const AddSupplementalPosition = ({
                                     autoComplete="off"
                                     type="number"
                                     step={0.01}
-                                    value={percentage}
+                                    value={readOnly && !percentage ? tr('Not specified') : percentage}
                                     onChange={(e) => setPercentage(Number(e.currentTarget.value))}
                                 />
                             </FormControl>
@@ -92,12 +94,15 @@ export const AddSupplementalPosition = ({
                         </div>
                     </div>
                 ),
+
                 <div className={s.InlineTrigger}>
-                    <AddInlineTrigger
-                        text={tr('Add supplemental position')}
-                        icon={<IconPlusCircleOutline size="s" className={s.Icon} />}
-                        onClick={onOpen}
-                    />
+                    {nullable(!readOnly, () => (
+                        <AddInlineTrigger
+                            text={tr('Add supplemental position')}
+                            icon={<IconPlusCircleOutline size="s" className={s.Icon} />}
+                            onClick={onOpen}
+                        />
+                    ))}
                 </div>,
             )}
         </div>

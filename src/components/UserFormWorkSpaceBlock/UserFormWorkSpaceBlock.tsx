@@ -1,7 +1,9 @@
 import React from 'react';
 import { FormControlEditor, FormControlInput, Text } from '@taskany/bricks/harmony';
 import { Controller, useFormContext } from 'react-hook-form';
+import { useCopyToClipboard } from '@taskany/bricks';
 
+import { notifyPromise } from '../../utils/notifications/notifyPromise';
 import { FormControl } from '../FormControl/FormControl';
 import { WorkModeCombobox } from '../WorkModeCombobox/WorkModeCombobox';
 
@@ -11,6 +13,7 @@ import { tr } from './UserFormWorkSpaceBlock.i18n';
 interface UserFormWorkSpaceBlockProps {
     className: string;
     id: string;
+    readOnly?: boolean;
 }
 
 interface UserFormWorkSpaceBlockType {
@@ -22,7 +25,7 @@ interface UserFormWorkSpaceBlockType {
     workModeComment?: string;
 }
 
-export const UserFormWorkSpaceBlock = ({ className, id }: UserFormWorkSpaceBlockProps) => {
+export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWorkSpaceBlockProps) => {
     const {
         register,
         setValue,
@@ -37,54 +40,69 @@ export const UserFormWorkSpaceBlock = ({ className, id }: UserFormWorkSpaceBlock
         trigger('workMode');
     };
 
+    const extraEquipment = watch('extraEquipment');
+    const equipment = watch('equipment');
+    const [, copy] = useCopyToClipboard();
+
     return (
         <div className={className} id={id}>
             <Text className={s.SectionHeader} weight="bold" size="lg">
                 {tr('Work space')}
             </Text>
-            <Controller
-                name="equipment"
-                control={control}
-                render={({ field }) => (
-                    <FormControl label={tr('Equipment')} required error={errors.equipment}>
-                        <FormControlEditor
-                            className={s.FormEditor}
-                            outline
-                            disableAttaches
-                            placeholder={tr('Write equipment list')}
-                            {...field}
-                        />
-                    </FormControl>
-                )}
-            />
+            <div onClick={() => readOnly && equipment && notifyPromise(copy(equipment), 'copy')}>
+                <Controller
+                    name="equipment"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl label={tr('Equipment')} required error={errors.equipment}>
+                            <FormControlEditor
+                                disabled={readOnly}
+                                className={s.FormEditor}
+                                outline
+                                disableAttaches
+                                placeholder={tr('Write equipment list')}
+                                {...field}
+                                value={readOnly && !equipment ? tr('Not specified') : equipment}
+                            />
+                        </FormControl>
+                    )}
+                />
+            </div>
 
-            <Controller
-                name="extraEquipment"
-                control={control}
-                render={({ field }) => (
-                    <FormControl label={tr('Extra equipment')} error={errors.extraEquipment}>
-                        <FormControlEditor
-                            className={s.FormEditor}
-                            outline
-                            disableAttaches
-                            placeholder={tr('Write equipment list')}
-                            {...field}
-                        />
-                    </FormControl>
-                )}
-            />
+            <div onClick={() => readOnly && extraEquipment && notifyPromise(copy(extraEquipment), 'copy')}>
+                <Controller
+                    name="extraEquipment"
+                    control={control}
+                    render={({ field }) => (
+                        <FormControl label={tr('Extra equipment')} error={errors.extraEquipment}>
+                            <FormControlEditor
+                                disabled={readOnly}
+                                className={s.FormEditor}
+                                outline
+                                disableAttaches
+                                placeholder={tr('Write equipment list')}
+                                {...field}
+                                value={readOnly && !extraEquipment ? tr('Not specified') : extraEquipment}
+                            />
+                        </FormControl>
+                    )}
+                />
+            </div>
             <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Work space application')} error={errors.workSpace}>
                     <FormControlInput
+                        disabled={readOnly}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write the application text')}
+                        value={readOnly && !watch('workSpace') ? tr('Not specified') : undefined}
                         outline
                         {...register('workSpace')}
                     />
                 </FormControl>
                 <FormControl label={tr('Location')} required error={errors.location}>
                     <FormControlInput
+                        disabled={readOnly}
                         autoComplete="off"
                         size="m"
                         outline
@@ -93,14 +111,21 @@ export const UserFormWorkSpaceBlock = ({ className, id }: UserFormWorkSpaceBlock
                     />
                 </FormControl>
                 <FormControl label={tr('Work mode')} required>
-                    <WorkModeCombobox onChange={onWorkModeChange} value={watch('workMode')} error={errors.workMode} />
+                    <WorkModeCombobox
+                        readOnly={readOnly}
+                        onChange={onWorkModeChange}
+                        value={watch('workMode')}
+                        error={errors.workMode}
+                    />
                 </FormControl>
 
                 <FormControl label={tr('Work mode comment')} error={errors.workModeComment}>
                     <FormControlInput
+                        disabled={readOnly}
                         autoComplete="off"
                         size="m"
                         outline
+                        value={readOnly && !watch('workModeComment') ? tr('Not specified') : undefined}
                         placeholder={tr('Write work mode comment')}
                         {...register('workModeComment')}
                     />

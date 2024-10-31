@@ -31,6 +31,7 @@ export const pages = {
     newExternalUserRequest: '/requests/users/new/external',
     newExternalFromMainUserRequest: '/requests/users/new/external-from-main',
     newExistingUserRequest: '/requests/users/new/existing',
+    internalUserRequestReadOnly: (requestId: string) => `/requests/users/internal/${requestId}`,
 };
 
 export const useRouter = () => {
@@ -66,5 +67,6 @@ export const useRouter = () => {
         newExternalUserRequest: () => router.push(pages.newExternalUserRequest),
         newExternalFromMainUserRequest: () => router.push(pages.newExternalFromMainUserRequest),
         newExistingUserRequest: () => router.push(pages.newExistingUserRequest),
+        internalUserRequestReadOnly: (requestId: string) => router.push(pages.internalUserRequestReadOnly(requestId)),
     };
 };

@@ -9,12 +9,10 @@ interface WarningModalProps {
     warningText: string;
     onCancel: () => void;
     onConfirm: () => void;
-
     onInputChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     inputPlaceholder?: string;
     view?: React.ComponentProps<typeof ModalHeader>['view'];
 }
-
 export const WarningModal = ({
     visible,
     warningText,

@@ -32,7 +32,6 @@ export const RoleSelect = ({ onChange, error, className, roleName, readOnly }: R
 
     return (
         <Select
-            arrow
             value={value}
             items={rolesQuery.data}
             onChange={(roles) => onChange(roles[0])}

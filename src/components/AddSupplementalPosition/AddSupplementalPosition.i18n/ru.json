@@ -6,5 +6,6 @@
     "Write unit ID": "Введите ID ставки",
     "Percentage": "Доля",
     "Write percentage from 0.01 to 1": "Укажите значение от 0,01 до 100",
-    "Add supplemental position": "Добавить дополнительную организацию"
+    "Add supplemental position": "Добавить дополнительную организацию",
+    "Not specified": "Не указано"
 }
