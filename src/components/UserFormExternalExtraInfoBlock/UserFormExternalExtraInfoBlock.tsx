@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { FormControlInput, FormConrolFileUpload, Text } from '@taskany/bricks/harmony';
+import { FormControlInput, FormControlFileUpload, Text } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { nullable } from '@taskany/bricks';
 
@@ -73,25 +73,27 @@ export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserForm
                 </FormControl>
             </div>
             {nullable(type === 'externalEmployee', () => (
-                <FormControl label="NDA" error={errors.attachIds} required>
-                    <FormConrolFileUpload
-                        accept={{
-                            'application/pdf': [],
-                            'application/msword': [],
-                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
-                        }}
-                        translates={{
-                            idle: tr('Choose file'),
-                            active: tr('Drop file here'),
-                            loading: tr('Loading'),
-                            accepted: tr('Loaded'),
-                            error: tr("File doesn't load"),
-                            fileExtensionsText: tr('In *.pdf or *.doc / *.docx format'),
-                        }}
-                        uploadLink={pages.attaches}
-                        onChange={onFileChange}
-                    />
-                </FormControl>
+                <div className={s.Nda}>
+                    <FormControl label="NDA" error={errors.attachIds} required>
+                        <FormControlFileUpload
+                            accept={{
+                                'application/pdf': [],
+                                'application/msword': [],
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+                            }}
+                            translates={{
+                                idle: tr('Choose file'),
+                                active: tr('Drop file here'),
+                                loading: tr('Loading'),
+                                accepted: tr('Loaded'),
+                                error: tr("File doesn't load"),
+                                fileExtensionsText: tr('In *.pdf or *.doc / *.docx format'),
+                            }}
+                            uploadLink={pages.attaches}
+                            onChange={onFileChange}
+                        />
+                    </FormControl>
+                </div>
             ))}
         </div>
     );

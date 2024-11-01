@@ -1,0 +1,35 @@
+.Link {
+    width: 100%;
+}
+
+.GroupRow {
+    cursor: pointer;
+    background-color: var(--gray-800);
+    padding: var(--gap-s);
+    border-radius: var(--radius-m);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-color);
+}
+
+.GroupRow:hover {
+    background-color: var(--gray-700);
+}
+
+.TreeViewNodeContainer {
+    margin: var(--gap-xs) 0px;
+}
+
+.NoChildrenGroup {
+    margin-left: var(--gap-m);
+}
+
+.GroupName {
+    max-width: 45%;
+}
+
+.User {
+    position: absolute;
+    left: 50vw;
+}

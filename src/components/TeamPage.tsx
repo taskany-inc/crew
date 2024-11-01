@@ -5,7 +5,7 @@ import { gapL, gapM } from '@taskany/colors';
 import { trpc } from '../trpc/trpcClient';
 
 import { LayoutMain } from './LayoutMain/LayoutMain';
-import { GroupTreeViewNode } from './GroupTreeViewNode';
+import { GroupTreeViewNode } from './GroupTreeViewNode/GroupTreeViewNode';
 import { TeamPageHeader } from './TeamPageHeader/TeamPageHeader';
 import { PageSep } from './PageSep';
 import { TeamVacancies } from './TeamVacancies/TeamVacancies';
@@ -42,7 +42,7 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
             <StyledTreeContainer>
                 <TreeView>
                     {nullable(childrenQuery.data, (children) =>
-                        children.map((child) => <GroupTreeViewNode key={child.id} group={child} visible />),
+                        children.map((child) => <GroupTreeViewNode key={child.id} group={child} />),
                     )}
                 </TreeView>
                 <StyledWrapper>

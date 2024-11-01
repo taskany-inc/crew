@@ -137,7 +137,11 @@ export const groupMethods = {
     },
 
     getRoots: () => {
-        return prisma.group.findMany({ where: { parentId: null, archived: false } });
+        return prisma.group.findMany({
+            where: { parentId: null, archived: false },
+            include: { supervisor: true },
+            orderBy: { name: 'asc' },
+        });
     },
 
     getByIds: async (ids: string[]) => {
@@ -185,7 +189,11 @@ export const groupMethods = {
     },
 
     getChildren: (id: string) => {
-        return prisma.group.findMany({ where: { parentId: id, archived: false } });
+        return prisma.group.findMany({
+            where: { parentId: id, archived: false },
+            include: { supervisor: true },
+            orderBy: { name: 'asc' },
+        });
     },
 
     getList: async ({ search, filter, take = 10, skip = 0, hasVacancies }: GetGroupList) => {
