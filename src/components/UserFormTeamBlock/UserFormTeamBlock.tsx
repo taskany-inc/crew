@@ -108,14 +108,16 @@ export const UserFormTeamBlock = ({ className, id, type }: UserFormTeamBlockProp
                         </FormControl>
                     </div>
                 ),
-                <FormControl label={tr('OrgGroup')}>
-                    <GroupComboBox
-                        defaultGroupId={watch('groupId')}
-                        onChange={onTeamChange}
-                        error={errors.groupId}
-                        onReset={() => setValue('groupId', undefined)}
-                    />
-                </FormControl>,
+                <div className={s.TwoInputsRow}>
+                    <FormControl label={tr('OrgGroup')}>
+                        <GroupComboBox
+                            defaultGroupId={watch('groupId')}
+                            onChange={onTeamChange}
+                            error={errors.groupId}
+                            onReset={() => setValue('groupId', undefined)}
+                        />
+                    </FormControl>
+                </div>,
             )}
         </div>
     );

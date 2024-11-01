@@ -124,12 +124,14 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
                                         {tr('Registration')}
                                     </Text>
                                     <div className={s.OrganizationCombobox}>
-                                        <FormControl label={tr('Organization')} required>
-                                            <OrganizationUnitComboBox
-                                                readOnly
-                                                organizationUnitId={watch('organizationUnitId')}
-                                            />
-                                        </FormControl>
+                                        <div className={s.TwoInputsRow}>
+                                            <FormControl label={tr('Organization')} required>
+                                                <OrganizationUnitComboBox
+                                                    readOnly
+                                                    organizationUnitId={watch('organizationUnitId')}
+                                                />
+                                            </FormControl>
+                                        </div>
                                     </div>
                                 </div>
 

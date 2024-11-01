@@ -35,7 +35,7 @@ export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserForm
             'attachIds',
             files.map(({ filePath }) => getFileIdFromPath(filePath)),
         );
-        trigger('attachIds');
+        errors.attachIds && trigger('attachIds');
     }, []);
 
     return (
@@ -43,56 +43,55 @@ export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserForm
             <Text className={s.SectionHeader} weight="bold" size="lg">
                 {tr('Extra information')}
             </Text>
+            <div className={s.TwoInputsRow}>
+                <FormControl label={tr('Permission to services')} required>
+                    <PermissionServiceSelect
+                        selectedServices={watch('permissionToServices')}
+                        className={s.PermissionServiceSelect}
+                        mode="multiple"
+                        onChange={(services) => {
+                            setValue(
+                                'permissionToServices',
+                                services.map((service) => service.id),
+                            );
+                            trigger('permissionToServices');
+                        }}
+                        error={errors.permissionToServices}
+                    />
+                </FormControl>
 
-            <FormControl label={tr('Permission to services')} required>
-                <PermissionServiceSelect
-                    selectedServices={watch('permissionToServices')}
-                    className={s.PermissionServiceSelect}
-                    mode="multiple"
-                    onChange={(services) => {
-                        setValue(
-                            'permissionToServices',
-                            services.map((service) => service.id),
-                        );
-                        trigger('permissionToServices');
-                    }}
-                    error={errors.permissionToServices}
-                />
-            </FormControl>
-
-            <FormControl label={tr('Reason for granting permission')} error={errors.reason} required>
-                <FormControlInput
-                    autoComplete="off"
-                    size="m"
-                    placeholder={tr('Write reason')}
-                    outline
-                    {...register('reason', {
-                        required: tr('Required field'),
-                    })}
-                />
-            </FormControl>
+                <FormControl label={tr('Reason for granting permission')} error={errors.reason} required>
+                    <FormControlInput
+                        autoComplete="off"
+                        size="m"
+                        placeholder={tr('Write reason')}
+                        outline
+                        {...register('reason', {
+                            required: tr('Required field'),
+                        })}
+                    />
+                </FormControl>
+            </div>
             {nullable(type === 'externalEmployee', () => (
-                <div className={s.Nda}>
-                    <FormControl label="NDA" error={errors.attachIds} required>
-                        <FormConrolFileUpload
-                            accept={{
-                                'application/pdf': [],
-                                'application/msword': [],
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
-                            }}
-                            translates={{
-                                idle: tr('Choose file'),
-                                active: tr('Drop file here'),
-                                loading: tr('Loading'),
-                                accepted: tr('Loaded'),
-                                error: tr("File doesn't load"),
-                                fileExtensionsText: tr('In *.pdf or *.doc / *.docx format'),
-                            }}
-                            uploadLink={pages.attaches}
-                            onChange={onFileChange}
-                        />
-                    </FormControl>
-                </div>
+                <FormControl label="NDA" error={errors.attachIds} required>
+                    <FormConrolFileUpload
+                        accept={{
+                            'application/pdf': [],
+                            'application/msword': [],
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+                        }}
+                        translates={{
+                            idle: tr('Choose file'),
+                            active: tr('Drop file here'),
+                            loading: tr('Loading'),
+                            accepted: tr('Loaded'),
+                            error: tr("File doesn't load"),
+                            fileExtensionsText: tr('In *.pdf or *.doc / *.docx format'),
+                        }}
+                        uploadLink={pages.attaches}
+                        onChange={onFileChange}
+                    />
+                </FormControl>
             ))}
         </div>
     );

@@ -63,16 +63,15 @@ export const UserFormExternalTeamBlock = ({ className, id }: UserFormExternalTea
                         error={errors.curatorIds}
                     />
                 </FormControl>
+                <FormControl label={tr('OrgGroup')}>
+                    <GroupComboBox
+                        defaultGroupId={watch('groupId')}
+                        onChange={onTeamChange}
+                        error={errors.groupId}
+                        onReset={() => setValue('groupId', undefined)}
+                    />
+                </FormControl>
             </div>
-
-            <FormControl label={tr('OrgGroup')}>
-                <GroupComboBox
-                    defaultGroupId={watch('groupId')}
-                    onChange={onTeamChange}
-                    error={errors.groupId}
-                    onReset={() => setValue('groupId', undefined)}
-                />
-            </FormControl>
         </div>
     );
 };

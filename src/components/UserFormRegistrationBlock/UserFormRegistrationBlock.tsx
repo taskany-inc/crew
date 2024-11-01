@@ -66,7 +66,8 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
             <Text className={s.SectionHeader} weight="bold" size="lg">
                 {tr('Registration')}
             </Text>
-            <div className={s.OrganizationCombobox}>
+
+            <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Organization')} required>
                     <OrganizationUnitComboBox
                         searchType="internal"
@@ -75,8 +76,6 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
                         error={errors.organizationUnitId}
                     />
                 </FormControl>
-            </div>
-            <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Unit ID')} error={errors.unitId}>
                     <FormControlInput
                         autoComplete="off"
@@ -111,6 +110,16 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
                     />
                 </FormControl>
 
+                {nullable(type === 'internal', () => (
+                    <FormControl label={tr('Recruiter')}>
+                        <UserSelect
+                            mode="single"
+                            selectedUsers={selectedReqruiterId ? [selectedReqruiterId] : undefined}
+                            onChange={(users) => onUserChange(users[0], 'recruiterId')}
+                            onReset={() => setValue('recruiterId', undefined)}
+                        />
+                    </FormControl>
+                ))}
                 {nullable(
                     type === 'internal',
                     () => (
@@ -137,16 +146,6 @@ export const UserFormRegistrationBlock = ({ className, id, type }: UserFormRegis
                 )}
             </div>
 
-            {nullable(type === 'internal', () => (
-                <FormControl label={tr('Recruiter')}>
-                    <UserSelect
-                        mode="single"
-                        selectedUsers={selectedReqruiterId ? [selectedReqruiterId] : undefined}
-                        onChange={(users) => onUserChange(users[0], 'recruiterId')}
-                        onReset={() => setValue('recruiterId', undefined)}
-                    />
-                </FormControl>
-            ))}
             <div className={s.AddSupplementalPosition}></div>
             <AddSupplementalPosition
                 onOrganizatioUnitChange={(orgId) =>

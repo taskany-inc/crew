@@ -58,23 +58,13 @@ export const AddSupplementalPosition = ({
                                 onClick={onReset}
                             />
                         </div>
-                        <FormControl label={tr('Supplemental organization')} required>
-                            <OrganizationUnitComboBox
-                                searchType="internal"
-                                onChange={(orgUnit) => orgUnit && onOrganizatioUnitChange(orgUnit.id)}
-                                organizationUnitId={organizationUnitId}
-                                error={errors?.organizationUnitId}
-                            />
-                        </FormControl>
                         <div className={s.TwoInputsRow}>
-                            <FormControl label={tr('Unit ID')}>
-                                <FormControlInput
-                                    value={unitId}
-                                    outline
-                                    autoComplete="off"
-                                    size="m"
-                                    placeholder={tr('Write unit ID')}
-                                    onChange={(e) => setUnitId(e.currentTarget.value)}
+                            <FormControl label={tr('Supplemental organization')} required>
+                                <OrganizationUnitComboBox
+                                    searchType="internal"
+                                    onChange={(orgUnit) => orgUnit && onOrganizatioUnitChange(orgUnit.id)}
+                                    organizationUnitId={organizationUnitId}
+                                    error={errors?.organizationUnitId}
                                 />
                             </FormControl>
                             <FormControl label={tr('Percentage')} required error={errors?.percentage}>
@@ -87,6 +77,16 @@ export const AddSupplementalPosition = ({
                                     step={0.01}
                                     value={percentage}
                                     onChange={(e) => setPercentage(Number(e.currentTarget.value))}
+                                />
+                            </FormControl>
+                            <FormControl label={tr('Unit ID')}>
+                                <FormControlInput
+                                    value={unitId}
+                                    outline
+                                    autoComplete="off"
+                                    size="m"
+                                    placeholder={tr('Write unit ID')}
+                                    onChange={(e) => setUnitId(e.currentTarget.value)}
                                 />
                             </FormControl>
                         </div>

@@ -18,5 +18,7 @@
     "New email domain": "Домен новой почты",
     "Create external account": "Создать учетную запись Cloud",
     "Accouting ID": "ID в 1C (для сотрудников ДЗО)",
-    "Enter ID": "Введите ID"
+    "Enter ID": "Введите ID",
+    "Personal email": "Личная почта",
+    "Work email": "Рабочая почта"
 }
