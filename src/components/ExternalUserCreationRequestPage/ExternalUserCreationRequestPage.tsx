@@ -45,6 +45,7 @@ const defaultValues: Partial<CreateUserCreationRequestExternalEmployee> = {
     permissionToServices: [],
     reason: '',
     accessToInternalSystems: true,
+    attachIds: undefined,
 };
 
 export const ExternalUserCreationRequestPage = () => {
@@ -147,16 +148,16 @@ export const ExternalUserCreationRequestPage = () => {
                                                 {...register('date', { valueAsDate: true })}
                                             />
                                         </FormControl>
+                                        <FormControl required label={tr('OS preference')} error={errors.osPreference}>
+                                            <FormControlInput
+                                                outline
+                                                placeholder={tr('Enter OS name')}
+                                                autoComplete="off"
+                                                size="m"
+                                                {...register('osPreference')}
+                                            />
+                                        </FormControl>
                                     </div>
-                                    <FormControl required label={tr('OS preference')} error={errors.osPreference}>
-                                        <FormControlInput
-                                            outline
-                                            placeholder={tr('Enter OS name')}
-                                            autoComplete="off"
-                                            size="m"
-                                            {...register('osPreference')}
-                                        />
-                                    </FormControl>
                                 </div>
 
                                 <UserFormExternalTeamBlock className={s.FormBlock} id="team" />

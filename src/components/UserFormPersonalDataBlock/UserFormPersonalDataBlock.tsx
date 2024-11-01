@@ -177,15 +177,17 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
             </div>
             {nullable(type === 'existing', () => (
-                <FormControl label={tr('Accouting ID')} error={errors.accountingId}>
-                    <FormControlInput
-                        autoComplete="off"
-                        size="m"
-                        placeholder={tr('Enter ID')}
-                        outline
-                        {...register('accountingId')}
-                    />
-                </FormControl>
+                <div className={s.TwoInputsRow}>
+                    <FormControl label={tr('Accouting ID')} error={errors.accountingId}>
+                        <FormControlInput
+                            autoComplete="off"
+                            size="m"
+                            placeholder={tr('Enter ID')}
+                            outline
+                            {...register('accountingId')}
+                        />
+                    </FormControl>
+                </div>
             ))}
             {nullable(type === 'internal' || type === 'existing', () => (
                 <Text as="h3">
@@ -198,7 +200,7 @@ export const UserFormPersonalDataBlock = ({
             <div className={s.TwoInputsRow}>
                 {nullable(type === 'internal' || type === 'externalEmployee' || type === 'existing', () => (
                     <FormControl
-                        label={tr('Personal')}
+                        label={type === 'internal' || type === 'existing' ? tr('Personal') : tr('Personal email')}
                         error={errors.personalEmail}
                         required={type === 'externalEmployee'}
                     >
@@ -213,7 +215,7 @@ export const UserFormPersonalDataBlock = ({
                 ))}
                 {nullable(type === 'internal' || type === 'externalFromMainOrgEmployee' || type === 'existing', () => (
                     <FormControl
-                        label={tr('Work')}
+                        label={type === 'internal' || type === 'existing' ? tr('Work') : tr('Work email')}
                         error={errors.workEmail}
                         required={type === 'externalFromMainOrgEmployee'}
                     >
