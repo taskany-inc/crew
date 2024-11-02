@@ -195,6 +195,10 @@ export const userCreationRequestsMethods = {
             },
         });
 
+        if (data.type === 'existing') {
+            await userCreationRequestsMethods.accept({ id: userCreationRequest.id });
+        }
+
         const { to } = await userMethods.getMailingList('createUserRequest', data.organizationUnitId);
 
         const mailText = userCreationMailText(name);
