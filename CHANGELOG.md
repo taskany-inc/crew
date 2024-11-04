@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.87.0](https://github.com/taskany-inc/crew/compare/v0.86.0...v0.87.0) (2024-11-04)
+
+
+### Features
+
+* **INTERNAL-1304:** accept profile for existing user request immediately ([88bbb3e](https://github.com/taskany-inc/crew/commit/88bbb3e8281d4d619f7315235e17b01b7d8634fc))
+
 ## [0.86.0](https://github.com/taskany-inc/crew/compare/v0.85.1...v0.86.0) (2024-10-31)
 
 
