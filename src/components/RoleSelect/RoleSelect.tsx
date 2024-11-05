@@ -14,9 +14,10 @@ interface RoleSelectProps {
     error?: React.ComponentProps<typeof SelectTrigger>['error'];
 
     className?: string;
+    readOnly?: boolean;
 }
 
-export const RoleSelect = ({ onChange, error, className, roleName }: RoleSelectProps) => {
+export const RoleSelect = ({ onChange, error, className, roleName, readOnly }: RoleSelectProps) => {
     const [search, setSearch] = useState('');
     const rolesQuery = trpc.role.suggestions.useQuery(
         {
@@ -43,7 +44,14 @@ export const RoleSelect = ({ onChange, error, className, roleName }: RoleSelectP
                 </Text>
             )}
         >
-            <SelectTrigger size="m" error={error} placeholder={tr('Choose role')} view="outline" className={className}>
+            <SelectTrigger
+                readOnly={readOnly}
+                size="m"
+                error={error}
+                placeholder={tr('Choose role')}
+                view="outline"
+                className={className}
+            >
                 {nullable(value && value[0], (r) => r.name)}
             </SelectTrigger>
             <SelectPanel placement="bottom-start" title={tr('Suggestions')}>

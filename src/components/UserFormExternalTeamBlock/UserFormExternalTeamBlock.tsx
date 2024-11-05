@@ -14,6 +14,7 @@ import { tr } from './UserFormExternalTeamBlock.i18n';
 interface UserFormExternalTeamBlockProps {
     className: string;
     id: string;
+    readOnly?: boolean;
 }
 
 interface UserFormExternalTeamBlockType {
@@ -22,7 +23,7 @@ interface UserFormExternalTeamBlockType {
     curatorIds: string[];
 }
 
-export const UserFormExternalTeamBlock = ({ className, id }: UserFormExternalTeamBlockProps) => {
+export const UserFormExternalTeamBlock = ({ className, id, readOnly }: UserFormExternalTeamBlockProps) => {
     const {
         setValue,
         trigger,
@@ -50,6 +51,7 @@ export const UserFormExternalTeamBlock = ({ className, id }: UserFormExternalTea
             <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Line managers')}>
                     <UserSelect
+                        readOnly={readOnly}
                         mode="multiple"
                         selectedUsers={watch('lineManagerIds') ? watch('lineManagerIds') : undefined}
                         onChange={(users) => onUsersChange(users, 'lineManagerIds')}
@@ -57,6 +59,7 @@ export const UserFormExternalTeamBlock = ({ className, id }: UserFormExternalTea
                 </FormControl>
                 <FormControl label={tr('Curator')} required>
                     <UserSelect
+                        readOnly={readOnly}
                         mode="multiple"
                         selectedUsers={watch('curatorIds') ? watch('curatorIds') : undefined}
                         onChange={(users) => onUsersChange(users, 'curatorIds')}
@@ -65,6 +68,7 @@ export const UserFormExternalTeamBlock = ({ className, id }: UserFormExternalTea
                 </FormControl>
                 <FormControl label={tr('OrgGroup')}>
                     <GroupComboBox
+                        readOnly={readOnly}
                         defaultGroupId={watch('groupId')}
                         onChange={onTeamChange}
                         error={errors.groupId}

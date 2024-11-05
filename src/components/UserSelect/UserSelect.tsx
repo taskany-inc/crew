@@ -1,6 +1,14 @@
 import { User } from '@prisma/client';
 import React, { useState } from 'react';
-import { User as HarmonyUser, Select, SelectTrigger, SelectPanel, Input, UserGroup } from '@taskany/bricks/harmony';
+import {
+    User as HarmonyUser,
+    Select,
+    SelectTrigger,
+    SelectPanel,
+    Input,
+    Text,
+    UserGroup,
+} from '@taskany/bricks/harmony';
 import { nullable } from '@taskany/bricks';
 import { IconXCircleOutline } from '@taskany/icons';
 
@@ -18,9 +26,19 @@ interface UserSelectProps {
     error?: React.ComponentProps<typeof SelectTrigger>['error'];
 
     className?: string;
+    readOnly?: boolean;
 }
 
-export const UserSelect = ({ mode, selectedUsers, onClose, onChange, onReset, className, error }: UserSelectProps) => {
+export const UserSelect = ({
+    mode,
+    selectedUsers,
+    onClose,
+    onChange,
+    onReset,
+    className,
+    error,
+    readOnly,
+}: UserSelectProps) => {
     const [userQuery, setUserQuery] = useState('');
     const { data: users = [] } = trpc.user.suggestions.useQuery(
         {
@@ -50,6 +68,7 @@ export const UserSelect = ({ mode, selectedUsers, onClose, onChange, onReset, cl
             renderItem={({ item }) => <HarmonyUser name={item.name} email={item.email} />}
         >
             <SelectTrigger
+                readOnly={readOnly}
                 size="m"
                 placeholder={tr('Choose from the list')}
                 view="outline"
@@ -61,13 +80,18 @@ export const UserSelect = ({ mode, selectedUsers, onClose, onChange, onReset, cl
                     () => (
                         <UserGroup users={userValue} />
                     ),
-                    nullable(userValue[0], (user) => (
-                        <HarmonyUser
-                            name={user.name}
-                            email={user.email}
-                            iconRight={onReset && <IconXCircleOutline size="s" onClick={onReset} />}
-                        />
-                    )),
+                    nullable(
+                        userValue[0],
+                        (user) => (
+                            <HarmonyUser
+                                name={user.name}
+                                email={user.email}
+                                iconRight={!readOnly && onReset && <IconXCircleOutline size="s" onClick={onReset} />}
+                            />
+                        ),
+
+                        nullable(readOnly, () => <Text>{tr('Not specified')}</Text>),
+                    ),
                 )}
             </SelectTrigger>
             <SelectPanel placement="bottom-start" title={tr('Suggestions')}>

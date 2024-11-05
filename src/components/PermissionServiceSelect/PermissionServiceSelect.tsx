@@ -18,6 +18,7 @@ interface PermissionServiceSelectProps {
     error?: React.ComponentProps<typeof SelectTrigger>['error'];
 
     className?: string;
+    readOnly?: boolean;
 }
 
 export const PermissionServiceSelect = ({
@@ -28,6 +29,7 @@ export const PermissionServiceSelect = ({
     onReset,
     className,
     error,
+    readOnly,
 }: PermissionServiceSelectProps) => {
     const [serviceQuery, setServiceQuery] = useState('');
     const { data: services = [] } = trpc.permissionService.suggestions.useQuery(
@@ -63,12 +65,13 @@ export const PermissionServiceSelect = ({
                 view="outline"
                 className={className}
                 error={error}
+                readOnly={readOnly}
             >
                 {nullable(selectedServices?.length, () => (
                     <Badge
                         weight="regular"
                         text={serviceValue?.map((s) => s.name).join(', ')}
-                        iconRight={onReset && <IconXCircleOutline size="s" onClick={onReset} />}
+                        iconRight={!readOnly && onReset && <IconXCircleOutline size="s" onClick={onReset} />}
                     />
                 ))}
             </SelectTrigger>

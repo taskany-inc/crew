@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
 import {
@@ -181,6 +183,11 @@ export const userCreationRequestRouter = router({
         return userCreationRequestsMethods.getList(input);
     }),
 
+    getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        return userCreationRequestsMethods.getById(input);
+    }),
+
     cancel: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
 
@@ -199,5 +206,10 @@ export const userCreationRequestRouter = router({
         });
 
         return cancelledUserRequest;
+    }),
+
+    getRequestForExternalEmployeeById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        return userCreationRequestsMethods.getRequestForExternalEmployeeById(input);
     }),
 });

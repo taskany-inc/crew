@@ -64,7 +64,11 @@ export const OrganizationUnitComboBox = ({
                     view="outline"
                     className={className}
                 >
-                    {nullable(value && value[0], (o) => getOrgUnitTitle(o))}
+                    {nullable(
+                        value && value[0],
+                        (o) => getOrgUnitTitle(o),
+                        nullable(readOnly, () => <Text>{tr('Not specified')}</Text>),
+                    )}
                 </SelectTrigger>
             </div>
             {nullable(readOnly, () => (

@@ -17,9 +17,17 @@ interface GroupComboBoxProps {
 
     onReset?: () => void;
     className?: string;
+    readOnly?: boolean;
 }
 
-export const GroupComboBox = ({ defaultGroupId, onChange, error, className, onReset }: GroupComboBoxProps) => {
+export const GroupComboBox = ({
+    defaultGroupId,
+    onChange,
+    error,
+    className,
+    onReset,
+    readOnly,
+}: GroupComboBoxProps) => {
     const [search, setSearch] = useState('');
     const sessionUser = useSessionUser();
 
@@ -55,14 +63,25 @@ export const GroupComboBox = ({ defaultGroupId, onChange, error, className, onRe
                 </Text>
             )}
         >
-            <SelectTrigger size="m" error={error} placeholder={tr('Choose team')} view="outline" className={className}>
-                {nullable(value && value[0], (g) => (
-                    <Badge
-                        weight="regular"
-                        text={g.name}
-                        iconRight={onReset && <IconXCircleOutline size="s" onClick={onReset} />}
-                    />
-                ))}
+            <SelectTrigger
+                size="m"
+                error={error}
+                placeholder={tr('Choose team')}
+                view="outline"
+                className={className}
+                readOnly={readOnly}
+            >
+                {nullable(
+                    value && value[0],
+                    (g) => (
+                        <Badge
+                            weight="regular"
+                            text={g.name}
+                            iconRight={!readOnly && onReset && <IconXCircleOutline size="s" onClick={onReset} />}
+                        />
+                    ),
+                    nullable(readOnly, () => <Text>{tr('Not specified')}</Text>),
+                )}
             </SelectTrigger>
             <SelectPanel placement="bottom-start" title={tr('Suggestions')}>
                 <Input autoFocus placeholder={tr('Search')} onChange={(e) => setSearch(e.target.value)} />
