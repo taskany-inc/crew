@@ -31,12 +31,14 @@ export const UserFormFormActions = ({ submitDisabled, onReset, onCancel }: UserF
             <Button size="m" type="button" text={tr('Cancel')} onClick={cancelWarningVisible.setTrue} />
             <Button size="m" type="submit" text={tr('Create')} view="primary" disabled={submitDisabled} />
             <WarningModal
+                view="warning"
                 visible={cancelWarningVisible.value}
                 onCancel={cancelWarningVisible.setFalse}
                 onConfirm={onCancel}
                 warningText={tr('cancel confirmation')}
             />
             <WarningModal
+                view="warning"
                 visible={resetWarningVisible.value}
                 onCancel={resetWarningVisible.setFalse}
                 onConfirm={() => {

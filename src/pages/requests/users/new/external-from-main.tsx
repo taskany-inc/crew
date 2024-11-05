@@ -4,7 +4,7 @@ import { createGetServerSideProps } from '../../../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
-    action: async ({ session, ssg }) => {
+    action: async ({ session }) => {
         if (!session.user.role?.createUser) {
             return {
                 redirect: {
@@ -13,8 +13,6 @@ export const getServerSideProps = createGetServerSideProps({
                 },
             };
         }
-
-        await ssg.userRole.getListWithScope.fetch();
     },
 });
 

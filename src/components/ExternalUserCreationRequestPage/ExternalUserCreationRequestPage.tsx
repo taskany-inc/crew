@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormControlInput, Text } from '@taskany/bricks/harmony';
 import { debounce } from 'throttle-debounce';
-import { OrganizationUnit } from 'prisma/prisma-client';
+import { OrganizationUnit, UserCreationRequestStatus } from 'prisma/prisma-client';
+import { nullable } from '@taskany/bricks';
 
 import {
     CreateUserCreationRequestExternalEmployee,
@@ -22,36 +23,53 @@ import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserForm
 import { UserFormExternalExtraInfoBlock } from '../UserFormExternalExtraInfoBlock/UserFormExternalExtraInfoBlock';
 import { useSpyNav } from '../../hooks/useSpyNav';
 import { Nullish } from '../../utils/types';
+import { DecideOnRequestFormActions } from '../DecideOnRequestFormActions/DecideOnRequestFormActions';
 
 import s from './ExternalUserCreationRequestPage.module.css';
 import { tr } from './ExternalUserCreationRequestPage.i18n';
 
-const defaultValues: Partial<CreateUserCreationRequestExternalEmployee> = {
-    type: 'externalEmployee',
-    organizationUnitId: '',
-    surname: '',
-    firstName: '',
-    middleName: '',
-    login: '',
-    createExternalAccount: true,
-    phone: '',
-    email: '',
-    personalEmail: '',
-    corporateEmail: '',
-    curatorIds: [],
-    lineManagerIds: [],
-    title: '',
-    groupId: '',
-    permissionToServices: [],
-    reason: '',
-    accessToInternalSystems: true,
-    attachIds: undefined,
-};
+interface ExternalUserCreationRequestPageProps {
+    request?: CreateUserCreationRequestExternalEmployee;
+    type?: 'readOnly' | 'edit' | 'new';
+    requestId?: string;
+    requestStatus?: UserCreationRequestStatus;
+}
 
-export const ExternalUserCreationRequestPage = () => {
+export const ExternalUserCreationRequestPage = ({
+    request,
+    type = 'new',
+    requestId,
+    requestStatus,
+}: ExternalUserCreationRequestPageProps) => {
     const { createUserCreationRequest } = useUserCreationRequestMutations();
 
     const router = useRouter();
+
+    const defaultValues: Partial<CreateUserCreationRequestExternalEmployee> = useMemo(
+        () => ({
+            type: 'externalEmployee',
+            organizationUnitId: request?.organizationUnitId,
+            surname: request?.surname,
+            firstName: request?.firstName,
+            middleName: request?.middleName,
+            login: request?.login,
+            createExternalAccount: request?.createExternalAccount ?? true,
+            phone: request?.phone,
+            email: request?.email,
+            personalEmail: request?.personalEmail,
+            corporateEmail: request?.corporateEmail,
+            curatorIds: request?.curatorIds || [],
+            lineManagerIds: request?.lineManagerIds || [],
+            title: request?.title,
+            groupId: request?.groupId,
+            permissionToServices: request?.permissionToServices || [],
+            reason: request?.reason,
+            accessToInternalSystems: request?.accessToInternalSystems ?? true,
+            date: request?.date,
+            osPreference: request?.osPreference,
+        }),
+        [request],
+    );
 
     const methods = useForm<CreateUserCreationRequestExternalEmployee>({
         resolver: zodResolver(getCreateUserCreationRequestExternalEmployeeSchema()),
@@ -110,15 +128,25 @@ export const ExternalUserCreationRequestPage = () => {
                     <form onSubmit={onFormSubmit}>
                         <div className={s.Header}>
                             <Text as="h2">{tr('Create access to external employee')}</Text>
-                            <UserFormFormActions
-                                submitDisabled={isSubmitting || isSubmitSuccessful}
-                                onCancel={router.userRequests}
-                                onReset={() => reset(defaultValues)}
-                            />
+                            {nullable(type === 'new', () => (
+                                <UserFormFormActions
+                                    submitDisabled={isSubmitting || isSubmitSuccessful}
+                                    onCancel={router.userRequests}
+                                    onReset={() => reset(defaultValues)}
+                                />
+                            ))}
+                            {nullable(type === 'readOnly' && requestId, (requestId) => (
+                                <DecideOnRequestFormActions
+                                    requestStatus={requestStatus}
+                                    requestId={requestId}
+                                    onDecide={router.userRequests}
+                                />
+                            ))}
                         </div>
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>
                                 <UserFormPersonalDataBlock
+                                    readOnly={type === 'readOnly'}
                                     type="externalEmployee"
                                     onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
@@ -133,6 +161,8 @@ export const ExternalUserCreationRequestPage = () => {
                                         <div className={s.OrganizationCombobox}>
                                             <FormControl label={tr('Organization')} required>
                                                 <OrganizationUnitComboBox
+                                                    error={errors.organizationUnitId}
+                                                    readOnly={type === 'readOnly'}
                                                     searchType="external"
                                                     onChange={onOrganizationChange}
                                                     organizationUnitId={watch('organizationUnitId')}
@@ -141,15 +171,24 @@ export const ExternalUserCreationRequestPage = () => {
                                         </div>
                                         <FormControl required label={tr('Start date')} error={errors.date}>
                                             <FormControlInput
+                                                readOnly={type === 'readOnly'}
                                                 outline
                                                 autoComplete="off"
                                                 size="m"
+                                                value={
+                                                    type === 'readOnly'
+                                                        ? defaultValues.date?.toISOString().substring(0, 10)
+                                                        : undefined
+                                                }
                                                 type="date"
-                                                {...register('date', { valueAsDate: true })}
+                                                {...register('date', {
+                                                    valueAsDate: true,
+                                                })}
                                             />
                                         </FormControl>
                                         <FormControl required label={tr('OS preference')} error={errors.osPreference}>
                                             <FormControlInput
+                                                readOnly={type === 'readOnly'}
                                                 outline
                                                 placeholder={tr('Enter OS name')}
                                                 autoComplete="off"
@@ -160,9 +199,14 @@ export const ExternalUserCreationRequestPage = () => {
                                     </div>
                                 </div>
 
-                                <UserFormExternalTeamBlock className={s.FormBlock} id="team" />
+                                <UserFormExternalTeamBlock
+                                    readOnly={type === 'readOnly'}
+                                    className={s.FormBlock}
+                                    id="team"
+                                />
 
                                 <UserFormExternalExtraInfoBlock
+                                    readOnly={type === 'readOnly'}
                                     className={s.FormBlock}
                                     id="extra-info"
                                     type="externalEmployee"

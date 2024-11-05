@@ -20,6 +20,7 @@ interface UserFormPersonalDataBlockProps {
     id: string;
     onIsLoginUniqueChange?: (arg: string) => void;
     type: 'internal' | 'existing' | 'externalEmployee' | 'externalFromMainOrgEmployee';
+    readOnly?: boolean;
 }
 
 interface UserFormPersonalDataBlockType {
@@ -42,6 +43,7 @@ export const UserFormPersonalDataBlock = ({
     id,
     onIsLoginUniqueChange,
     type,
+    readOnly,
 }: UserFormPersonalDataBlockProps) => {
     const {
         register,
@@ -104,6 +106,7 @@ export const UserFormPersonalDataBlock = ({
             {nullable(type === 'existing', () => (
                 <div className={s.Checkbox}>
                     <Checkbox
+                        readOnly={readOnly}
                         label={tr('Create external account')}
                         checked={createExternalAccount}
                         onChange={onCreateExternalAccountClick}
@@ -113,6 +116,7 @@ export const UserFormPersonalDataBlock = ({
             <div className={s.ThreeInputsRow}>
                 <FormControl label={tr('Surname')} required error={errors.surname}>
                     <FormControlInput
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         outline
@@ -125,6 +129,7 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
                 <FormControl label={tr('First name')} required error={errors.firstName}>
                     <FormControlInput
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         outline
@@ -137,10 +142,12 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
                 <FormControl label={tr('Second name')} error={errors.middleName}>
                     <FormControlInput
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write second name')}
                         outline
+                        value={readOnly && !watch('middleName') ? tr('Not specified') : undefined}
                         {...register('middleName', {
                             required: tr('Required field'),
                             onChange: onNameChange,
@@ -148,10 +155,16 @@ export const UserFormPersonalDataBlock = ({
                     />
                 </FormControl>
                 <FormControl label={tr('Role')} required>
-                    <RoleSelect onChange={onRoleChange} roleName={watch('title')} error={errors.title} />
+                    <RoleSelect
+                        readOnly={readOnly}
+                        onChange={onRoleChange}
+                        roleName={watch('title')}
+                        error={errors.title}
+                    />
                 </FormControl>
                 <FormControl label={tr('Phone')} required error={errors.phone}>
                     <FormControlInput
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         placeholder="+7(___)__-__-___"
@@ -165,6 +178,7 @@ export const UserFormPersonalDataBlock = ({
                 </FormControl>
                 <FormControl label={tr('Login')} required error={errors.login}>
                     <FormControlInput
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('In format vvivanov')}
@@ -175,11 +189,10 @@ export const UserFormPersonalDataBlock = ({
                         })}
                     />
                 </FormControl>
-            </div>
-            {nullable(type === 'existing', () => (
-                <div className={s.TwoInputsRow}>
+                {nullable(type === 'existing', () => (
                     <FormControl label={tr('Accouting ID')} error={errors.accountingId}>
                         <FormControlInput
+                            readOnly={readOnly}
                             autoComplete="off"
                             size="m"
                             placeholder={tr('Enter ID')}
@@ -187,8 +200,8 @@ export const UserFormPersonalDataBlock = ({
                             {...register('accountingId')}
                         />
                     </FormControl>
-                </div>
-            ))}
+                ))}
+            </div>
             {nullable(type === 'internal' || type === 'existing', () => (
                 <Text as="h3">
                     {tr('Email')}{' '}
@@ -205,6 +218,8 @@ export const UserFormPersonalDataBlock = ({
                         required={type === 'externalEmployee'}
                     >
                         <FormControlInput
+                            readOnly={readOnly}
+                            value={readOnly && !watch('personalEmail') ? tr('Not specified') : undefined}
                             autoComplete="off"
                             size="m"
                             placeholder="name@mail.com"
@@ -220,6 +235,8 @@ export const UserFormPersonalDataBlock = ({
                         required={type === 'externalFromMainOrgEmployee'}
                     >
                         <FormControlInput
+                            readOnly={readOnly}
+                            value={readOnly && !watch('workEmail') ? tr('Not specified') : undefined}
                             autoComplete="off"
                             size="m"
                             placeholder="email@example.com"

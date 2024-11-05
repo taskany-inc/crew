@@ -20,6 +20,7 @@ import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import {
     CreateUserCreationRequest,
+    CreateUserCreationRequestExternalEmployee,
     EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
@@ -171,7 +172,7 @@ export const userCreationRequestsMethods = {
             createData.percentage = data.percentage * percentageMultiply || undefined;
         }
 
-        if (data.type === 'externalFromMainOrgEmployee') {
+        if (data.type === 'externalFromMainOrgEmployee' || data.type === 'externalEmployee') {
             createData.permissionServices = { connect: data.permissionToServices?.map((id) => ({ id })) };
             createData.curators = { connect: data.curatorIds?.map((id) => ({ id })) };
             createData.reasonToGrantPermissionToServices = data.reason;
@@ -261,6 +262,114 @@ export const userCreationRequestsMethods = {
         }
 
         return request;
+    },
+
+    getRequestForExternalEmployeeById: async (id: string): Promise<CreateUserCreationRequestExternalEmployee> => {
+        const request = await prisma.userCreationRequest.findUnique({
+            where: { id },
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+                creator: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
+                attaches: true,
+            },
+        });
+
+        if (!request) {
+            throw new TRPCError({ message: `No user creation request with id ${id}`, code: 'NOT_FOUND' });
+        }
+
+        if (request.type !== 'externalEmployee') {
+            throw new TRPCError({
+                message: `Wrong request type ${request.type} instead of externalEmployee for request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        const {
+            name,
+            services,
+            reasonToGrantPermissionToServices,
+            group,
+            organization,
+            supervisor,
+            lineManagers,
+            supplementalPositions,
+            permissionServices,
+            curators,
+            attaches,
+            date,
+            type,
+            title,
+            personalEmail,
+            osPreference,
+            accessToInternalSystems,
+            unitId,
+            corporateEmail,
+            comment,
+            workEmail,
+            percentage,
+            ...restRequest
+        } = request;
+
+        const fullNameArray = name.split(' ');
+
+        const s = services as { serviceId: string; serviceName: string }[];
+
+        const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
+
+        if (
+            !date ||
+            !title ||
+            !personalEmail ||
+            !osPreference ||
+            !corporateEmail ||
+            !phone ||
+            accessToInternalSystems === null ||
+            reasonToGrantPermissionToServices === null
+        ) {
+            throw new TRPCError({
+                message: `Some data is missing for request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        return {
+            ...restRequest,
+            type: 'externalEmployee',
+            title,
+            date,
+            firstName: fullNameArray[1],
+            surname: fullNameArray[0],
+            middleName: fullNameArray[2],
+            phone,
+            reason: reasonToGrantPermissionToServices,
+            groupId: group?.id,
+            organizationUnitId: organization.id,
+            supervisorId: supervisor?.id,
+            lineManagerIds: lineManagers.map(({ id }) => id),
+            supplementalPositions: supplementalPositions.map(({ organizationUnitId, unitId, percentage }) => ({
+                organizationUnitId,
+                unitId: unitId || undefined,
+                percentage,
+            })),
+            permissionToServices: permissionServices.map(({ id }) => id),
+            curatorIds: curators.map(({ id }) => id),
+            attachIds: attaches.map(({ id }) => id) as [string, ...string[]],
+            unitId: unitId || undefined,
+            corporateEmail,
+            comment: comment || undefined,
+            workEmail: workEmail || undefined,
+            percentage: percentage || undefined,
+            accessToInternalSystems,
+            personalEmail,
+            osPreference,
+        };
     },
 
     edit: async (data: EditUserCreationRequest, requestBeforeUpdate: UserCreationRequest, sessionUserId: string) => {

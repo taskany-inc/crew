@@ -50,7 +50,7 @@ module.exports = {
 
         // https://github.com/typescript-eslint/typescript-eslint/issues/2483
         'no-shadow': 'off',
-        '@typescript-eslint/no-shadow': 'error',
+        '@typescript-eslint/no-shadow': 'off',
 
         'space-before-function-paren': 'off',
         'consistent-return': 'off',

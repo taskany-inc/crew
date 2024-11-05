@@ -14,10 +14,16 @@ import { tr } from './UserFormExternalExtraInfoBlock.i18n';
 interface UserFormExternalExtraInfoBlockProps {
     className: string;
     id: string;
-    type?: string;
+    type?: 'externalEmployee' | 'externalFromMain';
+    readOnly?: boolean;
 }
 
-export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserFormExternalExtraInfoBlockProps) => {
+export const UserFormExternalExtraInfoBlock = ({
+    className,
+    id,
+    type,
+    readOnly,
+}: UserFormExternalExtraInfoBlockProps) => {
     const {
         setValue,
         watch,
@@ -46,6 +52,7 @@ export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserForm
             <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Permission to services')} required>
                     <PermissionServiceSelect
+                        readOnly={readOnly}
                         selectedServices={watch('permissionToServices')}
                         className={s.PermissionServiceSelect}
                         mode="multiple"
@@ -62,6 +69,7 @@ export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserForm
 
                 <FormControl label={tr('Reason for granting permission')} error={errors.reason} required>
                     <FormControlInput
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write reason')}
@@ -72,7 +80,7 @@ export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserForm
                     />
                 </FormControl>
             </div>
-            {nullable(type === 'externalEmployee', () => (
+            {nullable(type === 'externalEmployee' && !readOnly, () => (
                 <div className={s.Nda}>
                     <FormControl label="NDA" error={errors.attachIds} required>
                         <FormControlFileUpload
@@ -95,6 +103,7 @@ export const UserFormExternalExtraInfoBlock = ({ className, id, type }: UserForm
                     </FormControl>
                 </div>
             ))}
+            {/* TODO attaches list to download */}
         </div>
     );
 };
