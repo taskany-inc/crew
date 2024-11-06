@@ -272,7 +272,7 @@ export const userCreationRequestsMethods = {
     },
 
     getById: async (id: string) => {
-        const request = await prisma.userCreationRequest.findUnique({ where: { id } });
+        const request = await prisma.userCreationRequest.findUnique({ where: { id }, include: { attaches: true } });
 
         if (!request) {
             throw new TRPCError({ message: `No user creation request with id ${id}`, code: 'NOT_FOUND' });
