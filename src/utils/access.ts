@@ -70,6 +70,7 @@ const scopesObj: Record<AccessOperation, true> = {
     viewScheduledDeactivation: true,
     viewUserBonuses: true,
     viewUserExtendedInfo: true,
+    importData: true,
 };
 
 export const scopes = objKeys(scopesObj);

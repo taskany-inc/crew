@@ -1,0 +1,30 @@
+.ParseTeamStructurePageFilename {
+    margin-bottom: var(--gap-m);
+}
+
+.ParseTeamStructurePageField {
+    max-width: 400px
+}
+
+.ParseTeamStructurePageDropdown {
+    max-height: 400px;
+    overflow: auto;
+}
+
+.ParseTeamStructurePageConfigurator {
+    margin-top: var(--gap-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-m);
+}
+
+.ParseTeamStructurePageButton {
+    align-self: flex-start;
+}
+
+.ParseTeamStructurePageGroupSelects {
+    margin-left: var(--gap-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-m);
+}

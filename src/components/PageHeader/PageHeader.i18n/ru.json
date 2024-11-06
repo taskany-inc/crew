@@ -18,5 +18,6 @@
     "viewing scheduled deactivations": "просмотр плановых деактиваций",
     "Admin panel": "Панель администратора",
     "editing role scopes": "редактирование доступов ролей",
-    "editing user roles": "редактирование ролей пользователя"
+    "editing user roles": "редактирование ролей пользователя",
+    "import data from file": "импорт данных через загрузку файлов"
 }

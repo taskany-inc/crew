@@ -23,6 +23,7 @@ const main = async () => {
         viewScheduledDeactivation: true,
         editFullGroupTree: true,
         viewHistoryEvents: true,
+        importData: true,
     };
 
     await prisma.userRole.createMany({

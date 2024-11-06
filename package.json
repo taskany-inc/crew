@@ -63,6 +63,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "7.52.2",
     "react-hot-toast": "2.4.1",
+    "read-excel-file": "5.8.6",
     "styled-components": "5.3.11",
     "superjson": "1.13.1",
     "swagger-ui-react": "5.17.14",

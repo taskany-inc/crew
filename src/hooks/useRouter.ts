@@ -25,6 +25,7 @@ export const pages = {
 
     attaches: '/api/attach',
     attach: (attachId: string) => `/api/attach?id=${attachId}`,
+    attachParseStructure: '/api/attach?parseStructure',
 
     newInternalUserRequest: '/requests/users/new/internal',
     newExternalUserRequest: '/requests/users/new/external',
