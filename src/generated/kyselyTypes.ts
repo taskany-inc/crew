@@ -259,7 +259,7 @@ export type SupplementalPosition = {
     id: string;
     organizationUnitId: string;
     unitId: string | null;
-    personnelNumber: number | null;
+    personnelNumber: string | null;
     userId: string | null;
     percentage: number;
     userCreationRequestId: string | null;
