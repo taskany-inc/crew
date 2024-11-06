@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Text } from '@taskany/bricks/harmony';
 import { debounce } from 'throttle-debounce';
+import { UserCreationRequestStatus } from 'prisma/prisma-client';
+import { nullable } from '@taskany/bricks';
 
 import {
     CreateUserCreationRequestexternalFromMainOrgEmployee,
@@ -21,34 +23,50 @@ import { config } from '../../config';
 import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserFormExternalTeamBlock';
 import { UserFormExternalExtraInfoBlock } from '../UserFormExternalExtraInfoBlock/UserFormExternalExtraInfoBlock';
 import { useSpyNav } from '../../hooks/useSpyNav';
+import { DecideOnRequestFormActions } from '../DecideOnRequestFormActions/DecideOnRequestFormActions';
 
 import s from './ExternalFromMainOrgUserCreationRequestPage.module.css';
 import { tr } from './ExternalFromMainOrgUserCreationRequestPage.i18n';
 
-const defaultValues: Partial<CreateUserCreationRequestexternalFromMainOrgEmployee> = {
-    type: 'externalFromMainOrgEmployee',
-    organizationUnitId: config.mainOrganizationId,
-    surname: '',
-    firstName: '',
-    middleName: '',
-    login: '',
-    createExternalAccount: true,
-    phone: '',
-    email: '',
-    workEmail: '',
-    corporateEmail: '',
-    curatorIds: [],
-    lineManagerIds: [],
-    title: '',
-    groupId: '',
-    permissionToServices: [],
-    reason: '',
-};
+interface ExternalUserCreationRequestPageProps {
+    request?: CreateUserCreationRequestexternalFromMainOrgEmployee;
+    type?: 'readOnly' | 'edit' | 'new';
+    requestId?: string;
+    requestStatus?: UserCreationRequestStatus;
+}
 
-export const ExternalFromMainOrgUserCreationRequestPage = () => {
+export const ExternalFromMainOrgUserCreationRequestPage = ({
+    request,
+    type = 'new',
+    requestId,
+    requestStatus,
+}: ExternalUserCreationRequestPageProps) => {
     const { createUserCreationRequest } = useUserCreationRequestMutations();
 
     const router = useRouter();
+
+    const defaultValues: Partial<CreateUserCreationRequestexternalFromMainOrgEmployee> = useMemo(
+        () => ({
+            type: 'externalFromMainOrgEmployee',
+            organizationUnitId: config.mainOrganizationId,
+            surname: request?.surname,
+            firstName: request?.firstName,
+            middleName: request?.middleName,
+            login: request?.login,
+            createExternalAccount: true,
+            phone: request?.phone,
+            email: request?.email,
+            workEmail: request?.workEmail,
+            corporateEmail: request?.corporateEmail,
+            curatorIds: request?.curatorIds || [],
+            lineManagerIds: request?.lineManagerIds || [],
+            title: request?.title,
+            groupId: request?.groupId,
+            permissionToServices: request?.permissionToServices || [],
+            reason: request?.reason,
+        }),
+        [request],
+    );
 
     const methods = useForm<CreateUserCreationRequestexternalFromMainOrgEmployee>({
         resolver: zodResolver(getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema()),
@@ -104,15 +122,25 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
                                     mainOrgName: config.mainOrganizationName || 'Main',
                                 })}
                             </Text>
-                            <UserFormFormActions
-                                submitDisabled={isSubmitting || isSubmitSuccessful}
-                                onCancel={router.userRequests}
-                                onReset={() => reset(defaultValues)}
-                            />
+                            {nullable(type === 'new', () => (
+                                <UserFormFormActions
+                                    submitDisabled={isSubmitting || isSubmitSuccessful}
+                                    onCancel={router.userRequests}
+                                    onReset={() => reset(defaultValues)}
+                                />
+                            ))}
+                            {nullable(type === 'readOnly' && requestId, (requestId) => (
+                                <DecideOnRequestFormActions
+                                    requestStatus={requestStatus}
+                                    requestId={requestId}
+                                    onDecide={router.userRequests}
+                                />
+                            ))}
                         </div>
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>
                                 <UserFormPersonalDataBlock
+                                    readOnly={type === 'readOnly'}
                                     type="externalFromMainOrgEmployee"
                                     onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
@@ -135,9 +163,18 @@ export const ExternalFromMainOrgUserCreationRequestPage = () => {
                                     </div>
                                 </div>
 
-                                <UserFormExternalTeamBlock className={s.FormBlock} id="team" />
+                                <UserFormExternalTeamBlock
+                                    readOnly={type === 'readOnly'}
+                                    className={s.FormBlock}
+                                    id="team"
+                                />
 
-                                <UserFormExternalExtraInfoBlock className={s.FormBlock} id="extra-info" />
+                                <UserFormExternalExtraInfoBlock
+                                    readOnly={type === 'readOnly'}
+                                    type="externalFromMain"
+                                    className={s.FormBlock}
+                                    id="extra-info"
+                                />
                             </div>
 
                             <NavMenu

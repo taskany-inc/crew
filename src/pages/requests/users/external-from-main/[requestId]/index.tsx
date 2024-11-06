@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ExternalUserCreationRequestPage } from '../../../../../components/ExternalUserCreationRequestPage/ExternalUserCreationRequestPage';
+import { ExternalFromMainOrgUserCreationRequestPage } from '../../../../../components/ExternalFromMainOrgUserCreationRequestPage/ExternalFromMainOrgUserCreationRequestPage';
 import { pages } from '../../../../../hooks/useRouter';
 import { trpc } from '../../../../../trpc/trpcClient';
 import { createGetServerSideProps } from '../../../../../utils/createGetSSRProps';
@@ -23,15 +23,15 @@ export const getServerSideProps = createGetServerSideProps({
     },
 });
 
-export default function ExternalUserCreationRequest({ requestId }: { requestId: string }) {
-    const requestFormQuery = trpc.userCreationRequest.getRequestForExternalEmployeeById.useQuery(requestId);
+export default function ExternalFromMainOrgUserCreationRequest({ requestId }: { requestId: string }) {
+    const requestFormQuery = trpc.userCreationRequest.getRequestForExternalFromMainEmployeeById.useQuery(requestId);
 
     const requestQuery = trpc.userCreationRequest.getById.useQuery(requestId);
 
     if (!requestFormQuery.data) return null;
 
     return (
-        <ExternalUserCreationRequestPage
+        <ExternalFromMainOrgUserCreationRequestPage
             requestId={requestId}
             request={requestFormQuery.data}
             type="readOnly"
