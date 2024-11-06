@@ -22,6 +22,7 @@ import { tr } from './modules.i18n';
 import {
     CreateUserCreationRequest,
     CreateUserCreationRequestExternalEmployee,
+    CreateUserCreationRequestexternalFromMainOrgEmployee,
     EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
@@ -386,6 +387,102 @@ export const userCreationRequestsMethods = {
             accessToInternalSystems,
             personalEmail,
             osPreference,
+        };
+    },
+
+    getRequestForExternalFromMainEmployeeById: async (
+        id: string,
+    ): Promise<CreateUserCreationRequestexternalFromMainOrgEmployee> => {
+        const request = await prisma.userCreationRequest.findUnique({
+            where: { id },
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+                creator: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
+            },
+        });
+
+        if (!request) {
+            throw new TRPCError({ message: `No user creation request with id ${id}`, code: 'NOT_FOUND' });
+        }
+
+        if (request.type !== 'externalFromMainOrgEmployee') {
+            throw new TRPCError({
+                message: `Wrong request type ${request.type} instead of externalFromMainOrgEmployee for request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        const {
+            name,
+            services,
+            reasonToGrantPermissionToServices,
+            group,
+            organization,
+            supervisor,
+            lineManagers,
+            supplementalPositions,
+            permissionServices,
+            curators,
+            type,
+            title,
+            unitId,
+            corporateEmail,
+            comment,
+            workEmail,
+            percentage,
+            personalEmail,
+            osPreference,
+            date,
+            ...restRequest
+        } = request;
+
+        const fullNameArray = name.split(' ');
+
+        const s = services as { serviceId: string; serviceName: string }[];
+
+        const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
+
+        if (!title || !workEmail || !corporateEmail || !phone || reasonToGrantPermissionToServices === null) {
+            throw new TRPCError({
+                message: `Some data is missing for request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        return {
+            ...restRequest,
+            type: 'externalFromMainOrgEmployee',
+            title,
+            firstName: fullNameArray[1],
+            surname: fullNameArray[0],
+            middleName: fullNameArray[2],
+            phone,
+            reason: reasonToGrantPermissionToServices,
+            groupId: group?.id,
+            organizationUnitId: organization.id,
+            supervisorId: supervisor?.id,
+            lineManagerIds: lineManagers.map(({ id }) => id),
+            supplementalPositions: supplementalPositions.map(({ organizationUnitId, unitId, percentage }) => ({
+                organizationUnitId,
+                unitId: unitId || undefined,
+                percentage,
+            })),
+            permissionToServices: permissionServices.map(({ id }) => id),
+            curatorIds: curators.map(({ id }) => id),
+            unitId: unitId || undefined,
+            corporateEmail,
+            comment: comment || undefined,
+            workEmail,
+            percentage: percentage || undefined,
+            personalEmail: personalEmail || undefined,
+            osPreference: osPreference || undefined,
+            date: date || undefined,
         };
     },
 
