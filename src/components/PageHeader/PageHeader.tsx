@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import NextLink from 'next/link';
@@ -13,7 +14,7 @@ import {
     Text,
     nullable,
 } from '@taskany/bricks';
-import { Popup } from '@taskany/bricks/harmony';
+import { Button, Popup } from '@taskany/bricks/harmony';
 
 import { pages } from '../../hooks/useRouter';
 import { GlobalSearch } from '../GlobalSearch/GlobalSearch';
@@ -25,6 +26,7 @@ import { AccessOperation } from '../../utils/access';
 import { objKeys } from '../../utils/objKeys';
 import { Restricted } from '../Restricted';
 import { config } from '../../config';
+import { trpc } from '../../trpc/trpcClient';
 
 import { tr } from './PageHeader.i18n';
 
@@ -49,6 +51,10 @@ interface HeaderLink {
 }
 
 export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ logo, userSettings }) => {
+    const migrate = trpc.migrate.migrate.useMutation();
+
+    console.log('QQQ MIGRATE', migrate.data);
+
     const sessionUser = useSessionUser();
     const entityListMenuItems = useMemo(() => {
         const items: HeaderLink[] = [
@@ -136,6 +142,7 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             }
             nav={
                 <StyledNav>
+                    <Button onClick={() => migrate.mutate()} text="МИГРИРОВАЙ!" />
                     {entityListMenuItems.map((item) => (
                         <Restricted visible={item.visible} key={item.path}>
                             <NextLink href={item.path} passHref legacyBehavior>

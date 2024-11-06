@@ -20,6 +20,7 @@ import { attachRouter } from './attachRouter';
 import { userCreationRequestRouter } from './userCreationRequestRouter';
 import { supplementalPositionRouter } from './supplementalPositionRouter';
 import { permissionServiceRouter } from './permissionServiceRouter';
+import { migrateRouter } from './migrateRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -42,6 +43,7 @@ export const trpcRouter = router({
     userCreationRequest: userCreationRequestRouter,
     supplementalPosition: supplementalPositionRouter,
     permissionService: permissionServiceRouter,
+    migrate: migrateRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;
