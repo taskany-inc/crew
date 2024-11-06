@@ -12,6 +12,8 @@ import { authOptions } from '../utils/auth';
 import { attachMethods } from './attachMethods';
 import { getObject, loadFile } from './s3Methods';
 import { tr } from './modules.i18n';
+import { importMethods } from './importMethods';
+import { structureParsingConfigSchema } from './importSchemas';
 
 interface ResponseObj {
     failed: { type: string; filePath: string; name: string }[];
@@ -32,7 +34,7 @@ export const postHandler = async (req: NextApiRequest, res: NextApiResponse) => 
     const form = formidable({ multiples: true });
 
     await new Promise((_resolve, reject) => {
-        form.parse(req, async (err, _fields, files) => {
+        form.parse(req, async (err, fields, files) => {
             if (err instanceof Error) {
                 return reject(new ErrorWithStatus(err.message, 500));
             }
@@ -50,6 +52,15 @@ export const postHandler = async (req: NextApiRequest, res: NextApiResponse) => 
                 const filename = file.originalFilename || file.newFilename;
                 const link = `${Date.now()}_${filename}`;
                 const readStream = fs.createReadStream(file.filepath);
+
+                if ('parseStructure' in req.query) {
+                    const config = JSON.parse(fields.config as string);
+                    const parsedConfig = structureParsingConfigSchema.parse(config);
+                    importMethods.parseStructure(readStream, parsedConfig);
+                    res.send('ok');
+                    return;
+                }
+
                 const response = await loadFile(link, readStream, file.mimetype || '');
 
                 if (response) {

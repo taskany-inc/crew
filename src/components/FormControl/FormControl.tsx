@@ -6,12 +6,13 @@ interface FormControlProps {
     label?: string;
     required?: boolean;
     error?: { message?: string };
+    className?: string;
     children: ReactNode;
 }
 
-export const FormControl = ({ label, required, error, children }: FormControlProps) => {
+export const FormControl = ({ label, required, error, className, children }: FormControlProps) => {
     return (
-        <HarmonyFormControl required={required}>
+        <HarmonyFormControl required={required} className={className}>
             {nullable(label, (l) => (
                 <FormControlLabel>{l}</FormControlLabel>
             ))}

@@ -95,6 +95,8 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             editFullGroupTree: tr('editing any team'),
 
             viewHistoryEvents: tr('viewing history of changes'),
+
+            importData: tr('import data from file'),
         };
         return objKeys(allDescriptions)
             .filter((name) => role[name])

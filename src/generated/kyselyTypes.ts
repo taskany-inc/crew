@@ -391,6 +391,7 @@ export type UserRole = {
     viewScheduledDeactivation: Generated<boolean>;
     editFullGroupTree: Generated<boolean>;
     viewHistoryEvents: Generated<boolean>;
+    importData: Generated<boolean>;
 };
 export type UserService = {
     userId: string;

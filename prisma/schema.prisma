@@ -256,6 +256,8 @@ model UserRole {
 
   viewHistoryEvents Boolean @default(false)
 
+  importData Boolean @default(false)
+
   // TODO: rename to UserRole issues/690
   @@map("UserRoleModel")
 }
