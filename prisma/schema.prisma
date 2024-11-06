@@ -730,7 +730,7 @@ model SupplementalPosition {
   organizationUnit   OrganizationUnit @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId String
   unitId             String?
-  personnelNumber    Int?
+  personnelNumber    String?
 
   user          User?          @relation(fields: [userId], references: [id])
   userId        String?
