@@ -2,20 +2,42 @@ import React, { useCallback } from 'react';
 import { FormControlInput, FormControlFileUpload, Text } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { nullable } from '@taskany/bricks';
+import { IconFileOutline } from '@taskany/icons';
 
 import { FormControl } from '../FormControl/FormControl';
 import { PermissionServiceSelect } from '../PermissionServiceSelect/PermissionServiceSelect';
 import { getFileIdFromPath } from '../../utils/attachFormatter';
 import { pages } from '../../hooks/useRouter';
+import { trpc } from '../../trpc/trpcClient';
+import { Link } from '../Link';
 
 import s from './UserFormExternalExtraInfoBlock.module.css';
 import { tr } from './UserFormExternalExtraInfoBlock.i18n';
+
+interface AttachListProps {
+    requestId: string;
+}
+
+const AttachList = ({ requestId }: AttachListProps) => {
+    const requestQuery = trpc.userCreationRequest.getById.useQuery(requestId);
+
+    return nullable(requestQuery.data?.attaches, (attaches) => (
+        <div>
+            {attaches.map(({ id, filename }) => (
+                <Link className={s.Link} key={id} href={pages.attach(id)} target="_blank">
+                    <IconFileOutline size="s" /> {filename}
+                </Link>
+            ))}
+        </div>
+    ));
+};
 
 interface UserFormExternalExtraInfoBlockProps {
     className: string;
     id: string;
     type?: 'externalEmployee' | 'externalFromMain';
     readOnly?: boolean;
+    requestId?: string;
 }
 
 export const UserFormExternalExtraInfoBlock = ({
@@ -23,6 +45,7 @@ export const UserFormExternalExtraInfoBlock = ({
     id,
     type,
     readOnly,
+    requestId,
 }: UserFormExternalExtraInfoBlockProps) => {
     const {
         setValue,
@@ -80,30 +103,38 @@ export const UserFormExternalExtraInfoBlock = ({
                     />
                 </FormControl>
             </div>
-            {nullable(type === 'externalEmployee' && !readOnly, () => (
-                <div className={s.Nda}>
-                    <FormControl label="NDA" error={errors.attachIds} required>
-                        <FormControlFileUpload
-                            accept={{
-                                'application/pdf': [],
-                                'application/msword': [],
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
-                            }}
-                            translates={{
-                                idle: tr('Choose file'),
-                                active: tr('Drop file here'),
-                                loading: tr('Loading'),
-                                accepted: tr('Loaded'),
-                                error: tr("File doesn't load"),
-                                fileExtensionsText: tr('In *.pdf or *.doc / *.docx format'),
-                            }}
-                            uploadLink={pages.attaches}
-                            onChange={onFileChange}
-                        />
-                    </FormControl>
-                </div>
-            ))}
-            {/* TODO attaches list to download */}
+
+            <div className={s.Nda}>
+                <FormControl label="NDA" error={errors.attachIds} required>
+                    {nullable(
+                        type === 'externalEmployee' && !readOnly,
+                        () => (
+                            <FormControlFileUpload
+                                accept={{
+                                    'application/pdf': [],
+                                    'application/msword': [],
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+                                }}
+                                translates={{
+                                    idle: tr('Choose file'),
+                                    active: tr('Drop file here'),
+                                    loading: tr('Loading'),
+                                    accepted: tr('Loaded'),
+                                    error: tr("File doesn't load"),
+                                    fileExtensionsText: tr('In *.pdf or *.doc / *.docx format'),
+                                }}
+                                uploadLink={pages.attaches}
+                                onChange={onFileChange}
+                            />
+                        ),
+                        <>
+                            {nullable(requestId, (id) => (
+                                <AttachList requestId={id} />
+                            ))}
+                        </>,
+                    )}
+                </FormControl>
+            </div>
         </div>
     );
 };

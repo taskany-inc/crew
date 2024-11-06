@@ -28,6 +28,14 @@ export const attachMethods = {
         ) {
             throw new TRPCError({ code: 'FORBIDDEN', message: tr('Attach access forbidden') });
         }
+
+        if (
+            attach.userCreationRequestId &&
+            (!sessionUser.role?.createUser || !sessionUser.role?.editUserCreationRequests)
+        ) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: tr('Attach access forbidden') });
+        }
+
         return attach;
     },
 

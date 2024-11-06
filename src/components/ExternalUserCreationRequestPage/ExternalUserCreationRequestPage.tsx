@@ -210,6 +210,7 @@ export const ExternalUserCreationRequestPage = ({
                                     className={s.FormBlock}
                                     id="extra-info"
                                     type="externalEmployee"
+                                    requestId={requestId}
                                 />
                             </div>
 
