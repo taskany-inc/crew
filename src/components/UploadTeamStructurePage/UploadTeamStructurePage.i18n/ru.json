@@ -1,0 +1,13 @@
+{
+    "Upload team structure": "Загрузка распознанной структуры",
+    "Team structure file": "Файл со структурой",
+    "Choose file": "Выберите файл",
+    "Drop file here": "Перетащите файл сюда",
+    "Loading...": "Загрузка...",
+    "Loaded": "Загружено",
+    "Upload error": "Ошибка загрузки",
+    ".json format": "формат .json",
+    "Cannot parse JSON": "Ошибка в формате файла",
+    "Users": "Пользователи",
+    "Team lead": "Руководитель"
+}

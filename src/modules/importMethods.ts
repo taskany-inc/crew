@@ -8,10 +8,10 @@ import readXlsxFile, { Row } from 'read-excel-file/node';
 
 import { db } from '../utils/db';
 
-import { StructureParsingConfig } from './importSchemas';
+import { Person, StructureNode, StructureParsingConfig } from './importSchemas';
 import { sendMail } from './nodemailer';
 
-const getTypeDescriptions = (v: any) => {
+const getTypeDescriptions = (v: unknown) => {
     if (typeof v === 'string') return `string of length ${v.length}`;
     if (typeof v === 'number') return 'number';
     if (typeof v === 'bigint') return 'bigint';
@@ -37,10 +37,7 @@ const dumpToJson = (filename: string, v: any) => {
     fs.writeFileSync(`${dirname}/${filename}.json`, JSON.stringify(v, null, 2));
 };
 
-const getExcelData = async (
-    fileStream: fs.ReadStream,
-    config: StructureParsingConfig,
-): Promise<{ rows: Row[]; columnNames: any }> => {
+const getExcelData = async (fileStream: fs.ReadStream, config: StructureParsingConfig) => {
     const file = await buffer(fileStream);
     const data = await readXlsxFile(file, { sheet: config.sheet });
     const headers = data[0];
@@ -101,25 +98,12 @@ const getRowData = (row: Row, config: StructureParsingConfig, addError: AddError
     };
 };
 
-interface Person {
-    id: string;
-    name: string | null;
-    role?: string;
-}
-
-interface Node {
-    nodes: Record<string, Node>;
-    teamLeads: Person[];
-    people: Person[];
-}
-
-const createNode = (): Node => ({
+const createNode = (): StructureNode => ({
     nodes: {},
-    teamLeads: [],
     people: [],
 });
 
-const getNodeByPath = (struct: Node, path: string[]) => {
+const getNodeByPath = (struct: StructureNode, path: string[]) => {
     let currentNode = struct;
     const targetPath = [...path];
     while (targetPath.length > 0) {
@@ -228,14 +212,6 @@ export const importMethods = {
 
             if (!rowData) continue;
 
-            const user = await findUser({
-                fullName: rowData.fullName,
-                unitId: rowData.unitId,
-                personnelNumber: rowData.personelNumber,
-            });
-
-            if (!user) continue;
-
             const groups = await Promise.all(
                 rowData.groups
                     .filter((g, i, a) => a.findIndex((v) => v.name === g.name) === i)
@@ -250,9 +226,17 @@ export const importMethods = {
             groups.forEach((g, i) => {
                 const node = getNodeByPath(structure, path.slice(0, i + 1));
                 if (g.lead) {
-                    node.teamLeads.push(g.lead);
+                    node.teamLead = g.lead;
                 }
             });
+
+            const user = await findUser({
+                fullName: rowData.fullName,
+                unitId: rowData.unitId,
+                personnelNumber: rowData.personelNumber,
+            });
+
+            if (!user) continue;
 
             const node = getNodeByPath(structure, path);
             node.people.push(user);
