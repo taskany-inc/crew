@@ -15,3 +15,21 @@ export const structureParsingConfigSchema = z.object({
     ),
 });
 export type StructureParsingConfig = z.infer<typeof structureParsingConfigSchema>;
+
+export const personSchema = z.object({
+    id: z.string(),
+    name: z.string().nullable(),
+    role: z.string().optional(),
+});
+export type Person = z.infer<typeof personSchema>;
+
+export interface StructureNode {
+    nodes: Record<string, StructureNode>;
+    teamLead?: Person;
+    people: Person[];
+}
+export const structureNodeSchema: z.ZodType<StructureNode> = z.object({
+    nodes: z.record(z.lazy(() => structureNodeSchema)),
+    teamLead: personSchema.optional(),
+    people: personSchema.array(),
+});

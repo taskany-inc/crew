@@ -2,6 +2,8 @@ import { TRPCClientError } from '@trpc/client';
 import toast from 'react-hot-toast';
 import { typeToFlattenedError } from 'zod';
 
+import { stringifyZodError } from '../stringifyZodError';
+
 import {
     NotificationEvents,
     NotificationNamespaces,
@@ -28,9 +30,9 @@ const extractError = (error: unknown): string | undefined => {
         error.data.httpStatus < 500
     ) {
         const { zodError } = error.data;
+
         if (isFlattenedZodError(zodError)) {
-            const fieldErrors = Object.entries(zodError.fieldErrors).map(([k, v]) => `${k} - ${v?.join(', ')}`);
-            return [tr('Validation error'), ...zodError.formErrors, ...fieldErrors].join('\n');
+            return `${tr('Validation error')}\n${stringifyZodError(zodError)}`;
         }
         return error.message;
     }

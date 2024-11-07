@@ -1,0 +1,19 @@
+.UploadTeamStructurePageRow {
+    background-color: var(--gray-800);
+    padding: var(--gap-s);
+    margin-bottom: var(--gap-xs);
+    border-radius: var(--radius-m);
+    flex: 1;
+}
+
+.UploadTeamStructurePageRow:hover {
+    background-color: var(--gray-700);
+}
+
+.UploadTeamStructurePageRowNoChildren {
+    margin-left: var(--gap-m);
+}
+
+.UploadTeamStructurePageUser {
+    margin-right: var(--gap-s);
+}
