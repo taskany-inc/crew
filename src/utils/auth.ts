@@ -176,3 +176,11 @@ declare module 'next-auth' {
         user: SessionUser;
     }
 }
+
+declare module 'next' {
+    interface NextApiRequest {
+        session?: {
+            user: SessionUser;
+        };
+    }
+}

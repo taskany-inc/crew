@@ -10,6 +10,7 @@ export const getAuthChecker = () => async (req: NextApiRequest, res: NextApiResp
     const session = await getServerSession(req, res, authOptions);
 
     if (session) {
+        req.session = session;
         next();
     } else {
         res.status(401).end();
