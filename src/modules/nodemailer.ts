@@ -21,7 +21,7 @@ export interface MessageBody {
     from?: string;
     html?: string;
     icalEvent?: string;
-    attachments?: Array<{ filename?: string; path?: string }>;
+    attachments?: Array<{ filename?: string; path?: string; content?: string | Buffer; contentType?: string }>;
 }
 
 const message = ({ from = 'Crew', to, subject, text, html, icalEvent, attachments }: MessageBody) => ({

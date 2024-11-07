@@ -137,7 +137,7 @@ const ColumnSelect = ({
 
 const Configurator = ({ columns, file, sheet }: { columns: string[]; file: File; sheet?: string }) => {
     const [groupCount, setGroupCount] = useState(1);
-    const [config, setConfig] = useState<Omit<StructureParsingConfig, 'sheet'>>({ fullName: 0, groups: [] });
+    const [config, setConfig] = useState<Omit<StructureParsingConfig, 'sheet'>>({ fullName: 0, groups: [{ name: 0 }] });
 
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -215,7 +215,10 @@ const Configurator = ({ columns, file, sheet }: { columns: string[]; file: File;
             ))}
             <Button
                 text={tr('Add group')}
-                onClick={() => setGroupCount((i) => i + 1)}
+                onClick={() => {
+                    setConfig((c) => ({ ...c, groups: [...c.groups, { name: 0 }] }));
+                    setGroupCount((i) => i + 1);
+                }}
                 className={s.ParseTeamStructurePageButton}
             />
 

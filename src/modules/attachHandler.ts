@@ -53,10 +53,10 @@ export const postHandler = async (req: NextApiRequest, res: NextApiResponse) => 
                 const link = `${Date.now()}_${filename}`;
                 const readStream = fs.createReadStream(file.filepath);
 
-                if ('parseStructure' in req.query) {
+                if ('parseStructure' in req.query && req.session) {
                     const config = JSON.parse(fields.config as string);
                     const parsedConfig = structureParsingConfigSchema.parse(config);
-                    importMethods.parseStructure(readStream, parsedConfig);
+                    importMethods.parseStructure(readStream, parsedConfig, req.session.user.email);
                     res.send('ok');
                     return;
                 }
