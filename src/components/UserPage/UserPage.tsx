@@ -120,12 +120,38 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const orgMembership = user.memberships.find((m) => m.group.organizational);
     const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
 
-    const orgUnitAndRole = useMemo(() => {
-        const result: string[] = [];
-        if (user.organizationUnit) result.push(user.organizationUnit.name);
-        if (orgRoles) result.push(orgRoles);
-        return result.join(': ');
-    }, [user.organizationUnit, orgRoles]);
+    const { orgUnitAndRole, supplemental, main } = useMemo(() => {
+        const { main, supplemental } = user.supplementalPositions.reduce<{
+            main: UserSupplementalPositions['supplementalPositions'][number] | null;
+            supplemental: UserSupplementalPositions['supplementalPositions'][number][];
+        }>(
+            (acum, item) => {
+                if (item.main) {
+                    acum.main = item;
+                } else {
+                    acum.supplemental.push(item);
+                }
+                return acum;
+            },
+            { main: null, supplemental: [] },
+        );
+
+        const headerNodes: string[] = [];
+
+        if (main?.organizationUnit) {
+            headerNodes.push(main.organizationUnit.name);
+        }
+
+        if (orgRoles) {
+            headerNodes.push(orgRoles);
+        }
+
+        return {
+            orgUnitAndRole: headerNodes.join(': '),
+            supplemental,
+            main,
+        };
+    }, [user.supplementalPositions, orgRoles]);
 
     const handleEditUserRole = async (data?: Nullish<{ code: string }>) => {
         if (!data) return;
@@ -155,11 +181,11 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             {s}
                         </Text>
                     ))}
-                    {nullable(!!user.supplementalPositions.length, () => (
+                    {nullable(supplemental, (supplementalPositions) => (
                         <div>
                             <Text size="s" color={gray8}>
                                 {tr('Supplemental: ')}
-                                {supplementPositionListToString(user.supplementalPositions)}.
+                                {supplementPositionListToString(supplementalPositions)}.
                             </Text>
                         </div>
                     ))}
@@ -200,7 +226,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                     onClose={scheduleDeactivationFormVisibility.setFalse}
                     userId={user.id}
                     orgRoles={orgRoles}
-                    organization={user.organizationUnit}
+                    organization={main?.organizationUnit}
                     orgGroupName={orgMembership?.group.name}
                 />
                 <EditButtonsWrapper>
