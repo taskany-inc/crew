@@ -3,7 +3,9 @@ import { nullable } from '@taskany/bricks';
 import {
     Alert,
     Badge,
+    Button,
     FormControlFileUpload,
+    Spinner,
     Text,
     TreeView,
     TreeViewNode,
@@ -11,6 +13,7 @@ import {
 } from '@taskany/bricks/harmony';
 import { IconUserCircleOutline } from '@taskany/icons';
 import cn from 'classnames';
+import { Group } from 'prisma/prisma-client';
 
 import { CommonHeader } from '../CommonHeader';
 import { FormControl } from '../FormControl/FormControl';
@@ -20,7 +23,10 @@ import { stringifyZodError } from '../../utils/stringifyZodError';
 import { safelyParseJson } from '../../utils/safelyParseJson';
 import { Link } from '../Link';
 import { pages } from '../../hooks/useRouter';
+import { trpc } from '../../trpc/trpcClient';
 import { usePreviewContext } from '../../contexts/previewContext';
+import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
+import { Nullish } from '../../utils/types';
 
 import s from './UploadTeamStructurePage.module.css';
 import { tr } from './UploadTeamStructurePage.i18n';
@@ -47,7 +53,7 @@ const StructureFileUpload = ({ setStructure }: { setStructure: (s: StructureNode
 
     return (
         <>
-            <FormControl label={tr('Team structure file')}>
+            <FormControl label={tr('Team structure file')} className={s.UploadTeamStructurePageField}>
                 <FormControlFileUpload
                     accept={{
                         'application/json': ['.json'],
@@ -146,22 +152,52 @@ const StructureTree = ({ name, structure }: { name: string; structure: Structure
 
 export const UploadTeamStructurePage = () => {
     const [structure, setStructure] = useState<StructureNode>();
+    const [rootGroup, setRootGroup] = useState<Nullish<Group>>();
+
+    const uploadStructure = trpc.import.uploadStructure.useMutation();
+
+    const onUpload = () => {
+        if (!structure || !rootGroup) return;
+        uploadStructure.mutateAsync({ structure, rootGroupId: rootGroup.id });
+    };
 
     return (
         <LayoutMain pageTitle={tr('Upload team structure')}>
             <CommonHeader title={tr('Upload team structure')} />
             <PageContent>
+                <FormControl label={tr('Root group for structure')} className={s.UploadTeamStructurePageField}>
+                    <GroupComboBox defaultGroupId={rootGroup?.id} onChange={(group) => setRootGroup(group)} />
+                </FormControl>
+
                 {nullable(
                     structure,
-                    (s) => (
-                        <>
-                            <TreeView>
-                                <StructureTree name="root" structure={s} />
-                            </TreeView>
-                        </>
+                    (st) => (
+                        <TreeView>
+                            <StructureTree name={rootGroup?.name || 'root'} structure={st} />
+                        </TreeView>
                     ),
                     <StructureFileUpload setStructure={setStructure} />,
                 )}
+
+                <div className={s.UploadTeamStructurePageAction}>
+                    {nullable(
+                        uploadStructure.error,
+                        (e) => (
+                            <Alert view="warning" text={e.message} />
+                        ),
+                        nullable(
+                            uploadStructure.isSuccess,
+                            () => <Alert view="default" text={tr('Upload result will be sent to your email')} />,
+                            <Button
+                                text={tr('Upload')}
+                                view="primary"
+                                onClick={onUpload}
+                                disabled={uploadStructure.isLoading || !rootGroup || !structure}
+                                iconRight={uploadStructure.isLoading ? <Spinner size="xs" /> : undefined}
+                            />,
+                        ),
+                    )}
+                </div>
             </PageContent>
         </LayoutMain>
     );

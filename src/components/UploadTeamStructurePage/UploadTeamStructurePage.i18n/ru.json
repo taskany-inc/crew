@@ -9,5 +9,8 @@
     ".json format": "формат .json",
     "Cannot parse JSON": "Ошибка в формате файла",
     "Users": "Пользователи",
-    "Team lead": "Руководитель"
+    "Team lead": "Руководитель",
+    "Upload": "Загрузить",
+    "Root group for structure": "Корневая группа для структуры",
+    "Upload result will be sent to your email": "Результаты загрузки будут присланы на вашу почту"
 }

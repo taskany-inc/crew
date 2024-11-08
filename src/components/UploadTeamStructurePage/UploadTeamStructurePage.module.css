@@ -6,6 +6,16 @@
     flex: 1;
 }
 
+.UploadTeamStructurePageField {
+    max-width: 400px;
+    margin-bottom: var(--gap-m);
+}
+
+.UploadTeamStructurePageAction {
+    max-width: 400px;
+    margin-top: var(--gap-m);
+}
+
 .UploadTeamStructurePageRow:hover {
     background-color: var(--gray-700);
 }
