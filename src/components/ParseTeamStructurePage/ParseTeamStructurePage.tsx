@@ -1,4 +1,4 @@
-import { ComponentProps, useEffect, useState } from 'react';
+import { ComponentProps, useEffect, useRef, useState } from 'react';
 import { formFieldName, nullable } from '@taskany/bricks';
 import {
     Alert,
@@ -91,18 +91,29 @@ const ColumnSelect = ({
     label,
     columns,
     onSelect,
+    patterns = [],
+    antiPatterns = [],
     required,
 }: {
     label: string;
     columns: string[];
     onSelect: (column: number) => void;
+    patterns?: string[];
+    antiPatterns?: string[];
     required?: boolean;
 }) => {
     const [column, setColumn] = useState<{ id: number; name: string }>();
+    const firstRender = useRef(true);
 
     useEffect(() => {
-        setColumn(undefined);
-    }, [columns]);
+        if (!firstRender.current) return;
+        firstRender.current = false;
+        const filtered = columns
+            .map<{ name: string; id: number }>((name, id) => ({ name, id }))
+            .filter(({ name }) => patterns.every((p) => name.toLowerCase().includes(p.toLowerCase())))
+            .filter(({ name }) => !antiPatterns.some((p) => name.toLowerCase().includes(p.toLowerCase())));
+        setColumn(filtered[0]);
+    }, [columns, patterns, antiPatterns]);
 
     return (
         <FormControl label={label} required={required} className={s.ParseTeamStructurePageField}>
@@ -163,26 +174,32 @@ const Configurator = ({ columns, file, sheet }: { columns: string[]; file: File;
                 columns={columns}
                 onSelect={(n) => setConfig((c) => ({ ...c, fullName: n }))}
                 required
+                patterns={['фио']}
+                antiPatterns={['фг']}
             />
             <ColumnSelect
                 label={tr('Unit id')}
                 columns={columns}
                 onSelect={(n) => setConfig((c) => ({ ...c, unitId: n }))}
+                patterns={['ид']}
             />
             <ColumnSelect
                 label={tr('Personnel number')}
                 columns={columns}
                 onSelect={(n) => setConfig((c) => ({ ...c, personnelNumber: n }))}
+                patterns={['тн']}
             />
             <ColumnSelect
                 label={tr('Role')}
                 columns={columns}
                 onSelect={(n) => setConfig((c) => ({ ...c, role: n }))}
+                patterns={['роль']}
             />
             <ColumnSelect
                 label={tr('Percent')}
                 columns={columns}
                 onSelect={(n) => setConfig((c) => ({ ...c, percent: n }))}
+                patterns={['загрузка']}
             />
             {Array.from({ length: groupCount }).map((v, i) => (
                 <FormControl key={i} label={`${tr('Group')} ${i + 1}`}>
@@ -198,6 +215,8 @@ const Configurator = ({ columns, file, sheet }: { columns: string[]; file: File;
                                     return { ...c, groups };
                                 })
                             }
+                            patterns={['функциональная', `${i + 1}`]}
+                            antiPatterns={['фио', 'lead']}
                         />
                         <ColumnSelect
                             label={tr('Lead')}
@@ -209,6 +228,7 @@ const Configurator = ({ columns, file, sheet }: { columns: string[]; file: File;
                                     return { ...c, groups };
                                 })
                             }
+                            patterns={['фг', 'фио', `${i + 1}`]}
                         />
                     </div>
                 </FormControl>

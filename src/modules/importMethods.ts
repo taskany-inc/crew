@@ -5,11 +5,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { buffer } from 'node:stream/consumers';
 import readXlsxFile, { Row } from 'read-excel-file/node';
+import { Membership } from 'prisma/prisma-client';
 
 import { db } from '../utils/db';
 
 import { Person, StructureNode, StructureParsingConfig } from './importSchemas';
 import { sendMail } from './nodemailer';
+import { userMethods } from './userMethods';
+import { groupRoleMethods } from './groupRoleMethods';
+import { groupMethods } from './groupMethods';
 
 const getTypeDescriptions = (v: unknown) => {
     if (typeof v === 'string') return `string of length ${v.length}`;
@@ -72,9 +76,9 @@ const getNumberCellValue = (row: Row, n?: number) => {
     if (typeof cell === 'string' && /^\d$/.test(cell)) return Number(cell);
 };
 
-type AddError = (error: string) => void;
+type AddMessage = (message: string) => void;
 
-const getRowData = (row: Row, config: StructureParsingConfig, addError: AddError) => {
+const getRowData = (row: Row, config: StructureParsingConfig, addError: AddMessage) => {
     const fullName = getStringCellValue(row, config.fullName);
     if (!fullName) {
         addError(`No full name in row. ${JSON.stringify(row.slice(5))}`);
@@ -118,7 +122,7 @@ const getNodeByPath = (struct: StructureNode, path: string[]) => {
 
 type UserCache = Record<string, Person | null | undefined>;
 
-const createFindUser = (addError: AddError) => {
+const createFindUser = (addError: AddMessage) => {
     const fullNameCache: UserCache = {};
     const unitIdCache: UserCache = {};
     const personnelNumberCache: UserCache = {};
@@ -182,7 +186,7 @@ const createFindUser = (addError: AddError) => {
             db
                 .selectFrom('User')
                 .leftJoin('UserNames', 'User.id', 'UserNames.userId')
-                .where(({ or }) => or({ 'User.name': fullName, 'UserNames.name': fullName }))
+                .where((eb) => eb.or([eb('User.name', 'ilike', fullName), eb('UserNames.name', 'ilike', fullName)]))
                 .select(['User.id', 'User.name'])
                 .execute(),
         );
@@ -194,6 +198,13 @@ const createFindUser = (addError: AddError) => {
     };
 };
 
+const parseError = (message: string, e?: unknown): string => {
+    if (!e) return message;
+    if (e instanceof Error) return `${message} - ${e.name} - ${e.message}`;
+    if (typeof e === 'string') return `${message} - ${e}`;
+    return `${message} - unknown error - ${JSON.stringify(e)}`;
+};
+
 export const importMethods = {
     parseStructure: async (fileStream: fs.ReadStream, config: StructureParsingConfig, currentUserEmail: string) => {
         const { rows, columnNames } = await getExcelData(fileStream, config);
@@ -201,7 +212,7 @@ export const importMethods = {
         const structure = createNode();
 
         const errors: string[] = [];
-        const addError: AddError = (error) => errors.push(error);
+        const addError: AddMessage = (error) => errors.push(error);
 
         const findUser = createFindUser(addError);
 
@@ -212,9 +223,12 @@ export const importMethods = {
 
             if (!rowData) continue;
 
+            const skipList = ['0'];
+
             const groups = await Promise.all(
                 rowData.groups
                     .filter((g, i, a) => a.findIndex((v) => v.name === g.name) === i)
+                    .filter((g) => !skipList.includes(g.name))
                     .map(async (g) => {
                         const lead = g.lead ? await findUser({ fullName: g.lead }) : undefined;
                         return { name: g.name, lead };
@@ -243,27 +257,136 @@ export const importMethods = {
         }
 
         if (process.env.NODE_ENV === 'development') {
-            dumpToJson('structure', structure);
-            dumpToJson('structure-errors', errors);
-            dumpToJson('structure-column-names', columnNames);
+            dumpToJson('structure-parse', structure);
+            dumpToJson('structure-parse-errors', errors);
+            dumpToJson('structure-parse-column-names', columnNames);
         } else {
             sendMail({
                 to: currentUserEmail,
                 subject: 'Structure parsing results',
                 attachments: [
                     {
-                        filename: 'structure.json',
+                        filename: 'structure-parse.json',
                         content: JSON.stringify(structure, null, 2),
                         contentType: 'text/plain',
                     },
                     {
-                        filename: 'structure-errors.json',
+                        filename: 'structure-parse-errors.json',
                         content: JSON.stringify(errors, null, 2),
                         contentType: 'text/plain',
                     },
                     {
-                        filename: 'structure-column-names.json',
+                        filename: 'structure-parse-column-names.json',
                         content: JSON.stringify(columnNames, null, 2),
+                        contentType: 'text/plain',
+                    },
+                ],
+            });
+        }
+    },
+
+    uploadStructure: async (structure: StructureNode, rootGroupId: string, currentUserEmail: string) => {
+        const errors: string[] = [];
+        const messages: string[] = [];
+
+        const addError = (message: string, e?: unknown) => errors.push(parseError(message, e));
+        const addMessage: AddMessage = (message) => messages.push(message);
+
+        const addToGroupWithRole = async ({
+            idAndPath,
+            userId,
+            userName,
+            groupId,
+            groupName,
+            role,
+        }: {
+            idAndPath: string;
+            userName: string | null;
+            userId: string;
+            groupId: string;
+            groupName: string;
+            role?: string;
+        }) => {
+            let membership: Membership | undefined;
+            try {
+                membership = await userMethods.addToGroup({ userId, groupId });
+            } catch (e) {
+                addError(`${idAndPath} ERROR adding user ${userName || userId} to group ${groupName}`, e);
+            }
+
+            if (membership && role) {
+                const roleInstance = await db
+                    .selectFrom('Role')
+                    .where('Role.name', 'ilike', role)
+                    .select(['id'])
+                    .executeTakeFirst();
+
+                try {
+                    if (roleInstance) {
+                        await groupRoleMethods.addToMembership({
+                            membershipId: membership.id,
+                            type: 'existing',
+                            id: roleInstance.id,
+                        });
+                    } else {
+                        addMessage(`Creating role ${role}`);
+                        await groupRoleMethods.addToMembership({
+                            membershipId: membership.id,
+                            type: 'new',
+                            name: role,
+                        });
+                    }
+                } catch (e) {
+                    addError(`${idAndPath} ERROR adding role ${role} to ${userName || userId}`, e);
+                }
+            }
+        };
+
+        const processNode = async (node: StructureNode, groupName: string, groupId: string, path: string) => {
+            const idAndPath = `[${groupId}] ${path}`;
+
+            for (const person of node.people) {
+                await addToGroupWithRole({
+                    idAndPath,
+                    userId: person.id,
+                    userName: person.name,
+                    groupId,
+                    groupName,
+                    role: person.role,
+                });
+                if (node.teamLead) {
+                    await db
+                        .updateTable('Group')
+                        .set({ supervisorId: node.teamLead.id })
+                        .where('Group.id', '=', groupId)
+                        .execute();
+                }
+            }
+
+            for (const name of Object.keys(node.nodes)) {
+                const newGroup = await groupMethods.create({ name, parentId: groupId });
+                await processNode(node.nodes[name], name, newGroup.id, `${path} ${name} /`);
+            }
+        };
+
+        await processNode(structure, 'ROOT', rootGroupId, 'ROOT /');
+
+        if (process.env.NODE_ENV === 'development') {
+            dumpToJson('structure-upload-messages', messages);
+            dumpToJson('structure-upload-errors', errors);
+        } else {
+            sendMail({
+                to: currentUserEmail,
+                subject: 'Structure upload results',
+                attachments: [
+                    {
+                        filename: 'structure-upload-messages.json',
+                        content: JSON.stringify(messages, null, 2),
+                        contentType: 'text/plain',
+                    },
+                    {
+                        filename: 'structure-upload-errors.json',
+                        content: JSON.stringify(errors, null, 2),
                         contentType: 'text/plain',
                     },
                 ],
