@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.89.0](https://github.com/taskany-inc/crew/compare/v0.88.0...v0.89.0) (2024-11-11)
+
+
+### Features
+
+* **UserRequestReadonlyPage:** add user request reqaonly page ([3597790](https://github.com/taskany-inc/crew/commit/3597790266651a67b4f9e509153b1448517ba4c0))
+
+
+### Bug Fixes
+
+* **INTERNAL-1343:** show main position at user page ([bb9c217](https://github.com/taskany-inc/crew/commit/bb9c217521bda949b1bdebb975eb905eb35e7dff))
+
 ## [0.88.0](https://github.com/taskany-inc/crew/compare/v0.87.0...v0.88.0) (2024-11-07)
 
 
