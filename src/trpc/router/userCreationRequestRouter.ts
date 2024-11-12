@@ -8,7 +8,7 @@ import {
     getUserCreationRequestListSchema,
     handleUserCreationRequest,
 } from '../../modules/userCreationRequestSchemas';
-import { accessCheck, checkRoleForAccess } from '../../utils/access';
+import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 import { processEvent } from '../../utils/analyticsEvent';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { protectedProcedure, router } from '../trpcBackend';
@@ -101,7 +101,7 @@ export const userCreationRequestRouter = router({
     }),
 
     edit: protectedProcedure.input(editUserCreationRequestSchema).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
         const userCreationRequestBefore = await userCreationRequestsMethods.getById(input.id);
 
         const userCreationRequestAfter = await userCreationRequestsMethods.edit(
@@ -109,22 +109,143 @@ export const userCreationRequestRouter = router({
             userCreationRequestBefore,
             ctx.session.user.id,
         );
-        const servicesBefore = userCreationRequestBefore.services as { serviceId: string; serviceName: string }[];
-
-        const phoneBefore = servicesBefore.find((service) => service.serviceName === 'Phone')?.serviceId;
 
         const { before, after } = dropUnchangedValuesFromEvent(
             {
                 name: userCreationRequestBefore.name,
                 email: userCreationRequestBefore.email,
-                phone: phoneBefore,
+                login: userCreationRequestBefore.login,
                 date: userCreationRequestBefore.date?.toISOString(),
+                groupId: userCreationRequestBefore.groupId || undefined,
+                supervisorLogin: userCreationRequestBefore.supervisorLogin || undefined,
+                supervisorId: userCreationRequestBefore.supervisorId || undefined,
+                buddyId: userCreationRequestBefore.buddyId || undefined,
+                coordinatorId: userCreationRequestBefore.coordinatorId || undefined,
+                coordinatorIds: userCreationRequestBefore.coordinators.length
+                    ? userCreationRequestBefore.coordinators.map(({ id }) => id).join(', ')
+                    : undefined,
+                recruiterId: userCreationRequestBefore.recruiterId || undefined,
+                type: userCreationRequestBefore.type || undefined,
+                corporateEmail: userCreationRequestBefore.corporateEmail || undefined,
+                title: userCreationRequestBefore.title || undefined,
+                osPreference: userCreationRequestBefore.osPreference || undefined,
+                status: null,
+                services: userCreationRequestBefore.services as Record<'serviceName' | 'serviceId', string>[],
+                createExternalAccount: userCreationRequestBefore.createExternalAccount,
+                externalOrganizationSupervisorLogin:
+                    userCreationRequestBefore.externalOrganizationSupervisorLogin || undefined,
+                accessToInternalSystems: userCreationRequestBefore.accessToInternalSystems || undefined,
+                comment: userCreationRequestBefore.comment || undefined,
+                creationCause: userCreationRequestBefore.creationCause || undefined,
+                location: userCreationRequestBefore.location || undefined,
+                workMode: userCreationRequestBefore.workMode || undefined,
+                workModeComment: userCreationRequestBefore.workModeComment || undefined,
+                workSpace: userCreationRequestBefore.workSpace || undefined,
+                equipment: userCreationRequestBefore.equipment || undefined,
+                extraEquipment: userCreationRequestBefore.extraEquipment || undefined,
+                buddyLogin: userCreationRequestBefore.buddyLogin || undefined,
+                recruiterLogin: userCreationRequestBefore.recruiterLogin || undefined,
+                coordinatorLogin: userCreationRequestBefore.coordinatorLogin || undefined,
+                coordinatorLogins: userCreationRequestBefore.coordinators.length
+                    ? userCreationRequestBefore.coordinators.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerLogins: userCreationRequestBefore.lineManagers.length
+                    ? userCreationRequestBefore.lineManagers.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerIds: userCreationRequestBefore.lineManagers.length
+                    ? userCreationRequestBefore.lineManagers.map(({ id }) => id).join(', ')
+                    : undefined,
+                supplementalPositions: userCreationRequestBefore.supplementalPositions.length
+                    ? userCreationRequestBefore.supplementalPositions.map(
+                          ({ organizationUnitId, percentage, unitId }) => ({
+                              organizationUnitId,
+                              percentage,
+                              unitId: unitId || '',
+                          }),
+                      )
+                    : undefined,
+                unitId: userCreationRequestBefore.unitId || undefined,
+                workEmail: userCreationRequestBefore.workEmail || undefined,
+                personalEmail: userCreationRequestBefore.personalEmail || undefined,
+                reasonToGrantPermissionToServices:
+                    userCreationRequestBefore.reasonToGrantPermissionToServices || undefined,
+                curatorLogins: userCreationRequestBefore.curators.length
+                    ? userCreationRequestBefore.curators.map(({ login }) => login).join(', ')
+                    : undefined,
+                curatorIds: userCreationRequestBefore.curators.length
+                    ? userCreationRequestBefore.curators.map(({ id }) => id).join(', ')
+                    : undefined,
+                permissionServices: userCreationRequestBefore.permissionServices.length
+                    ? userCreationRequestBefore.permissionServices.map(({ name }) => name).join(', ')
+                    : undefined,
             },
             {
                 name: userCreationRequestAfter.name,
                 email: userCreationRequestAfter.email,
-                phone: input.phone,
+                login: userCreationRequestAfter.login,
                 date: userCreationRequestAfter.date?.toISOString(),
+                groupId: userCreationRequestAfter.groupId || undefined,
+                supervisorLogin: userCreationRequestAfter.supervisorLogin || undefined,
+                supervisorId: userCreationRequestAfter.supervisorId || undefined,
+                buddyId: userCreationRequestAfter.buddyId || undefined,
+                coordinatorId: userCreationRequestAfter.coordinatorId || undefined,
+                coordinatorIds: userCreationRequestAfter.coordinators.length
+                    ? userCreationRequestAfter.coordinators.map(({ id }) => id).join(', ')
+                    : undefined,
+                recruiterId: userCreationRequestAfter.recruiterId || undefined,
+                type: userCreationRequestAfter.type || undefined,
+                corporateEmail: userCreationRequestAfter.corporateEmail || undefined,
+                title: userCreationRequestAfter.title || undefined,
+                osPreference: userCreationRequestAfter.osPreference || undefined,
+                status: null,
+                services: userCreationRequestAfter.services as Record<'serviceName' | 'serviceId', string>[],
+                createExternalAccount: userCreationRequestAfter.createExternalAccount,
+                externalOrganizationSupervisorLogin:
+                    userCreationRequestAfter.externalOrganizationSupervisorLogin || undefined,
+                accessToInternalSystems: userCreationRequestAfter.accessToInternalSystems || undefined,
+                comment: userCreationRequestAfter.comment || undefined,
+                creationCause: userCreationRequestAfter.creationCause || undefined,
+                location: userCreationRequestAfter.location || undefined,
+                workMode: userCreationRequestAfter.workMode || undefined,
+                workModeComment: userCreationRequestAfter.workModeComment || undefined,
+                workSpace: userCreationRequestAfter.workSpace || undefined,
+                equipment: userCreationRequestAfter.equipment || undefined,
+                extraEquipment: userCreationRequestAfter.extraEquipment || undefined,
+                buddyLogin: userCreationRequestAfter.buddyLogin || undefined,
+                recruiterLogin: userCreationRequestAfter.recruiterLogin || undefined,
+                coordinatorLogin: userCreationRequestAfter.coordinatorLogin || undefined,
+                coordinatorLogins: userCreationRequestAfter.coordinators.length
+                    ? userCreationRequestAfter.coordinators.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerLogins: userCreationRequestAfter.lineManagers.length
+                    ? userCreationRequestAfter.lineManagers.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerIds: userCreationRequestAfter.lineManagers.length
+                    ? userCreationRequestAfter.lineManagers.map(({ id }) => id).join(', ')
+                    : undefined,
+                supplementalPositions: userCreationRequestAfter.supplementalPositions.length
+                    ? userCreationRequestAfter.supplementalPositions.map(
+                          ({ organizationUnitId, percentage, unitId }) => ({
+                              organizationUnitId,
+                              percentage,
+                              unitId: unitId || '',
+                          }),
+                      )
+                    : undefined,
+                unitId: userCreationRequestAfter.unitId || undefined,
+                workEmail: userCreationRequestAfter.workEmail || undefined,
+                personalEmail: userCreationRequestAfter.personalEmail || undefined,
+                reasonToGrantPermissionToServices:
+                    userCreationRequestAfter.reasonToGrantPermissionToServices || undefined,
+                curatorLogins: userCreationRequestAfter.curators.length
+                    ? userCreationRequestAfter.curators.map(({ login }) => login).join(', ')
+                    : undefined,
+                curatorIds: userCreationRequestAfter.curators.length
+                    ? userCreationRequestAfter.curators.map(({ id }) => id).join(', ')
+                    : undefined,
+                permissionServices: userCreationRequestAfter.permissionServices.length
+                    ? userCreationRequestAfter.permissionServices.map(({ name }) => name).join(', ')
+                    : undefined,
             },
         );
 
@@ -179,17 +300,23 @@ export const userCreationRequestRouter = router({
     }),
 
     getList: protectedProcedure.input(getUserCreationRequestListSchema).query(({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+        );
         return userCreationRequestsMethods.getList(input);
     }),
 
     getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+        );
         return userCreationRequestsMethods.getById(input);
     }),
 
     cancel: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
 
         const cancelledUserRequest = await userCreationRequestsMethods.cancel(input, ctx.session.user.id);
 
@@ -209,16 +336,25 @@ export const userCreationRequestRouter = router({
     }),
 
     getRequestForExternalEmployeeById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+        );
         return userCreationRequestsMethods.getRequestForExternalEmployeeById(input);
     }),
 
     getRequestForExternalFromMainEmployeeById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+        );
         return userCreationRequestsMethods.getRequestForExternalFromMainEmployeeById(input);
     }),
     getRequestForInternalEmployeeById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+        );
         return userCreationRequestsMethods.getRequestForInternalEmployeeById(input);
     }),
 });
