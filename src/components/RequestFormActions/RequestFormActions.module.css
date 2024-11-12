@@ -1,0 +1,14 @@
+.FormActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-s);
+}
+
+.EditButton {
+    color: var(--text-color)
+}
+
+.Separator{
+    border-right: 1px solid var(--gray-900);
+    padding-right: var(--gap-s);
+}

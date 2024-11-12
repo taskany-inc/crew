@@ -23,7 +23,7 @@ import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserForm
 import { UserFormExternalExtraInfoBlock } from '../UserFormExternalExtraInfoBlock/UserFormExternalExtraInfoBlock';
 import { useSpyNav } from '../../hooks/useSpyNav';
 import { Nullish } from '../../utils/types';
-import { DecideOnRequestFormActions } from '../DecideOnRequestFormActions/DecideOnRequestFormActions';
+import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 
 import s from './ExternalUserCreationRequestPage.module.css';
 import { tr } from './ExternalUserCreationRequestPage.i18n';
@@ -41,7 +41,7 @@ export const ExternalUserCreationRequestPage = ({
     requestId,
     requestStatus,
 }: ExternalUserCreationRequestPageProps) => {
-    const { createUserCreationRequest } = useUserCreationRequestMutations();
+    const { createUserCreationRequest, editUserCreationRequest } = useUserCreationRequestMutations();
 
     const router = useRouter();
 
@@ -67,6 +67,7 @@ export const ExternalUserCreationRequestPage = ({
             accessToInternalSystems: request?.accessToInternalSystems ?? true,
             date: request?.date,
             osPreference: request?.osPreference,
+            attachIds: request?.attachIds,
         }),
         [request],
     );
@@ -90,6 +91,12 @@ export const ExternalUserCreationRequestPage = ({
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = methods;
 
+    useEffect(() => {
+        if (defaultValues.attachIds?.length && !watch('attachIds').length) {
+            setValue('attachIds', defaultValues.attachIds);
+        }
+    });
+
     const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
 
     const isLoginUnique = trpc.user.isLoginUnique.useQuery(isLoginUniqueQuery, {
@@ -97,7 +104,7 @@ export const ExternalUserCreationRequestPage = ({
     });
 
     useEffect(() => {
-        if (getValues('login') && isLoginUnique.data === false) {
+        if (getValues('login') && isLoginUnique.data === false && getValues('login') !== request?.login) {
             setError('login', { message: tr('User with login already exist') });
         } else if (getValues('login')) trigger('login');
     }, [isLoginUnique.data, setError, trigger, getValues]);
@@ -105,13 +112,18 @@ export const ExternalUserCreationRequestPage = ({
     const debouncedLoginSearchHandler = debounce(300, setIsLoginUniqueQuery);
 
     const onFormSubmit = handleSubmit(async (data) => {
-        if (isLoginUnique.data === false) {
+        if (isLoginUnique.data === false && data.login !== request?.login) {
             setError('login', { message: tr('User with login already exist') });
             return;
         }
+
+        if (type === 'edit' && requestId) {
+            await editUserCreationRequest({ id: requestId, data });
+            return router.accessCoordination();
+        }
         await createUserCreationRequest(data);
         reset(defaultValues);
-        return router.userRequests();
+        return router.accessCoordination();
     });
 
     const onOrganizationChange = (group: Nullish<OrganizationUnit>) => {
@@ -128,20 +140,22 @@ export const ExternalUserCreationRequestPage = ({
                     <form onSubmit={onFormSubmit}>
                         <div className={s.Header}>
                             <Text as="h2">{tr('Create access to external employee')}</Text>
-                            {nullable(type === 'new', () => (
+                            {nullable(
+                                type === 'readOnly' && requestId,
+                                (requestId) => (
+                                    <RequestFormActions
+                                        onEdit={() => router.externalUserRequestEdit(requestId)}
+                                        requestStatus={requestStatus}
+                                        requestId={requestId}
+                                        onDecide={router.accessCoordination}
+                                    />
+                                ),
                                 <UserFormFormActions
                                     submitDisabled={isSubmitting || isSubmitSuccessful}
-                                    onCancel={router.userRequests}
-                                    onReset={() => reset(defaultValues)}
-                                />
-                            ))}
-                            {nullable(type === 'readOnly' && requestId, (requestId) => (
-                                <DecideOnRequestFormActions
-                                    requestStatus={requestStatus}
-                                    requestId={requestId}
-                                    onDecide={router.userRequests}
-                                />
-                            ))}
+                                    onCancel={router.accessCoordination}
+                                    onReset={type === 'new' ? () => reset(defaultValues) : undefined}
+                                />,
+                            )}
                         </div>
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>
@@ -176,8 +190,8 @@ export const ExternalUserCreationRequestPage = ({
                                                 autoComplete="off"
                                                 size="m"
                                                 value={
-                                                    type === 'readOnly'
-                                                        ? defaultValues.date?.toISOString().substring(0, 10)
+                                                    type !== 'new'
+                                                        ? watch('date')?.toISOString().substring(0, 10)
                                                         : undefined
                                                 }
                                                 type="date"
@@ -211,6 +225,7 @@ export const ExternalUserCreationRequestPage = ({
                                     id="extra-info"
                                     type="externalEmployee"
                                     requestId={requestId}
+                                    edit={type === 'edit'}
                                 />
                             </div>
 

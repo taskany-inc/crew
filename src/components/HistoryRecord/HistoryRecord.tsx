@@ -308,6 +308,16 @@ const componentMap: {
             notifyPromise(copy(event.after.id), 'copy');
         }, [copy, event.after.id]);
 
+        const servicesAfter = useMemo(
+            () => event.after.services?.map((service) => `${service.serviceName} ${service.serviceId}`).join(', '),
+            [event.after.services],
+        );
+
+        const servicesBefore = useMemo(
+            () => event.before.services?.map((service) => `${service.serviceName} ${service.serviceId}`).join(', '),
+            [event.before.services],
+        );
+
         return (
             <>
                 <div className={s.Row}>
@@ -318,8 +328,169 @@ const componentMap: {
                 {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Email')} after={event.after.email} before={event.before.email} />
-                        <ChangeListItem title={tr('Phone')} after={event.after.phone} before={event.before.phone} />
                         <ChangeListItem title={tr('Date')} after={event.after.date} before={event.before.date} />
+                        <ChangeListItem
+                            title={tr('Work email')}
+                            after={event.after.workEmail}
+                            before={event.before.workEmail}
+                        />
+                        <ChangeListItem
+                            title={tr('Corporate email')}
+                            after={event.after.corporateEmail}
+                            before={event.before.corporateEmail}
+                        />
+                        <ChangeListItem title={tr('Login')} after={event.after.login} before={event.before.login} />
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} before={event.before.groupId} />
+                        <ChangeListItem
+                            title={tr('Organization id')}
+                            after={event.after.organizationUnitId}
+                            before={event.before.organizationUnitId}
+                        />
+                        <ChangeListItem title={tr('Unit id')} after={event.after.unitId} before={event.before.unitId} />
+                        <ChangeListItem
+                            title={tr('Supplemental positions')}
+                            after={event.after.supplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId }) =>
+                                        `${organizationUnitId}: ${percentage}% ${unitId ? `, ${unitId}` : ''}`,
+                                )
+                                .join(', ')}
+                            before={event.before.supplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId }) =>
+                                        `${organizationUnitId}: ${percentage}% ${unitId ? `, ${unitId}` : ''}`,
+                                )
+                                .join(', ')}
+                        />
+                        <ChangeListItem
+                            title={tr('Supervisor login')}
+                            after={event.after.supervisorLogin}
+                            before={event.before.supervisorLogin}
+                        />
+                        <ChangeListItem
+                            title={tr('Supervisor id')}
+                            after={event.after.supervisorId}
+                            before={event.before.supervisorId}
+                        />
+                        <ChangeListItem title={tr('Title')} after={event.after.title} before={event.before.title} />
+                        <ChangeListItem
+                            title={tr('OS preference')}
+                            after={event.after.osPreference}
+                            before={event.before.osPreference}
+                        />
+                        <ChangeListItem title={tr('Services')} after={servicesAfter} before={servicesBefore} />
+                        <ChangeListItem title={tr('Date')} after={event.after.date} before={event.before.date} />
+                        <ChangeListItem
+                            title={tr('External organization supervisor login')}
+                            after={event.after.externalOrganizationSupervisorLogin}
+                            before={event.before.externalOrganizationSupervisorLogin}
+                        />
+                        <ChangeListItem
+                            title={tr('Access to internal systems')}
+                            after={event.after.accessToInternalSystems}
+                            before={event.before.accessToInternalSystems}
+                        />
+                        <ChangeListItem
+                            title={tr('Comment')}
+                            after={event.after.comment}
+                            before={event.before.comment}
+                        />
+                        <ChangeListItem
+                            title={tr('Creation cause')}
+                            after={event.after.creationCause}
+                            before={event.before.creationCause}
+                        />
+                        <ChangeListItem
+                            title={tr('Location')}
+                            after={event.after.location}
+                            before={event.before.location}
+                        />
+                        <ChangeListItem
+                            title={tr('Work space application')}
+                            after={event.after.workSpace}
+                            before={event.before.workSpace}
+                        />
+                        <ChangeListItem
+                            title={tr('Equipment')}
+                            after={event.after.equipment}
+                            before={event.before.equipment}
+                        />
+                        <ChangeListItem
+                            title={tr('Extra equipment')}
+                            after={event.after.extraEquipment}
+                            before={event.before.extraEquipment}
+                        />
+                        <ChangeListItem
+                            title={tr('Work mode')}
+                            after={event.after.workMode}
+                            before={event.before.workMode}
+                        />
+                        <ChangeListItem
+                            title={tr('Work mode comment')}
+                            after={event.after.workModeComment}
+                            before={event.before.workModeComment}
+                        />
+                        <ChangeListItem
+                            title={tr('Buddy login')}
+                            after={event.after.buddyLogin}
+                            before={event.before.buddyLogin}
+                        />
+                        <ChangeListItem title="Buddy id" after={event.after.buddyId} before={event.before.buddyId} />
+                        <ChangeListItem
+                            title={tr('Coordinator login')}
+                            after={event.after.coordinatorLogin}
+                            before={event.before.coordinatorLogin}
+                        />
+                        <ChangeListItem
+                            title={tr('Coordinator id')}
+                            after={event.after.coordinatorId}
+                            before={event.before.coordinatorId}
+                        />
+                        <ChangeListItem
+                            title={tr('Recruiter login')}
+                            after={event.after.recruiterLogin}
+                            before={event.before.recruiterLogin}
+                        />
+                        <ChangeListItem
+                            title={tr('Recruiter id')}
+                            after={event.after.recruiterId}
+                            before={event.before.recruiterId}
+                        />
+                        <ChangeListItem
+                            title={tr('Line manager logins')}
+                            after={event.after.lineManagerLogins}
+                            before={event.before.lineManagerLogins}
+                        />
+                        <ChangeListItem
+                            title={tr('Line manager ids')}
+                            after={event.after.lineManagerIds}
+                            before={event.before.lineManagerIds}
+                        />
+                        <ChangeListItem
+                            title={tr('Personal email')}
+                            after={event.after.personalEmail}
+                            before={event.before.personalEmail}
+                        />
+                        <ChangeListItem
+                            title={tr('Curator logins')}
+                            after={event.after.curatorLogins}
+                            before={event.before.curatorLogins}
+                        />
+                        <ChangeListItem
+                            title={tr('Curator ids')}
+                            after={event.after.curatorIds}
+                            before={event.before.curatorIds}
+                        />
+                        <ChangeListItem
+                            title={tr('Access to services')}
+                            after={event.after.permissionServices}
+                            before={event.before.permissionServices}
+                        />
+                        <ChangeListItem
+                            title={tr('Reason for granting access')}
+                            after={event.after.reasonToGrantPermissionToServices}
+                            before={event.before.reasonToGrantPermissionToServices}
+                        />
                     </>
                 ))}
             </>

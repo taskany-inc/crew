@@ -91,7 +91,7 @@ export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWork
             <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Work space application')} error={errors.workSpace}>
                     <FormControlInput
-                        disabled={readOnly}
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write the application text')}
@@ -102,7 +102,7 @@ export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWork
                 </FormControl>
                 <FormControl label={tr('Location')} required error={errors.location}>
                     <FormControlInput
-                        disabled={readOnly}
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         outline
@@ -121,7 +121,7 @@ export const UserFormWorkSpaceBlock = ({ className, id, readOnly }: UserFormWork
 
                 <FormControl label={tr('Work mode comment')} error={errors.workModeComment}>
                     <FormControlInput
-                        disabled={readOnly}
+                        readOnly={readOnly}
                         autoComplete="off"
                         size="m"
                         outline

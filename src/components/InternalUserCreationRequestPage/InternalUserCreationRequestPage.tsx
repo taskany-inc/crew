@@ -22,16 +22,16 @@ import { useSpyNav } from '../../hooks/useSpyNav';
 import { trpc } from '../../trpc/trpcClient';
 import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
-import { DecideOnRequestFormActions } from '../DecideOnRequestFormActions/DecideOnRequestFormActions';
+import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 
 import s from './InternalUserCreationRequestPage.module.css';
 import { tr } from './InternalUserCreationRequestPage.i18n';
 
 interface InternalUserCreationRequestPageProps {
-    request: CreateUserCreationRequestInternalEmployee;
-    requestId: string;
+    request?: CreateUserCreationRequestInternalEmployee;
+    requestId?: string;
     requestStatus?: UserCreationRequestStatus;
-    type: 'new' | 'readOnly' | 'edit';
+    type?: 'new' | 'readOnly' | 'edit';
 }
 
 export const InternalUserCreationRequestPage = ({
@@ -40,13 +40,13 @@ export const InternalUserCreationRequestPage = ({
     requestStatus,
     request,
 }: InternalUserCreationRequestPageProps) => {
-    const { createUserCreationRequest } = useUserCreationRequestMutations();
+    const { createUserCreationRequest, editUserCreationRequest } = useUserCreationRequestMutations();
 
     const defaultValues: Partial<CreateUserCreationRequestInternalEmployee> = useMemo(
         () => ({
             type: 'internalEmployee',
-            creationCause: request?.creationCause,
-            percentage: 1,
+            creationCause: request?.creationCause || 'start',
+            percentage: request ? request?.percentage : 1,
             surname: request?.surname,
             firstName: request?.firstName,
             middleName: request?.middleName,
@@ -73,6 +73,7 @@ export const InternalUserCreationRequestPage = ({
             coordinatorIds: request?.coordinatorIds,
             date: request?.date,
             groupId: request?.groupId,
+            supplementalPositions: request?.supplementalPositions,
         }),
         [request],
     );
@@ -102,7 +103,7 @@ export const InternalUserCreationRequestPage = ({
     });
 
     useEffect(() => {
-        if (getValues('login') && isLoginUnique.data === false) {
+        if (getValues('login') && isLoginUnique.data === false && getValues('login') !== request?.login) {
             setError('login', { message: tr('User with login already exist') });
         } else if (getValues('login')) trigger('login');
     }, [isLoginUnique.data, setError, trigger, getValues]);
@@ -116,9 +117,14 @@ export const InternalUserCreationRequestPage = ({
             return;
         }
 
-        if (isLoginUnique.data === false) {
+        if (isLoginUnique.data === false && data.login !== request?.login) {
             setError('login', { message: tr('User with login already exist') });
             return;
+        }
+
+        if (type === 'edit' && requestId) {
+            await editUserCreationRequest({ id: requestId, data });
+            return router.userRequests();
         }
 
         await createUserCreationRequest(data);
@@ -133,28 +139,29 @@ export const InternalUserCreationRequestPage = ({
             <div className={s.Wrapper}>
                 <FormProvider {...methods}>
                     <form onSubmit={onFormSubmit}>
-                        {nullable(type === 'new', () => (
-                            <div className={s.Header}>
-                                <Text as="h2">{tr('Create a planned newcommer')}</Text>
+                        <div className={s.Header}>
+                            <Text as="h2">
+                                {type === 'new'
+                                    ? tr('Create a planned newcommer')
+                                    : tr('Request for a planned employee work start')}
+                            </Text>
+                            {nullable(
+                                type === 'readOnly' && requestId,
+                                (requestId) => (
+                                    <RequestFormActions
+                                        requestStatus={requestStatus}
+                                        requestId={requestId}
+                                        onDecide={router.userRequests}
+                                        onEdit={() => router.internalUserRequestEdit(requestId)}
+                                    />
+                                ),
                                 <UserFormFormActions
                                     submitDisabled={isSubmitting || isSubmitSuccessful}
                                     onCancel={router.userRequests}
-                                    onReset={() => reset(defaultValues)}
-                                />
-                            </div>
-                        ))}
-
-                        {nullable(type === 'readOnly' && requestId, (requestId) => (
-                            <div className={s.Header}>
-                                <Text as="h2">{tr('Request for a planned employee work start')}</Text>
-                                <DecideOnRequestFormActions
-                                    requestStatus={requestStatus}
-                                    requestId={requestId}
-                                    onDecide={router.userRequests}
-                                />
-                            </div>
-                        ))}
-
+                                    onReset={type === 'new' ? () => reset(defaultValues) : undefined}
+                                />,
+                            )}
+                        </div>
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>
                                 <UserFormPersonalDataBlock
@@ -166,6 +173,7 @@ export const InternalUserCreationRequestPage = ({
                                 />
 
                                 <UserFormRegistrationBlock
+                                    edit={type === 'edit'}
                                     readOnly={type === 'readOnly'}
                                     className={s.FormBlock}
                                     id="registration"
