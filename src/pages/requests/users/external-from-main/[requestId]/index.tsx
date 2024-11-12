@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { ExternalFromMainOrgUserCreationRequestPage } from '../../../../../components/ExternalFromMainOrgUserCreationRequestPage/ExternalFromMainOrgUserCreationRequestPage';
 import { pages } from '../../../../../hooks/useRouter';
 import { trpc } from '../../../../../trpc/trpcClient';
@@ -9,7 +7,7 @@ export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
     stringIds: { requestId: true },
     action: async ({ stringIds, session, ssg }) => {
-        if (!session.user.role?.createUser || !session.user.role.editUserCreationRequests) {
+        if (!session.user.role?.createUser && !session.user.role?.editUserCreationRequests) {
             return {
                 redirect: {
                     destination: pages.home,
