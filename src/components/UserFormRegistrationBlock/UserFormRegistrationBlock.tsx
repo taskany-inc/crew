@@ -18,6 +18,7 @@ interface UserFormRegistrationBlockProps {
     id: string;
     type: 'internal' | 'existing';
     readOnly?: boolean;
+    edit?: boolean;
 }
 
 interface UserFormRegistrationBlockType {
@@ -31,7 +32,7 @@ interface UserFormRegistrationBlockType {
     osPreference?: string;
 }
 
-export const UserFormRegistrationBlock = ({ className, id, type, readOnly }: UserFormRegistrationBlockProps) => {
+export const UserFormRegistrationBlock = ({ className, id, type, readOnly, edit }: UserFormRegistrationBlockProps) => {
     const {
         register,
         setValue,
@@ -62,7 +63,6 @@ export const UserFormRegistrationBlock = ({ className, id, type, readOnly }: Use
 
     const unitId = watch('unitId');
     const selectedReqruiterId = watch('recruiterId');
-    const date = watch('date');
 
     return (
         <div className={className} id={id}>
@@ -114,7 +114,11 @@ export const UserFormRegistrationBlock = ({ className, id, type, readOnly }: Use
                         autoComplete="off"
                         size="m"
                         type="date"
-                        value={readOnly ? date?.toISOString().substring(0, 10) : undefined}
+                        value={
+                            (edit || readOnly) && watch('date')
+                                ? watch('date').toISOString().substring(0, 10)
+                                : undefined
+                        }
                         {...register('date', { valueAsDate: true })}
                     />
                 </FormControl>
@@ -158,6 +162,7 @@ export const UserFormRegistrationBlock = ({ className, id, type, readOnly }: Use
 
             <div className={s.AddSupplementalPosition}></div>
             <AddSupplementalPosition
+                visible={!!watch('supplementalPositions.0.organizationUnitId')}
                 readOnly={readOnly}
                 onOrganizatioUnitChange={(orgId) =>
                     orgId && setValue('supplementalPositions.0.organizationUnitId', orgId)

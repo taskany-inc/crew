@@ -38,6 +38,7 @@ interface UserFormExternalExtraInfoBlockProps {
     type?: 'externalEmployee' | 'externalFromMain';
     readOnly?: boolean;
     requestId?: string;
+    edit?: boolean;
 }
 
 export const UserFormExternalExtraInfoBlock = ({
@@ -46,6 +47,7 @@ export const UserFormExternalExtraInfoBlock = ({
     type,
     readOnly,
     requestId,
+    edit,
 }: UserFormExternalExtraInfoBlockProps) => {
     const {
         setValue,
@@ -104,11 +106,11 @@ export const UserFormExternalExtraInfoBlock = ({
                 </FormControl>
             </div>
 
-            <div className={s.Nda}>
-                <FormControl label="NDA" error={errors.attachIds} required>
-                    {nullable(
-                        type === 'externalEmployee' && !readOnly,
-                        () => (
+            {nullable(
+                type === 'externalEmployee' && !readOnly && !edit,
+                () => (
+                    <div className={s.Nda}>
+                        <FormControl label="NDA" error={errors.attachIds} required>
                             <FormControlFileUpload
                                 accept={{
                                     'application/pdf': [],
@@ -126,15 +128,21 @@ export const UserFormExternalExtraInfoBlock = ({
                                 uploadLink={pages.attaches}
                                 onChange={onFileChange}
                             />
-                        ),
-                        <>
-                            {nullable(requestId, (id) => (
+                        </FormControl>
+
+                        <AttachList requestId={id} />
+                    </div>
+                ),
+                <>
+                    {nullable(requestId, (id) => (
+                        <div className={s.Nda}>
+                            <FormControl label="NDA" error={errors.attachIds} required>
                                 <AttachList requestId={id} />
-                            ))}
-                        </>,
-                    )}
-                </FormControl>
-            </div>
+                            </FormControl>
+                        </div>
+                    ))}
+                </>,
+            )}
         </div>
     );
 };

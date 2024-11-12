@@ -23,7 +23,7 @@ import { config } from '../../config';
 import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserFormExternalTeamBlock';
 import { UserFormExternalExtraInfoBlock } from '../UserFormExternalExtraInfoBlock/UserFormExternalExtraInfoBlock';
 import { useSpyNav } from '../../hooks/useSpyNav';
-import { DecideOnRequestFormActions } from '../DecideOnRequestFormActions/DecideOnRequestFormActions';
+import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 
 import s from './ExternalFromMainOrgUserCreationRequestPage.module.css';
 import { tr } from './ExternalFromMainOrgUserCreationRequestPage.i18n';
@@ -41,7 +41,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = ({
     requestId,
     requestStatus,
 }: ExternalUserCreationRequestPageProps) => {
-    const { createUserCreationRequest } = useUserCreationRequestMutations();
+    const { createUserCreationRequest, editUserCreationRequest } = useUserCreationRequestMutations();
 
     const router = useRouter();
 
@@ -92,7 +92,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = ({
     });
 
     useEffect(() => {
-        if (getValues('login') && isLoginUnique.data === false) {
+        if (getValues('login') && isLoginUnique.data === false && getValues('login') !== request?.login) {
             setError('login', { message: tr('User with login already exist') });
         } else if (getValues('login')) trigger('login');
     }, [isLoginUnique.data, setError, trigger, getValues]);
@@ -100,13 +100,19 @@ export const ExternalFromMainOrgUserCreationRequestPage = ({
     const debouncedLoginSearchHandler = debounce(300, setIsLoginUniqueQuery);
 
     const onFormSubmit = handleSubmit(async (data) => {
-        if (isLoginUnique.data === false) {
+        if (isLoginUnique.data === false && data.login !== request?.login) {
             setError('login', { message: tr('User with login already exist') });
             return;
         }
+
+        if (type === 'edit' && requestId) {
+            await editUserCreationRequest({ id: requestId, data });
+            return router.accessCoordination();
+        }
+
         await createUserCreationRequest(data);
         reset(defaultValues);
-        return router.userRequests();
+        return router.accessCoordination();
     });
 
     const { activeId, onClick, onScroll } = useSpyNav(rootRef);
@@ -122,20 +128,22 @@ export const ExternalFromMainOrgUserCreationRequestPage = ({
                                     mainOrgName: config.mainOrganizationName || 'Main',
                                 })}
                             </Text>
-                            {nullable(type === 'new', () => (
+                            {nullable(
+                                type === 'readOnly' && requestId,
+                                (requestId) => (
+                                    <RequestFormActions
+                                        onEdit={() => router.externalUserFromMainOrgRequestEdit(requestId)}
+                                        requestStatus={requestStatus}
+                                        requestId={requestId}
+                                        onDecide={router.accessCoordination}
+                                    />
+                                ),
                                 <UserFormFormActions
                                     submitDisabled={isSubmitting || isSubmitSuccessful}
-                                    onCancel={router.userRequests}
-                                    onReset={() => reset(defaultValues)}
-                                />
-                            ))}
-                            {nullable(type === 'readOnly' && requestId, (requestId) => (
-                                <DecideOnRequestFormActions
-                                    requestStatus={requestStatus}
-                                    requestId={requestId}
-                                    onDecide={router.userRequests}
-                                />
-                            ))}
+                                    onCancel={router.accessCoordination}
+                                    onReset={type === 'new' ? () => reset(defaultValues) : undefined}
+                                />,
+                            )}
                         </div>
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>

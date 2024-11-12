@@ -20,6 +20,7 @@ interface AddSupplementalPositionProps {
     setUnitId: (unitId?: string) => void;
     errors?: { percentage?: { message?: string }; organizationUnitId?: { message?: string } };
     readOnly?: boolean;
+    visible?: boolean;
 }
 
 export const AddSupplementalPosition = ({
@@ -32,8 +33,9 @@ export const AddSupplementalPosition = ({
     setUnitId,
     errors,
     readOnly,
+    visible = false,
 }: AddSupplementalPositionProps) => {
-    const formVisibility = useBoolean(false);
+    const formVisibility = useBoolean(visible);
 
     const onReset = () => {
         formVisibility.setFalse();
@@ -54,15 +56,18 @@ export const AddSupplementalPosition = ({
                         <div className={s.Header}>
                             <Text as="h3">{tr('Supplemental position')}</Text>
 
-                            <AddInlineTrigger
-                                text={tr('Remove supplemental position')}
-                                icon={<IconBinOutline size="s" />}
-                                onClick={onReset}
-                            />
+                            {nullable(!readOnly, () => (
+                                <AddInlineTrigger
+                                    text={tr('Remove supplemental position')}
+                                    icon={<IconBinOutline size="s" />}
+                                    onClick={onReset}
+                                />
+                            ))}
                         </div>
                         <div className={s.TwoInputsRow}>
                             <FormControl label={tr('Supplemental organization')} required>
                                 <OrganizationUnitComboBox
+                                    readOnly={readOnly}
                                     searchType="internal"
                                     onChange={(orgUnit) => orgUnit && onOrganizatioUnitChange(orgUnit.id)}
                                     organizationUnitId={organizationUnitId}
@@ -71,6 +76,7 @@ export const AddSupplementalPosition = ({
                             </FormControl>
                             <FormControl label={tr('Percentage')} required error={errors?.percentage}>
                                 <FormControlInput
+                                    readOnly={readOnly}
                                     placeholder={tr('Write percentage from 0.01 to 1')}
                                     outline
                                     size="m"
@@ -83,6 +89,7 @@ export const AddSupplementalPosition = ({
                             </FormControl>
                             <FormControl label={tr('Unit ID')}>
                                 <FormControlInput
+                                    readOnly={readOnly}
                                     value={unitId}
                                     outline
                                     autoComplete="off"

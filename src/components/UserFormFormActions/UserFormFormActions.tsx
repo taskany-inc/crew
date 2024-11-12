@@ -1,5 +1,6 @@
 import { Button } from '@taskany/bricks/harmony';
 import { IconAntiClockwiseOutline } from '@taskany/icons';
+import { nullable } from '@taskany/bricks';
 
 import { WarningModal } from '../WarningModal/WarningModal';
 import { useBoolean } from '../../hooks/useBoolean';
@@ -10,7 +11,7 @@ import { tr } from './UserFormFormActions.i18n';
 interface UserFormFormActionsProps {
     submitDisabled: boolean;
     onCancel: () => void;
-    onReset: () => void;
+    onReset?: () => void;
 }
 
 export const UserFormFormActions = ({ submitDisabled, onReset, onCancel }: UserFormFormActionsProps) => {
@@ -19,15 +20,17 @@ export const UserFormFormActions = ({ submitDisabled, onReset, onCancel }: UserF
 
     return (
         <div className={s.FormActions}>
-            <Button
-                iconLeft={<IconAntiClockwiseOutline size="s" />}
-                className={s.ResetButton}
-                size="m"
-                view="ghost"
-                type="button"
-                text={tr('Reset form')}
-                onClick={resetWarningVisible.setTrue}
-            />
+            {nullable(onReset, () => (
+                <Button
+                    iconLeft={<IconAntiClockwiseOutline size="s" />}
+                    className={s.ResetButton}
+                    size="m"
+                    view="ghost"
+                    type="button"
+                    text={tr('Reset form')}
+                    onClick={resetWarningVisible.setTrue}
+                />
+            ))}
 
             <Button size="m" type="button" text={tr('Cancel')} onClick={cancelWarningVisible.setTrue} />
             <Button size="m" type="submit" text={tr('Create')} view="primary" disabled={submitDisabled} />
@@ -43,7 +46,7 @@ export const UserFormFormActions = ({ submitDisabled, onReset, onCancel }: UserF
                 visible={resetWarningVisible.value}
                 onCancel={resetWarningVisible.setFalse}
                 onConfirm={() => {
-                    onReset();
+                    onReset && onReset();
                     resetWarningVisible.setFalse();
                 }}
                 warningText={tr('reset confirmation')}
