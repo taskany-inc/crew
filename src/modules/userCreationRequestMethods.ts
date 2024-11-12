@@ -188,7 +188,7 @@ export const userCreationRequestsMethods = {
             createData.creationCause = data.creationCause || undefined;
             createData.unitId = data.unitId || undefined;
             createData.personalEmail = data.personalEmail || undefined;
-            createData.percentage = data.percentage * percentageMultiply || undefined;
+            createData.percentage = data.percentage ? data.percentage * percentageMultiply : undefined;
         }
 
         if (data.type === 'externalFromMainOrgEmployee' || data.type === 'externalEmployee') {
@@ -274,7 +274,23 @@ export const userCreationRequestsMethods = {
     },
 
     getById: async (id: string) => {
-        const request = await prisma.userCreationRequest.findUnique({ where: { id }, include: { attaches: true } });
+        const request = await prisma.userCreationRequest.findUnique({
+            where: { id },
+            include: {
+                attaches: true,
+                group: true,
+                organization: true,
+                supervisor: true,
+                buddy: true,
+                coordinators: true,
+                recruiter: true,
+                creator: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
+            },
+        });
 
         if (!request) {
             throw new TRPCError({ message: `No user creation request with id ${id}`, code: 'NOT_FOUND' });
@@ -488,29 +504,100 @@ export const userCreationRequestsMethods = {
     },
 
     edit: async (data: EditUserCreationRequest, requestBeforeUpdate: UserCreationRequest, sessionUserId: string) => {
-        const { id, phone, ...restData } = data;
+        const { id, data: editData } = data;
+
+        const {
+            groupId,
+            supplementalPositions,
+            organizationUnitId,
+            firstName,
+            surname,
+            middleName,
+            phone,
+            lineManagerIds,
+            ...restEditData
+        } = editData;
+
+        const name = trimAndJoin([surname, firstName, middleName]);
 
         if (requestBeforeUpdate.status === 'Denied') {
             throw new TRPCError({ code: 'FORBIDDEN', message: `Forbidden to edit denied request id: ${id}` });
         }
 
-        restData.date && restData.date.setUTCHours(config.employmentUtcHour);
+        editData.date && editData.date.setUTCHours(config.employmentUtcHour);
 
-        const updateData: Prisma.UserCreationRequestUpdateInput = restData;
-        const phoneService = await prisma.externalService.findUnique({ where: { name: 'Phone' } });
-
-        const servicesBefore = requestBeforeUpdate.services as { serviceId: string; serviceName: string }[];
-        const phoneBefore = servicesBefore.find((service) => service.serviceName === 'Phone')?.serviceId;
-
-        if (phone && phoneBefore && phone !== phoneBefore) {
-            const servicesAfter = servicesBefore.map((service) => {
-                if (service.serviceName === phoneService?.name) {
-                    return { serviceName: phoneService.name, serviceId: data.phone };
-                }
-                return service;
-            });
-            updateData.services = servicesAfter;
+        const [phoneService, accountingService] = await Promise.all([
+            prisma.externalService.findUnique({ where: { name: 'Phone' } }),
+            prisma.externalService.findUnique({ where: { name: 'Accounting system' } }),
+        ]);
+        const servicesData: { serviceName: string; serviceId: string }[] = [];
+        if (phoneService) {
+            servicesData.push({ serviceName: phoneService.name, serviceId: phone });
         }
+        if (accountingService && editData.accountingId) {
+            servicesData.push({ serviceName: accountingService.name, serviceId: editData.accountingId });
+        }
+
+        const updateData: Prisma.UserCreationRequestUpdateInput = {
+            name,
+            email: editData.email,
+            login: editData.login,
+            title: editData.title || undefined,
+            corporateEmail: editData.corporateEmail || undefined,
+            osPreference: editData.osPreference || undefined,
+            services: {
+                toJSON: () => servicesData,
+            },
+            date: editData.date,
+            comment: editData.comment || undefined,
+            workEmail: editData.workEmail || undefined,
+            personalEmail: editData.personalEmail || undefined,
+        };
+
+        updateData.name = name;
+
+        if (groupId) {
+            updateData.group = { connect: { id: groupId } };
+        }
+
+        if (lineManagerIds?.length) {
+            updateData.lineManagers = { connect: lineManagerIds.map((id) => ({ id })) };
+        }
+
+        if (editData.supervisorId) {
+            updateData.supervisor = { connect: { id: editData.supervisorId } };
+        }
+
+        updateData.organization = { connect: { id: organizationUnitId } };
+
+        if (restEditData.percentage) {
+            updateData.percentage = restEditData.percentage / percentageMultiply;
+        }
+
+        if (editData.type === 'externalEmployee' || editData.type === 'externalFromMainOrgEmployee') {
+            updateData.curators = { connect: editData.curatorIds.map((id) => ({ id })) };
+            updateData.permissionServices = { connect: editData.permissionToServices.map((id) => ({ id })) };
+            updateData.reasonToGrantPermissionToServices = editData.reason;
+        }
+
+        if (editData.type === 'internalEmployee') {
+            updateData.workMode = editData.workMode;
+            updateData.workModeComment = editData.workModeComment;
+            updateData.equipment = editData.equipment;
+            updateData.extraEquipment = editData.extraEquipment;
+            updateData.workSpace = editData.workSpace;
+            updateData.buddy = editData.buddyId ? { connect: { id: editData.buddyId } } : undefined;
+            updateData.coordinators = { connect: editData.coordinatorIds?.map((id) => ({ id })) };
+
+            updateData.recruiter = editData.recruiterId ? { connect: { id: editData.recruiterId } } : undefined;
+            updateData.location = editData.location;
+            updateData.creationCause = editData.creationCause;
+            updateData.unitId = editData.unitId;
+            updateData.personalEmail = editData.personalEmail;
+            updateData.percentage = editData.percentage ? editData.percentage * percentageMultiply : undefined;
+        }
+
+        // TODO update supplementalPositions and attaches
 
         const updatedRequest = await prisma.userCreationRequest.update({
             where: { id },
@@ -524,10 +611,13 @@ export const userCreationRequestsMethods = {
                 recruiter: true,
                 creator: true,
                 lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
             },
         });
 
-        if (restData.date && requestBeforeUpdate.date !== restData.date) {
+        if (editData.date && requestBeforeUpdate.date !== editData.date) {
             const { users, to: mailTo } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
                 updatedRequest.organizationUnitId,
@@ -536,11 +626,11 @@ export const userCreationRequestsMethods = {
 
             const icalSubject = `${updatedRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')} ${
                 updatedRequest.name
-            } ${getOrgUnitTitle(updatedRequest.organization)} ${phone}`;
+            } ${getOrgUnitTitle(updatedRequest.organization)} ${editData.phone}`;
 
             const icalEvent = createIcalEventData({
                 id: updatedRequest.id + config.nodemailer.authUser,
-                start: restData.date,
+                start: editData.date,
                 duration: 30,
                 users,
                 summary: icalSubject,
@@ -549,7 +639,7 @@ export const userCreationRequestsMethods = {
 
             const html = htmlUserCreationRequestWithDate({
                 userCreationRequest: updatedRequest,
-                date: restData.date,
+                date: editData.date,
             });
             sendMail({
                 to: mailTo,
@@ -561,7 +651,7 @@ export const userCreationRequestsMethods = {
                 }),
             });
 
-            if (requestBeforeUpdate.jobId) await jobUpdate(requestBeforeUpdate.jobId, { date: restData.date });
+            if (requestBeforeUpdate.jobId) await jobUpdate(requestBeforeUpdate.jobId, { date: editData.date });
         }
         return updatedRequest;
     },
@@ -611,8 +701,34 @@ export const userCreationRequestsMethods = {
     getList: async (data: GetUserCreationRequestList): Promise<CompleteUserCreationRequest[]> => {
         const where: Prisma.UserCreationRequestWhereInput = {};
 
+        if (data.type) {
+            where.type = { in: data.type };
+        }
+
+        if (data.status !== undefined) {
+            where.status = null;
+        }
+
+        if (data.search) {
+            where.name = { contains: data.search, mode: 'insensitive' };
+        }
+
         if (data.active) {
             where.status = null;
+        }
+
+        const orderBy: Prisma.UserCreationRequestOrderByWithRelationAndSearchRelevanceInput[] = [];
+
+        if (data.orderBy?.name) {
+            orderBy.push({ name: data.orderBy?.name });
+        }
+
+        if (data.orderBy?.date) {
+            orderBy.push({ date: data.orderBy?.date });
+        }
+
+        if (data.orderBy?.createdAt) {
+            orderBy.push({ createdAt: data.orderBy?.createdAt });
         }
 
         const requests = await prisma.userCreationRequest.findMany({
@@ -629,7 +745,7 @@ export const userCreationRequestsMethods = {
                 creator: true,
                 supplementalPositions: { include: { organizationUnit: true } },
             },
-            orderBy: { date: 'desc' },
+            orderBy,
         });
 
         return requests as CompleteUserCreationRequest[];
@@ -741,18 +857,7 @@ export const userCreationRequestsMethods = {
 
         const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
 
-        if (
-            !date ||
-            !title ||
-            !phone ||
-            !supervisorId ||
-            !percentage ||
-            !workMode ||
-            !equipment ||
-            !location ||
-            !creationCause ||
-            !coordinators
-        ) {
+        if (!date || !title || !phone || !supervisorId || !workMode || !equipment || !location || !creationCause) {
             throw new TRPCError({
                 message: `Some data is missing for request with id ${id}`,
                 code: 'BAD_REQUEST',
@@ -772,7 +877,7 @@ export const userCreationRequestsMethods = {
             supervisorId,
             buddyId: buddyId || undefined,
             recruiterId: recruiterId || undefined,
-            percentage,
+            percentage: percentage ? percentage / percentageMultiply : undefined,
             workMode,
             equipment,
             location,
@@ -787,11 +892,13 @@ export const userCreationRequestsMethods = {
             workSpace: workSpace || undefined,
             personalEmail: personalEmail || undefined,
             workEmail: workEmail || undefined,
-            supplementalPositions: supplementalPositions.map(({ organizationUnitId, unitId, percentage }) => ({
-                organizationUnitId,
-                unitId: unitId || undefined,
-                percentage,
-            })),
+            supplementalPositions: supplementalPositions
+                .filter((position) => !position.main)
+                .map(({ organizationUnitId, unitId, percentage }) => ({
+                    organizationUnitId,
+                    unitId: unitId || undefined,
+                    percentage: percentage / percentageMultiply,
+                })),
             osPreference: osPreference || undefined,
             unitId: unitId || undefined,
             surname: fullNameArray[0],

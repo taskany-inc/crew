@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import parsePhoneNumber from 'libphonenumber-js';
+import { UserCreationRequestStatus } from 'prisma/prisma-client';
 
 import { tr } from './modules.i18n';
 
@@ -51,7 +52,8 @@ export const getCreateUserCreationRequestBaseSchema = () =>
             .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
             .multipleOf(0.01)
             .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
-            .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
+            .max(1, { message: tr('Please enter percentage from 0.01 to 1') })
+            .optional(),
         unitId: z.string().optional(),
         supplementalPositions: z
             .array(
@@ -97,24 +99,6 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
                 message: tr('Required field'),
             }),
         }),
-        percentage: z
-            .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
-            .multipleOf(0.01)
-            .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
-            .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
-        supplementalPositions: z
-            .array(
-                z.object({
-                    organizationUnitId: z.string().min(1, { message: tr('Required field') }),
-                    percentage: z
-                        .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
-                        .multipleOf(0.01)
-                        .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
-                        .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
-                    unitId: z.string().optional(),
-                }),
-            )
-            .optional(),
         osPreference: z.string().optional(),
     });
 export type CreateUserCreationRequestInternalEmployee = z.infer<
@@ -192,13 +176,21 @@ export type HandleUserCreationRequest = z.infer<typeof handleUserCreationRequest
 
 export const getUserCreationRequestListSchema = z.object({
     active: z.boolean().optional(),
+    type: z.array(z.string()).optional(),
+    status: z.nativeEnum(UserCreationRequestStatus).nullish(),
+    orderBy: z
+        .object({
+            date: z.enum(['asc', 'desc']).optional(),
+            name: z.enum(['asc', 'desc']).optional(),
+            createdAt: z.enum(['asc', 'desc']).optional(),
+        })
+        .optional(),
+    search: z.string().optional(),
 });
 export type GetUserCreationRequestList = z.infer<typeof getUserCreationRequestListSchema>;
 
 export const editUserCreationRequestSchema = z.object({
     id: z.string(),
-    email: z.string().optional(),
-    date: z.date().optional(),
-    phone: z.string().optional(),
+    data: createUserCreationRequestSchema,
 });
 export type EditUserCreationRequest = z.infer<typeof editUserCreationRequestSchema>;
