@@ -1,40 +1,47 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
+import { Text } from '@taskany/bricks/harmony';
 
-import { TabsLayout } from '../TabsLayout';
+import { TabsSwitch } from '../TabsSwitch/TabsSwitch';
 import { pages } from '../../hooks/useRouter';
+import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './ProfilesManagementLayout.i18n';
+import s from './ProfilesManagementLayout.module.css';
 
-interface ProfilesManagementLayoutProps {
-    children: ReactNode;
-}
-
-export const ProfilesManagementLayout = ({ children }: ProfilesManagementLayoutProps) => {
+export const ProfilesManagementLayout = ({ children }: { children: React.ReactNode }) => {
     const sessionUser = useSessionUser();
     return (
-        <TabsLayout
-            tabsMenuOptions={[
-                {
-                    title: tr('New profile requests'),
-                    href: pages.userRequests,
-                    visible: !!sessionUser.role?.editUserCreationRequests,
-                },
-                {
-                    title: tr('Scheduled deactivations'),
-                    href: pages.scheduledDeactivations,
-                    visible:
-                        !!sessionUser.role?.editScheduledDeactivation || !!sessionUser.role?.viewScheduledDeactivation,
-                },
-                {
-                    title: tr('Planned newcomers'),
-                    href: pages.userRequestList,
-                    visible: !!sessionUser.role?.editUserCreationRequests,
-                },
-            ]}
-            pageTitle={tr('Profiles management')}
-        >
-            {children}
-        </TabsLayout>
+        <LayoutMain>
+            <div className={s.Wrapper}>
+                <Text weight="bold" size="xl">
+                    {tr('Requests')}{' '}
+                </Text>
+                <div className={s.SwitchAndFilters}>
+                    <TabsSwitch
+                        tabsMenuOptions={[
+                            {
+                                title: tr('Planned newcomers'),
+                                href: pages.userRequests,
+                                visible: !!sessionUser.role?.editUserCreationRequests || !!sessionUser.role?.createUser,
+                            },
+                            {
+                                title: tr('Access coordination'),
+                                href: pages.accessCoordination,
+                                visible: !!sessionUser.role?.editUserCreationRequests || !!sessionUser.role?.createUser,
+                            },
+                            {
+                                title: tr('Scheduled deactivations'),
+                                href: pages.scheduledDeactivations,
+                                visible:
+                                    !!sessionUser.role?.editScheduledDeactivation ||
+                                    !!sessionUser.role?.viewScheduledDeactivation,
+                            },
+                        ]}
+                    />
+                </div>
+                {children}
+            </div>
+        </LayoutMain>
     );
 };

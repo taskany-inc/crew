@@ -57,7 +57,10 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
 
             { path: pages.logs, text: tr('Logs'), visible: !!sessionUser.role?.viewHistoryEvents },
             {
-                path: sessionUser.role?.editUserCreationRequests ? pages.userRequests : pages.scheduledDeactivations,
+                path:
+                    sessionUser.role?.editUserCreationRequests || sessionUser.role?.createUser
+                        ? pages.userRequests
+                        : pages.scheduledDeactivations,
                 text: tr('Profiles management'),
                 visible:
                     !!sessionUser.role?.editUserCreationRequests ||

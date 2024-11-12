@@ -1,3 +1,15 @@
 {
-    "Requests for user creation": "Заявки на создание пользователей"
+    "Name": "ФИО",
+    "Supervisor": "Руководитель",
+    "Status": "Статус",
+    "Under concideration": "На согласовании",
+    "Approved": "Одобрено",
+    "Denied": "Отколнено",
+    "Role": "Роль",
+    "Team": "Команда",
+    "Author": "Автор запроса",
+    "Coordinator": "Координатор",
+    "Recruiter": "Рекрутер",
+    "Start date": "Дата выхода",
+    "Actions": "Действия"
 }

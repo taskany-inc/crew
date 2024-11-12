@@ -25,6 +25,7 @@
     background: var(--layer);
     transition: var(--transition-time) var(--transition-func);
     transition-property: background-color box-shadow;
+    height: 48px;
 }
 
 .Row_hovered {

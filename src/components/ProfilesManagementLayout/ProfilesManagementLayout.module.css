@@ -1,0 +1,10 @@
+.Wrapper {
+    margin: var(--gap-l);
+}
+
+.SwitchAndFilters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: var(--gap-m) 0px;
+}

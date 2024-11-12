@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { ExternalUserCreationRequestPage } from '../../../../../components/ExternalUserCreationRequestPage/ExternalUserCreationRequestPage';
 import { pages } from '../../../../../hooks/useRouter';
 import { trpc } from '../../../../../trpc/trpcClient';
@@ -34,7 +32,7 @@ export default function ExternalUserCreationRequest({ requestId }: { requestId: 
         <ExternalUserCreationRequestPage
             requestId={requestId}
             request={requestFormQuery.data}
-            type="readOnly"
+            type="edit"
             requestStatus={requestQuery.data?.status || undefined}
         />
     );
