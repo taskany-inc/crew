@@ -17,20 +17,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'prisma/prisma-client';
 import { gray8 } from '@taskany/colors';
 
+import { FormControl } from '../FormControl/FormControl';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { EditUser, EditUserFields, editUserFieldsSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
-import { UserOrganizationUnit, UserSupervisor, UserSupplementalPositions } from '../../modules/userTypes';
+import { UserCurators, UserOrganizationUnit, UserSupervisor, UserSupplementalPositions } from '../../modules/userTypes';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';
 import { SupplementalPositionItem } from '../SupplementalPositionItem/SupplementalPositionItem';
 import { useSupplementalPositionMutations } from '../../modules/supplementalPositionHooks';
+import { UserSelect } from '../UserSelect/UserSelect';
 
 import { tr } from './UserUpdateForm.i18n';
 import s from './UserUpdateForm.module.css';
 
 interface UserDataFormProps {
-    user: User & UserSupervisor & UserOrganizationUnit & UserSupplementalPositions;
+    user: User & UserSupervisor & UserOrganizationUnit & UserSupplementalPositions & UserCurators;
     onClose: () => void;
 }
 
@@ -57,11 +59,12 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
             name: user.name || undefined,
             savePreviousName: undefined,
             organizationUnitId: user.organizationUnitId || undefined,
+            curatorIds: user.curators?.map(({ id }) => id),
         },
         mode: 'onChange',
         resolver: zodResolver(editUserFieldsSchema),
     });
-
+    const curatorIds = watch('curatorIds');
     const savePreviousName = watch('savePreviousName') ?? false;
 
     const updateUser = async (data: EditUser) => {
@@ -105,6 +108,26 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                     setValue('supervisorId', newUser?.id || null);
                                 }}
                             />
+                        </div>
+
+                        <div className={s.Field}>
+                            <Text className={s.Text} weight="bold" color={gray8}>
+                                {tr('Curators:')}
+                            </Text>
+                            <FormControl>
+                                <UserSelect
+                                    mode="multiple"
+                                    selectedUsers={curatorIds}
+                                    excludedUsers={[user.id]}
+                                    onChange={(curators) =>
+                                        setValue(
+                                            'curatorIds',
+                                            curators.map((user) => user.id),
+                                        )
+                                    }
+                                    error={errors.curatorIds}
+                                />
+                            </FormControl>
                         </div>
                         <div className={s.Field}>
                             <Text className={s.Text} weight="bold" color={gray8}>

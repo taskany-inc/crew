@@ -20,6 +20,7 @@ import { tr } from './UserSelect.i18n';
 interface UserSelectProps {
     mode: 'single' | 'multiple';
     selectedUsers?: string[];
+    excludedUsers?: string[];
     onChange?: (users: User[]) => void;
     onClose?: () => void;
     onReset?: () => void;
@@ -34,6 +35,7 @@ export const UserSelect = ({
     selectedUsers,
     onClose,
     onChange,
+    excludedUsers,
     onReset,
     className,
     error,
@@ -45,6 +47,7 @@ export const UserSelect = ({
             query: userQuery,
             take: suggestionsTake,
             include: selectedUsers,
+            exclude: excludedUsers,
         },
         {
             keepPreviousData: true,

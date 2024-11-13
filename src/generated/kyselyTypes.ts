@@ -352,6 +352,10 @@ export type UserCreationRequest = {
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
+export type userCurator = {
+    A: string;
+    B: string;
+};
 export type userCurators = {
     A: string;
     B: string;
@@ -441,6 +445,7 @@ export type DB = {
     _MembershipToRole: MembershipToRole;
     _PermissionServiceToUserCreationRequest: PermissionServiceToUserCreationRequest;
     _userCoordinators: userCoordinators;
+    _userCurator: userCurator;
     _userCurators: userCurators;
     _userLineManagers: userLineManagers;
     Account: Account;

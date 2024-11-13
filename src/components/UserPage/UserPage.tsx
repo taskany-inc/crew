@@ -31,6 +31,7 @@ import { UserRoleComboBox } from '../UserRoleComboBox/UserRoleComboBox';
 import { Nullish } from '../../utils/types';
 import {
     UserAchievements,
+    UserCurators,
     UserMemberships,
     UserMeta,
     UserNames,
@@ -107,7 +108,8 @@ interface UserPageInnerProps {
         UserSupervisorOf &
         UserSupervisorIn &
         UserScheduledDeactivations &
-        UserSupplementalPositions;
+        UserSupplementalPositions &
+        UserCurators;
 }
 
 export const UserPageInner = ({ user }: UserPageInnerProps) => {
