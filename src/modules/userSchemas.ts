@@ -77,6 +77,7 @@ export const editUserSchema = z.object({
     name: z.string().optional(),
     savePreviousName: z.boolean().optional(),
     supervisorId: z.string().nullish(),
+    curatorIds: z.array(z.string()).optional(),
     supplementalPosition: z
         .object({
             organizationUnitId: z.string(),
@@ -121,6 +122,7 @@ export const getUserSuggestionsSchema = z.object({
     query: z.string(),
     take: z.number().optional(),
     include: z.array(z.string()).optional(),
+    exclude: z.array(z.string()).optional(),
 });
 
 export type GetUserSuggestions = z.infer<typeof getUserSuggestionsSchema>;

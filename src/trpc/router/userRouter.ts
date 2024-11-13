@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
 import { accessCheck, checkRoleForAccess } from '../../utils/access';
 import { protectedProcedure, router } from '../trpcBackend';
@@ -141,21 +142,34 @@ export const userRouter = router({
 
     edit: protectedProcedure.input(editUserFieldsSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
-        const userBefore = await userMethods.getByIdOrThrow(input.id);
+
+        const userBeforeWithCurators = await prisma.user.findUnique({
+            where: { id: input.id },
+            include: { curators: true },
+        });
+        if (!userBeforeWithCurators) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${input.id}` });
         const result = await userMethods.edit(input);
+
+        const userAfterWithCurators = await prisma.user.findUnique({
+            where: { id: input.id },
+            select: { curators: { select: { id: true } } },
+        });
+
         const { before, after } = dropUnchangedValuesFromEvent(
             {
-                name: userBefore.name,
-                supervisorId: userBefore.supervisorId,
-                organizationalUnitId: userBefore.organizationUnitId ?? undefined,
-                email: userBefore.email,
+                name: userBeforeWithCurators.name,
+                supervisorId: userBeforeWithCurators.supervisorId,
+                organizationalUnitId: userBeforeWithCurators.organizationUnitId ?? undefined,
+                email: userBeforeWithCurators.email,
                 savePreviousName: input.savePreviousName,
+                curatorIds: userBeforeWithCurators.curators.map(({ id }) => id),
             },
             {
                 name: result.name,
                 supervisorId: result.supervisorId,
                 organizationalUnitId: result.organizationUnitId ?? undefined,
                 email: result.email,
+                curatorIds: userAfterWithCurators?.curators.map(({ id }) => id),
             },
         );
         await historyEventMethods.create({ user: ctx.session.user.id }, 'editUser', {
@@ -164,6 +178,7 @@ export const userRouter = router({
             before,
             after,
         });
+
         return result;
     }),
 

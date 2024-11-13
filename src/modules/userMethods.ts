@@ -10,6 +10,7 @@ import { getCorporateEmail } from '../utils/getCorporateEmail';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
 import { getLastSupplementalPositions } from '../utils/supplementalPositions';
+import { calculateDiffBetweenArrays } from '../utils/calculateDiffBetweenArrays';
 
 import {
     MembershipInfo,
@@ -27,6 +28,8 @@ import {
     UserSupplementalPositions,
     UserNames,
     UserServices,
+    UserCurators,
+    UserCuratorOf,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -266,7 +269,9 @@ export const userMethods = {
             UserRoleData &
             UserScheduledDeactivations &
             UserSupplementalPositions &
-            UserServices
+            UserServices &
+            UserCurators &
+            UserCuratorOf
     > => {
         const user = await prisma.user.findUnique({
             where: { id },
@@ -298,6 +303,8 @@ export const userMethods = {
                     orderBy: { createdAt: 'desc' },
                     include: { organizationUnit: true, newOrganizationUnit: true, attaches: true },
                 },
+                curators: true,
+                curatorOf: { where: { active: true } },
                 supplementalPositions: { include: { organizationUnit: true } },
             },
         });
@@ -401,19 +408,47 @@ export const userMethods = {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } }, active: { not: true } } });
     },
 
-    edit: async ({ id, savePreviousName, supplementalPosition, ...data }: EditUserFields) => {
-        if (data.organizationUnitId) {
+    edit: async ({
+        id,
+        savePreviousName,
+        supplementalPosition,
+        organizationUnitId,
+        curatorIds,
+        ...data
+    }: EditUserFields) => {
+        const updateUser: Prisma.UserUpdateInput = data;
+        const userBeforeUpdate = await userMethods.getById(id);
+
+        if (organizationUnitId) {
             const newOrganization = await prisma.organizationUnit.findUnique({
                 where: {
-                    id: data.organizationUnitId,
+                    id: organizationUnitId,
                 },
             });
 
             if (!newOrganization) {
                 throw new TRPCError({
                     code: 'BAD_REQUEST',
-                    message: `No organization with id ${data.organizationUnitId}`,
+                    message: `No organization with id ${organizationUnitId}`,
                 });
+            }
+
+            updateUser.organizationUnit = { connect: { id: organizationUnitId } };
+        }
+        if (curatorIds) {
+            const ids = curatorIds.map((id) => ({ id }));
+            const oldIds = userBeforeUpdate.curators?.map(({ id }) => ({ id }));
+
+            const curatorIdsToConnect = calculateDiffBetweenArrays(ids, oldIds);
+            const curatorIdsToDisconnect = calculateDiffBetweenArrays(oldIds, ids);
+
+            updateUser.curators = {
+                connect: curatorIdsToConnect,
+                disconnect: curatorIdsToDisconnect,
+            };
+
+            if (curatorIds.includes(userBeforeUpdate.id)) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'You can`t add the current user to the curators' });
             }
         }
 
@@ -434,7 +469,10 @@ export const userMethods = {
             await supplementalPositionMethods.addToUser({ userId: id, ...supplementalPosition });
         }
 
-        await externalUserMethods.update(id, { name: data.name, supervisorId: data.supervisorId });
+        await externalUserMethods.update(id, {
+            name: data.name,
+            supervisorId: data.supervisorId,
+        });
 
         if (savePreviousName) {
             const userBeforeUpdate = await userMethods.getByIdOrThrow(id);
@@ -442,8 +480,7 @@ export const userMethods = {
                 await prisma.userNames.create({ data: { userId: id, name: userBeforeUpdate.name } });
             }
         }
-
-        return prisma.user.update({ where: { id }, data });
+        return prisma.user.update({ where: { id }, data: updateUser, include: { curators: true } });
     },
 
     editActiveState: async (data: EditUserActiveState): Promise<User> => {
@@ -504,7 +541,7 @@ export const userMethods = {
         return 100 - Math.min(Math.max(total, 0), 100);
     },
 
-    suggestions: async ({ query, include, take = suggestionsTake }: GetUserSuggestions) => {
+    suggestions: async ({ query, include, exclude, take = suggestionsTake }: GetUserSuggestions) => {
         const where: Prisma.UserWhereInput = {
             OR: [
                 { name: { contains: query, mode: 'insensitive' } },
@@ -514,9 +551,19 @@ export const userMethods = {
             AND: [{ active: true }],
         };
 
-        if (include) {
-            where.id = { notIn: include };
+        const notIn = [];
+
+        if (exclude) {
+            notIn.push(...exclude);
         }
+        if (include) {
+            notIn.push(...include);
+        }
+
+        if (notIn.length) {
+            where.id = { notIn };
+        }
+
         const suggestions = await prisma.user.findMany({ where, take });
 
         if (include) {
@@ -633,7 +680,7 @@ export const userMethods = {
     createUserFromRequest: async (userCreationRequestId: string) => {
         const request = await prisma.userCreationRequest.findUnique({
             where: { id: userCreationRequestId },
-            include: { supplementalPositions: true },
+            include: { supplementalPositions: true, curators: true },
         });
 
         if (!request) {
@@ -704,6 +751,11 @@ export const userMethods = {
                 services: { createMany: { data: services } },
                 supplementalPositions: {
                     connect: request.supplementalPositions.map(({ id }) => ({
+                        id,
+                    })),
+                },
+                curators: {
+                    connect: request.curators.map(({ id }) => ({
                         id,
                     })),
                 },

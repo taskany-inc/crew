@@ -56,6 +56,14 @@ export interface UserSupervisorOf {
     supervisorOf: Nullish<User[]>;
 }
 
+export interface UserCurators {
+    curators: Nullish<User[]>;
+}
+
+export interface UserCuratorOf {
+    curatorOf: Nullish<User[]>;
+}
+
 export interface UserSupervisorIn {
     supervisorIn: Nullish<Group[]>;
 }
