@@ -9,5 +9,6 @@
     "Loading": "Загружаем...",
     "Loaded": "Загружено",
     "File doesn't load": "Файл не загружен",
-    "In *.pdf or *.doc / *.docx format": "В формате PDF или DOC"
+    "In *.pdf or *.doc / *.docx format": "В формате PDF или DOC",
+    "attach deleting confirmation {filename}": "Вы действительно хотите удалить приложение {filename}?"
 }

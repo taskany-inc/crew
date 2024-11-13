@@ -190,9 +190,9 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
             error: tr('An error occurred while canceling profile deactivation'),
         },
         attachDelete: {
-            success: tr('Attach successfully uploaded!'),
-            loading: tr('Uploading...'),
-            error: tr('An error occurred while uploading'),
+            success: tr('Attach successfully deleted!'),
+            loading: tr('Deleting...'),
+            error: tr('An error occurred while deleting'),
         },
         supplementalPositionAdd: {
             success: tr('Supplemental position added to user'),

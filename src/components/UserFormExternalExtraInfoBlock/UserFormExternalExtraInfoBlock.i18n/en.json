@@ -9,5 +9,6 @@
     "Loading": "",
     "Loaded": "",
     "File doesn't load": "",
-    "In *.pdf or *.doc / *.docx format": ""
+    "In *.pdf or *.doc / *.docx format": "",
+    "attach deleting confirmation {filename}": "Are you sure you want to delete attach {filename}?"
 }

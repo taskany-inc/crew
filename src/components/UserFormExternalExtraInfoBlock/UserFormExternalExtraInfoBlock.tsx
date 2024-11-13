@@ -1,8 +1,9 @@
-import React, { useCallback } from 'react';
-import { FormControlInput, FormControlFileUpload, Text } from '@taskany/bricks/harmony';
+import React, { useCallback, useState } from 'react';
+import { FormControlInput, FormControlFileUpload, Text, Button } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { nullable } from '@taskany/bricks';
-import { IconFileOutline } from '@taskany/icons';
+import { IconBinOutline, IconFileOutline } from '@taskany/icons';
+import { Attach } from 'prisma/prisma-client';
 
 import { FormControl } from '../FormControl/FormControl';
 import { PermissionServiceSelect } from '../PermissionServiceSelect/PermissionServiceSelect';
@@ -10,25 +11,69 @@ import { getFileIdFromPath } from '../../utils/attachFormatter';
 import { pages } from '../../hooks/useRouter';
 import { trpc } from '../../trpc/trpcClient';
 import { Link } from '../Link';
+import { useAttachMutations } from '../../modules/attachHooks';
+import { useBoolean } from '../../hooks/useBoolean';
+import { WarningModal } from '../WarningModal/WarningModal';
 
-import s from './UserFormExternalExtraInfoBlock.module.css';
 import { tr } from './UserFormExternalExtraInfoBlock.i18n';
+import s from './UserFormExternalExtraInfoBlock.module.css';
 
 interface AttachListProps {
     requestId: string;
+    onDelete?: (id: string) => void;
 }
 
-const AttachList = ({ requestId }: AttachListProps) => {
+const AttachList = ({ requestId, onDelete }: AttachListProps) => {
     const requestQuery = trpc.userCreationRequest.getById.useQuery(requestId);
+    const deleteAttachVisible = useBoolean(false);
+
+    const { deleteAttach } = useAttachMutations();
+    const [attach, setAttach] = useState<undefined | Attach>();
+
+    const onDeleteClick = (currentAttach: Attach) => {
+        setAttach(currentAttach);
+        deleteAttachVisible.setTrue();
+    };
+
+    const confirmAttachDelete = () => {
+        if (onDelete && attach) {
+            onDelete(attach.id);
+            deleteAttach(attach.id);
+            deleteAttachVisible.setFalse();
+        }
+    };
+
+    const cancelAttachDelete = () => {
+        setAttach(undefined);
+        deleteAttachVisible.setFalse();
+    };
 
     return nullable(requestQuery.data?.attaches, (attaches) => (
-        <div>
-            {attaches.map(({ id, filename }) => (
-                <Link className={s.Link} key={id} href={pages.attach(id)} target="_blank">
-                    <IconFileOutline size="s" /> {filename}
-                </Link>
+        <>
+            {attaches.map((file) => (
+                <div className={s.AttachItem} key={`attach-${file.id}`}>
+                    <Link className={s.Link} href={pages.attach(file.id)} target="_blank">
+                        <IconFileOutline size="s" /> {file.filename}{' '}
+                    </Link>
+                    {nullable(onDelete, () => (
+                        <Button
+                            type="button"
+                            view="ghost"
+                            size="s"
+                            className={s.IconBin}
+                            iconLeft={<IconBinOutline size="s" onClick={() => onDeleteClick(file)} />}
+                        />
+                    ))}
+                </div>
             ))}
-        </div>
+            <WarningModal
+                view="warning"
+                visible={deleteAttachVisible.value}
+                onCancel={cancelAttachDelete}
+                onConfirm={confirmAttachDelete}
+                warningText={tr('attach deleting confirmation {filename}', { filename: attach?.filename || '' })}
+            />
+        </>
     ));
 };
 
@@ -38,7 +83,6 @@ interface UserFormExternalExtraInfoBlockProps {
     type?: 'externalEmployee' | 'externalFromMain';
     readOnly?: boolean;
     requestId?: string;
-    edit?: boolean;
 }
 
 export const UserFormExternalExtraInfoBlock = ({
@@ -47,13 +91,13 @@ export const UserFormExternalExtraInfoBlock = ({
     type,
     readOnly,
     requestId,
-    edit,
 }: UserFormExternalExtraInfoBlockProps) => {
     const {
         setValue,
         watch,
         register,
         trigger,
+        getValues,
         formState: { errors },
     } = useFormContext<{
         permissionToServices: string[];
@@ -61,13 +105,16 @@ export const UserFormExternalExtraInfoBlock = ({
         attachIds: string[];
     }>();
 
-    const onFileChange = useCallback((files: { type: string; filePath: string; name: string }[]) => {
-        setValue(
-            'attachIds',
-            files.map(({ filePath }) => getFileIdFromPath(filePath)),
-        );
-        errors.attachIds && trigger('attachIds');
-    }, []);
+    const onFileChange = useCallback(
+        (files: { type: string; filePath: string; name: string }[]) => {
+            setValue(
+                'attachIds',
+                files.map(({ filePath }) => getFileIdFromPath(filePath)),
+            );
+            errors.attachIds && trigger('attachIds');
+        },
+        [errors.attachIds, setValue, trigger],
+    );
 
     return (
         <div className={className} id={id}>
@@ -106,11 +153,10 @@ export const UserFormExternalExtraInfoBlock = ({
                 </FormControl>
             </div>
 
-            {nullable(
-                type === 'externalEmployee' && !readOnly && !edit,
-                () => (
-                    <div className={s.Nda}>
-                        <FormControl label="NDA" error={errors.attachIds} required>
+            {nullable(type === 'externalEmployee', () => (
+                <div className={s.Nda}>
+                    <FormControl label="NDA" error={errors.attachIds} required>
+                        {nullable(!readOnly, () => (
                             <FormControlFileUpload
                                 accept={{
                                     'application/pdf': [],
@@ -128,21 +174,24 @@ export const UserFormExternalExtraInfoBlock = ({
                                 uploadLink={pages.attaches}
                                 onChange={onFileChange}
                             />
-                        </FormControl>
-
-                        <AttachList requestId={id} />
-                    </div>
-                ),
-                <>
-                    {nullable(requestId, (id) => (
-                        <div className={s.Nda}>
-                            <FormControl label="NDA" error={errors.attachIds} required>
-                                <AttachList requestId={id} />
-                            </FormControl>
-                        </div>
-                    ))}
-                </>,
-            )}
+                        ))}
+                        {nullable(requestId, (id) => (
+                            <AttachList
+                                requestId={id}
+                                onDelete={
+                                    !readOnly
+                                        ? (attachId) =>
+                                              setValue(
+                                                  'attachIds',
+                                                  getValues('attachIds').filter((id) => id !== attachId),
+                                              )
+                                        : undefined
+                                }
+                            />
+                        ))}
+                    </FormControl>
+                </div>
+            ))}
         </div>
     );
 };

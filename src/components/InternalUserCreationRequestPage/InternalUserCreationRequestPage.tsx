@@ -106,7 +106,7 @@ export const InternalUserCreationRequestPage = ({
         if (getValues('login') && isLoginUnique.data === false && getValues('login') !== request?.login) {
             setError('login', { message: tr('User with login already exist') });
         } else if (getValues('login')) trigger('login');
-    }, [isLoginUnique.data, setError, trigger, getValues]);
+    }, [isLoginUnique.data, setError, trigger, getValues, request?.login]);
 
     const debouncedLoginSearchHandler = debounce(300, setIsLoginUniqueQuery);
 
