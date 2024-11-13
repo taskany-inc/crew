@@ -131,7 +131,6 @@ interface HistoryEventsData {
             groupId?: string;
             services?: { serviceName: string; serviceId: string }[] | null;
             createExternalAccount?: boolean;
-            externalOrganizationSupervisorLogin?: string;
             accessToInternalSystems?: boolean;
             comment?: string;
             creationCause?: string;
@@ -159,6 +158,7 @@ interface HistoryEventsData {
             curatorLogins?: string;
             reasonToGrantPermissionToServices?: string;
             permissionServices?: string;
+            attachFilenames?: string;
         };
     };
     editUserActiveState: {

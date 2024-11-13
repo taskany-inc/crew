@@ -132,8 +132,6 @@ export const userCreationRequestRouter = router({
                 status: null,
                 services: userCreationRequestBefore.services as Record<'serviceName' | 'serviceId', string>[],
                 createExternalAccount: userCreationRequestBefore.createExternalAccount,
-                externalOrganizationSupervisorLogin:
-                    userCreationRequestBefore.externalOrganizationSupervisorLogin || undefined,
                 accessToInternalSystems: userCreationRequestBefore.accessToInternalSystems || undefined,
                 comment: userCreationRequestBefore.comment || undefined,
                 creationCause: userCreationRequestBefore.creationCause || undefined,
@@ -178,6 +176,11 @@ export const userCreationRequestRouter = router({
                 permissionServices: userCreationRequestBefore.permissionServices.length
                     ? userCreationRequestBefore.permissionServices.map(({ name }) => name).join(', ')
                     : undefined,
+                organizationUnitId: userCreationRequestBefore.organizationUnitId,
+                attachFilenames: userCreationRequestBefore.attaches
+                    .filter(({ deletedAt }) => !deletedAt)
+                    .map(({ filename }) => filename)
+                    .join(', '),
             },
             {
                 name: userCreationRequestAfter.name,
@@ -200,8 +203,6 @@ export const userCreationRequestRouter = router({
                 status: null,
                 services: userCreationRequestAfter.services as Record<'serviceName' | 'serviceId', string>[],
                 createExternalAccount: userCreationRequestAfter.createExternalAccount,
-                externalOrganizationSupervisorLogin:
-                    userCreationRequestAfter.externalOrganizationSupervisorLogin || undefined,
                 accessToInternalSystems: userCreationRequestAfter.accessToInternalSystems || undefined,
                 comment: userCreationRequestAfter.comment || undefined,
                 creationCause: userCreationRequestAfter.creationCause || undefined,
@@ -246,6 +247,11 @@ export const userCreationRequestRouter = router({
                 permissionServices: userCreationRequestAfter.permissionServices.length
                     ? userCreationRequestAfter.permissionServices.map(({ name }) => name).join(', ')
                     : undefined,
+                organizationUnitId: userCreationRequestAfter.organizationUnitId,
+                attachFilenames: userCreationRequestAfter.attaches
+                    .filter(({ deletedAt }) => !deletedAt)
+                    .map(({ filename }) => filename)
+                    .join(', '),
             },
         );
 

@@ -7,6 +7,7 @@ export const useAttachMutations = () => {
     const deleteAttach = trpc.attach.deleteAttach.useMutation({
         onSuccess: () => {
             utils.scheduledDeactivation.invalidate();
+            utils.userCreationRequest.invalidate();
         },
     });
 

@@ -1,4 +1,4 @@
-import { UserCreationRequest, Prisma, User, PermissionService } from 'prisma/prisma-client';
+import { UserCreationRequest, Prisma, User, PermissionService, SupplementalPosition } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
 
@@ -85,7 +85,7 @@ export const userCreationRequestsMethods = {
 
         const mainPosition = {
             organizationUnit: { connect: { id: data.organizationUnitId } },
-            percentage: 1 * percentageMultiply,
+            percentage: (data.percentage || 1) * percentageMultiply,
             main: true,
             role: data.title || undefined,
             status: PositionStatus.ACTIVE,
@@ -277,7 +277,7 @@ export const userCreationRequestsMethods = {
         const request = await prisma.userCreationRequest.findUnique({
             where: { id },
             include: {
-                attaches: true,
+                attaches: { where: { deletedAt: null } },
                 group: true,
                 organization: true,
                 supervisor: true,
@@ -311,7 +311,7 @@ export const userCreationRequestsMethods = {
                 supplementalPositions: { include: { organizationUnit: true } },
                 curators: true,
                 permissionServices: true,
-                attaches: true,
+                attaches: { where: { deletedAt: null } },
             },
         });
 
@@ -503,7 +503,11 @@ export const userCreationRequestsMethods = {
         };
     },
 
-    edit: async (data: EditUserCreationRequest, requestBeforeUpdate: UserCreationRequest, sessionUserId: string) => {
+    edit: async (
+        data: EditUserCreationRequest,
+        requestBeforeUpdate: UserCreationRequest & { supplementalPositions: SupplementalPosition[] },
+        sessionUserId: string,
+    ) => {
         const { id, data: editData } = data;
 
         const {
@@ -570,14 +574,92 @@ export const userCreationRequestsMethods = {
 
         updateData.organization = { connect: { id: organizationUnitId } };
 
+        const createNewSupplementalPositions = [];
+
+        const mainPosition = requestBeforeUpdate.supplementalPositions.find((position) => position.main);
+
+        if (!mainPosition) {
+            const newMainPosition = {
+                organizationUnit: { connect: { id: editData.organizationUnitId } },
+                percentage: (editData.percentage || 1) * percentageMultiply,
+                main: true,
+                role: editData.title,
+                status: PositionStatus.ACTIVE,
+                workStartDate: editData.date,
+            };
+            createNewSupplementalPositions.push(newMainPosition);
+        }
+
+        if (
+            mainPosition &&
+            (editData.title !== mainPosition.role ||
+                mainPosition.organizationUnitId !== editData.organizationUnitId ||
+                editData.date !== mainPosition.workStartDate ||
+                editData.unitId !== mainPosition.unitId ||
+                (editData.percentage && editData.percentage * percentageMultiply !== mainPosition.percentage))
+        ) {
+            await prisma.supplementalPosition.update({
+                where: { id: mainPosition.id },
+                data: {
+                    role: editData.title,
+                    workStartDate: editData.date,
+                    unitId: editData.unitId || null,
+                    percentage: (editData.percentage || 1) * percentageMultiply,
+                    organizationUnitId: editData.organizationUnitId,
+                },
+            });
+        }
+
+        const supplementalPositionBefore = requestBeforeUpdate.supplementalPositions.find((position) => !position.main);
+
+        const newSupplemental = supplementalPositions ? supplementalPositions[0] : undefined;
+
+        if (!supplementalPositionBefore && newSupplemental) {
+            const newSupplementalPosition = {
+                organizationUnit: { connect: { id: newSupplemental.organizationUnitId } },
+                percentage: (newSupplemental.percentage || 1) * percentageMultiply,
+                main: false,
+                role: editData.title,
+                status: PositionStatus.ACTIVE,
+                workStartDate: editData.date,
+                unitId: newSupplemental.unitId,
+            };
+            createNewSupplementalPositions.push(newSupplementalPosition);
+        }
+
+        if (
+            supplementalPositionBefore &&
+            newSupplemental &&
+            (editData.title !== supplementalPositionBefore.role ||
+                editData.date !== supplementalPositionBefore.workStartDate ||
+                newSupplemental.organizationUnitId !== supplementalPositionBefore.organizationUnitId ||
+                newSupplemental.unitId !== supplementalPositionBefore.unitId ||
+                newSupplemental.percentage * percentageMultiply !== supplementalPositionBefore.percentage)
+        ) {
+            await prisma.supplementalPosition.update({
+                where: { id: supplementalPositionBefore.id },
+                data: {
+                    workStartDate: editData.date,
+                    organizationUnitId: newSupplemental.organizationUnitId,
+                    role: editData.title,
+                    percentage: newSupplemental.percentage * percentageMultiply,
+                    unitId: newSupplemental.unitId,
+                },
+            });
+        }
+
         if (restEditData.percentage) {
-            updateData.percentage = restEditData.percentage / percentageMultiply;
+            updateData.percentage = restEditData.percentage * percentageMultiply;
         }
 
         if (editData.type === 'externalEmployee' || editData.type === 'externalFromMainOrgEmployee') {
             updateData.curators = { connect: editData.curatorIds.map((id) => ({ id })) };
             updateData.permissionServices = { connect: editData.permissionToServices.map((id) => ({ id })) };
             updateData.reasonToGrantPermissionToServices = editData.reason;
+        }
+
+        if (editData.type === 'externalEmployee') {
+            updateData.attaches = { connect: editData.attachIds.map((id) => ({ id })) };
         }
 
         if (editData.type === 'internalEmployee') {
@@ -597,7 +679,9 @@ export const userCreationRequestsMethods = {
             updateData.percentage = editData.percentage ? editData.percentage * percentageMultiply : undefined;
         }
 
-        // TODO update supplementalPositions and attaches
+        if (createNewSupplementalPositions.length) {
+            updateData.supplementalPositions = { create: createNewSupplementalPositions };
+        }
 
         const updatedRequest = await prisma.userCreationRequest.update({
             where: { id },
@@ -614,6 +698,7 @@ export const userCreationRequestsMethods = {
                 supplementalPositions: { include: { organizationUnit: true } },
                 curators: true,
                 permissionServices: true,
+                attaches: { where: { deletedAt: null } },
             },
         });
 

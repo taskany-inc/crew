@@ -381,11 +381,6 @@ const componentMap: {
                         <ChangeListItem title={tr('Services')} after={servicesAfter} before={servicesBefore} />
                         <ChangeListItem title={tr('Date')} after={event.after.date} before={event.before.date} />
                         <ChangeListItem
-                            title={tr('External organization supervisor login')}
-                            after={event.after.externalOrganizationSupervisorLogin}
-                            before={event.before.externalOrganizationSupervisorLogin}
-                        />
-                        <ChangeListItem
                             title={tr('Access to internal systems')}
                             after={event.after.accessToInternalSystems}
                             before={event.before.accessToInternalSystems}
@@ -490,6 +485,11 @@ const componentMap: {
                             title={tr('Reason for granting access')}
                             after={event.after.reasonToGrantPermissionToServices}
                             before={event.before.reasonToGrantPermissionToServices}
+                        />
+                        <ChangeListItem
+                            title={tr('Attach filenames')}
+                            after={event.after.attachFilenames}
+                            before={event.before.attachFilenames}
                         />
                     </>
                 ))}
