@@ -47,7 +47,7 @@ import { addCalculatedGroupFields, groupMethods } from './groupMethods';
 import { userAccess } from './userAccess';
 import { externalUserMethods } from './externalUserMethods';
 import { supplementalPositionMethods } from './supplementalPositionMethods';
-import { UserToDecreeSchema } from './userDecreeRequestSchemas';
+import { DecreeSchema } from './userDecreeRequestSchemas';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -729,7 +729,7 @@ export const userMethods = {
         });
         return newUser;
     },
-    toDecree: async (data: UserToDecreeSchema) => {
+    toDecree: async (data: DecreeSchema) => {
         const currentUser = await userMethods.getById(data.userId);
         const { workEndDate } = data.positions[0];
 
@@ -787,6 +787,61 @@ export const userMethods = {
                 });
             }
         }
+
+        await prisma.$transaction(
+            updatedPositions.map(({ id, ...data }) =>
+                prisma.supplementalPosition.update({
+                    where: {
+                        id,
+                    },
+                    data,
+                }),
+            ),
+        );
+
+        return userMethods.getById(data.userId);
+    },
+
+    fromDecree: async (data: DecreeSchema) => {
+        const currentUser = await userMethods.getById(data.userId);
+
+        const updatedPositions = currentUser.supplementalPositions.reduce<
+            {
+                status: PositionStatus;
+                percentage: number;
+                id: string;
+                role: string;
+                unitId?: string;
+                workEndDate: Date | null;
+            }[]
+        >((acum, item) => {
+            if (item.status === 'ACTIVE') {
+                return acum;
+            }
+
+            const updatedData = data.positions.find((p) => p.organizationUnitId === item.organizationUnitId);
+
+            if (updatedData) {
+                acum.push({
+                    status: 'ACTIVE',
+                    percentage: updatedData.percentage * percentageMultiply,
+                    id: item.id,
+                    workEndDate: null,
+                    role: data.title,
+                    unitId: updatedData.unitId,
+                });
+            } else if (item.role !== data.title) {
+                acum.push({
+                    status: item.status,
+                    percentage: item.percentage,
+                    id: item.id,
+                    workEndDate: item.workEndDate,
+                    role: data.title,
+                });
+            }
+
+            return acum;
+        }, []);
 
         await prisma.$transaction(
             updatedPositions.map(({ id, ...data }) =>

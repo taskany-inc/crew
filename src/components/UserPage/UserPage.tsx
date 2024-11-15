@@ -172,7 +172,8 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
 
     const activeScheduledDeactivation = getActiveScheduledDeactivation(user);
 
-    const activePosition = user.supplementalPositions.find((p) => p.status === 'ACTIVE');
+    const activePosition =
+        !user.supplementalPositions.length || user.supplementalPositions.find((p) => p.status === 'ACTIVE');
 
     return (
         <LayoutMain pageTitle={user.name}>
@@ -215,7 +216,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                     )}
                     <Text size="xxl" weight="bold" color={user.active && activePosition ? textColor : gray8}>
                         {user.name}
-                        {!user.active || (!activePosition && tr(' [inactive]'))}
+                        {(!user.active || !activePosition) && tr(' [inactive]')}
                     </Text>
                 </StyledUserNameWrapper>
                 <Modal visible={updateUserFormVisibility.value} width={600}>
@@ -257,7 +258,13 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                                     size="s"
                                 />
                             ),
-                            <Button text={tr('From decree')} disabled view="primary" outline size="s" />,
+                            <Button
+                                onClick={() => router.fromDecree(user.id)}
+                                text={tr('From decree')}
+                                view="primary"
+                                outline
+                                size="s"
+                            />,
                         )}
                     </Restricted>
                     <Restricted visible={!activeScheduledDeactivation && !!sessionUser.role?.editScheduledDeactivation}>

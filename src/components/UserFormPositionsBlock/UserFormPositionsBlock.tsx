@@ -17,6 +17,7 @@ interface UserFormPositionsBlockProps {
     id: string;
     organizationUnits?: OrganizationUnit[];
     onChange?: (orgId: string, index: number) => void;
+    firedUnitEnable?: boolean;
 }
 
 interface UserFormPositionsBlockType {
@@ -29,6 +30,7 @@ export const UserFormPositionsBlock: FC<UserFormPositionsBlockProps> = ({
     id,
     organizationUnits,
     onChange,
+    firedUnitEnable,
 }) => {
     const {
         register,
@@ -100,13 +102,13 @@ export const UserFormPositionsBlock: FC<UserFormPositionsBlockProps> = ({
     const workEndDate = watch('positions.0.workEndDate') ?? new Date();
     const mainPercentage = watch('positions.0.percentage') ?? 1;
 
-    const subUnitId = watch('positions.1.unitId');
+    const subOrganizationUnitId = watch('positions.1.organizationUnitId');
 
     useEffect(() => {
-        if (subUnitId) {
+        if (subOrganizationUnitId) {
             setValue('positions.1.workEndDate', workEndDate);
         }
-    }, [subUnitId, workEndDate]);
+    }, [subOrganizationUnitId, workEndDate, setValue]);
 
     return (
         <div className={className} id={id}>
@@ -170,7 +172,7 @@ export const UserFormPositionsBlock: FC<UserFormPositionsBlockProps> = ({
                     />
                 </FormControl>
             </div>
-            {nullable(organizationUnits, () => (
+            {nullable(organizationUnits?.length && firedUnitEnable, () => (
                 <FormControl label={tr('Dismissal from the organization')}>
                     <OrganizationUnitComboBox
                         searchType="internal"

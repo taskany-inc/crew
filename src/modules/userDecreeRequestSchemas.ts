@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getPhoneSchema } from './userCreationRequestSchemas';
 import { tr } from './modules.i18n';
 
-export const userToDecreeSchema = z.object({
+export const decreeSchema = z.object({
     userId: z.string(),
     surname: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
     firstName: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
@@ -33,4 +33,4 @@ export const userToDecreeSchema = z.object({
     ),
 });
 
-export type UserToDecreeSchema = z.infer<typeof userToDecreeSchema>;
+export type DecreeSchema = z.infer<typeof decreeSchema>;

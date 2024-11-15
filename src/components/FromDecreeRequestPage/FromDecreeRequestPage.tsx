@@ -6,37 +6,37 @@ import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { DecreeForm } from '../DecreeForm/DecreeForm';
 import { useUserMutations } from '../../modules/userHooks';
 
-import s from './ToDecreeRequestPage.module.css';
-import { tr } from './ToDecreeRequestPage.i18n';
+import s from './FromDecreeRequestPage.module.css';
+import { tr } from './FromDecreeRequestPage.i18n';
 
-interface ToDecreeRequestFormProps {
+interface FromDecreeRequestFormProps {
     user: ComponentProps<typeof DecreeForm>['user'];
 }
 
-const ToDecreeRequestForm: FC<ToDecreeRequestFormProps> = ({ user }) => {
+const FromDecreeRequestForm: FC<FromDecreeRequestFormProps> = ({ user }) => {
     const router = useRouter();
 
-    const { toDecree } = useUserMutations();
+    const { fromDecree } = useUserMutations();
 
     const onSubmit: ComponentProps<typeof DecreeForm>['onSubmit'] = async (data) => {
-        await toDecree(data);
+        await fromDecree(data);
         router.user(user.id);
     };
 
     return (
         <LayoutMain pageTitle={tr('Request')}>
             <div className={s.Wrapper}>
-                <DecreeForm user={user} type="to" onSubmit={onSubmit} />
+                <DecreeForm user={user} type="from" onSubmit={onSubmit} />
             </div>
         </LayoutMain>
     );
 };
 
-interface ToDecreeRequestPageProps {
+interface FromDecreeRequestPageProps {
     userId: string;
 }
 
-export const ToDecreeRequestPage: FC<ToDecreeRequestPageProps> = ({ userId }) => {
+export const FromDecreeRequestPage: FC<FromDecreeRequestPageProps> = ({ userId }) => {
     const { data: user } = trpc.user.getById.useQuery(userId, {
         enabled: Boolean(userId),
     });
@@ -45,5 +45,5 @@ export const ToDecreeRequestPage: FC<ToDecreeRequestPageProps> = ({ userId }) =>
         return null;
     }
 
-    return <ToDecreeRequestForm user={user} />;
+    return <FromDecreeRequestForm user={user} />;
 };
