@@ -124,11 +124,18 @@ export const userCreationRequestsMethods = {
 
         if (data.supplementalPositions?.length && data.type === 'existing') {
             createData.supplementalPositions = {
-                create: data.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
-                    organizationUnit: { connect: { id: organizationUnitId } },
-                    percentage: percentage * percentageMultiply,
-                    unitId,
-                })),
+                create: [
+                    mainPosition,
+                    ...data.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
+                        organizationUnit: { connect: { id: organizationUnitId } },
+                        percentage: percentage * percentageMultiply,
+                        main: false,
+                        role: data.title || undefined,
+                        status: PositionStatus.ACTIVE,
+                        workStartDate: data.date,
+                        unitId,
+                    })),
+                ],
             };
         }
 
