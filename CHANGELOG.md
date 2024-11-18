@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.90.1](https://github.com/taskany-inc/crew/compare/v0.90.0...v0.90.1) (2024-11-18)
+
+
+### Bug Fixes
+
+* supplemental position creation ([91cc6f4](https://github.com/taskany-inc/crew/commit/91cc6f40b14e4e2180b1f8337cd42f3dcb080b0e))
+
 ## [0.90.0](https://github.com/taskany-inc/crew/compare/v0.89.0...v0.90.0) (2024-11-15)
 
 
