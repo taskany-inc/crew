@@ -112,8 +112,11 @@ const ColumnSelect = ({
             .map<{ name: string; id: number }>((name, id) => ({ name, id }))
             .filter(({ name }) => patterns.every((p) => name.toLowerCase().includes(p.toLowerCase())))
             .filter(({ name }) => !antiPatterns.some((p) => name.toLowerCase().includes(p.toLowerCase())));
-        setColumn(filtered[0]);
-    }, [columns, patterns, antiPatterns]);
+        if (filtered[0]) {
+            setColumn(filtered[0]);
+            onSelect(filtered[0].id);
+        }
+    }, [columns, patterns, antiPatterns, onSelect]);
 
     return (
         <FormControl label={label} required={required} className={s.ParseTeamStructurePageField}>
