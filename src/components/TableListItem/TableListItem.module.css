@@ -26,6 +26,8 @@
     transition: var(--transition-time) var(--transition-func);
     transition-property: background-color box-shadow;
     height: 48px;
+    width: fit-content;
+    cursor: pointer;
 }
 
 .Row_hovered {

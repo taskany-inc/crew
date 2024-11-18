@@ -59,7 +59,7 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             {
                 path:
                     sessionUser.role?.editUserCreationRequests || sessionUser.role?.createUser
-                        ? pages.userRequests
+                        ? pages.accessCoordination
                         : pages.scheduledDeactivations,
                 text: tr('Profiles management'),
                 visible:

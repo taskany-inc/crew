@@ -17,23 +17,26 @@ import s from './UserCreateRequestsPage.module.css';
 export const UserCreateRequestsPage = () => {
     const locale = useLocale();
 
-    const [clickNameOrderCount, setClickNameOrderCount] = useState<'desc' | 'asc' | undefined>(undefined);
-    const [clickDateOrderCount, setClickDateOrderCount] = useState<'desc' | 'asc'>('desc');
+    const [clickNameOrder, setClickNameOrder] = useState<'desc' | 'asc' | undefined>(undefined);
+    const [clickDateOrder, setClickDateOrder] = useState<'desc' | 'asc' | undefined>('desc');
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
         type: ['internalEmployee'],
         status: null,
-        orderBy: { name: clickNameOrderCount, date: clickDateOrderCount },
+        orderBy: { name: clickNameOrder, date: clickDateOrder },
     });
 
     const onNameOrderClick = () => {
-        if (!clickNameOrderCount) setClickNameOrderCount('asc');
-        if (clickNameOrderCount === 'asc') setClickNameOrderCount('desc');
-        if (clickNameOrderCount === 'desc') setClickNameOrderCount(undefined);
+        if (!clickNameOrder) setClickNameOrder('asc');
+        if (clickNameOrder === 'asc') setClickNameOrder('desc');
+        if (clickNameOrder === 'desc') setClickNameOrder(undefined);
+        setClickDateOrder(undefined);
     };
 
-    const onDateOrderClick = () =>
-        clickDateOrderCount === 'desc' ? setClickDateOrderCount('asc') : setClickDateOrderCount('desc');
+    const onDateOrderClick = () => {
+        clickDateOrder === 'desc' ? setClickDateOrder('asc') : setClickDateOrder('desc');
+        setClickNameOrder(undefined);
+    };
 
     const router = useRouter();
 
@@ -53,14 +56,14 @@ export const UserCreateRequestsPage = () => {
 
                         <Button
                             iconLeft={
-                                clickNameOrderCount !== 'desc' ? (
+                                clickNameOrder !== 'desc' ? (
                                     <IconSortDownOutline size="s" />
                                 ) : (
                                     <IconSortUpOutline size="s" />
                                 )
                             }
                             view="clear"
-                            className={cn({ [s.ButtonActive]: !!clickNameOrderCount })}
+                            className={cn({ [s.ButtonActive]: !!clickNameOrder })}
                             onClick={onNameOrderClick}
                             size="xs"
                         />
@@ -82,14 +85,14 @@ export const UserCreateRequestsPage = () => {
 
                             <Button
                                 iconLeft={
-                                    clickDateOrderCount === 'desc' ? (
-                                        <IconSortDownOutline size="s" />
-                                    ) : (
+                                    clickDateOrder === 'asc' ? (
                                         <IconSortUpOutline size="s" />
+                                    ) : (
+                                        <IconSortDownOutline size="s" />
                                     )
                                 }
                                 view="clear"
-                                className={cn({ [s.ButtonActive]: clickDateOrderCount === 'asc' })}
+                                className={cn({ [s.ButtonActive]: !!clickDateOrder })}
                                 onClick={onDateOrderClick}
                                 size="xs"
                             />
@@ -101,7 +104,7 @@ export const UserCreateRequestsPage = () => {
             { content: <Text className={s.HeaderText}>{tr('Actions')}</Text>, width: 100 },
         ];
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [locale, clickNameOrderCount, clickDateOrderCount]);
+    }, [locale, clickNameOrder, clickDateOrder]);
 
     const userRequestsData = useMemo(
         () =>

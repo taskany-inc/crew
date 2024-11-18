@@ -21,14 +21,14 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
                     <TabsSwitch
                         tabsMenuOptions={[
                             {
-                                title: tr('Planned newcomers'),
-                                href: pages.userRequests,
-                                visible: !!sessionUser.role?.editUserCreationRequests || !!sessionUser.role?.createUser,
-                            },
-                            {
                                 title: tr('Access coordination'),
                                 href: pages.accessCoordination,
                                 visible: !!sessionUser.role?.editUserCreationRequests || !!sessionUser.role?.createUser,
+                            },
+                            {
+                                title: tr('Planned newcomers'),
+                                href: pages.userRequests,
+                                visible: !!sessionUser.role?.createUser,
                             },
                             {
                                 title: tr('Scheduled deactivations'),

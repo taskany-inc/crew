@@ -1,5 +1,6 @@
 .TableHeader {
     padding: var(--gap-s) var(--gap-sm);
+    width: fit-content;
 }
 
 .HeaderText {

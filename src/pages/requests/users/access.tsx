@@ -1,6 +1,6 @@
-import { AccessCoordinationList } from '../../components/AccessCoordinationList/AccessCoordinationList';
-import { pages } from '../../hooks/useRouter';
-import { createGetServerSideProps } from '../../utils/createGetSSRProps';
+import { AccessCoordinationList } from '../../../components/AccessCoordinationList/AccessCoordinationList';
+import { pages } from '../../../hooks/useRouter';
+import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
