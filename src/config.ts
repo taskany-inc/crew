@@ -29,7 +29,7 @@ export const config = {
         port: process.env.MAIL_PORT,
         authPass: process.env.MAIL_PASS,
         authUser: process.env.MAIL_USER,
-        enabled: process.env.MAIL_ENABLE,
+        enabled: Boolean(process.env.MAIL_USER && process.env.MAIL_PASS),
     },
     s3: {
         region: process.env.S3_REGION,
