@@ -1,0 +1,9 @@
+{
+    "Name": "ФИО",
+    "Email": "Эл. почта",
+    "Organization": "Организация",
+    "Supervisor": "Руководитель",
+    "Date": "Дата события",
+    "Actions": "Действия",
+    "Firing or transfer date": "Дата увольнения или перевода"
+}

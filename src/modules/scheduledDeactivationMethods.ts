@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import { Attach } from '@prisma/client';
+import { Attach, Prisma } from '@prisma/client';
 import { ICalCalendarMethod } from 'ical-generator';
 import fs from 'fs';
 import { Readable } from 'stream';
@@ -15,6 +15,7 @@ import {
     CreateScheduledDeactivation,
     EditScheduledDeactivation,
     CancelScheduledDeactivation,
+    GetScheduledDeactivationList,
 } from './scheduledDeactivationSchemas';
 import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
@@ -125,17 +126,27 @@ export const scheduledDeactivationMethods = {
         return scheduledDeactivation;
     },
 
-    getList: async (creatorId?: string) => {
+    getList: async ({ creatorId, orderBy: order }: GetScheduledDeactivationList) => {
+        let orderBy: Prisma.ScheduledDeactivationOrderByWithRelationAndSearchRelevanceInput[] = [];
+
+        if (order?.name) {
+            orderBy = [{ user: { name: order.name } }];
+        }
+
+        if (order?.deactivateDate) {
+            orderBy = [{ deactivateDate: order.deactivateDate }];
+        }
+
         return prisma.scheduledDeactivation.findMany({
             where: { creatorId, canceled: false },
             include: {
                 creator: true,
-                user: true,
+                user: { include: { supervisor: true } },
                 organizationUnit: true,
                 newOrganizationUnit: true,
                 attaches: { where: { deletedAt: null } },
             },
-            orderBy: { deactivateDate: 'desc' },
+            orderBy,
         });
     },
 
@@ -297,7 +308,7 @@ export const scheduledDeactivationMethods = {
     getById: async (id: string) => {
         const result = await prisma.scheduledDeactivation.findUnique({
             where: { id },
-            include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true },
+            include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true, attaches: true },
         });
 
         if (!result) {

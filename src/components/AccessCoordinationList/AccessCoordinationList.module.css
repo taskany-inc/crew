@@ -1,47 +1,7 @@
-.TableHeader {
-    padding: var(--gap-s) var(--gap-sm);
+.Table {
+    width: fit-content;
 }
 
-.HeaderText {
-    color: var(--text-secondary);
-}
-
-.ButtonActive {
-    background-color: var(--button-secondary-active);
-}
-
-.HeaderCell:not(:last-child)::after {
-    content: '';
-    height: 24px;
-    width: 1px;
-
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-
-    border-right: 1px solid var(--gray-900);
-}
-
-.HeaderCell:not(:last-child) {
-    padding-right: var(--gap-m);
-    position: relative;
-}
-
-.HeaderCellWithOrder {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-s);
-}
-
-.StatusText {
-    color: var(--status-in-progress)
-}
-
-.StatusTextApproved {
-    color: var(--status-finished)
-}
-
-.StatusTextDenied {
-    color: var(--status-failed)
+.TableRowLink {
+    display: contents;
 }

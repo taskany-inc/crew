@@ -1,74 +1,69 @@
-import { useMemo } from 'react';
-import { Dropdown, MenuItem } from '@taskany/bricks';
-import { ScheduledDeactivation } from '@prisma/client';
-import { IconMoreVerticalOutline } from '@taskany/icons';
-import styled from 'styled-components';
+import { useRef } from 'react';
+import { nullable } from '@taskany/bricks';
+import { Button, Tooltip } from '@taskany/bricks/harmony';
+import { IconDeniedOutline, IconEditOutline } from '@taskany/icons';
 
 import { useBoolean } from '../../hooks/useBoolean';
 import { CancelScheduleDeactivation } from '../CancelScheduleDeactivation/CancelScheduleDeactivation';
 import { ScheduleDeactivationForm } from '../ScheduleDeactivationForm/ScheduleDeactivationForm';
-import {
-    ScheduledDeactivationAttaches,
-    ScheduledDeactivationCreator,
-    ScheduledDeactivationNewOrganizationUnit,
-    ScheduledDeactivationOrganizationUnit,
-    ScheduledDeactivationUser,
-} from '../../modules/scheduledDeactivationTypes';
+import { trpc } from '../../trpc/trpcClient';
 
+import s from './ScheduledDeactivationEditMenu.module.css';
 import { tr } from './ScheduledDeactivationEditMenu.i18n';
 
 interface ScheduledDeactivationEditMenuProps {
-    scheduledDeactivation: ScheduledDeactivation &
-        ScheduledDeactivationCreator &
-        ScheduledDeactivationUser &
-        ScheduledDeactivationOrganizationUnit &
-        ScheduledDeactivationNewOrganizationUnit &
-        ScheduledDeactivationAttaches;
+    id: string;
 }
 
-const StyledIconMoreVerticalOutline = styled(IconMoreVerticalOutline)`
-    cursor: pointer;
-`;
-
-export const ScheduledDeactivationEditMenu = ({ scheduledDeactivation }: ScheduledDeactivationEditMenuProps) => {
+export const ScheduledDeactivationEditMenu = ({ id }: ScheduledDeactivationEditMenuProps) => {
+    const { data: scheduledDeactivation } = trpc.scheduledDeactivation.getById.useQuery(id);
     const editScheduledDeactivationVisible = useBoolean(false);
     const cancelScheduledDeactivationVisible = useBoolean(false);
 
-    const items = useMemo(
-        () => [
-            { name: tr('Edit scheduled deactivation'), action: () => editScheduledDeactivationVisible.setTrue() },
-            { name: tr('Cancel'), action: () => cancelScheduledDeactivationVisible.setTrue() },
-        ],
-        [],
-    );
+    const editRef = useRef(null);
+    const cancelRef = useRef(null);
 
     return (
         <>
-            <Dropdown
-                onChange={(v) => v.action()}
-                items={items}
-                renderTrigger={({ ref, onClick }) => (
-                    <StyledIconMoreVerticalOutline ref={ref} size="xs" onClick={onClick} />
-                )}
-                renderItem={({ item, cursor, index, onClick }) => (
-                    <MenuItem key={item.name} ghost focused={cursor === index} onClick={onClick}>
-                        {item.name}
-                    </MenuItem>
-                )}
-            />
+            <div className={s.MenuButtons}>
+                <Button
+                    ref={editRef}
+                    iconLeft={<IconEditOutline size="s" />}
+                    size="s"
+                    type="button"
+                    onClick={editScheduledDeactivationVisible.setTrue}
+                />
+                <Button
+                    ref={cancelRef}
+                    iconLeft={<IconDeniedOutline size="s" />}
+                    size="s"
+                    type="button"
+                    onClick={cancelScheduledDeactivationVisible.setTrue}
+                />
+            </div>
+            <Tooltip reference={cancelRef} placement="bottom" arrow={false}>
+                {tr('Cancel')}
+            </Tooltip>
+            <Tooltip reference={editRef} placement="bottom" arrow={false}>
+                {tr('Edit')}
+            </Tooltip>
 
-            <ScheduleDeactivationForm
-                userId={scheduledDeactivation.user.id}
-                visible={editScheduledDeactivationVisible.value}
-                scheduledDeactivation={scheduledDeactivation}
-                onClose={editScheduledDeactivationVisible.setFalse}
-            />
+            {nullable(scheduledDeactivation, (deactivation) => (
+                <>
+                    <ScheduleDeactivationForm
+                        userId={deactivation.user.id}
+                        visible={editScheduledDeactivationVisible.value}
+                        scheduledDeactivation={deactivation}
+                        onClose={editScheduledDeactivationVisible.setFalse}
+                    />
 
-            <CancelScheduleDeactivation
-                visible={cancelScheduledDeactivationVisible.value}
-                scheduledDeactivation={scheduledDeactivation}
-                onClose={cancelScheduledDeactivationVisible.setFalse}
-            />
+                    <CancelScheduleDeactivation
+                        visible={cancelScheduledDeactivationVisible.value}
+                        scheduledDeactivation={deactivation}
+                        onClose={cancelScheduledDeactivationVisible.setFalse}
+                    />
+                </>
+            ))}
         </>
     );
 };

@@ -1,42 +1,68 @@
-import { Button, Table, TableCell, TableRow, Text, Badge, Dot } from '@taskany/bricks/harmony';
-import { useMemo, useState } from 'react';
+import { Badge, Dot, getTableComponents, TableRow } from '@taskany/bricks/harmony';
+import { forwardRef, useState } from 'react';
 import cn from 'classnames';
-import { IconSortDownOutline, IconSortUpOutline } from '@taskany/icons';
+import { UserCreationRequestStatus } from 'prisma/prisma-client';
 
-import { TableListItem, TableListItemElement } from '../TableListItem/TableListItem';
 import { trpc } from '../../trpc/trpcClient';
-import { useLocale } from '../../hooks/useLocale';
-import { TableCellText } from '../TableCellText/TableCellText';
-import { useRouter } from '../../hooks/useRouter';
+import { pages, useRouter } from '../../hooks/useRouter';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './UserCreateRequestsPage.i18n';
 import s from './UserCreateRequestsPage.module.css';
 
-export const UserCreateRequestsPage = () => {
-    const locale = useLocale();
+interface tableData {
+    status: UserCreationRequestStatus | null;
+    name: string;
+    title?: string;
+    team?: string;
+    supervisor?: string;
+    author?: string;
+    coordinators: string;
+    recruiter?: string;
+    date?: string;
+    id: string;
+}
 
-    const [clickNameOrder, setClickNameOrder] = useState<'desc' | 'asc' | undefined>(undefined);
-    const [clickDateOrder, setClickDateOrder] = useState<'desc' | 'asc' | undefined>('desc');
+const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => {
+    return (
+        <a href={pages.internalUserRequest(props.item.id)} className={s.TableRowLink}>
+            <TableRow {...props} ref={ref} />
+        </a>
+    );
+});
+
+export const UserCreateRequestsPage = () => {
+    const sessionUser = useSessionUser();
+
+    const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
+
+    const [sorting, setSorting] = useState<React.ComponentProps<typeof DataTable>['sorting']>([
+        { key: 'date', dir: 'desc' },
+    ]);
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
         type: ['internalEmployee'],
         status: null,
-        orderBy: { name: clickNameOrder, date: clickDateOrder },
+        orderBy: {
+            name: sorting.find(({ key }) => key === 'name')?.dir,
+            date: sorting.find(({ key }) => key === 'date')?.dir,
+        },
     });
 
-    const onNameOrderClick = () => {
-        if (!clickNameOrder) setClickNameOrder('asc');
-        if (clickNameOrder === 'asc') setClickNameOrder('desc');
-        if (clickNameOrder === 'desc') setClickNameOrder(undefined);
-        setClickDateOrder(undefined);
-    };
-
-    const onDateOrderClick = () => {
-        clickDateOrder === 'desc' ? setClickDateOrder('asc') : setClickDateOrder('desc');
-        setClickNameOrder(undefined);
-    };
+    const data: tableData[] = userRequests.map((request) => ({
+        status: request.status,
+        name: request.name,
+        title: request.title || '',
+        team: request.group?.name || '',
+        supervisor: request.supervisor?.name || '',
+        author: request.creator?.name || '',
+        coordinators: request.coordinators.map(({ name }) => name).join(', '),
+        recruiter: request.recruiter?.name || '',
+        date: request.date?.toLocaleDateString(),
+        id: request.id,
+    }));
 
     const router = useRouter();
 
@@ -46,178 +72,93 @@ export const UserCreateRequestsPage = () => {
         return tr('Under concideration');
     };
 
-    const thead = useMemo(() => {
-        return [
-            { content: <Text className={s.HeaderText}>{tr('Status')}</Text>, width: 150 },
-            {
-                content: (
-                    <div className={s.HeaderCellWithOrder}>
-                        <Text className={s.HeaderText}>{tr('Name')}</Text>
-
-                        <Button
-                            iconLeft={
-                                clickNameOrder !== 'desc' ? (
-                                    <IconSortDownOutline size="s" />
-                                ) : (
-                                    <IconSortUpOutline size="s" />
-                                )
-                            }
-                            view="clear"
-                            className={cn({ [s.ButtonActive]: !!clickNameOrder })}
-                            onClick={onNameOrderClick}
-                            size="xs"
-                        />
-                    </div>
-                ),
-                width: 140,
-            },
-            { content: <Text className={s.HeaderText}>{tr('Role')}</Text>, width: 100 },
-            { content: <Text className={s.HeaderText}>{tr('Team')}</Text>, width: 100 },
-            { content: <Text className={s.HeaderText}>{tr('Supervisor')}</Text>, width: 100 },
-            { content: <Text className={s.HeaderText}>{tr('Author')}</Text>, width: 100 },
-            { content: <Text className={s.HeaderText}>{tr('Coordinator')}</Text>, width: 100 },
-            { content: <Text className={s.HeaderText}>{tr('Recruiter')}</Text>, width: 100 },
-            {
-                content: (
-                    <Text className={s.HeaderText}>
-                        <div className={s.HeaderCellWithOrder}>
-                            <Text className={s.HeaderText}>{tr('Start date')}</Text>
-
-                            <Button
-                                iconLeft={
-                                    clickDateOrder === 'asc' ? (
-                                        <IconSortUpOutline size="s" />
-                                    ) : (
-                                        <IconSortDownOutline size="s" />
-                                    )
-                                }
-                                view="clear"
-                                className={cn({ [s.ButtonActive]: !!clickDateOrder })}
-                                onClick={onDateOrderClick}
-                                size="xs"
-                            />
-                        </div>
-                    </Text>
-                ),
-                width: 100,
-            },
-            { content: <Text className={s.HeaderText}>{tr('Actions')}</Text>, width: 100 },
-        ];
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [locale, clickNameOrder, clickDateOrder]);
-
-    const userRequestsData = useMemo(
-        () =>
-            userRequests.map((request) => ({
-                request,
-                list: [
-                    {
-                        content: (
-                            <TableCellText
-                                text={
-                                    <Badge
-                                        ellipsis
-                                        className={cn(
-                                            s.StatusText,
-                                            { [s.StatusTextApproved]: request.status === 'Approved' },
-                                            { [s.StatusTextDenied]: request.status === 'Denied' },
-                                        )}
-                                        text={statusText(request.status)}
-                                        iconLeft={
-                                            <Dot
-                                                className={cn(
-                                                    s.StatusDot,
-                                                    { [s.StatusDotApproved]: request.status === 'Approved' },
-                                                    { [s.StatusDotDenied]: request.status === 'Denied' },
-                                                )}
-                                            />
-                                        }
-                                    />
-                                }
-                            />
-                        ),
-                        width: 150,
-                    },
-                    {
-                        content: <TableCellText twoLines text={request.name} />,
-                        width: 140,
-                    },
-                    {
-                        content: <TableCellText twoLines text={request.title} />,
-                        width: 100,
-                    },
-                    {
-                        content: <TableCellText twoLines text={request.group?.name || ''} />,
-                        width: 100,
-                    },
-                    {
-                        content: <TableCellText twoLines text={request.supervisor?.name || ''} />,
-                        width: 100,
-                    },
-                    {
-                        content: <TableCellText twoLines text={request.creator?.name || ''} />,
-                        width: 100,
-                    },
-                    {
-                        content: (
-                            <TableCellText
-                                twoLines
-                                text={request.coordinators.map(({ name, email }) => name || email).join(', ')}
-                            />
-                        ),
-                        width: 100,
-                    },
-                    {
-                        content: <TableCellText twoLines text={request.recruiter?.name || ''} />,
-                        width: 100,
-                    },
-                    {
-                        content: <TableCellText text={request.date?.toLocaleDateString() || ''} />,
-                        width: 100,
-                    },
-                    {
-                        content: (
-                            <div onClick={(e) => e.stopPropagation()}>
-                                <RequestFormActions
-                                    requestId={request.id}
-                                    small
-                                    onEdit={() => router.internalUserRequestEdit(request.id)}
-                                />
-                            </div>
-                        ),
-                    },
-                ],
-            })),
-        [userRequests],
-    );
-
     return (
         <ProfilesManagementLayout>
-            <Table>
-                <TableRow className={s.TableHeader}>
-                    {thead.map((th, index) => (
-                        <TableCell key={`header${index}`} width={th.width} className={s.HeaderCell}>
-                            {th.content}
-                        </TableCell>
-                    ))}
-                </TableRow>
-                {userRequestsData.map((row) => {
-                    return (
-                        <TableListItem
-                            key={row.request.id}
-                            onClick={() => {
-                                router.internalUserRequest(row.request.id);
-                            }}
-                        >
-                            {row.list.map((cell, index) => (
-                                <TableListItemElement key={`${row.request.id}-${index}`} width={cell.width}>
-                                    {cell.content}
-                                </TableListItemElement>
-                            ))}
-                        </TableListItem>
-                    );
-                })}
-            </Table>
+            <DataTable
+                data={data}
+                sorting={sorting}
+                onSort={(val) => setSorting([val])}
+                className={s.Table}
+                rowComponent={ClickableRow}
+            >
+                <DataTableColumn
+                    sortable={false}
+                    name="status"
+                    renderCell={({ status }) => (
+                        <Badge
+                            className={cn(
+                                s.StatusText,
+                                { [s.StatusTextApproved]: status === 'Approved' },
+                                { [s.StatusTextDenied]: status === 'Denied' },
+                            )}
+                            text={statusText(status)}
+                            iconLeft={
+                                <Dot
+                                    className={cn(
+                                        s.StatusDot,
+                                        { [s.StatusDotApproved]: status === 'Approved' },
+                                        { [s.StatusDotDenied]: status === 'Denied' },
+                                    )}
+                                />
+                            }
+                        />
+                    )}
+                    title={tr('Status')}
+                    width="180px"
+                    fixed
+                />
+                <DataTableColumn name="name" value="name" title={tr('Name')} width="9vw" fixed />
+                <DataTableColumn sortable={false} name="title" value="title" width="9vw" title={tr('Role')} />
+                <DataTableColumn name="team" width="9vw" value="team" title={tr('Team')} sortable={false} />
+                <DataTableColumn
+                    name="supervisor"
+                    width="9vw"
+                    value="supervisor"
+                    title={tr('Supervisor')}
+                    sortable={false}
+                />
+                <DataTableColumn name="author" width="9vw" value="author" title={tr('Author')} sortable={false} />
+                <DataTableColumn
+                    name="coordinators"
+                    width="9vw"
+                    value="coordinators"
+                    title={tr('Coordinator')}
+                    sortable={false}
+                />
+                <DataTableColumn
+                    name="recruiter"
+                    width="9vw"
+                    value="recruiter"
+                    title={tr('Recruiter')}
+                    sortable={false}
+                />
+                <DataTableColumn
+                    fixed="right"
+                    name="date"
+                    value="date"
+                    title={tr('Start date')}
+                    width="140px"
+                    lines={1}
+                />
+                <DataTableColumn
+                    sortable={false}
+                    fixed="right"
+                    name="actions"
+                    title={tr('Actions')}
+                    width={
+                        sessionUser.role?.createUser && sessionUser.role.editUserCreationRequests ? '180px' : '100px'
+                    }
+                    renderCell={({ id }) => (
+                        <div onClick={(e) => e.preventDefault()}>
+                            <RequestFormActions
+                                requestId={id}
+                                small
+                                onEdit={() => router.internalUserRequestEdit(id)}
+                            />
+                        </div>
+                    )}
+                />
+            </DataTable>
         </ProfilesManagementLayout>
     );
 };
