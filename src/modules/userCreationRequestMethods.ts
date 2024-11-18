@@ -802,18 +802,18 @@ export const userCreationRequestsMethods = {
             where.status = null;
         }
 
-        const orderBy: Prisma.UserCreationRequestOrderByWithRelationAndSearchRelevanceInput[] = [];
+        let orderBy: Prisma.UserCreationRequestOrderByWithRelationAndSearchRelevanceInput[] = [];
 
         if (data.orderBy?.name) {
-            orderBy.push({ name: data.orderBy?.name });
+            orderBy = [{ name: data.orderBy?.name }];
         }
 
         if (data.orderBy?.date) {
-            orderBy.push({ date: data.orderBy?.date });
+            orderBy = [{ date: data.orderBy?.date }];
         }
 
         if (data.orderBy?.createdAt) {
-            orderBy.push({ createdAt: data.orderBy?.createdAt });
+            orderBy = [{ createdAt: data.orderBy?.createdAt }];
         }
 
         const requests = await prisma.userCreationRequest.findMany({

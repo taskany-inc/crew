@@ -20,13 +20,13 @@ export const AccessCoordinationList = () => {
 
     const router = useRouter();
 
-    const [clickNameOrderCount, setClickNameOrderCount] = useState<'desc' | 'asc' | undefined>(undefined);
-    const [clickDateOrderCount, setClickDateOrderCount] = useState<'desc' | 'asc'>('desc');
+    const [clickNameOrder, setClickNameOrder] = useState<'desc' | 'asc' | undefined>(undefined);
+    const [clickCreatedAtOrder, setClickCreatedAtOrder] = useState<'desc' | 'asc' | undefined>('desc');
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
-        type: ['externalEmployee', 'externalFromMainOrgEmployee'],
+        type: ['externalEmployee', 'externalFromMainOrgEmployee', 'internalEmployee'],
         status: null,
-        orderBy: { name: clickNameOrderCount, createdAt: clickDateOrderCount },
+        orderBy: { name: clickNameOrder, createdAt: clickCreatedAtOrder },
     });
 
     const onEdit = (id: string, type: string) =>
@@ -37,13 +37,16 @@ export const AccessCoordinationList = () => {
     const onClick = (id: string, type: string) =>
         type === 'externalEmployee' ? router.externalUserRequest(id) : router.externalUserFromMainOrgRequest(id);
     const onNameOrderClick = () => {
-        if (!clickNameOrderCount) setClickNameOrderCount('asc');
-        if (clickNameOrderCount === 'asc') setClickNameOrderCount('desc');
-        if (clickNameOrderCount === 'desc') setClickNameOrderCount(undefined);
+        if (!clickNameOrder) setClickNameOrder('asc');
+        if (clickNameOrder === 'asc') setClickNameOrder('desc');
+        if (clickNameOrder === 'desc') setClickNameOrder(undefined);
+        setClickCreatedAtOrder(undefined);
     };
 
-    const onDateOrderClick = () =>
-        clickDateOrderCount === 'desc' ? setClickDateOrderCount('asc') : setClickDateOrderCount('desc');
+    const onDateOrderClick = () => {
+        clickCreatedAtOrder === 'desc' ? setClickCreatedAtOrder('asc') : setClickCreatedAtOrder('desc');
+        setClickNameOrder(undefined);
+    };
 
     const thead = useMemo(() => {
         return [
@@ -54,14 +57,14 @@ export const AccessCoordinationList = () => {
 
                         <Button
                             iconLeft={
-                                clickNameOrderCount !== 'desc' ? (
+                                clickNameOrder !== 'desc' ? (
                                     <IconSortDownOutline size="s" />
                                 ) : (
                                     <IconSortUpOutline size="s" />
                                 )
                             }
                             view="clear"
-                            className={cn({ [s.ButtonActive]: !!clickNameOrderCount })}
+                            className={cn({ [s.ButtonActive]: !!clickNameOrder })}
                             onClick={onNameOrderClick}
                             size="xs"
                         />
@@ -85,14 +88,14 @@ export const AccessCoordinationList = () => {
 
                             <Button
                                 iconLeft={
-                                    clickDateOrderCount === 'desc' ? (
-                                        <IconSortDownOutline size="s" />
-                                    ) : (
+                                    clickCreatedAtOrder === 'asc' ? (
                                         <IconSortUpOutline size="s" />
+                                    ) : (
+                                        <IconSortDownOutline size="s" />
                                     )
                                 }
                                 view="clear"
-                                className={cn({ [s.ButtonActive]: clickDateOrderCount === 'asc' })}
+                                className={cn({ [s.ButtonActive]: !!clickCreatedAtOrder })}
                                 onClick={onDateOrderClick}
                                 size="xs"
                             />
@@ -104,7 +107,7 @@ export const AccessCoordinationList = () => {
             { content: <Text className={s.HeaderText}>{tr('Actions')}</Text>, width: 100 },
         ];
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [locale, clickNameOrderCount, clickDateOrderCount]);
+    }, [locale, clickNameOrder, clickCreatedAtOrder]);
 
     const userRequestsData = useMemo(
         () =>

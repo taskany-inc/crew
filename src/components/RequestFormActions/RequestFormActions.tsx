@@ -2,7 +2,7 @@ import { Button, Tooltip } from '@taskany/bricks/harmony';
 import { nullable, useLatest } from '@taskany/bricks';
 import { useCallback, useRef, useState } from 'react';
 import { UserCreationRequestStatus } from 'prisma/prisma-client';
-import { IconEditOutline, IconTickOutline, IconXCircleOutline, IconXOutline } from '@taskany/icons';
+import { IconEditOutline, IconTickOutline, IconDeniedOutline, IconXOutline } from '@taskany/icons';
 import cn from 'classnames';
 
 import { WarningModal } from '../WarningModal/WarningModal';
@@ -153,7 +153,7 @@ export const RequestFormActions = ({ requestId, onDecide, requestStatus, small, 
                     <div ref={tooltipRef}>
                         <Button
                             ref={cancelRef}
-                            iconLeft={small && <IconXCircleOutline size="s" />}
+                            iconLeft={small && <IconDeniedOutline size="s" />}
                             size={small ? 's' : 'm'}
                             view={small ? 'default' : 'danger'}
                             type="button"
