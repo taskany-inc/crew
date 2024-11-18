@@ -84,3 +84,15 @@ export const cancelScheduledDeactivationSchema = z.object({
 });
 
 export type CancelScheduledDeactivation = z.infer<typeof cancelScheduledDeactivationSchema>;
+
+export const getScheduledDeactivationListSchema = z.object({
+    creatorId: z.string().optional(),
+    orderBy: z
+        .object({
+            deactivateDate: z.enum(['asc', 'desc']).optional(),
+            name: z.enum(['asc', 'desc']).optional(),
+        })
+        .optional(),
+});
+
+export type GetScheduledDeactivationList = z.infer<typeof getScheduledDeactivationListSchema>;

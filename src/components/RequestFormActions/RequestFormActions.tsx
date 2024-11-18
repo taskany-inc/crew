@@ -173,7 +173,7 @@ export const RequestFormActions = ({ requestId, onDecide, requestStatus, small, 
                                 {tr('Cancel request')}
                             </Tooltip>
                             <Tooltip reference={editRef} placement="bottom" arrow={false}>
-                                {tr('Edit Form')}
+                                {tr('Edit')}
                             </Tooltip>
                         </>
                     ))}

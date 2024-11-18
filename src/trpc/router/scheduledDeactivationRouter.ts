@@ -1,9 +1,12 @@
+import { z } from 'zod';
+
 import { protectedProcedure, router } from '../trpcBackend';
 import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 import {
     cancelScheduledDeactivationSchema,
     createScheduledDeactivationSchema,
     editScheduledDeactivationSchema,
+    getScheduledDeactivationListSchema,
 } from '../../modules/scheduledDeactivationSchemas';
 import { scheduledDeactivationMethods } from '../../modules/scheduledDeactivationMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
@@ -23,16 +26,24 @@ export const scheduledDeactivationRouter = router({
         });
         return result;
     }),
-    getList: protectedProcedure.query(({ ctx }) => {
+    getList: protectedProcedure.input(getScheduledDeactivationListSchema).query(({ ctx, input }) => {
         accessCheckAnyOf(
             checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'),
             checkRoleForAccess(ctx.session.user.role, 'viewScheduledDeactivation'),
         );
-        return scheduledDeactivationMethods.getList(
+        const creatorId =
             ctx.session.user.role?.editScheduledDeactivation && !ctx.session.user.role.viewScheduledDeactivation
                 ? ctx.session.user.id
-                : undefined,
+                : undefined;
+
+        return scheduledDeactivationMethods.getList({ ...input, creatorId });
+    }),
+    getById: protectedProcedure.input(z.string()).query(({ ctx, input }) => {
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'),
+            checkRoleForAccess(ctx.session.user.role, 'viewScheduledDeactivation'),
         );
+        return scheduledDeactivationMethods.getById(input);
     }),
     edit: protectedProcedure.input(editScheduledDeactivationSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'));
