@@ -1,45 +1,19 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { buffer } from 'node:stream/consumers';
 import readXlsxFile, { Row } from 'read-excel-file/node';
 import { Membership } from 'prisma/prisma-client';
 
 import { db } from '../utils/db';
+import { regexName } from '../utils/regex';
+import { dumpToJson } from '../utils/dump';
 
 import { Person, StructureNode, StructureParsingConfig } from './importSchemas';
 import { sendMail } from './nodemailer';
 import { userMethods } from './userMethods';
 import { groupRoleMethods } from './groupRoleMethods';
 import { groupMethods } from './groupMethods';
-
-const getTypeDescriptions = (v: unknown) => {
-    if (typeof v === 'string') return `string of length ${v.length}`;
-    if (typeof v === 'number') return 'number';
-    if (typeof v === 'bigint') return 'bigint';
-    if (typeof v === 'boolean') return 'boolean';
-    if (typeof v === 'symbol') throw new Error('Cannot serialize symbol');
-    if (typeof v === 'undefined') return 'undefined';
-    if (typeof v === 'object') {
-        if (v === null) {
-            return 'null';
-        }
-        if (Array.isArray(v)) {
-            return `array of length ${v.length}`;
-        }
-        return `object with ${Object.keys(v).length} keys`;
-    }
-    if (typeof v === 'function') throw new Error('Cannot serialize function');
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const dumpToJson = (filename: string, v: any) => {
-    console.log(`Saving to ${filename} - ${getTypeDescriptions(v)}`);
-    const dirname = path.dirname(fileURLToPath(import.meta.url));
-    fs.writeFileSync(`${dirname}/${filename}.json`, JSON.stringify(v, null, 2));
-};
 
 const getExcelData = async (fileStream: fs.ReadStream, config: StructureParsingConfig) => {
     const file = await buffer(fileStream);
@@ -186,7 +160,12 @@ const createFindUser = (addError: AddMessage) => {
             db
                 .selectFrom('User')
                 .leftJoin('UserNames', 'User.id', 'UserNames.userId')
-                .where((eb) => eb.or([eb('User.name', 'ilike', fullName), eb('UserNames.name', 'ilike', fullName)]))
+                .where((eb) =>
+                    eb.or([
+                        eb('User.name', '~*', regexName(fullName)),
+                        eb('UserNames.name', '~*', regexName(fullName)),
+                    ]),
+                )
                 .select(['User.id', 'User.name'])
                 .execute(),
         );
