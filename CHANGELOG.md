@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.91.0](https://github.com/taskany-inc/crew/compare/v0.90.0...v0.91.0) (2024-11-21)
+
+
+### Features
+
+* flag for mailer ([98328be](https://github.com/taskany-inc/crew/commit/98328bebd3731243327352d5838beaed9dc9e3ed))
+
+
+### Bug Fixes
+
+* **INTERNAL-1362:** correct tables for newcommers and access coordination ([192eb66](https://github.com/taskany-inc/crew/commit/192eb66da93d31bd0acbe2450a8be53365a7c8b4))
+* **ParseTeamStructurePage:** callback with filtered value ([f3da9f6](https://github.com/taskany-inc/crew/commit/f3da9f6576f2dfb7080c65df26bc300dd43a2e53))
+* supplemental position creation ([91cc6f4](https://github.com/taskany-inc/crew/commit/91cc6f40b14e4e2180b1f8337cd42f3dcb080b0e))
+
 ## [0.90.0](https://github.com/taskany-inc/crew/compare/v0.89.0...v0.90.0) (2024-11-15)
 
 
