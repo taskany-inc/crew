@@ -13,6 +13,7 @@ export const getServerSideProps = createGetServerSideProps({
         }
         try {
             const user = await ssg.user.getById.fetch(stringIds.userId);
+            await ssg.device.getUserDevices.fetch(stringIds.userId);
 
             const active = user.supplementalPositions.find((p) => p.status === 'ACTIVE');
 

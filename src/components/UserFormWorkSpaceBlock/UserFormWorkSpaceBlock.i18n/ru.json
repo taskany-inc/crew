@@ -1,6 +1,6 @@
 {
     "Work space": "Рабочее место",
-    "Equipment": "Требуемое оборудование",
+    "Equipment": "Оборудование",
     "Write equipment list": "Введите список оборудования",
     "Extra equipment": "Дополнительное оборудование",
     "Work space application": "Заявка на организацию рабочего места",
@@ -11,5 +11,7 @@
     "Required field": "Нужно обязательно заполнить",
     "Work mode comment": "Комментарий к режиму работы",
     "Write work mode comment": "Введите комментарий",
-    "Not specified": "Не указано"
+    "Not specified": "Не указано",
+    "Required euipment": "Требуемое оборудование",
+    "Test devices": "Устройства для тестирования"
 }
