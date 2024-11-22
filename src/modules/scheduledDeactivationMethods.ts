@@ -1,8 +1,6 @@
 import { TRPCError } from '@trpc/server';
-import { Attach, Prisma } from '@prisma/client';
 import { ICalCalendarMethod } from 'ical-generator';
-import fs from 'fs';
-import { Readable } from 'stream';
+import { Prisma } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
@@ -17,24 +15,9 @@ import {
     CancelScheduledDeactivation,
     GetScheduledDeactivationList,
 } from './scheduledDeactivationSchemas';
-import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
+import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import { userMethods } from './userMethods';
-import { getObject } from './s3Methods';
-
-const TEMP_DIR = '/tmp/';
-
-const nodemailerAttachments = async (attaches: Attach[]) =>
-    // eslint-disable-next-line no-return-await
-    await Promise.all(
-        attaches.map(async (attach) => {
-            const tempFilePath = TEMP_DIR + attach.filename;
-            const { Body } = await getObject(attach.link);
-            Body instanceof Readable && Body.pipe(fs.createWriteStream(tempFilePath));
-
-            return { path: tempFilePath, filename: attach.filename };
-        }),
-    );
 
 export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {

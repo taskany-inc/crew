@@ -83,7 +83,7 @@ export const RequestFormActions = ({
 
     return (
         <div className={s.FormActions}>
-            {nullable(session.role?.editUserCreationRequests, () => (
+            {nullable(session.role?.editUserCreationRequests && requestType !== 'decree', () => (
                 <div
                     className={cn(s.FormActions, {
                         [s.Separator]: small && session.role?.editUserCreationRequests && session.role?.createUser,
@@ -112,6 +112,7 @@ export const RequestFormActions = ({
                         onClick={acceptWarningVisible.setTrue}
                         disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
                     />
+
                     {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
                         <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
                             {tooltipText}

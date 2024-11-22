@@ -48,5 +48,9 @@
     "Cancelling planned newcomer {userName} to {organization}": "Отмена выхода нового сотрудника {userName} в {organization}",
     "Comment": "Комментарий",
     "Line manager": "Линейный руководитель",
-    "Personal mail": "Личная почта"
+    "Personal mail": "Личная почта",
+    "Name": "ФИО",
+    "Corporate Email": "Корпоративная почта",
+    "Screenshot": "Скриншот",
+    "In attachment": "Во вложении"
 }

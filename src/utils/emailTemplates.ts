@@ -340,3 +340,175 @@ export const htmlUserCreationRequestWithDate = (data: {
             </body>
             `;
 };
+
+export const htmlToDecreeRequest = (
+    data: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
+        buddy: User | null;
+    } & {
+        recruiter: User | null;
+    } & {
+        coordinators: User[] | null;
+    } & {
+        organization: OrganizationUnit;
+    } & {
+        lineManagers: User[] | null;
+    },
+) => {
+    return `
+            <head>
+              <style>
+                table { border-collapse: collapse; }
+                th { text-align: left; }
+              </style>
+            </head>        
+            <body>
+                ${tr('Hello colleagues!')}<br/>
+                <br/>
+                ${tr('Details below.')}<br/>
+                ${tr('The meeting is for informational purposes only.')}<br/>
+
+                <table border='1' cellpadding='8'>
+                    <tr>
+                        <th>${tr('Date')}</th>
+                        <td>${data.date ? formatDate(data.date, defaultLocale) : ''}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Name')}</th>
+                        <td>${data.name}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Location')}</th>
+                        <td>${data.location}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Unit')}</th>
+                        <td>${data.unitId}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Role')}</th>
+                        <td>${data.title}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Corporate Email')}</th>
+                        <td>${data.corporateEmail}</td>
+                    </tr>
+
+                    <tr>
+                        <th>${tr('Teamlead')}</th>
+                        <td>${data.supervisor?.name ?? ''}</td>
+                    </tr>
+
+                    <tr>
+                        <th>${tr('Work mode')}</th>
+                        <td>${data.workMode}</td>
+                    </tr>
+
+                    <tr>
+                        <th>${tr('Equipment')}</th>
+                        <td>${data.equipment}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Extra equipment')}</th>
+                        <td>${data.extraEquipment || ''}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Screenshot')}</th>
+                        <td>${tr('In attachment')}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Comments')}</th>
+                        <td>${data.comment || ''}</td>
+                    </tr>
+                </table>
+                ${tr('Sincerely,')}<br/>HR-team!
+            </body>
+    `;
+};
+
+export const htmlFromDecreeRequest = (
+    data: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
+        buddy: User | null;
+    } & {
+        recruiter: User | null;
+    } & {
+        coordinators: User[] | null;
+    } & {
+        organization: OrganizationUnit;
+    } & {
+        lineManagers: User[] | null;
+    },
+) => {
+    return `
+            <head>
+              <style>
+                table { border-collapse: collapse; }
+                th { text-align: left; }
+              </style>
+            </head>        
+            <body>
+                ${tr('Hello colleagues!')}<br/>
+                <br/>
+                ${tr('Details below.')}<br/>
+                ${tr('The meeting is for informational purposes only.')}<br/>
+
+                <table border='1' cellpadding='8'>
+                    <tr>
+                        <th>${tr('Date')}</th>
+                        <td>${data.date ? formatDate(data.date, defaultLocale) : ''}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Name')}</th>
+                        <td>${data.name}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Location')}</th>
+                        <td>${data.location}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Unit')}</th>
+                        <td>${data.unitId}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Role')}</th>
+                        <td>${data.title}</td>
+                    </tr>
+
+                    <tr>
+                        <th>${tr('Teamlead')}</th>
+                        <td>${data.supervisor?.name ?? ''}</td>
+                    </tr>
+
+                    ${
+                        data.coordinators && data.coordinators.length
+                            ? data.coordinators.map(
+                                  (c) => `
+                            <tr>
+                                <th>${tr('Coordinator')}</th>
+                                <td>${c.name}</td>
+                            </tr>`,
+                              )
+                            : ''
+                    }
+
+                    <tr>
+                        <th>${tr('Work mode')}</th>
+                        <td>${data.workMode}</td>
+                    </tr>
+
+                    <tr>
+                        <th>${tr('Equipment')}</th>
+                        <td>${data.equipment}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Extra equipment')}</th>
+                        <td>${data.extraEquipment || ''}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Comments')}</th>
+                        <td>${data.comment || ''}</td>
+                    </tr>
+                </table>
+                ${tr('Sincerely,')}<br/>HR-team!
+            </body>
+    `;
+};

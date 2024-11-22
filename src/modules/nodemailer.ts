@@ -1,8 +1,13 @@
 import ical, { ICalAttendeeStatus, ICalCalendarMethod, ICalEventData, ICalEventStatus } from 'ical-generator';
 import nodemailer from 'nodemailer';
+import { Attach } from 'prisma/prisma-client';
+import { Readable } from 'stream';
+import fs from 'fs';
 
 import { config } from '../config';
 import { minuteInMiliSeconds } from '../utils/dateTime';
+
+import { getObject } from './s3Methods';
 
 export const transporter = nodemailer.createTransport({
     host: config.nodemailer.host,
@@ -39,6 +44,20 @@ export const sendMail = (body: MessageBody) => {
 
     return transporter.sendMail(message(body));
 };
+
+const TEMP_DIR = '/tmp/';
+
+export const nodemailerAttachments = async (attaches: Attach[]) =>
+    // eslint-disable-next-line no-return-await
+    await Promise.all(
+        attaches.map(async (attach) => {
+            const tempFilePath = TEMP_DIR + attach.filename;
+            const { Body } = await getObject(attach.link);
+            Body instanceof Readable && Body.pipe(fs.createWriteStream(tempFilePath));
+
+            return { path: tempFilePath, filename: attach.filename };
+        }),
+    );
 
 interface CalendarEventData {
     method: ICalCalendarMethod;

@@ -1,10 +1,7 @@
 {
     "Name": "ФИО",
     "Supervisor": "Руководитель",
-    "Status": "Статус",
     "Under concideration": "На согласовании",
-    "Approved": "Одобрено",
-    "Denied": "Отколнено",
     "Role": "Роль",
     "Team": "Команда",
     "Author": "Автор запроса",
