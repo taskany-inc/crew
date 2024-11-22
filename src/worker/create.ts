@@ -47,7 +47,7 @@ export async function createJob<K extends keyof JobDataMap>(
         .returningAll()
         .executeTakeFirstOrThrow();
 
-    if (kind === 'createProfile') {
+    if (kind === 'createProfile' || kind === 'resolveDecree') {
         const { userCreationRequestId } = data as JobDataMap['createProfile'];
         await db
             .updateTable('UserCreationRequest')

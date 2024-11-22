@@ -7,6 +7,8 @@ import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import {
     cancelUserCreationMailText,
+    htmlFromDecreeRequest,
+    htmlToDecreeRequest,
     htmlUserCreationRequestWithDate,
     userCreationMailText,
 } from '../utils/emailTemplates';
@@ -17,7 +19,7 @@ import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
 
 import { userMethods } from './userMethods';
-import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
+import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import {
     CreateUserCreationRequest,
@@ -369,9 +371,15 @@ export const userCreationRequestsMethods = {
             }
         }
 
-        // TODO: send mail with information
+        const buddy = data.buddyId
+            ? await prisma.user.findUnique({ where: { id: data.buddyId ?? undefined } })
+            : undefined;
 
-        await prisma.userCreationRequest.create({
+        const supervisor = data.supervisorId
+            ? await prisma.user.findUnique({ where: { id: data.supervisorId ?? undefined } })
+            : undefined;
+
+        const request = await prisma.userCreationRequest.create({
             data: {
                 type: data.type,
                 name: currentUser.name ?? '',
@@ -381,23 +389,76 @@ export const userCreationRequestsMethods = {
                 login: data.login,
                 organizationUnitId: data.organizationUnitId,
                 groupId: data.groupId || undefined,
-                // supervisorLogin: supervisor?.login,
-                // supervisorId: data.supervisorId || undefined,
+                supervisorLogin: supervisor?.login,
+                supervisorId: data.supervisorId || undefined,
+                buddyLogin: buddy?.login || undefined,
+                buddyId: buddy?.id || undefined,
+                coordinators: { connect: data.coordinatorIds?.map((id) => ({ id })) },
                 title: data.title || undefined,
                 corporateEmail: data.corporateEmail || undefined,
-                osPreference: data.osPreference || undefined,
                 createExternalAccount: Boolean(data.createExternalAccount),
                 services: {},
+                workMode: data.workMode,
+                workModeComment: data.workModeComment,
+                equipment: data.equipment,
+                extraEquipment: data.extraEquipment,
+                workSpace: data.workSpace,
+                location: data.location,
                 date: data.date,
                 comment: data.comment || undefined,
                 workEmail: data.workEmail || undefined,
                 personalEmail: data.personalEmail || undefined,
+                lineManagers: data.lineManagerIds?.length
+                    ? { connect: data.lineManagerIds?.map((id) => ({ id })) }
+                    : undefined,
                 attaches: data.attachIds?.length ? { connect: data.attachIds.map((id) => ({ id })) } : undefined,
                 supplementalPositions: {
                     create: supplementalPositions,
                 },
             },
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+                buddy: true,
+                coordinators: true,
+                recruiter: true,
+                creator: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
+                attaches: true,
+            },
         });
+
+        if (request.date) {
+            await createJob('resolveDecree', {
+                data: { userCreationRequestId: request.id },
+                date: request.date,
+            });
+        }
+
+        const html = data.type === 'fromDecree' ? htmlFromDecreeRequest(request) : htmlToDecreeRequest(request);
+
+        const { to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest', data.organizationUnitId, [
+            sessionUserId,
+        ]);
+
+        const attachments = await nodemailerAttachments(request.attaches);
+
+        const subject = `${data.type === 'fromDecree' ? tr('From decree') : tr('To decree')} ${
+            request.name
+        } ${getOrgUnitTitle(request.organization)} ${data.phone}`;
+
+        sendMail({
+            to: mailTo,
+            subject,
+            html,
+            attachments,
+        });
+
+        return request;
     },
 
     getById: async (id: string) => {
@@ -929,15 +990,11 @@ export const userCreationRequestsMethods = {
         }
 
         if (data.status !== undefined) {
-            where.status = null;
+            where.status = data.status;
         }
 
         if (data.search) {
             where.name = { contains: data.search, mode: 'insensitive' };
-        }
-
-        if (data.active) {
-            where.status = null;
         }
 
         let orderBy: Prisma.UserCreationRequestOrderByWithRelationAndSearchRelevanceInput[] = [];

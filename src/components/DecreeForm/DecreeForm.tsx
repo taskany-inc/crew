@@ -24,12 +24,17 @@ import { UserFormPersonalDataBlock } from '../UserFormPersonalDataBlock/UserForm
 import { userDecreeSchema, UserDecreeSchema } from '../../modules/userCreationRequestSchemas';
 import { percentageMultiply } from '../../utils/suplementPosition';
 import { UserFormFormActions } from '../UserFormFormActions/UserFormFormActions';
+import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
 import { NavMenu } from '../NavMenu/NavMenu';
 import { useSpyNav } from '../../hooks/useSpyNav';
 import { UserFormRegistrationBlock } from '../UserFormRegistrationBlock/UserFormRegistrationBlock';
+import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
+import { UserFormWorkSpaceBlock } from '../UserFormWorkSpaceBlock/UserFormWorkSpaceBlock';
+import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
+import { trpc } from '../../trpc/trpcClient';
 
-import s from './DecreeForm.module.css';
 import { tr } from './DecreeForm.i18n';
+import s from './DecreeForm.module.css';
 
 interface DecreeFormProps {
     user: NonNullable<
@@ -66,20 +71,17 @@ const personalInfoReadOnly: ComponentProps<typeof UserFormPersonalDataBlock>['re
 };
 
 export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
+    const { data: devices = [] } = trpc.device.getUserDevices.useQuery(user.id);
+
     const router = useRouter();
 
     const [positions, organizationUnits] = useMemo(() => {
-        const positions = user.supplementalPositions.filter((p) => {
-            if (type === 'toDecree') {
-                return p.status === 'ACTIVE';
-            }
-            return p.status !== 'ACTIVE';
-        });
+        const { positions } = getLastSupplementalPositions(user.supplementalPositions);
 
         const organizationUnits = positions.map((p) => p.organizationUnit);
 
         return [positions, organizationUnits];
-    }, [user, type]);
+    }, [user]);
 
     const role = positions[0]?.role ?? '';
 
@@ -106,21 +108,26 @@ export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
             },
         );
 
+        const group = user?.memberships.find((m) => m.group.organizational)?.group;
+
         return {
             type,
             userTargetId: user.id,
+            supervisorId: user.supervisorId ?? '',
             surname,
             firstName,
             middleName,
             phone,
             personalEmail,
+            groupId: group?.id,
             percentage: 1,
             login: user.login ?? '',
             title: role,
             workEmail: user.email ?? '',
+            equipment: devices.reduce((a, d) => (d.active ? `${a}${a.length > 0 ? ', ' : ''}${d.deviceName}` : a), ''),
             email: user.email,
         };
-    }, [user, role, type]);
+    }, [user, role, type, devices]);
 
     const methods = useForm<UserDecreeSchema>({
         resolver: zodResolver(userDecreeSchema),
@@ -233,6 +240,17 @@ export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
                             id="registration"
                             type={type}
                         />
+
+                        <UserFormTeamBlock className={s.FormBlock} id="team" type="internal" />
+
+                        <UserFormWorkSpaceBlock
+                            id="work-space"
+                            className={s.FormBlock}
+                            type={type === 'toDecree' ? 'dismissal' : 'employment'}
+                            readOnly={false}
+                        />
+
+                        <UserFormCommentsBlock id="comments" className={s.FormBlock} />
                     </div>
 
                     <NavMenu
@@ -246,6 +264,18 @@ export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
                             {
                                 title: tr('Registration'),
                                 id: 'registration',
+                            },
+                            {
+                                title: tr('Team'),
+                                id: 'team',
+                            },
+                            {
+                                title: tr('Work space'),
+                                id: 'work-space',
+                            },
+                            {
+                                title: tr('Comments'),
+                                id: 'comments',
                             },
                         ]}
                     />

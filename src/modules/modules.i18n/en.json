@@ -87,5 +87,7 @@
     "Please enter percentage from 0.01 to 1": "",
     "Login should contain only lowercase letters and digits": "",
     "See in Crew:": "",
-    "Supervisor ID is required": ""
+    "Supervisor ID is required": "",
+    "From decree": "",
+    "To decree": ""
 }
