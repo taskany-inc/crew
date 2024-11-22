@@ -310,7 +310,6 @@ export type userCoordinators = {
 export type UserCreationRequest = {
     id: Generated<string>;
     type: string | null;
-    existedUserId: string | null;
     creatorId: string | null;
     name: string;
     email: string;

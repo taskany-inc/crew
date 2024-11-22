@@ -9,6 +9,7 @@ import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
+import { getLastSupplementalPositions } from '../utils/supplementalPositions';
 
 import {
     MembershipInfo,
@@ -476,34 +477,12 @@ export const userMethods = {
                 },
             });
         } else {
-            const { ids } = positions.reduce<{ ids: string[]; endDate: Date | null }>(
-                (acum, position) => {
-                    const lastEndDate = acum.endDate?.valueOf() || 0;
-                    const currentEndDate = position.workEndDate?.valueOf() || 0;
-
-                    if (position.status !== 'ACTIVE') {
-                        if (lastEndDate < currentEndDate) {
-                            acum.endDate = position.workEndDate;
-                            acum.ids = [position.id];
-                        }
-
-                        if (lastEndDate === currentEndDate) {
-                            acum.ids.push(position.id);
-                        }
-                    }
-
-                    return acum;
-                },
-                {
-                    ids: [],
-                    endDate: null,
-                },
-            );
+            const { positions: selectedPosition } = getLastSupplementalPositions(positions);
 
             await prisma.supplementalPosition.updateMany({
                 where: {
                     id: {
-                        in: ids,
+                        in: selectedPosition.map((p) => p.id),
                     },
                 },
                 data: {
@@ -790,18 +769,54 @@ export const userMethods = {
             );
         }
 
+        const userData: Prisma.UserUpdateInput = {};
+
         if (request.type === 'fromDecree') {
+            userData.supplementalPositions = {
+                connect: request.supplementalPositions.map(({ id }) => ({
+                    id,
+                })),
+            };
+        }
+
+        if (currentUser.supervisorId !== request.supervisorId) {
+            userData.supervisor = {};
+
+            if (request.supervisorId) {
+                userData.supervisor.connect = { id: request.supervisorId };
+            }
+            if (currentUser.supervisorId) {
+                userData.supervisor.disconnect = { id: currentUser.supervisorId };
+            }
+        }
+
+        const currentOrgGroup = currentUser.memberships.find((m) => m.group.organizational);
+
+        if (currentOrgGroup?.group.id !== request.groupId) {
+            userData.memberships = {};
+
+            if (currentOrgGroup?.id) {
+                await prisma.membership.update({
+                    where: {
+                        id: currentOrgGroup.id,
+                    },
+                    data: {
+                        archived: true,
+                    },
+                });
+            }
+
+            if (request.groupId) {
+                userData.memberships.create = { groupId: request.groupId };
+            }
+        }
+
+        if (Object.keys(userData)) {
             await prisma.user.update({
                 where: {
                     id: currentUser.id,
                 },
-                data: {
-                    supplementalPositions: {
-                        connect: request.supplementalPositions.map(({ id }) => ({
-                            id,
-                        })),
-                    },
-                },
+                data: userData,
             });
         }
 

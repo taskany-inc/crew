@@ -163,12 +163,21 @@ const getBaseDecreeSchema = () =>
     getCreateUserCreationRequestBaseSchema()
         .omit({
             osPreference: true,
-            supervisorId: true,
         })
         .extend({
             userTargetId: z.string(),
-            osPreference: z.string().optional(),
-            supervisorId: z.string().optional(),
+            coordinatorIds: z.array(z.string()).optional(),
+            buddyId: z.string().optional(),
+            workMode: z
+                .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+                .min(1, { message: tr('Required field') }),
+            workModeComment: z.string().optional(),
+            equipment: z
+                .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+                .min(1, { message: tr('Required field') }),
+            extraEquipment: z.string().optional(),
+            location: z.string().min(1, { message: tr('Required field') }),
+            workSpace: z.string().optional(),
         });
 
 export const getUserToDecreeSchema = () =>

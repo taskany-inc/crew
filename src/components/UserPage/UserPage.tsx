@@ -47,6 +47,7 @@ import { useLocale } from '../../hooks/useLocale';
 import { formatDate } from '../../utils/dateTime';
 import { supplementPositionListToString } from '../../utils/suplementPosition';
 import { getActiveScheduledDeactivation } from '../../utils/getActiveScheduledDeactivation';
+import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
 
 import { tr } from './UserPage.i18n';
 
@@ -137,6 +138,8 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
             { main: null, supplemental: [] },
         );
 
+        const { positions } = getLastSupplementalPositions(supplemental);
+
         const headerNodes: string[] = [];
 
         if (main?.organizationUnit) {
@@ -149,7 +152,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
 
         return {
             orgUnitAndRole: headerNodes.join(': '),
-            supplemental,
+            supplemental: positions,
             main,
         };
     }, [user.supplementalPositions, orgRoles]);

@@ -87,5 +87,7 @@
     "Please enter percentage from 0.01 to 1": "Укажите значение от 0,01 до 1",
     "Login should contain only lowercase letters and digits": "Логин может содержать только латинские буквы в нижнем регистре и цифры",
     "See in Crew:": "Посмотреть в Crew:",
-    "Supervisor ID is required": "ID функционального руководителя обязателен"
+    "Supervisor ID is required": "ID функционального руководителя обязателен",
+    "From decree": "Выход из декрета",
+    "To decree": "Декрет"
 }
