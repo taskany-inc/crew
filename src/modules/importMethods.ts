@@ -27,6 +27,7 @@ const getExcelData = async (fileStream: fs.ReadStream, config: StructureParsingC
         personnelNumber: getColumnName(config.personnelNumber),
         role: getColumnName(config.role),
         percent: getColumnName(config.percent),
+        source: getColumnName(config.source),
         groups: config.groups.map((g) => ({
             name: getColumnName(g.name),
             lead: getColumnName(g.lead),
@@ -35,11 +36,14 @@ const getExcelData = async (fileStream: fs.ReadStream, config: StructureParsingC
     return { rows: data.slice(1), columnNames };
 };
 
+const skipList = ['0', '-'];
+
 const getStringCellValue = (row: Row, n?: number) => {
     if (n === undefined) return;
     const cell = row[n];
     if (typeof cell === 'string') {
         const trimmed = cell.trim();
+        if (skipList.includes(trimmed)) return;
         if (trimmed) return trimmed;
     }
 };
@@ -47,7 +51,7 @@ const getNumberCellValue = (row: Row, n?: number) => {
     if (n === undefined) return;
     const cell = row[n];
     if (typeof cell === 'number') return cell;
-    if (typeof cell === 'string' && /^\d$/.test(cell)) return Number(cell);
+    if (typeof cell === 'string' && /^\d+$/.test(cell)) return Number(cell);
 };
 
 type AddMessage = (message: string) => void;
@@ -72,6 +76,7 @@ const getRowData = (row: Row, config: StructureParsingConfig, addError: AddMessa
         personelNumber: getStringCellValue(row, config.personnelNumber),
         role: getStringCellValue(row, config.role),
         percent: getNumberCellValue(row, config.percent),
+        source: getStringCellValue(row, config.source),
         groups,
     };
 };
@@ -201,8 +206,6 @@ export const importMethods = {
             const rowData = getRowData(row, config, addError);
 
             if (!rowData) continue;
-
-            const skipList = ['0'];
 
             const groups = await Promise.all(
                 rowData.groups
