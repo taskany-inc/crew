@@ -7,6 +7,7 @@ export const structureParsingConfigSchema = z.object({
     personnelNumber: z.number().optional(),
     role: z.number().optional(),
     percent: z.number().optional(),
+    source: z.number().optional(),
     groups: z.array(
         z.object({
             name: z.number(),

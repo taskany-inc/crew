@@ -20,5 +20,6 @@
     "Add group": "Добавить группу",
     "Choose column": "Выберите колонку",
     "Parsed data will be sent to your email": "Обработанная структура будет отправлена на вашу почту",
-    "Upload": "Загрузить"
+    "Upload": "Загрузить",
+    "Source": "Источник ПШЕ"
 }

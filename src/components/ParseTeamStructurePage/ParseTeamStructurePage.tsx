@@ -204,6 +204,12 @@ const Configurator = ({ columns, file, sheet }: { columns: string[]; file: File;
                 onSelect={(n) => setConfig((c) => ({ ...c, percent: n }))}
                 patterns={['загрузка']}
             />
+            <ColumnSelect
+                label={tr('Source')}
+                columns={columns}
+                onSelect={(n) => setConfig((c) => ({ ...c, source: n }))}
+                patterns={['источник']}
+            />
             {Array.from({ length: groupCount }).map((v, i) => (
                 <FormControl key={i} label={`${tr('Group')} ${i + 1}`}>
                     <div className={s.ParseTeamStructurePageGroupSelects}>
