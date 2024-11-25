@@ -29,13 +29,12 @@ export const AccessCoordinationList = () => {
         orderBy: { name: clickNameOrder, createdAt: clickCreatedAtOrder },
     });
 
-    const onEdit = (id: string, type: string) =>
-        type === 'externalEmployee'
-            ? router.externalUserRequestEdit(id)
-            : router.externalUserFromMainOrgRequestEdit(id);
+    const onClick = (id: string, type: string) => {
+        if (type === 'externalEmployee') return router.externalUserRequest(id);
+        if (type === 'externalFromMainOrgEmployee') return router.externalUserFromMainOrgRequest(id);
+        if (type === 'internalEmployee') return router.internalUserRequest(id);
+    };
 
-    const onClick = (id: string, type: string) =>
-        type === 'externalEmployee' ? router.externalUserRequest(id) : router.externalUserFromMainOrgRequest(id);
     const onNameOrderClick = () => {
         if (!clickNameOrder) setClickNameOrder('asc');
         if (clickNameOrder === 'asc') setClickNameOrder('desc');
@@ -46,6 +45,12 @@ export const AccessCoordinationList = () => {
     const onDateOrderClick = () => {
         clickCreatedAtOrder === 'desc' ? setClickCreatedAtOrder('asc') : setClickCreatedAtOrder('desc');
         setClickNameOrder(undefined);
+    };
+
+    const onEdit = (id: string, type: string) => {
+        if (type === 'externalEmployee') return router.externalUserRequestEdit(id);
+        if (type === 'externalFromMainOrgEmployee') return router.externalUserFromMainOrgRequestEdit(id);
+        if (type === 'internalEmployee') return router.internalUserRequestEdit(id);
     };
 
     const thead = useMemo(() => {
