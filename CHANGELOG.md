@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.92.0](https://github.com/taskany-inc/crew/compare/v0.91.0...v0.92.0) (2024-11-25)
+
+
+### Features
+
+* **parsing methods:** regex name search ([b69fafe](https://github.com/taskany-inc/crew/commit/b69fafe2dd47f6cb99912ff2b41cd52a0fe9b3e2))
+
+
+### Bug Fixes
+
+* **AccessCoordinationList:** correct links ([7c23400](https://github.com/taskany-inc/crew/commit/7c23400f58598a6f01d69623757dc7772157999f))
+
 ## [0.91.0](https://github.com/taskany-inc/crew/compare/v0.90.0...v0.91.0) (2024-11-21)
 
 
