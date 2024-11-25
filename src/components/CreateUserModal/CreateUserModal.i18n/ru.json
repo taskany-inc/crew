@@ -1,13 +1,13 @@
 {
     "Which request you want to create?": "Какую заявку хотите создать?",
-    "Create a planned newcommer": "Плановый выход сотрудника SD",
-    "Informing about the departure of a new employee": "Информирование о выходе нового сотрудника SD",
+    "Create a planned newcommer": "Запланировать выход нового сотрудника SD",
+    "Informing about the departure of a new employee": "В том числе перевод из другого юр.лица",
     "Cancel": "Отмена",
     "Create": "Создать",
-    "Create access to employee from {mainOrgName} (external)": "Доступ сотрудникам {mainOrgName} (внешние)",
-    "external from main description {mainOrgName}": "Создание учетной записи для доступа во внутренние ресурсы SD для сотрудника соседнего подразделения {mainOrgName}",
-    "Access to external employees": "Доступ внешним сотрудникам",
-    "external  description": "Создание учетной записи для доступа во внутренние ресурсы SD для сотрудника внешней организации",
-    "Access employee": "Доступ сотрудникам SD",
-    "existing  description": "Создание учетной записи для доступа во внутренние ресурсы SD для внутреннего сотрудника SD"
+    "Create access to employee from {mainOrgName} (external)": "Создать Cloud УЗ для внешнего сотрудника из {mainOrgName}",
+    "external from main description {mainOrgName}": "Создание учетной записи для сотрудников смежных подразделений {mainOrgName} (Архитектура, маркетинг, ЕРКЦ)",
+    "Access to external employees {mainOrgName}": "Создать Cloud УЗ для внешнего сотрудника не из {mainOrgName}",
+    "external  description": "Создание учетной записи для сотрудника внешней организации (Аутстафф, внешние партнёры)",
+    "Access employee": "Создать Cloud УЗ сотруднику SD",
+    "existing  description": "Создание учетной записи сотруднику SD"
 }

@@ -37,6 +37,11 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
             page: 'newInternalUserRequest',
         },
         {
+            name: tr('Access employee'),
+            description: tr('existing  description'),
+            page: 'newExistingUserRequest',
+        },
+        {
             name: tr('Create access to employee from {mainOrgName} (external)', {
                 mainOrgName: config.mainOrganizationName || 'Main',
             }),
@@ -46,14 +51,11 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
             page: 'newExternalFromMainUserRequest',
         },
         {
-            name: tr('Access to external employees'),
+            name: tr('Access to external employees {mainOrgName}', {
+                mainOrgName: config.mainOrganizationName || 'Main',
+            }),
             description: tr('external  description'),
             page: 'newExternalUserRequest',
-        },
-        {
-            name: tr('Access employee'),
-            description: tr('existing  description'),
-            page: 'newExistingUserRequest',
         },
     ];
 
