@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.93.0](https://github.com/taskany-inc/crew/compare/v0.92.0...v0.93.0) (2024-11-26)
+
+
+### Features
+
+* **INTERNAL-1362:** correct tables for newcommers and access coordination ([716931a](https://github.com/taskany-inc/crew/commit/716931addc20e83250a20f60a803c748238df42b))
+
+
+### Bug Fixes
+
+* **INTERNAL-1390:** current date for external from main request ([8a61efc](https://github.com/taskany-inc/crew/commit/8a61efca4b482841cf641419bd23648a59a584f2))
+
 ## [0.92.0](https://github.com/taskany-inc/crew/compare/v0.91.0...v0.92.0) (2024-11-25)
 
 
