@@ -710,7 +710,7 @@ export const userMethods = {
             data: {
                 name: request.name,
                 email: request.email,
-                supervisor: { connect: { id: request.supervisorId || undefined } },
+                supervisor: request.supervisorId ? { connect: { id: request.supervisorId } } : undefined,
                 login: request.login,
                 title: request.title,
                 memberships: request.groupId ? { create: { groupId: request.groupId } } : undefined,

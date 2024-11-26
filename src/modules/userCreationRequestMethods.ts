@@ -109,7 +109,7 @@ export const userCreationRequestsMethods = {
             services: {
                 toJSON: () => servicesData,
             },
-            date: data.date,
+            date: data.date || new Date(),
             comment: data.comment || undefined,
             workEmail: data.workEmail || undefined,
             personalEmail: data.personalEmail || undefined,
