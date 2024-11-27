@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.94.0](https://github.com/taskany-inc/crew/compare/v0.93.0...v0.94.0) (2024-11-27)
+
+
+### Features
+
+* **INTERNAL-1095:**  decree form ([4d421c4](https://github.com/taskany-inc/crew/commit/4d421c4bd6fa04705e9c18aebd13b408ae77164e))
+* **INTERNAL-1095:** additional fields ([7483382](https://github.com/taskany-inc/crew/commit/748338249ab707801f81a4848676c13c596e155a))
+
+
+### Bug Fixes
+
+* **INTERNAL-1395:** email for external service ([af06141](https://github.com/taskany-inc/crew/commit/af06141544e6a8cafbd19d60af91efe07d1943ad))
+
 ## [0.93.0](https://github.com/taskany-inc/crew/compare/v0.92.0...v0.93.0) (2024-11-26)
 
 
