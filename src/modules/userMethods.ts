@@ -670,7 +670,12 @@ export const userMethods = {
         if (request.createExternalAccount) {
             const [surname, firstName, middleName] = request.name.split(' ');
 
-            const email = request.corporateEmail || request.email;
+            const email = request.workEmail || request.personalEmail;
+
+            if (!email) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'No email for external service specified' });
+            }
+
             const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
 
             if (!phone) {
