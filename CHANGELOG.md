@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.95.0](https://github.com/taskany-inc/crew/compare/v0.94.0...v0.95.0) (2024-11-28)
+
+
+### Features
+
+* **UserProfile:** add curator in profile ([b81ed00](https://github.com/taskany-inc/crew/commit/b81ed0021f355161f1818bb97c6c8ba3e5f59e43))
+
 ## [0.94.0](https://github.com/taskany-inc/crew/compare/v0.93.0...v0.94.0) (2024-11-27)
 
 
