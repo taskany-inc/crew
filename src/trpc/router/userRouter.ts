@@ -11,7 +11,6 @@ import {
     getUserListSchema,
     removeUserFromGroupSchema,
     getUserSuggestionsSchema,
-    createUserSchema,
     editUserActiveStateSchema,
     editUserRoleSchema,
     editUserMailingSettingsSchema,
@@ -24,35 +23,6 @@ import { prisma } from '../../utils/prisma';
 import { processEvent } from '../../utils/analyticsEvent';
 
 export const userRouter = router({
-    create: protectedProcedure.input(createUserSchema).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
-        const result = await userMethods.create(input);
-        await historyEventMethods.create({ user: ctx.session.user.id }, 'createUser', {
-            groupId: undefined,
-            userId: result.id,
-            before: undefined,
-            after: {
-                name: result.name || undefined,
-                email: result.email,
-                phone: input.phone,
-                login: input.login,
-                organizationalUnitId: result.organizationUnitId || input.organizationUnitId,
-                accountingId: input.accountingId,
-                supervisorId: result.supervisorId || undefined,
-                createExternalAccount: input.createExternalAccount,
-            },
-        });
-        if (input.groupId) {
-            await historyEventMethods.create({ user: ctx.session.user.id }, 'addUserToGroup', {
-                groupId: input.groupId,
-                userId: result.id,
-                before: undefined,
-                after: {},
-            });
-        }
-        return result;
-    }),
-
     addToGroup: protectedProcedure.input(addUserToGroupSchema).mutation(async ({ input, ctx }) => {
         accessCheck(await groupAccess.isEditable(ctx.session.user, input.groupId));
 

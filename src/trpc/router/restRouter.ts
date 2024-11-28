@@ -6,7 +6,7 @@ import { TRPCError } from '@trpc/server';
 import { prisma } from '../../utils/prisma';
 import { restProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
-import { createUserSchema, getUserByFieldSchema, userRestApiDataSchema } from '../../modules/userSchemas';
+import { getUserByFieldSchema, userRestApiDataSchema } from '../../modules/userSchemas';
 import { changeBonusPointsSchema } from '../../modules/bonusPointsSchemas';
 import { bonusPointsMethods } from '../../modules/bonusPointsMethods';
 import { groupMethods } from '../../modules/groupMethods';
@@ -50,101 +50,6 @@ export const restRouter = router({
         .output(userRestApiDataSchema)
         .query(({ input }) => {
             return userMethods.getUserDataForRestApi(input);
-        }),
-
-    createUser: restProcedure
-        .meta({
-            openapi: {
-                method: 'POST',
-                path: '/users/create',
-                protect: true,
-                summary: 'Create new user',
-            },
-        })
-        .input(
-            createUserSchema
-                .omit({
-                    firstName: true,
-                    middleName: true,
-                    surname: true,
-                    supervisorId: true,
-                })
-                .extend({
-                    name: z
-                        .string()
-                        .refine(
-                            (s) => s.trim().split(' ').length > 1,
-                            'Name should include surname and firstName, middleName is optional',
-                        ),
-                    serviceNumber: z.string(),
-                    supervisorLogin: z.string(),
-                }),
-        )
-        .output(
-            z.object({
-                id: z.string(),
-                name: z.string().nullable(),
-                login: z.string().nullable(),
-                registrationEmail: z.string(),
-                corporateEmail: z.string(),
-                active: z.boolean(),
-                supervisorLogin: z.string().nullish(),
-            }),
-        )
-        .mutation(async ({ input, ctx }) => {
-            const apiToken = await prisma.apiToken.findUnique({
-                where: {
-                    id: ctx.apiToken,
-                },
-                select: { organizationUnit: true },
-            });
-            const [surname, firstName, middleName = ''] = input.name.split(' ');
-
-            const supervisor = await userMethods.getUserByField({ login: input.supervisorLogin });
-
-            const user = await userMethods.create({
-                ...input,
-                supervisorId: supervisor.id,
-                surname,
-                firstName,
-                middleName,
-            });
-
-            if (apiToken?.organizationUnit) {
-                const { organizationUnit } = apiToken;
-
-                await prisma.userService.create({
-                    data: {
-                        userId: user.id,
-                        serviceName: 'ServiceNumber',
-                        serviceId: input.serviceNumber,
-                        organizationUnitId: organizationUnit.id,
-                    },
-                });
-            }
-
-            await historyEventMethods.create({ token: ctx.apiToken }, 'createUser', {
-                groupId: undefined,
-                userId: user.id,
-                before: undefined,
-                after: {
-                    name: user.name || undefined,
-                    email: user.email,
-                    phone: input.phone,
-                    login: input.login,
-                    organizationalUnitId: user.organizationUnitId || input.organizationUnitId,
-                    accountingId: input.accountingId,
-                    supervisorId: user.supervisorId || undefined,
-                    createExternalAccount: input.createExternalAccount,
-                },
-            });
-
-            return {
-                ...user,
-                registrationEmail: user.email,
-                corporateEmail: getCorporateEmail(user.login),
-                supervisorLogin: supervisor.login,
-            };
         }),
 
     editUserByLogin: restProcedure

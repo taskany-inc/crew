@@ -3,7 +3,6 @@ import { notifyPromise } from '../utils/notifications/notifyPromise';
 
 import {
     AddUserToGroup,
-    CreateUser,
     EditUserFields,
     EditUserActiveState,
     EditUserRoleData,
@@ -15,13 +14,6 @@ import {
 
 export const useUserMutations = () => {
     const utils = trpc.useContext();
-
-    const createUser = trpc.user.create.useMutation({
-        onSuccess: () => {
-            utils.user.invalidate();
-            utils.group.getMemberships.invalidate();
-        },
-    });
 
     const addUserToGroup = trpc.user.addToGroup.useMutation({
         onSuccess: () => {
@@ -87,8 +79,6 @@ export const useUserMutations = () => {
     });
 
     return {
-        createUser: (data: CreateUser) => notifyPromise(createUser.mutateAsync(data), 'userCreate'),
-
         editUserRole: (data: EditUserRoleData) => notifyPromise(editUserRole.mutateAsync(data), 'userUpdate'),
 
         addUserToGroup: (data: AddUserToGroup) => notifyPromise(addUserToGroup.mutateAsync(data), 'userAddToGroup'),
