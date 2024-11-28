@@ -88,7 +88,7 @@ export const ScheduledDeactivationList = () => {
                     title={
                         <>
                             <span ref={dateTitleRef}>{tr('Date')}</span>
-                            <Tooltip interactive reference={dateTitleRef} placement="right">
+                            <Tooltip reference={dateTitleRef} placement="right">
                                 {tr('Firing or transfer date')}
                             </Tooltip>
                         </>

@@ -1,5 +1,5 @@
-import { Badge, Dot, getTableComponents, TableRow } from '@taskany/bricks/harmony';
-import { forwardRef, useState } from 'react';
+import { Badge, Dot, getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
+import { forwardRef, useRef, useState } from 'react';
 import cn from 'classnames';
 import { UserCreationRequestStatus } from 'prisma/prisma-client';
 
@@ -35,6 +35,8 @@ const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((prop
 
 export const UserCreateRequestsPage = () => {
     const sessionUser = useSessionUser();
+
+    const dateTitleRef = useRef(null);
 
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
 
@@ -136,7 +138,14 @@ export const UserCreateRequestsPage = () => {
                     fixed="right"
                     name="date"
                     value="date"
-                    title={tr('Start date')}
+                    title={
+                        <>
+                            <span ref={dateTitleRef}>{tr('Start date')}</span>
+                            <Tooltip reference={dateTitleRef} placement="right">
+                                {tr('Start date')}
+                            </Tooltip>
+                        </>
+                    }
                     width="140px"
                     lines={1}
                 />

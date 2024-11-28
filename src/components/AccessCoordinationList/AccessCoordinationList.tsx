@@ -1,5 +1,5 @@
-import { getTableComponents, TableRow } from '@taskany/bricks/harmony';
-import { forwardRef, useState } from 'react';
+import { getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
+import { forwardRef, useRef, useState } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
 import { pages, useRouter } from '../../hooks/useRouter';
@@ -49,6 +49,7 @@ export const AccessCoordinationList = () => {
     ]);
 
     const router = useRouter();
+    const dateTitleRef = useRef(null);
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
         type: ['externalEmployee', 'externalFromMainOrgEmployee', 'internalEmployee'],
@@ -134,7 +135,14 @@ export const AccessCoordinationList = () => {
                     fixed="right"
                     name="createdAt"
                     value="createdAt"
-                    title={tr('Creation date')}
+                    title={
+                        <>
+                            <span ref={dateTitleRef}>{tr('Creation date')}</span>
+                            <Tooltip reference={dateTitleRef} placement="right">
+                                {tr('Creation date')}
+                            </Tooltip>
+                        </>
+                    }
                     width="150px"
                     lines={1}
                 />

@@ -1,5 +1,5 @@
-import { getTableComponents, TableRow } from '@taskany/bricks/harmony';
-import { useState } from 'react';
+import { getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
+import { useRef, useState } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
@@ -23,6 +23,7 @@ interface tableData {
 
 export const UserDecreeRequestsPage = () => {
     const sessionUser = useSessionUser();
+    const dateTitleRef = useRef(null);
 
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
 
@@ -83,7 +84,14 @@ export const UserDecreeRequestsPage = () => {
                     fixed="right"
                     name="date"
                     value="date"
-                    title={tr('Start date')}
+                    title={
+                        <>
+                            <span ref={dateTitleRef}>{tr('Start date')}</span>
+                            <Tooltip reference={dateTitleRef} placement="right">
+                                {tr('Start date')}
+                            </Tooltip>
+                        </>
+                    }
                     width="140px"
                     lines={1}
                 />
