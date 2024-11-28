@@ -4,11 +4,8 @@ import { TRPCError } from '@trpc/server';
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
 import { suggestionsTake } from '../utils/suggestions';
-import { trimAndJoin } from '../utils/trimAndJoin';
 import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
-import { percentageMultiply } from '../utils/suplementPosition';
-import { PositionStatus } from '../generated/kyselyTypes';
 import { getLastSupplementalPositions } from '../utils/supplementalPositions';
 import { calculateDiffBetweenArrays } from '../utils/calculateDiffBetweenArrays';
 
@@ -37,7 +34,6 @@ import {
     GetUserList,
     RemoveUserFromGroup,
     GetUserSuggestions,
-    CreateUser,
     EditUserActiveState,
     GetUserByField,
     EditUserFields,
@@ -120,46 +116,6 @@ export const userMethods = {
         const user = await prisma.user.findUnique({ where: { id } });
         if (!user) throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${id}` });
         return user;
-    },
-
-    create: async (data: CreateUser) => {
-        const [phoneService, accountingService] = await Promise.all([
-            prisma.externalService.findUnique({ where: { name: 'Phone' } }),
-            prisma.externalService.findUnique({ where: { name: 'Accounting system' } }),
-        ]);
-        const servicesData = [];
-        if (data.phone && phoneService) {
-            servicesData.push({ serviceName: phoneService.name, serviceId: data.phone });
-        }
-        if (data.accountingId && accountingService) {
-            servicesData.push({ serviceName: accountingService.name, serviceId: data.accountingId });
-        }
-        if (data.createExternalAccount) {
-            await externalUserMethods.create(data);
-        }
-
-        return prisma.user.create({
-            data: {
-                name: trimAndJoin([data.surname, data.firstName, data.middleName]),
-                email: data.email,
-                supervisorId: data.supervisorId,
-                login: data.login,
-                memberships: data.groupId ? { create: { groupId: data.groupId } } : undefined,
-                organizationUnitId: data.organizationUnitId,
-                supplementalPositions: {
-                    create: [
-                        {
-                            organizationUnit: { connect: { id: data.organizationUnitId } },
-                            percentage: 1 * percentageMultiply,
-                            main: true,
-                            status: PositionStatus.ACTIVE,
-                            workStartDate: data.date,
-                        },
-                    ],
-                },
-                services: { createMany: { data: servicesData } },
-            },
-        });
     },
 
     addToGroup: async (data: AddUserToGroup) => {
@@ -727,10 +683,11 @@ export const userMethods = {
         if (request.createExternalAccount) {
             const [surname, firstName, middleName] = request.name.split(' ');
 
-            const email = request.workEmail || request.personalEmail;
-
-            if (!email) {
-                throw new TRPCError({ code: 'BAD_REQUEST', message: 'No email for external service specified' });
+            if (!request.workEmail && !request.personalEmail) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'No email(workEmail or personalEmail) for external service specified',
+                });
             }
 
             const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
@@ -739,14 +696,18 @@ export const userMethods = {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: 'Phone service is required' });
             }
 
+            const isExternal = request.type === 'externalFromMainOrgEmployee' || request.type === 'externalEmployee';
+
             await externalUserMethods.create({
                 surname,
                 firstName,
                 middleName,
-                email,
+                workMail: request.workEmail || undefined,
+                personalMail: request.personalEmail || undefined,
                 phone,
                 login: request.login,
                 organizationUnitId: request.organizationUnitId,
+                isExternal,
             });
         }
 

@@ -12,7 +12,8 @@ export const externalUserMethods = {
         if (!config.externalUserService.apiToken || !config.externalUserService.apiUrlCreate) {
             throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'External user service is not configured' });
         }
-        const { organizationUnitId, firstName, middleName, surname, phone, email, login } = data;
+        const { organizationUnitId, firstName, middleName, surname, phone, workMail, personalMail, login, isExternal } =
+            data;
         const organization = await prisma.organizationUnit.findFirstOrThrow({
             where: { id: organizationUnitId },
             select: { country: true, name: true },
@@ -22,9 +23,11 @@ export const externalUserMethods = {
             middleName,
             surname,
             phone,
-            email,
+            workMail,
+            personalMail,
             organization,
             login,
+            isExternal,
         };
         const response = await fetch(config.externalUserService.apiUrlCreate, {
             method: 'POST',
