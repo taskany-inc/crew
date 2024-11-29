@@ -52,7 +52,6 @@ export const AccessCoordinationList = () => {
     const dateTitleRef = useRef(null);
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
-        type: ['externalEmployee', 'externalFromMainOrgEmployee', 'internalEmployee'],
         status: null,
         orderBy: {
             name: sorting.find(({ key }) => key === 'name')?.dir,
@@ -79,6 +78,11 @@ export const AccessCoordinationList = () => {
         id: request.id,
         type: request.type || '',
     }));
+
+    const canEditRequest =
+        sessionUser.role?.editInternalUserRequest ||
+        sessionUser.role?.editExternalUserRequest ||
+        sessionUser.role?.editExternalFromMainUserRequest;
 
     return (
         <ProfilesManagementLayout>
@@ -151,9 +155,7 @@ export const AccessCoordinationList = () => {
                     fixed="right"
                     name="actions"
                     title={tr('Actions')}
-                    width={
-                        sessionUser.role?.createUser && sessionUser.role.editUserCreationRequests ? '180px' : '100px'
-                    }
+                    width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
                     renderCell={({ id, type }) => (
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions requestId={id} small onEdit={() => onEdit(id, type)} />

@@ -24,6 +24,17 @@ const main = async () => {
         editFullGroupTree: true,
         viewHistoryEvents: true,
         importData: true,
+        decideOnUserCreationRequest: true,
+        createExistingUserRequest: true,
+        createInternalUserRequest: true,
+        createExternalUserRequest: true,
+        createExternalFromMainUserRequest: true,
+        readManyInternalUserRequests: true,
+        readManyExternalUserRequests: true,
+        readManyExternalFromMainUserRequests: true,
+        editInternalUserRequest: true,
+        editExternalUserRequest: true,
+        editExternalFromMainUserRequest: true,
     };
 
     await prisma.userRole.createMany({

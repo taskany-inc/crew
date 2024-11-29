@@ -6,6 +6,7 @@ import { IconTickCircleOutline } from '@taskany/icons';
 
 import { useRouter } from '../../hooks/useRouter';
 import { config } from '../../config';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 import s from './CreateUserModal.module.css';
 import { tr } from './CreateUserModal.i18n';
@@ -25,21 +26,25 @@ interface RequestTypeListType {
     name: string;
     description: string;
     page: RequestPage;
+    visible: boolean;
 }
 
 export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
     const [active, setActive] = useState<RequestPage | undefined>();
+    const session = useSessionUser();
 
     const requestTypeList: RequestTypeListType[] = [
         {
             name: tr('Create a planned newcommer'),
             description: tr('Informing about the departure of a new employee'),
             page: 'newInternalUserRequest',
+            visible: !!session.role?.createInternalUserRequest,
         },
         {
             name: tr('Access employee'),
             description: tr('existing  description'),
             page: 'newExistingUserRequest',
+            visible: !!session.role?.createExistingUserRequest,
         },
         {
             name: tr('Create access to employee from {mainOrgName} (external)', {
@@ -49,6 +54,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
                 mainOrgName: config.mainOrganizationName || 'Main',
             }),
             page: 'newExternalFromMainUserRequest',
+            visible: !!session.role?.createExternalUserRequest,
         },
         {
             name: tr('Access to external employees {mainOrgName}', {
@@ -56,6 +62,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
             }),
             description: tr('external  description'),
             page: 'newExternalUserRequest',
+            visible: !!session.role?.createExternalFromMainUserRequest,
         },
     ];
 
@@ -67,28 +74,30 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
             </ModalHeader>
 
             <ModalContent>
-                {requestTypeList.map(({ name, description, page }) => (
-                    <div className={s.RequestType} key={page}>
-                        <div>
-                            <Text
-                                className={cn(s.Text, {
-                                    [s.Text_active]: active === page,
-                                })}
-                                size="m"
-                                weight="thin"
-                                onClick={() => setActive(page)}
-                            >
-                                {name}
-                            </Text>
-                            <Text size="xs" weight="thin" className={s.Description}>
-                                {description}
-                            </Text>
+                {requestTypeList
+                    .filter(({ visible }) => visible)
+                    .map(({ name, description, page }) => (
+                        <div className={s.RequestType} key={page}>
+                            <div>
+                                <Text
+                                    className={cn(s.Text, {
+                                        [s.Text_active]: active === page,
+                                    })}
+                                    size="m"
+                                    weight="thin"
+                                    onClick={() => setActive(page)}
+                                >
+                                    {name}
+                                </Text>
+                                <Text size="xs" weight="thin" className={s.Description}>
+                                    {description}
+                                </Text>
+                            </div>
+                            {nullable(active === page, () => (
+                                <IconTickCircleOutline size="s" className={s.IconTick} />
+                            ))}
                         </div>
-                        {nullable(active === page, () => (
-                            <IconTickCircleOutline size="s" className={s.IconTick} />
-                        ))}
-                    </div>
-                ))}
+                    ))}
                 <div className={s.FormActions}>
                     <Button type="button" text={tr('Cancel')} onClick={onClose} />
                     <Button

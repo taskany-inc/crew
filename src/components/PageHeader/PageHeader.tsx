@@ -57,15 +57,15 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
 
             { path: pages.logs, text: tr('Logs'), visible: !!sessionUser.role?.viewHistoryEvents },
             {
-                path:
-                    sessionUser.role?.editUserCreationRequests || sessionUser.role?.createUser
-                        ? pages.accessCoordination
-                        : pages.scheduledDeactivations,
+                path: sessionUser.role?.viewScheduledDeactivation
+                    ? pages.scheduledDeactivations
+                    : pages.accessCoordination,
                 text: tr('Profiles management'),
                 visible:
-                    !!sessionUser.role?.editUserCreationRequests ||
-                    !!sessionUser.role?.viewScheduledDeactivation ||
-                    !!sessionUser.role?.editScheduledDeactivation,
+                    !!sessionUser.role?.readManyExternalUserRequests ||
+                    !!sessionUser.role?.readManyExternalFromMainUserRequests ||
+                    !!sessionUser.role?.readManyInternalUserRequests ||
+                    !!sessionUser.role?.viewScheduledDeactivation,
             },
             {
                 path: pages.adminPanel,
@@ -100,6 +100,26 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             viewHistoryEvents: tr('viewing history of changes'),
 
             importData: tr('import data from file'),
+
+            decideOnUserCreationRequest: tr('decide on user creation request'),
+            createExistingUserRequest: tr('create request to create profile to existing employee'),
+            createInternalUserRequest: tr('create request to create profile to newcomer'),
+            createExternalUserRequest: tr('create request to create profile to external employee'),
+            createExternalFromMainUserRequest: tr('createExternalFromMainUserRequest {mainOrgName}', {
+                mainOrgName: config.mainOrganizationName || 'Main',
+            }),
+
+            readManyInternalUserRequests: tr('readManyInternalUserRequests'),
+            readManyExternalUserRequests: tr('readManyExternalUserRequests'),
+            readManyExternalFromMainUserRequests: tr('readManyExternalFromMainUserRequests {mainOrgName}', {
+                mainOrgName: config.mainOrganizationName || 'Main',
+            }),
+
+            editInternalUserRequest: tr('editInternalUserRequest'),
+            editExternalUserRequest: tr('editExternalUserRequest'),
+            editExternalFromMainUserRequest: tr('editExternalFromMainUserRequest {mainOrgName}', {
+                mainOrgName: config.mainOrganizationName || 'Main',
+            }),
         };
         return objKeys(allDescriptions)
             .filter((name) => role[name])

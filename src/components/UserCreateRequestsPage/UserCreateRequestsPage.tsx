@@ -74,6 +74,11 @@ export const UserCreateRequestsPage = () => {
         return tr('Under concideration');
     };
 
+    const canEditRequest =
+        sessionUser.role?.editInternalUserRequest ||
+        sessionUser.role?.editExternalUserRequest ||
+        sessionUser.role?.editExternalFromMainUserRequest;
+
     return (
         <ProfilesManagementLayout>
             <DataTable
@@ -154,9 +159,7 @@ export const UserCreateRequestsPage = () => {
                     fixed="right"
                     name="actions"
                     title={tr('Actions')}
-                    width={
-                        sessionUser.role?.createUser && sessionUser.role.editUserCreationRequests ? '180px' : '100px'
-                    }
+                    width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
                     renderCell={({ id }) => (
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions

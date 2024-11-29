@@ -19,5 +19,16 @@
     "Admin panel": "Панель администратора",
     "editing role scopes": "редактирование доступов ролей",
     "editing user roles": "редактирование ролей пользователя",
-    "import data from file": "импорт данных через загрузку файлов"
+    "import data from file": "импорт данных через загрузку файлов",
+    "decide on user creation request": "согласование или отклонение заявок на создание профилей",
+    "create request to create profile to existing employee": "создание заявки на доступ сотруднику SD",
+    "create request to create profile to newcomer": "создание заявки на выход нового сотрудника SD",
+    "create request to create profile to external employee": "создание заявки на доступ для внешнего сотрудника",
+    "createExternalFromMainUserRequest {mainOrgName}": "создать заявки на доступ для внешнего сотрудника из {mainOrgName}",
+    "readManyInternalUserRequests": "чтение заявок на выход новоых сотрудников SD",
+    "readManyExternalUserRequests": "чтение заявок на доступ для внешних сотрудников",
+    "readManyExternalFromMainUserRequests {mainOrgName}": "чтение заявок на доступ для внешних сотрудников из {mainOrgName}",
+    "editInternalUserRequest": "редактирование заявок на выход новоых сотрудников SD",
+    "editExternalUserRequest": "редактирование заявок на доступ для внешних сотрудников",
+    "editExternalFromMainUserRequest {mainOrgName}": "редактирование заявок на доступ для внешних сотрудников из {mainOrgName}"
 }
