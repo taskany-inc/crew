@@ -246,9 +246,12 @@ model UserRole {
   users  User[]
   tokens ApiToken[]
 
+  // TODO: remove
   createUser                Boolean @default(false)
   editRoleScopes            Boolean @default(false)
   editUserRole              Boolean @default(false)
+
+  // TODO: remove
   editUserCreationRequests  Boolean @default(false)
   editUser                  Boolean @default(false)
   editUserActiveState       Boolean @default(false)
@@ -258,6 +261,22 @@ model UserRole {
   viewUserExtendedInfo      Boolean @default(false)
   editScheduledDeactivation Boolean @default(false)
   viewScheduledDeactivation Boolean @default(false)
+
+  decideOnUserCreationRequest Boolean @default(false)
+
+  createExistingUserRequest  Boolean @default(false)
+
+  createInternalUserRequest  Boolean @default(false)
+  readManyInternalUserRequests  Boolean @default(false)
+  editInternalUserRequest  Boolean @default(false)
+
+  createExternalUserRequest  Boolean @default(false)
+  readManyExternalUserRequests  Boolean @default(false)
+  editExternalUserRequest  Boolean @default(false)
+
+  createExternalFromMainUserRequest  Boolean @default(false)
+  readManyExternalFromMainUserRequests  Boolean @default(false)
+  editExternalFromMainUserRequest  Boolean @default(false)
 
   editFullGroupTree Boolean @default(false)
 

@@ -81,12 +81,19 @@ export const RequestFormActions = ({
 
     if (requestStatus === 'Denied') tooltipText = tr('Request already denied');
 
+    const canEditRequest =
+        session.role?.editExternalFromMainUserRequest ||
+        session.role?.editExternalFromMainUserRequest ||
+        session.role?.editInternalUserRequest;
+
+    const canDecideOnRequest = session.role?.decideOnUserCreationRequest;
+
     return (
         <div className={s.FormActions}>
-            {nullable(session.role?.editUserCreationRequests && requestType !== 'decree', () => (
+            {nullable(canDecideOnRequest && requestType !== 'decree', () => (
                 <div
                     className={cn(s.FormActions, {
-                        [s.Separator]: small && session.role?.editUserCreationRequests && session.role?.createUser,
+                        [s.Separator]: small && canEditRequest && canDecideOnRequest,
                     })}
                 >
                     <div ref={tooltipRef}>
@@ -148,7 +155,7 @@ export const RequestFormActions = ({
                     />
                 </div>
             ))}
-            {nullable(session.role?.createUser, () => (
+            {nullable(canEditRequest, () => (
                 <>
                     {nullable(onEdit, () => (
                         <Button
