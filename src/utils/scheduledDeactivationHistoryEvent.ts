@@ -22,7 +22,8 @@ export const scheduledDeactivationHistoryEvent = (
     organization: scheduleDeactivation.organizationUnit
         ? getOrgUnitTitle(scheduleDeactivation.organizationUnit)
         : undefined,
-    unitId: scheduleDeactivation.unitId,
+    unitId: scheduleDeactivation.unitId || undefined,
+    unitIdString: scheduleDeactivation.unitIdString || undefined,
     teamLead: scheduleDeactivation.teamLead,
     newTeamLead: scheduleDeactivation.newTeamLead || undefined,
     organizationalGroup: scheduleDeactivation.organizationalGroup || undefined,

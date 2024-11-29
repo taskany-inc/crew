@@ -139,6 +139,7 @@ export const ScheduleDeactivationForm = ({
         comments: scheduledDeactivation?.comments || undefined,
         location: scheduledDeactivation?.location || undefined,
         unitId: scheduledDeactivation?.unitId || undefined,
+        unitIdString: scheduledDeactivation?.unitIdString || undefined,
         devices: initDevices,
         testingDevices: initTestingDevices,
     };
@@ -363,13 +364,7 @@ export const ScheduleDeactivationForm = ({
                     <StyledLabel weight="bold">{tr('Work place')}</StyledLabel>
                     <StyledFormInput error={errors.workPlace} autoComplete="off" {...register('workPlace')} />
                     <StyledLabel weight="bold">{tr('Unit ID')}</StyledLabel>
-                    <StyledFormInput
-                        error={errors.unitId}
-                        type="number"
-                        autoComplete="off"
-                        defaultValue={scheduledDeactivation?.unitId}
-                        onChange={(e) => setValue('unitId', Number(e.target.value))}
-                    />
+                    <StyledFormInput error={errors.unitId} autoComplete="off" {...register('unitIdString')} />
                     <DeviceInScheduleDeactivationForm
                         initialDevices={initTestingDevices}
                         label={tr('Testing devices')}
@@ -397,7 +392,8 @@ export const ScheduleDeactivationForm = ({
                             <Button type="button" text={tr('Cancel')} onClick={hideModal} />
                             <Button
                                 type="submit"
-                                text={tr('Create')}
+                                onClick={onSubmit}
+                                text={scheduledDeactivation ? tr('Save') : tr('Create')}
                                 view="primary"
                                 size="m"
                                 outline

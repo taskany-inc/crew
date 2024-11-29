@@ -165,8 +165,8 @@ enum UserCreationRequestStatus {
 }
 
 model UserCreationRequest {
-  id            String  @id @default(nanoid())
-  type          String?
+  id   String  @id @default(nanoid())
+  type String?
 
   creatorId String?
   creator   User?   @relation(fields: [creatorId], references: [id], name: "userCreationRequestCreator")
@@ -326,7 +326,9 @@ model ScheduledDeactivation {
 
   comments String?
 
-  unitId Int
+  // TODO change remove unitId - move unitIdString on its place
+  unitId       Int?
+  unitIdString String?
 
   transferPercentage Int?
 

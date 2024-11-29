@@ -3,7 +3,7 @@ import {
     Form,
     FormAction,
     FormActions,
-    FormTextarea,
+    FormInput,
     FormTitle,
     Modal,
     ModalContent,
@@ -11,9 +11,14 @@ import {
     ModalHeader,
 } from '@taskany/bricks';
 import { ScheduledDeactivation, User } from '@prisma/client';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useScheduledDeactivation } from '../../modules/scheduledDeactivationHooks';
+import {
+    CancelScheduledDeactivation,
+    cancelScheduledDeactivationSchema,
+} from '../../modules/scheduledDeactivationSchemas';
 
 import { tr } from './CancelScheduleDeactivation.i18n';
 
@@ -29,12 +34,19 @@ export const CancelScheduleDeactivation = ({
     onClose,
 }: CancelScheduleDeactivationProps) => {
     const { cancelScheduledDeactivation } = useScheduledDeactivation();
-    const [comment, setComment] = useState('');
 
-    const onYesClick = async () => {
-        await cancelScheduledDeactivation({ id: scheduledDeactivation.id, comment });
-        onClose();
-    };
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting, isSubmitSuccessful },
+    } = useForm<CancelScheduledDeactivation>({
+        resolver: zodResolver(cancelScheduledDeactivationSchema),
+        defaultValues: {
+            id: scheduledDeactivation.id,
+        },
+    });
+
+    const onSubmit = handleSubmit(async (data) => cancelScheduledDeactivation(data));
 
     return (
         <Modal visible={visible} onClose={onClose} width={500}>
@@ -46,18 +58,25 @@ export const CancelScheduleDeactivation = ({
             </ModalHeader>
 
             <ModalContent>
-                <Form>
-                    <FormTextarea
-                        onChange={(e) => setComment(e.currentTarget.value)}
-                        minHeight={180}
+                <Form onSubmit={onSubmit}>
+                    <FormInput
+                        {...register('comment')}
                         autoComplete="off"
                         placeholder={tr('comment')}
+                        error={errors.comment}
                     />
                     <FormActions>
                         <FormAction left />
                         <FormAction right inline>
-                            <Button size="m" text={tr('No, I changed my mind')} onClick={onClose} />
-                            <Button size="m" view="danger" onClick={onYesClick} text={tr('Yes')} />
+                            <Button size="m" text={tr('No, I changed my mind')} onClick={onClose} type="button" />
+                            <Button
+                                size="m"
+                                view="danger"
+                                type="submit"
+                                onClick={onSubmit}
+                                text={tr('Yes')}
+                                disabled={isSubmitting || isSubmitSuccessful}
+                            />
                         </FormAction>
                     </FormActions>
                 </Form>
