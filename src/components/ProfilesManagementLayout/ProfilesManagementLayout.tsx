@@ -5,6 +5,7 @@ import { TabsSwitch } from '../TabsSwitch/TabsSwitch';
 import { pages } from '../../hooks/useRouter';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { useSessionUser } from '../../hooks/useSessionUser';
+import { ProfilesManagementSearch } from '../ProfilesManagementSearch/ProfilesManagementSearch';
 
 import { tr } from './ProfilesManagementLayout.i18n';
 import s from './ProfilesManagementLayout.module.css';
@@ -44,6 +45,7 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
                             },
                         ]}
                     />
+                    <ProfilesManagementSearch />
                 </div>
                 {children}
             </div>

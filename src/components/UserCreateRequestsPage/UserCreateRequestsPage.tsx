@@ -8,6 +8,8 @@ import { pages, useRouter } from '../../hooks/useRouter';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { useSessionUser } from '../../hooks/useSessionUser';
+import { useUserListFilter } from '../../hooks/useUserListFilter';
+import { ProfilesManagementSearch } from '../ProfilesManagementSearch/ProfilesManagementSearch';
 
 import { tr } from './UserCreateRequestsPage.i18n';
 import s from './UserCreateRequestsPage.module.css';
@@ -38,6 +40,7 @@ export const UserCreateRequestsPage = () => {
 
     const dateTitleRef = useRef(null);
 
+    const userListFilter = useUserListFilter();
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
 
     const [sorting, setSorting] = useState<React.ComponentProps<typeof DataTable>['sorting']>([
@@ -51,6 +54,7 @@ export const UserCreateRequestsPage = () => {
             name: sorting.find(({ key }) => key === 'name')?.dir,
             date: sorting.find(({ key }) => key === 'date')?.dir,
         },
+        search: userListFilter.values.search,
     });
 
     const data: tableData[] = userRequests.map((request) => ({
@@ -76,6 +80,7 @@ export const UserCreateRequestsPage = () => {
 
     return (
         <ProfilesManagementLayout>
+            <ProfilesManagementSearch />
             <DataTable
                 data={data}
                 sorting={sorting}

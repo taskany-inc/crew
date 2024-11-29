@@ -1024,6 +1024,7 @@ export const userCreationRequestsMethods = {
                 recruiter: true,
                 creator: true,
                 supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
             },
             orderBy,
         });

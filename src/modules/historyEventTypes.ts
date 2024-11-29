@@ -366,7 +366,8 @@ interface HistoryEventsData {
             phone: string;
             deactivateDate: Date;
             email: string;
-            unitId: number;
+            unitId?: number;
+            unitIdString?: string;
             teamLead: string;
             organizationalGroup?: string;
             organizationRole?: string;
@@ -391,6 +392,7 @@ interface HistoryEventsData {
             deactivateDate?: Date;
             email?: string;
             unitId?: number;
+            unitIdString?: string;
             teamLead?: string;
             organizationalGroup?: string;
             organizationRole?: string;
