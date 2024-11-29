@@ -30,7 +30,7 @@ const MailingListsInner = ({ organizationUnits }: MailingListsInnerProps) => {
                 ))}
             </TabsMenu>
             {mailingSettingType.map((type) => (
-                <MailingList key={type} mailingSettings={type} organizationUnitId={orgUntId} />
+                <MailingList key={type} mailingType={type} organizationUnitId={orgUntId} />
             ))}
         </AdminPanelLayout>
     );

@@ -1,3 +1,9 @@
 .UserList {
     margin-top: var(--gap-l);
 }
+
+.NewEmailForm {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--gap-s);
+}

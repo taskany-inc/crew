@@ -51,6 +51,7 @@ import { addCalculatedGroupFields, groupMethods } from './groupMethods';
 import { userAccess } from './userAccess';
 import { externalUserMethods } from './externalUserMethods';
 import { supplementalPositionMethods } from './supplementalPositionMethods';
+import { mailSettingsMethods } from './mailSettingsMethods';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -646,7 +647,16 @@ export const userMethods = {
             },
             select: { email: true, name: true },
         });
-        const users = mailingList.map(({ email, name }) => ({ email, name: name || undefined }));
+
+        const additionalEmails = await mailSettingsMethods.getAdditionEmails({
+            mailingType,
+            organizationUnitId,
+        });
+
+        const users = [
+            ...mailingList.map(({ email, name }) => ({ email, name: name || undefined })),
+            ...additionalEmails.map((email) => ({ email })),
+        ];
 
         const to = users.map(({ email }) => email);
 

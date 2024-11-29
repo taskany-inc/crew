@@ -103,9 +103,10 @@ export const userRouter = router({
     editMailingSettings: protectedProcedure.input(editUserMailingSettingsSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
         const result = await userMethods.editMailingSettings(input);
+
         await historyEventMethods.create({ user: ctx.session.user.id }, 'editUserMailingSettings', {
             groupId: undefined,
-            userId: result.userId,
+            userId: input.userId,
             before: undefined,
             after: {
                 type: input.type,

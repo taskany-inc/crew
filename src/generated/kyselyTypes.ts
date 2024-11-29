@@ -171,8 +171,10 @@ export type Job = {
 };
 export type MailingSettings = {
     id: string;
-    userId: string;
+    userId: string | null;
     organizationUnitId: string | null;
+    additionalEmails: string[];
+    plainEmails: boolean | null;
     createUserRequest: Generated<boolean>;
     createScheduledUserRequest: Generated<boolean>;
     scheduledDeactivation: Generated<boolean>;

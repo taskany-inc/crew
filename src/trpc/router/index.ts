@@ -21,6 +21,7 @@ import { userCreationRequestRouter } from './userCreationRequestRouter';
 import { supplementalPositionRouter } from './supplementalPositionRouter';
 import { permissionServiceRouter } from './permissionServiceRouter';
 import { importRouter } from './importRouter';
+import { mailSettingsRouter } from './mailingSettingsRouter';
 
 export const trpcRouter = router({
     user: userRouter,
@@ -44,6 +45,7 @@ export const trpcRouter = router({
     supplementalPosition: supplementalPositionRouter,
     permissionService: permissionServiceRouter,
     import: importRouter,
+    mailSettings: mailSettingsRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

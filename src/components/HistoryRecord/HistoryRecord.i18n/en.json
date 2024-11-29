@@ -138,5 +138,7 @@
     "Access to services": "",
     "Reason for granting access": "",
     "to grant access": "",
-    "Attach filenames": ""
+    "Attach filenames": "",
+    "Additional emails": "",
+    "edited additional emails for {orgId} in mailing type {type}": ""
 }

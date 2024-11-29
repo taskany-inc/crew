@@ -191,6 +191,12 @@ interface HistoryEventsData {
         requireBefore: false;
         data: { type: string; value: boolean; organizationUnitId?: string };
     };
+    editAdditionalEmailMailingSettings: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: true;
+        data: { type: string; organizationUnitId?: string; additionalEmails?: string };
+    };
     addUserToGroup: {
         requireGroupId: true;
         requireUserId: true;

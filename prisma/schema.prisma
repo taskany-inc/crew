@@ -691,12 +691,15 @@ model Attach {
 }
 
 model MailingSettings {
-  id     String @id @default(uuid())
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
+  id     String  @id @default(uuid())
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
 
   organizationUnit   OrganizationUnit? @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId String?
+
+  additionalEmails String[]
+  plainEmails      Boolean?
 
   createUserRequest          Boolean @default(false)
   createScheduledUserRequest Boolean @default(false)
