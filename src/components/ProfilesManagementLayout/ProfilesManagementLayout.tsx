@@ -16,6 +16,11 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
     const sessionUser = useSessionUser();
     const userListFilter = useUserListFilter();
 
+    const requestsVisible =
+        !!sessionUser.role?.readManyInternalUserRequests ||
+        !!sessionUser.role?.readManyExternalUserRequests ||
+        !!sessionUser.role?.readManyExternalFromMainUserRequests;
+
     return (
         <LayoutMain>
             <div className={s.Wrapper}>
@@ -28,19 +33,17 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
                             {
                                 title: tr('Access coordination'),
                                 href: pages.accessCoordination,
-                                visible: !!sessionUser.role?.editUserCreationRequests || !!sessionUser.role?.createUser,
+                                visible: !!sessionUser.role?.decideOnUserCreationRequest || requestsVisible,
                             },
                             {
                                 title: tr('Planned newcomers'),
                                 href: pages.userRequests,
-                                visible: !!sessionUser.role?.createUser,
+                                visible: !!sessionUser.role?.readManyInternalUserRequests,
                             },
                             {
                                 title: tr('Scheduled deactivations'),
                                 href: pages.scheduledDeactivations,
-                                visible:
-                                    !!sessionUser.role?.editScheduledDeactivation ||
-                                    !!sessionUser.role?.viewScheduledDeactivation,
+                                visible: !!sessionUser.role?.viewScheduledDeactivation,
                             },
                             {
                                 title: tr('To decrees'),

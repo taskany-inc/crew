@@ -1,3 +1,4 @@
 {
-    "Max {max} items in a single request": "Максимум {max} объектов в одном запросе"
+    "Max {max} items in a single request": "Максимум {max} объектов в одном запросе",
+    "No rights to edit {type} request": "Нет прав на редактирования заявки {type}"
 }

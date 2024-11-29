@@ -398,6 +398,17 @@ export type UserRole = {
     viewUserExtendedInfo: Generated<boolean>;
     editScheduledDeactivation: Generated<boolean>;
     viewScheduledDeactivation: Generated<boolean>;
+    decideOnUserCreationRequest: Generated<boolean>;
+    createExistingUserRequest: Generated<boolean>;
+    createInternalUserRequest: Generated<boolean>;
+    readManyInternalUserRequests: Generated<boolean>;
+    editInternalUserRequest: Generated<boolean>;
+    createExternalUserRequest: Generated<boolean>;
+    readManyExternalUserRequests: Generated<boolean>;
+    editExternalUserRequest: Generated<boolean>;
+    createExternalFromMainUserRequest: Generated<boolean>;
+    readManyExternalFromMainUserRequests: Generated<boolean>;
+    editExternalFromMainUserRequest: Generated<boolean>;
     editFullGroupTree: Generated<boolean>;
     viewHistoryEvents: Generated<boolean>;
     importData: Generated<boolean>;

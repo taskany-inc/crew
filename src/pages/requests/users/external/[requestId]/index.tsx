@@ -9,7 +9,7 @@ export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
     stringIds: { requestId: true },
     action: async ({ stringIds, session, ssg }) => {
-        if (!session.user.role?.createUser && !session.user.role?.editUserCreationRequests) {
+        if (!session.user.role?.createExternalUserRequest) {
             return {
                 redirect: {
                     destination: pages.home,
