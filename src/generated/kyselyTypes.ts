@@ -243,7 +243,8 @@ export type ScheduledDeactivation = {
     testingDevices: unknown | null;
     devices: unknown | null;
     comments: string | null;
-    unitId: number;
+    unitId: number | null;
+    unitIdString: string | null;
     transferPercentage: number | null;
     canceled: Generated<boolean>;
     canceledAt: Timestamp | null;

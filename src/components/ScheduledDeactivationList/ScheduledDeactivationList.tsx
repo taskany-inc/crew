@@ -51,32 +51,25 @@ export const ScheduledDeactivationList = () => {
     return (
         <ProfilesManagementLayout>
             <DataTable data={data} sorting={sorting} onSort={(val) => setSorting([val])} className={s.Table}>
-                <DataTableColumn name="name" value="name" title={tr('Name')} width="15vw" fixed />
+                <DataTableColumn name="name" value="name" title={tr('Name')} width="18vw" fixed />
                 <DataTableColumn
                     sortable={false}
                     name="email"
                     value="email"
-                    width="15vw"
+                    width="18vw"
                     title={tr('Email')}
                     lines={1}
                 />
                 <DataTableColumn
                     name="organization"
-                    width="15vw"
-                    value="organization"
-                    title={tr('Organization')}
-                    sortable={false}
-                />
-                <DataTableColumn
-                    name="organization"
-                    width="15vw"
+                    width="18vw"
                     value="organization"
                     title={tr('Organization')}
                     sortable={false}
                 />
                 <DataTableColumn
                     name="supervisor"
-                    width="15vw"
+                    width="18vw"
                     value="supervisor"
                     title={tr('Supervisor')}
                     sortable={false}
