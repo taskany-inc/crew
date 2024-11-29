@@ -548,6 +548,24 @@ const componentMap: {
         );
     },
 
+    EditAdditionalEmailMailingSettings: ({ event }) => {
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('edited additional emails for {orgId} in mailing type {type}', {
+                        orgId: event.after.organizationUnitId || '',
+                        type: event.after.type,
+                    })}
+                </div>
+                <ChangeListItem
+                    title={tr('Additional emails')}
+                    after={event.after.additionalEmails}
+                    before={event.before.additionalEmails}
+                />
+            </>
+        );
+    },
+
     AddUserToGroup: ({ event }) => {
         return (
             <div className={s.Row}>

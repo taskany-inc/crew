@@ -138,5 +138,7 @@
     "Access to services": "Доступ к сервисам",
     "Reason for granting access": "Обоснование предоставления доступа",
     "to grant access": "на предоставлениe доступа",
-    "Attach filenames": "Названия приложений"
+    "Attach filenames": "Названия приложений",
+    "Additional emails": "Дополнительные емейлы",
+    "edited additional emails for {orgId} in mailing type {type}": "изменил(а) дополнительные емейлы для организации {orgId} в рассылке типа {type}"
 }

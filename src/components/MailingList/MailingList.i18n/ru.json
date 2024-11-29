@@ -4,5 +4,9 @@
     "Scheduled new user": "Запланированный выход сотрудника",
     "Scheduled profile deactivation": "Запланированная деактивация",
     "Cancel": "Отмена",
-    "Yes, remove": "Да, удалить"
+    "Yes, remove": "Да, удалить",
+    "Additional emails": "Дополнительные емейлы",
+    "Add new additional email": "Введите дополнительный адрес",
+    "Enter valid email": "Введите валидный емейл",
+    "Add": "Добавить"
 }
