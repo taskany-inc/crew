@@ -117,6 +117,7 @@ export const ExistingUserCreationRequestPage = () => {
                                     type="existing"
                                     onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
+                                    readOnly={false}
                                     id="personal-data"
                                 />
 
