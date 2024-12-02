@@ -1,7 +1,8 @@
 import { User } from 'prisma/prisma-client';
 import { useTheme } from 'next-themes';
-import { Fieldset, RadioControl, RadioGroup, RadioGroupLabel, Checkbox, Text } from '@taskany/bricks/harmony';
+import { Fieldset, RadioControl, RadioGroup, RadioGroupLabel, Checkbox, Text, Button } from '@taskany/bricks/harmony';
 import { ChangeEvent } from 'react';
+import { signOut } from 'next-auth/react';
 
 import { trpc } from '../../trpc/trpcClient';
 import { EditUserSettings } from '../../modules/userSchemas';
@@ -95,6 +96,16 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
                             </div>
                         </Fieldset>
                     </form>
+                </SettingsCard>
+                <SettingsCard view="warning">
+                    <Fieldset title={tr('Danger zone')} view="warning">
+                        <Button
+                            className={s.SignOutButton}
+                            view="warning"
+                            text={tr('Sign out')}
+                            onClick={() => signOut()}
+                        />
+                    </Fieldset>
                 </SettingsCard>
             </SettingsContainer>
         </LayoutMain>
