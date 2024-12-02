@@ -1,5 +1,4 @@
-import { useForm } from 'react-hook-form';
-import { FormControl } from '@taskany/bricks/harmony';
+import { Controller, useForm } from 'react-hook-form';
 import { OrganizationUnit, ScheduledDeactivation } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -48,6 +47,7 @@ import { File } from '../../modules/attachTypes';
 import { AttachItem } from '../AttachItem/AttachItem';
 import { attachFormatter } from '../../utils/attachFormatter';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
+import { FormControl } from '../FormControl/FormControl';
 
 import { tr } from './ScheduleDeactivationForm.i18n';
 
@@ -159,6 +159,7 @@ export const ScheduleDeactivationForm = ({
         setValue,
         register,
         watch,
+        control,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateScheduledDeactivation>({
         resolver: zodResolver(createScheduledDeactivationSchema),
@@ -168,9 +169,9 @@ export const ScheduleDeactivationForm = ({
     useEffect(() => {
         if (!scheduledDeactivation) {
             phone && setValue('phone', phone);
-            setValue('testingDevices', initTestingDevices);
+            initTestingDevices.length && setValue('testingDevices', initTestingDevices);
         }
-    }, [phone, initTestingDevices, setValue, scheduledDeactivation]);
+    }, [phone, setValue, initTestingDevices, scheduledDeactivation]);
 
     useEffect(() => {
         reset(defaultValues);
@@ -224,6 +225,8 @@ export const ScheduleDeactivationForm = ({
         setValue('attachIds', files.filter(({ id }) => id !== file.id).map(({ id }) => id) as [string, ...string[]]);
     };
 
+    const deactivateDate = watch('deactivateDate');
+
     return (
         <StyledModal visible={visible} onClose={hideModal} width={700}>
             <ModalHeader>
@@ -252,7 +255,7 @@ export const ScheduleDeactivationForm = ({
                     ))}
 
                     <StyledFormInput
-                        defaultValue={scheduledDeactivation?.deactivateDate.toISOString().split('T')[0]}
+                        value={deactivateDate ? deactivateDate.toISOString().split('T')[0] : undefined}
                         type="date"
                         error={errors.deactivateDate}
                         autoComplete="off"
@@ -376,13 +379,15 @@ export const ScheduleDeactivationForm = ({
                         label={tr('Devices')}
                         onDeviceAdd={(devices) => setValue('devices', devices)}
                     />
-                    <FormControl>
-                        <FormControlEditor
-                            uploadLink={pages.attaches}
-                            onChange={(e) => setValue('comments', e)}
-                            attachFormatter={formatter}
-                        />
-                    </FormControl>
+                    <Controller
+                        name="comments"
+                        control={control}
+                        render={({ field }) => (
+                            <FormControl>
+                                <FormControlEditor uploadLink={pages.attaches} {...field} attachFormatter={formatter} />
+                            </FormControl>
+                        )}
+                    />
                     {files.map((file) => (
                         <AttachItem file={file} key={file.id} onRemove={() => onAttachRemove(file)} />
                     ))}
