@@ -20,3 +20,8 @@
 .AchievementsInput {
     color: var(--gray9)
 }
+
+.SignOutButton {
+    margin-left: var(--gap-m);
+    margin-bottom: var(--gap-s);
+}
