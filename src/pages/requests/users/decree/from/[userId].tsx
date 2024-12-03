@@ -1,6 +1,9 @@
+import { FC } from 'react';
+
 import { FromDecreeRequestPage } from '../../../../../components/FromDecreeRequestPage/FromDecreeRequestPage';
 import { pages } from '../../../../../hooks/useRouter';
 import { createGetServerSideProps } from '../../../../../utils/createGetSSRProps';
+import { trpc } from '../../../../../trpc/trpcClient';
 
 const redirect = { redirect: { destination: pages.home } };
 
@@ -28,4 +31,20 @@ export const getServerSideProps = createGetServerSideProps({
     },
 });
 
-export default FromDecreeRequestPage;
+interface DecreeRequestPageProps {
+    userId: string;
+}
+
+export const DecreeRequestPage: FC<DecreeRequestPageProps> = ({ userId }) => {
+    const { data: user } = trpc.user.getById.useQuery(userId, {
+        enabled: Boolean(userId),
+    });
+
+    if (!user) {
+        return null;
+    }
+
+    return <FromDecreeRequestPage user={user} />;
+};
+
+export default DecreeRequestPage;

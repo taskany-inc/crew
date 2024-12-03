@@ -1,25 +1,10 @@
 import { ComponentProps, FC, useMemo, useRef } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { User } from 'prisma/prisma-client';
 import { Text } from '@taskany/bricks/harmony';
 import { nullable } from '@taskany/bricks';
 
-import { useRouter } from '../../hooks/useRouter';
-import {
-    UserAchievements,
-    UserMemberships,
-    UserMeta,
-    UserNames,
-    UserOrganizationUnit,
-    UserRoleData,
-    UserScheduledDeactivations,
-    UserServices,
-    UserSupervisor,
-    UserSupervisorIn,
-    UserSupervisorOf,
-    UserSupplementalPositions,
-} from '../../modules/userTypes';
+import { UserSupplementalPositions } from '../../modules/userTypes';
 import { UserFormPersonalDataBlock } from '../UserFormPersonalDataBlock/UserFormPersonalDataBlock';
 import { userDecreeSchema, UserDecreeSchema } from '../../modules/userCreationRequestSchemas';
 import { percentageMultiply } from '../../utils/suplementPosition';
@@ -28,32 +13,19 @@ import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
 import { NavMenu } from '../NavMenu/NavMenu';
 import { useSpyNav } from '../../hooks/useSpyNav';
 import { UserFormRegistrationBlock } from '../UserFormRegistrationBlock/UserFormRegistrationBlock';
-import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
 import { UserFormWorkSpaceBlock } from '../UserFormWorkSpaceBlock/UserFormWorkSpaceBlock';
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
-import { trpc } from '../../trpc/trpcClient';
 
 import { tr } from './DecreeForm.i18n';
 import s from './DecreeForm.module.css';
 
 interface DecreeFormProps {
-    user: NonNullable<
-        User &
-            UserMeta &
-            UserNames &
-            UserMemberships &
-            UserOrganizationUnit &
-            UserSupervisor &
-            UserRoleData &
-            UserAchievements &
-            UserSupervisorOf &
-            UserSupervisorIn &
-            UserScheduledDeactivations &
-            UserSupplementalPositions &
-            UserServices
-    >;
+    defaultValues: Partial<UserDecreeSchema>;
     type: 'toDecree' | 'fromDecree';
+    mode: 'read' | 'edit';
     onSubmit: (data: UserDecreeSchema) => Promise<void>;
+    onCancel: () => void;
+    supplementalPositions?: UserSupplementalPositions['supplementalPositions'];
 }
 
 const personalInfoReadOnly: ComponentProps<typeof UserFormPersonalDataBlock>['readOnly'] = {
@@ -70,65 +42,14 @@ const personalInfoReadOnly: ComponentProps<typeof UserFormPersonalDataBlock>['re
     accountingId: true,
 };
 
-export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
-    const { data: devices = [] } = trpc.device.getUserDevices.useQuery(user.id);
-
-    const router = useRouter();
-
-    const [positions, organizationUnits] = useMemo(() => {
-        const { positions } = getLastSupplementalPositions(user.supplementalPositions);
-
-        const organizationUnits = positions.map((p) => p.organizationUnit);
-
-        return [positions, organizationUnits];
-    }, [user]);
-
-    const role = positions[0]?.role ?? '';
-
-    const defaultValues: Partial<UserDecreeSchema> = useMemo(() => {
-        const [surname = '', firstName = '', middleName = ''] = (user.name ?? '').split(' ');
-        const { personalEmail, phone } = user.services.reduce<{ personalEmail: string; phone: string }>(
-            (acum, item) => {
-                if (!item.active) {
-                    return acum;
-                }
-
-                if (item.serviceName === 'Phone' && !acum.phone) {
-                    acum.phone = item.serviceId;
-                }
-                if (item.serviceName === 'Email' && !acum.personalEmail) {
-                    acum.personalEmail = item.serviceId;
-                }
-
-                return acum;
-            },
-            {
-                personalEmail: '',
-                phone: '',
-            },
-        );
-
-        const group = user?.memberships.find((m) => m.group.organizational)?.group;
-
-        return {
-            type,
-            userTargetId: user.id,
-            supervisorId: user.supervisorId ?? '',
-            surname,
-            firstName,
-            middleName,
-            phone,
-            personalEmail,
-            groupId: group?.id,
-            percentage: 1,
-            login: user.login ?? '',
-            title: role,
-            workEmail: user.email ?? '',
-            equipment: devices.reduce((a, d) => (d.active ? `${a}${a.length > 0 ? ', ' : ''}${d.deviceName}` : a), ''),
-            email: user.email,
-        };
-    }, [user, role, type, devices]);
-
+export const DecreeForm: FC<DecreeFormProps> = ({
+    mode,
+    defaultValues,
+    supplementalPositions,
+    type,
+    onSubmit,
+    onCancel,
+}) => {
     const methods = useForm<UserDecreeSchema>({
         resolver: zodResolver(userDecreeSchema),
         defaultValues,
@@ -143,28 +64,34 @@ export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
         formState: { isSubmitting, isSubmitSuccessful },
     } = methods;
 
+    const organizationUnits = useMemo(
+        () => (supplementalPositions ? supplementalPositions.map((p) => p.organizationUnit) : undefined),
+        [supplementalPositions],
+    );
     const organizationUnitId = watch('organizationUnitId');
     const firedOrganizationUnitId = watch('firedOrganizationUnitId');
     const supplementalPositionsOrganizationUnitId = watch('supplementalPositions.0.organizationUnitId');
 
     const setOrgUnit = (orgId: string, target: 'main' | 'supplemental') => {
-        const position = user.supplementalPositions.find(
-            (item) =>
-                item.organizationUnitId === orgId &&
-                (type === 'toDecree' ? item.status === 'ACTIVE' : item.status !== 'ACTIVE'),
-        );
+        if (supplementalPositions) {
+            const position = supplementalPositions.find(
+                (item) =>
+                    item.organizationUnitId === orgId &&
+                    (type === 'toDecree' ? item.status === 'ACTIVE' : item.status !== 'ACTIVE'),
+            );
 
-        if (!position) {
-            return;
+            if (!position) {
+                return;
+            }
+
+            const key = target === 'main' ? '' : 'supplementalPositions.0.';
+
+            setValue(`${key}unitId`, position.unitId ?? '');
+            setValue(`${key}percentage`, position.percentage / percentageMultiply || 0);
+
+            trigger(`${key}unitId`);
+            trigger(`${key}percentage`);
         }
-
-        const key = target === 'main' ? '' : 'supplementalPositions.0.';
-
-        setValue(`${key}unitId`, position.unitId ?? '');
-        setValue(`${key}percentage`, position.percentage / percentageMultiply || 0);
-
-        trigger(`${key}unitId`);
-        trigger(`${key}percentage`);
     };
 
     const onOrganistaionUnitChange = (orgId: string) => {
@@ -218,7 +145,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
                     </Text>
                     <UserFormFormActions
                         submitDisabled={isSubmitting || isSubmitSuccessful}
-                        onCancel={() => router.user(user.id)}
+                        onCancel={onCancel}
                         onReset={() => reset(defaultValues)}
                     />
                 </div>
@@ -228,7 +155,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
                             type="internal"
                             className={s.FormBlock}
                             id="personal-data"
-                            readOnly={personalInfoReadOnly}
+                            readOnly={mode === 'edit' ? personalInfoReadOnly : true}
                         />
 
                         <UserFormRegistrationBlock
@@ -238,19 +165,26 @@ export const DecreeForm: FC<DecreeFormProps> = ({ user, type, onSubmit }) => {
                             onFiredOrganizationUnitChange={onFiredOrganizationUnitChange}
                             onSupplementalOrganistaionUnitChange={onSuplementalPositionUnitChange}
                             id="registration"
+                            readOnly={mode === 'read'}
+                            edit={mode === 'edit'}
                             type={type}
                         />
 
-                        <UserFormTeamBlock className={s.FormBlock} id="team" type="internal" />
+                        <UserFormTeamBlock
+                            className={s.FormBlock}
+                            id="team"
+                            type="internal"
+                            readOnly={mode === 'read'}
+                        />
 
                         <UserFormWorkSpaceBlock
                             id="work-space"
                             className={s.FormBlock}
                             type={type === 'toDecree' ? 'dismissal' : 'employment'}
-                            readOnly={false}
+                            readOnly={mode === 'read'}
                         />
 
-                        <UserFormCommentsBlock id="comments" className={s.FormBlock} />
+                        <UserFormCommentsBlock id="comments" className={s.FormBlock} readOnly={mode === 'read'} />
                     </div>
 
                     <NavMenu

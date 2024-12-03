@@ -7,6 +7,7 @@ import {
     editUserCreationRequestSchema,
     getUserCreationRequestListSchema,
     handleUserCreationRequest,
+    userDecreeEditSchema,
     userDecreeSchema,
 } from '../../modules/userCreationRequestSchemas';
 import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
@@ -274,6 +275,19 @@ export const userCreationRequestRouter = router({
         return userCreationRequestAfter;
     }),
 
+    editDecree: protectedProcedure.input(userDecreeEditSchema).mutation(async ({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
+        const userCreationRequestBefore = await userCreationRequestsMethods.getById(input.id);
+
+        const userCreationRequestAfter = await userCreationRequestsMethods.editDecree(
+            input,
+            userCreationRequestBefore,
+            ctx.session.user.id,
+        );
+
+        return userCreationRequestAfter;
+    }),
+
     decline: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
 
@@ -371,5 +385,13 @@ export const userCreationRequestRouter = router({
             checkRoleForAccess(ctx.session.user.role, 'createUser'),
         );
         return userCreationRequestsMethods.getRequestForInternalEmployeeById(input);
+    }),
+
+    getDecreeRequestById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+        );
+        return userCreationRequestsMethods.getDecreeRequestById(input);
     }),
 });

@@ -1,3 +1,4 @@
+import { DecreePage } from '../../../../../components/DecreePage/DecreePage';
 import { pages } from '../../../../../hooks/useRouter';
 import { trpc } from '../../../../../trpc/trpcClient';
 import { createGetServerSideProps } from '../../../../../utils/createGetSSRProps';
@@ -14,16 +15,20 @@ export const getServerSideProps = createGetServerSideProps({
                 },
             };
         }
-        await ssg.userCreationRequest.getById.fetch(stringIds.requestId);
+        const request = await ssg.userCreationRequest.getDecreeRequestById.fetch(stringIds.requestId);
+
+        if (request.userTargetId) {
+            await ssg.user.getById.fetch(request.userTargetId);
+        }
 
         return { requestId: stringIds.requestId };
     },
 });
 
 export default function DecreeRequestEditPage({ requestId }: { requestId: string }) {
-    const requestQuery = trpc.userCreationRequest.getById.useQuery(requestId);
+    const { data } = trpc.userCreationRequest.getDecreeRequestById.useQuery(requestId);
 
-    if (!requestQuery.data) return null;
+    if (!data) return null;
 
-    return <>{`edit: ${requestQuery.data?.name}`}</>;
+    return <DecreePage mode="edit" request={data} />;
 }
