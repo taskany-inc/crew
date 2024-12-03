@@ -29,9 +29,10 @@ import {
     EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
+    UserDecreeEditSchema,
     UserDecreeSchema,
 } from './userCreationRequestSchemas';
-import { CompleteUserCreationRequest, UserCreationRequestSupplementPosition } from './userCreationRequestTypes';
+import { CompleteUserCreationRequest, BaseUserCreationRequest, UserDecreeRequest } from './userCreationRequestTypes';
 
 export const userCreationRequestsMethods = {
     create: async (
@@ -39,7 +40,7 @@ export const userCreationRequestsMethods = {
         sessionUserId: string,
     ): Promise<
         UserCreationRequest &
-            UserCreationRequestSupplementPosition & { coordinators: User[] } & { lineManagers: User[] } & {
+            BaseUserCreationRequest & { coordinators: User[] } & { lineManagers: User[] } & {
                 curators: User[];
             } & { permissionServices: PermissionService[] }
     > => {
@@ -299,13 +300,14 @@ export const userCreationRequestsMethods = {
                 organizationUnitId: string;
                 percentage: number;
                 unitId: string | null;
+                main: boolean;
             },
             status: PositionStatus,
         ): Prisma.SupplementalPositionCreateInput => {
             return {
                 organizationUnit: { connect: { id: item.organizationUnitId } },
                 percentage: item.percentage * percentageMultiply,
-                main: existed.main,
+                main: item.main,
                 role: data.title,
                 unitId: item.unitId,
                 workEndDate: data.type === 'toDecree' ? data.date : null,
@@ -328,6 +330,7 @@ export const userCreationRequestsMethods = {
                                 organizationUnitId: item.organizationUnitId,
                                 percentage: item.percentage,
                                 unitId: item.unitId || null,
+                                main: false,
                             },
                             status,
                         ),
@@ -347,6 +350,7 @@ export const userCreationRequestsMethods = {
                         organizationUnitId: data.organizationUnitId,
                         percentage: data.percentage || 1,
                         unitId: data.unitId || null,
+                        main: true,
                     },
                     status,
                 ),
@@ -364,6 +368,7 @@ export const userCreationRequestsMethods = {
                             organizationUnitId: data.firedOrganizationUnitId,
                             percentage: positionToFire.percentage,
                             unitId: positionToFire.unitId,
+                            main: false,
                         },
                         PositionStatus.FIRED,
                     ),
@@ -388,6 +393,8 @@ export const userCreationRequestsMethods = {
                 email: data.email,
                 login: data.login,
                 organizationUnitId: data.organizationUnitId,
+                percentage: (data.percentage ?? 1) * percentageMultiply,
+                unitId: data.unitId,
                 groupId: data.groupId || undefined,
                 supervisorLogin: supervisor?.login,
                 supervisorId: data.supervisorId || undefined,
@@ -929,6 +936,297 @@ export const userCreationRequestsMethods = {
         return updatedRequest;
     },
 
+    editDecree: async (
+        data: UserDecreeEditSchema,
+        requestBeforeUpdate: UserCreationRequest & { supplementalPositions: SupplementalPosition[] },
+        sessionUserId: string,
+    ) => {
+        const { id, ...editData } = data;
+
+        if (requestBeforeUpdate.status === 'Denied') {
+            throw new TRPCError({ code: 'FORBIDDEN', message: `Forbidden to edit denied request id: ${id}` });
+        }
+
+        const currentUser = await userMethods.getById(data.userTargetId);
+
+        const status = data.type === 'toDecree' ? PositionStatus.DECREE : PositionStatus.ACTIVE;
+
+        editData.date && editData.date.setUTCHours(config.employmentUtcHour);
+
+        const supplementalPositionsToDisconnect = requestBeforeUpdate.supplementalPositions.reduce<{ id: string }[]>(
+            (acum, item) => {
+                const isInFired =
+                    editData.type === 'toDecree' &&
+                    editData.firedOrganizationUnitId &&
+                    item.organizationUnitId === editData.firedOrganizationUnitId;
+                const isInMain = editData.organizationUnitId === item.organizationUnitId;
+                const isInSupplemental = editData.supplementalPositions?.find(
+                    (p) => p.organizationUnitId === item.organizationUnitId,
+                );
+
+                if (!isInFired && !isInMain && !isInSupplemental) {
+                    acum.push({
+                        id: item.id,
+                    });
+                }
+                return acum;
+            },
+            [],
+        );
+
+        const supplementalPositionsToCreate: Prisma.SupplementalPositionCreateInput[] = [];
+
+        const updateData: Prisma.UserCreationRequestUpdateInput = {
+            title: editData.title || undefined,
+            date: editData.date,
+            comment: editData.comment || undefined,
+            workMode: editData.workMode,
+            workModeComment: editData.workModeComment,
+            equipment: editData.equipment,
+            extraEquipment: editData.extraEquipment,
+            workSpace: editData.workSpace,
+            buddy: editData.buddyId ? { connect: { id: editData.buddyId } } : undefined,
+            coordinators: { connect: editData.coordinatorIds?.map((id) => ({ id })) },
+            location: editData.location,
+            unitId: editData.unitId,
+            supplementalPositions: {
+                disconnect: supplementalPositionsToDisconnect,
+                create: supplementalPositionsToCreate,
+            },
+        };
+
+        if (editData.groupId) {
+            updateData.group = { connect: { id: editData.groupId } };
+        }
+
+        if (editData.lineManagerIds?.length) {
+            updateData.lineManagers = { connect: editData.lineManagerIds.map((id) => ({ id })) };
+        }
+
+        if (editData.supervisorId) {
+            updateData.supervisor = { connect: { id: editData.supervisorId } };
+        }
+
+        if (editData.percentage) {
+            updateData.percentage = editData.percentage * percentageMultiply;
+        }
+
+        if (editData.organizationUnitId !== requestBeforeUpdate.organizationUnitId) {
+            updateData.organization = {
+                connect: {
+                    id: editData.organizationUnitId,
+                },
+            };
+        }
+
+        const supplementalPositionToUpdate: {
+            id: string;
+            status: PositionStatus;
+            percentage?: number;
+            unitId?: string | null;
+            main?: boolean;
+            workEndDate: Date | null;
+            workStartDate: Date | null;
+        }[] = [];
+
+        const findPrevRequestPosition = (id: string) =>
+            requestBeforeUpdate.supplementalPositions.find((p) => p.organizationUnitId === id);
+
+        const findUserPosition = (id: string) =>
+            currentUser.supplementalPositions.find((p) => p.organizationUnitId === id);
+
+        const oldMainInRequest = findPrevRequestPosition(editData.organizationUnitId);
+
+        const baseMainInput = {
+            percentage: (editData.percentage || 1) * percentageMultiply,
+            unitId: editData.unitId,
+            status,
+            main: true,
+        };
+
+        if (data.type === 'toDecree') {
+            const oldMainUserPosition = findUserPosition(editData.organizationUnitId);
+
+            if (oldMainUserPosition && oldMainUserPosition.status === 'ACTIVE') {
+                const dateInput = {
+                    workEndDate: data.date,
+                    workStartDate: oldMainUserPosition.workStartDate,
+                };
+                if (oldMainInRequest) {
+                    supplementalPositionToUpdate.push({
+                        id: oldMainInRequest.id,
+                        ...dateInput,
+                        ...baseMainInput,
+                    });
+                } else {
+                    supplementalPositionsToCreate.push({
+                        organizationUnit: { connect: { id: editData.organizationUnitId } },
+                        ...dateInput,
+                        ...baseMainInput,
+                    });
+                }
+            }
+        } else {
+            const dateInput = {
+                workEndDate: null,
+                workStartDate: data.date,
+            };
+
+            if (oldMainInRequest) {
+                supplementalPositionToUpdate.push({
+                    id: oldMainInRequest.id,
+                    ...dateInput,
+                    ...baseMainInput,
+                });
+            } else {
+                supplementalPositionsToCreate.push({
+                    organizationUnit: { connect: { id: editData.organizationUnitId } },
+                    ...dateInput,
+                    ...baseMainInput,
+                });
+            }
+        }
+
+        editData.supplementalPositions?.forEach((position) => {
+            const baseInput = {
+                percentage: (position.percentage || 1) * percentageMultiply,
+                unitId: position.unitId,
+                status,
+                main: false,
+            };
+
+            const oldPositionInRequest = findPrevRequestPosition(position.organizationUnitId);
+
+            if (data.type === 'toDecree') {
+                const oldUserPosition = findUserPosition(position.organizationUnitId);
+
+                if (oldUserPosition && oldUserPosition.status === 'ACTIVE') {
+                    const dateInput = {
+                        workEndDate: data.date,
+                        workStartDate: oldUserPosition.workStartDate,
+                    };
+
+                    if (oldPositionInRequest) {
+                        supplementalPositionToUpdate.push({
+                            id: oldPositionInRequest.id,
+                            ...dateInput,
+                            ...baseInput,
+                        });
+                    } else {
+                        supplementalPositionsToCreate.push({
+                            organizationUnit: { connect: { id: position.organizationUnitId } },
+                            ...dateInput,
+                            ...baseInput,
+                        });
+                    }
+                }
+            } else {
+                const dateInput = {
+                    workEndDate: null,
+                    workStartDate: data.date,
+                };
+
+                if (oldPositionInRequest) {
+                    supplementalPositionToUpdate.push({
+                        id: oldPositionInRequest.id,
+                        ...dateInput,
+                        ...baseInput,
+                    });
+                } else {
+                    supplementalPositionsToCreate.push({
+                        organizationUnit: { connect: { id: position.organizationUnitId } },
+                        ...dateInput,
+                        ...baseInput,
+                    });
+                }
+            }
+        });
+
+        if (editData.type === 'toDecree' && editData.firedOrganizationUnitId) {
+            const oldFired = findPrevRequestPosition(editData.firedOrganizationUnitId);
+            const userPositionToFired = findUserPosition(editData.firedOrganizationUnitId);
+
+            if (userPositionToFired) {
+                const baseFiredInput = {
+                    percentage: userPositionToFired.percentage,
+                    unitId: userPositionToFired.unitId,
+                    status: PositionStatus.FIRED,
+                    main: false,
+                    workStartDate: userPositionToFired.workStartDate,
+                    workEndDate: data.date,
+                };
+
+                if (oldFired) {
+                    supplementalPositionToUpdate.push({
+                        id: oldFired.id,
+                        ...baseFiredInput,
+                    });
+                } else if (userPositionToFired) {
+                    supplementalPositionsToCreate.push({
+                        organizationUnit: { connect: { id: editData.firedOrganizationUnitId } },
+                        ...baseFiredInput,
+                    });
+                }
+            }
+        }
+
+        await prisma.$transaction(
+            supplementalPositionToUpdate.map(({ id, ...data }) =>
+                prisma.supplementalPosition.update({
+                    where: {
+                        id,
+                    },
+                    data,
+                }),
+            ),
+        );
+
+        const updatedRequest = await prisma.userCreationRequest.update({
+            where: { id },
+            data: updateData,
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+                buddy: true,
+                coordinators: true,
+                recruiter: true,
+                creator: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
+                attaches: { where: { deletedAt: null } },
+            },
+        });
+
+        if (editData.date && requestBeforeUpdate.date !== editData.date) {
+            const { to } = await userMethods.getMailingList(
+                'createScheduledUserRequest',
+                updatedRequest.organizationUnitId,
+                [sessionUserId],
+            );
+
+            const html =
+                data.type === 'fromDecree'
+                    ? htmlFromDecreeRequest(updatedRequest)
+                    : htmlToDecreeRequest(updatedRequest);
+
+            const subject = `${data.type === 'fromDecree' ? tr('From decree') : tr('To decree')} ${
+                updatedRequest.name
+            } ${getOrgUnitTitle(updatedRequest.organization)} ${data.phone}`;
+
+            sendMail({
+                to,
+                subject,
+                html,
+            });
+
+            if (requestBeforeUpdate.jobId) await jobUpdate(requestBeforeUpdate.jobId, { date: editData.date });
+        }
+        return updatedRequest;
+    },
+
     decline: async ({ id, comment }: HandleUserCreationRequest): Promise<UserCreationRequest> => {
         return prisma.userCreationRequest.update({
             where: { id },
@@ -1181,6 +1479,124 @@ export const userCreationRequestsMethods = {
                 })),
             osPreference: osPreference || undefined,
             unitId: unitId || undefined,
+            surname: fullNameArray[0],
+            firstName: fullNameArray[1],
+            middleName: fullNameArray[2],
+        };
+    },
+
+    getDecreeRequestById: async (id: string): Promise<UserDecreeRequest> => {
+        const request = await prisma.userCreationRequest.findUnique({
+            where: { id },
+            include: {
+                coordinators: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                userTarget: {
+                    include: {
+                        services: true,
+                    },
+                },
+            },
+        });
+
+        if (!request) {
+            throw new TRPCError({ message: `No user creation request with id ${id}`, code: 'NOT_FOUND' });
+        }
+
+        const {
+            services,
+            name,
+            type,
+            title,
+            recruiterId,
+            buddyId,
+            supervisorId,
+            date,
+            percentage,
+            workMode,
+            equipment,
+            location,
+            groupId,
+            corporateEmail,
+            comment,
+            workModeComment,
+            extraEquipment,
+            workSpace,
+            personalEmail,
+            workEmail,
+            unitId,
+            osPreference,
+            supplementalPositions,
+            coordinators,
+            lineManagers,
+            userTargetId,
+            userTarget,
+            ...restRequest
+        } = request;
+
+        if (type !== 'toDecree' && type !== 'fromDecree') {
+            throw new TRPCError({
+                message: `Wrong request type ${request.type} instead of InternalEmployee for request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        const fullNameArray = name.split(' ');
+
+        const s = userTarget?.services as { serviceId: string; serviceName: string }[];
+
+        const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
+
+        if (
+            !userTarget ||
+            !userTargetId ||
+            !date ||
+            !title ||
+            !phone ||
+            !supervisorId ||
+            !workMode ||
+            !equipment ||
+            !location
+        ) {
+            throw new TRPCError({
+                message: `Some data is missing for request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        return {
+            ...restRequest,
+            userTargetId,
+            type,
+            title,
+            phone,
+            date,
+            supervisorId,
+            services: s,
+            buddyId,
+            recruiterId,
+            percentage: percentage ? percentage / percentageMultiply : null,
+            workMode,
+            equipment,
+            location,
+            coordinatorIds: coordinators.map(({ id }) => id) || undefined,
+            lineManagerIds: lineManagers.map(({ id }) => id),
+            groupId,
+            corporateEmail,
+            comment,
+            workModeComment,
+            extraEquipment,
+            workSpace,
+            personalEmail,
+            workEmail,
+            supplementalPositions: supplementalPositions.map(({ percentage, ...rest }) => ({
+                ...rest,
+                percentage: percentage / percentageMultiply,
+            })),
+            osPreference,
+            unitId,
+            name,
             surname: fullNameArray[0],
             firstName: fullNameArray[1],
             middleName: fullNameArray[2],

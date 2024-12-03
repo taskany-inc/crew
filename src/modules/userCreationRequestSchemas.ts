@@ -199,6 +199,27 @@ export const userDecreeSchema = z.discriminatedUnion('type', [getUserToDecreeSch
 
 export type UserDecreeSchema = z.infer<typeof userDecreeSchema>;
 
+export const getUserToDecreeEditSchema = () =>
+    getUserToDecreeSchema().extend({
+        id: z.string(),
+    });
+
+export type UserToDecreeEditSchema = z.infer<ReturnType<typeof getUserToDecreeEditSchema>>;
+
+export const getUserFromDecreeEditSchema = () =>
+    getUserFromDecreeSchema().extend({
+        id: z.string(),
+    });
+
+export type UserFromDecreeEditSchema = z.infer<ReturnType<typeof getUserFromDecreeEditSchema>>;
+
+export const userDecreeEditSchema = z.discriminatedUnion('type', [
+    getUserToDecreeEditSchema(),
+    getUserFromDecreeEditSchema(),
+]);
+
+export type UserDecreeEditSchema = z.infer<typeof userDecreeEditSchema>;
+
 // schema for backend validation
 export const createUserCreationRequestSchema = z.discriminatedUnion('type', [
     getCreateUserCreationRequestBaseSchema(),

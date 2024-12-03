@@ -2,7 +2,7 @@ import { getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
 import { useRef, useState, FC, forwardRef } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
-import { pages } from '../../hooks/useRouter';
+import { pages, useRouter } from '../../hooks/useRouter';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { useSessionUser } from '../../hooks/useSessionUser';
@@ -35,6 +35,7 @@ const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((prop
 export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }) => {
     const sessionUser = useSessionUser();
     const dateTitleRef = useRef(null);
+    const router = useRouter();
 
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
 
@@ -116,7 +117,7 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions
                                 requestId={id}
-                                onEdit={() => pages.decreeRequestEdit(id)}
+                                onEdit={() => router.decreeRequestEdit(id)}
                                 small
                                 requestType="decree"
                             />

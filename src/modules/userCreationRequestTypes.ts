@@ -1,19 +1,31 @@
 import { Group, OrganizationUnit, SupplementalPosition, User, UserCreationRequest } from 'prisma/prisma-client';
 
-export interface UserCreationRequestSupplementPosition {
-    supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
+export type SupplementalPositionWithUnit = SupplementalPosition & { organizationUnit: OrganizationUnit };
+
+export interface BaseUserCreationRequest extends UserCreationRequest {
+    supplementalPositions: Array<SupplementalPositionWithUnit>;
 }
 
-export interface CompleteUserCreationRequest extends UserCreationRequest {
-    supervisor: User | null;
-    organization: OrganizationUnit;
+export interface CompleteUserCreationRequest extends BaseUserCreationRequest {
     group: Group | null;
     services: Record<'serviceName' | 'serviceId', string>[] | null;
-    buddy: User | null;
-    coordinator: User | null;
-    coordinators: User[];
-    lineManagers: User[];
     recruiter: User | null;
     creator: User | null;
-    supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
+    buddy: User | null;
+    organization: OrganizationUnit;
+    coordinators: User[];
+    lineManagers: User[];
+    supervisor: User | null;
+    coordinator: User | null;
+}
+
+export interface UserDecreeRequest extends BaseUserCreationRequest {
+    type: 'toDecree' | 'fromDecree';
+    userTargetId: string;
+    phone: string;
+    coordinatorIds: string[];
+    lineManagerIds: string[];
+    surname: string;
+    firstName: string;
+    middleName: string;
 }
