@@ -177,8 +177,17 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
 
     const activeScheduledDeactivation = getActiveScheduledDeactivation(user);
 
-    const activePosition =
-        !user.supplementalPositions.length || user.supplementalPositions.find((p) => p.status === 'ACTIVE');
+    const { hasDecreePosition, hasActivePosition } = useMemo(() => {
+        const hasActivePosition =
+            !user.supplementalPositions.length || user.supplementalPositions.find((p) => p.status === 'ACTIVE');
+
+        const hasDecreePosition = user.supplementalPositions.some((p) => p.status === 'DECREE');
+
+        return {
+            hasActivePosition,
+            hasDecreePosition,
+        };
+    }, [user.supplementalPositions]);
 
     return (
         <LayoutMain pageTitle={user.name}>
@@ -219,9 +228,9 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             </Text>
                         ),
                     )}
-                    <Text size="xxl" weight="bold" color={user.active && activePosition ? textColor : gray8}>
+                    <Text size="xxl" weight="bold" color={user.active && hasActivePosition ? textColor : gray8}>
                         {user.name}
-                        {(!user.active || !activePosition) && tr(' [inactive]')}
+                        {(!user.active || !hasActivePosition) && tr(' [inactive]')}
                     </Text>
                 </StyledUserNameWrapper>
                 <Modal visible={updateUserFormVisibility.value} width={600}>
@@ -253,7 +262,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                     </Restricted>
                     <Restricted visible={!!sessionUser.role?.editUserActiveState}>
                         {nullable(
-                            activePosition,
+                            hasActivePosition,
                             () => (
                                 <Button
                                     onClick={() => router.toDecree(user.id)}
@@ -263,13 +272,15 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                                     size="s"
                                 />
                             ),
-                            <Button
-                                onClick={() => router.fromDecree(user.id)}
-                                text={tr('From decree')}
-                                view="primary"
-                                outline
-                                size="s"
-                            />,
+                            nullable(hasDecreePosition, () => (
+                                <Button
+                                    onClick={() => router.fromDecree(user.id)}
+                                    text={tr('From decree')}
+                                    view="primary"
+                                    outline
+                                    size="s"
+                                />
+                            )),
                         )}
                     </Restricted>
                     <Restricted visible={!activeScheduledDeactivation && !!sessionUser.role?.editScheduledDeactivation}>
