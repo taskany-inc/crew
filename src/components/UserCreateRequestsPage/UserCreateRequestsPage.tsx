@@ -8,6 +8,7 @@ import { pages, useRouter } from '../../hooks/useRouter';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { useSessionUser } from '../../hooks/useSessionUser';
+import { useUserListFilter } from '../../hooks/useUserListFilter';
 
 import { tr } from './UserCreateRequestsPage.i18n';
 import s from './UserCreateRequestsPage.module.css';
@@ -35,7 +36,7 @@ const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((prop
 
 export const UserCreateRequestsPage = () => {
     const sessionUser = useSessionUser();
-
+    const userListFilter = useUserListFilter();
     const dateTitleRef = useRef(null);
 
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
@@ -51,6 +52,7 @@ export const UserCreateRequestsPage = () => {
             name: sorting.find(({ key }) => key === 'name')?.dir,
             date: sorting.find(({ key }) => key === 'date')?.dir,
         },
+        search: userListFilter.values.search,
     });
 
     const data: tableData[] = userRequests.map((request) => ({

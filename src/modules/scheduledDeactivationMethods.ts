@@ -109,8 +109,9 @@ export const scheduledDeactivationMethods = {
         return scheduledDeactivation;
     },
 
-    getList: async ({ creatorId, orderBy: order }: GetScheduledDeactivationList) => {
+    getList: async ({ creatorId, orderBy: order, search }: GetScheduledDeactivationList) => {
         let orderBy: Prisma.ScheduledDeactivationOrderByWithRelationAndSearchRelevanceInput[] = [];
+        const where: Prisma.ScheduledDeactivationWhereInput = {};
 
         if (order?.name) {
             orderBy = [{ user: { name: order.name } }];
@@ -118,6 +119,10 @@ export const scheduledDeactivationMethods = {
 
         if (order?.deactivateDate) {
             orderBy = [{ deactivateDate: order.deactivateDate }];
+        }
+
+        if (search) {
+            where.user = { name: { contains: search, mode: 'insensitive' } };
         }
 
         return prisma.scheduledDeactivation.findMany({

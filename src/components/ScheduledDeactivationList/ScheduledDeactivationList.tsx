@@ -9,6 +9,7 @@ import { ScheduledDeactivationEditMenu } from '../ScheduledDeactivationEditMenu/
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { ScheduleDeactivationForm } from '../ScheduleDeactivationForm/ScheduleDeactivationForm';
 import { CancelScheduleDeactivation } from '../CancelScheduleDeactivation/CancelScheduleDeactivation';
+import { useUserListFilter } from '../../hooks/useUserListFilter';
 
 import { tr } from './ScheduledDeactivationList.i18n';
 import s from './ScheduledDeactivationList.module.css';
@@ -53,6 +54,7 @@ const CancelForm = ({ id, onClose }: EditOrCancelFormProps) => {
 
 export const ScheduledDeactivationList = () => {
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
+    const userListFilter = useUserListFilter();
 
     const sessionUser = useSessionUser();
 
@@ -65,6 +67,7 @@ export const ScheduledDeactivationList = () => {
             name: sorting.find(({ key }) => key === 'name')?.dir,
             deactivateDate: sorting.find(({ key }) => key === 'deactivateDate')?.dir,
         },
+        search: userListFilter.values.search,
     });
 
     const data: tableData[] = scheduledDeactivations.map((deactivation) => ({

@@ -6,6 +6,7 @@ import { pages, useRouter } from '../../hooks/useRouter';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { useSessionUser } from '../../hooks/useSessionUser';
+import { useUserListFilter } from '../../hooks/useUserListFilter';
 
 import { tr } from './UserDecreeRequestsPage.i18n';
 import s from './UserDecreeRequestsPage.module.css';
@@ -37,6 +38,7 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
     const dateTitleRef = useRef(null);
     const router = useRouter();
 
+    const userListFilter = useUserListFilter();
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
 
     const [sorting, setSorting] = useState<React.ComponentProps<typeof DataTable>['sorting']>([
@@ -50,6 +52,7 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
             name: sorting.find(({ key }) => key === 'name')?.dir,
             date: sorting.find(({ key }) => key === 'date')?.dir,
         },
+        search: userListFilter.values.search,
     });
 
     const data: tableData[] = userRequests.map((request) => ({
