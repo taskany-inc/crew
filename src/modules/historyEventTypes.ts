@@ -79,11 +79,28 @@ interface HistoryEventsData {
             permissionServices?: string;
         };
     };
+    resolveUserDecreeRequest: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            type?: string;
+            name?: string;
+            email: string;
+            phone?: string;
+            login?: string;
+            organizationalUnitId?: string;
+            accountingId?: string;
+            supervisorId?: string;
+            createExternalAccount?: boolean;
+        };
+    };
     cancelUserCreationRequest: {
         requireGroupId: false;
         requireUserId: false;
         requireBefore: false;
         data: {
+            type?: string;
             id: string;
             name: string;
             email: string;
@@ -117,6 +134,7 @@ interface HistoryEventsData {
         requireUserId: false;
         requireBefore: true;
         data: {
+            type?: string;
             id: string;
             name?: string;
             email?: string;

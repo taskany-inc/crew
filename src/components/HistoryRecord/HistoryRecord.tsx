@@ -82,6 +82,43 @@ const componentMap: {
         );
     },
 
+    ResolveUserDecreeRequest: ({ event }) => {
+        const visible = useBoolean(false);
+
+        const title = useMemo(() => {
+            if (event.after.type === 'toDecree') {
+                return tr('to going on maternity leave');
+            }
+
+            return tr('to exit on maternity leave');
+        }, [event.after.type]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('resolve request')} {title} <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Name')} after={event.after.name} />
+                        <ChangeListItem title={tr('Email')} after={event.after.email} />
+                        <ChangeListItem title={tr('Phone')} after={event.after.phone} />
+                        <ChangeListItem title={tr('Login')} after={event.after.login} />
+                        <ChangeListItem title={tr('Organization id')} after={event.after.organizationalUnitId} />
+                        <ChangeListItem title={tr('Accounting id')} after={event.after.accountingId} />
+                        <ChangeListItem title={tr('Supervisor id')} after={event.after.supervisorId} />
+                        <div>
+                            {tr('External account')}{' '}
+                            <BoldText>{event.after.createExternalAccount ? tr('was') : tr('was not')}</BoldText>{' '}
+                            {tr('created')}
+                        </div>
+                    </>
+                ))}
+            </>
+        );
+    },
+
     EditUser: ({ event }) => {
         const visible = useBoolean(false);
         return (
@@ -144,11 +181,24 @@ const componentMap: {
             notifyPromise(copy(event.after.id), 'copy');
         }, [copy, event.after.id]);
 
+        const title = useMemo(() => {
+            if (event.after.type === 'externalFromMainOrgEmployee') {
+                return tr('to grant access');
+            }
+            if (event.after.type === 'toDecree') {
+                return tr('to going on maternity leave');
+            }
+
+            if (event.after.type === 'fromDecree') {
+                return tr('to exit on maternity leave');
+            }
+            return tr('to create user');
+        }, [event.after.type]);
+
         return (
             <>
                 <div className={s.Row}>
-                    {tr('created request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
-                    {event.after.type === 'externalFromMainOrgEmployee' ? tr('to grant access') : tr('to create user')}{' '}
+                    {tr('created request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {title}{' '}
                     <BoldText>
                         {event.after.name} ({event.after.email})
                     </BoldText>
@@ -230,10 +280,22 @@ const componentMap: {
             notifyPromise(copy(event.after.id), 'copy');
         }, [copy, event.after.id]);
 
+        const title = useMemo(() => {
+            if (event.after.type === 'toDecree') {
+                return tr('to going on maternity leave');
+            }
+
+            if (event.after.type === 'fromDecree') {
+                return tr('to exit on maternity leave');
+            }
+
+            return tr('to create user');
+        }, [event.after.type]);
+
         return (
             <>
                 <div className={s.Row}>
-                    {tr('canceled request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
+                    {tr('canceled request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {title}{' '}
                     <BoldText>
                         {event.after.name} ({event.after.email})
                     </BoldText>
@@ -318,10 +380,21 @@ const componentMap: {
             [event.before.services],
         );
 
+        const title = useMemo(() => {
+            if (event.after.type === 'toDecree') {
+                return tr('to going on maternity leave');
+            }
+
+            if (event.after.type === 'fromDecree') {
+                return tr('to exit on maternity leave');
+            }
+            return tr('to create user');
+        }, [event.after.type]);
+
         return (
             <>
                 <div className={s.Row}>
-                    {tr('edited request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
+                    {tr('edited request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {title}{' '}
                     <BoldText>{event.after.name}</BoldText>
                     <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
