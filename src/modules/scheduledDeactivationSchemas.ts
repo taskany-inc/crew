@@ -94,6 +94,7 @@ export const getScheduledDeactivationListSchema = z.object({
             name: z.enum(['asc', 'desc']).optional(),
         })
         .optional(),
+    search: z.string().optional(),
 });
 
 export type GetScheduledDeactivationList = z.infer<typeof getScheduledDeactivationListSchema>;

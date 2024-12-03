@@ -7,6 +7,7 @@ import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { useSessionUser } from '../../hooks/useSessionUser';
+import { useUserListFilter } from '../../hooks/useUserListFilter';
 
 import s from './AccessCoordinationList.module.css';
 import { tr } from './AccessCoordinationList.i18n';
@@ -41,6 +42,7 @@ const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((prop
 
 export const AccessCoordinationList = () => {
     const sessionUser = useSessionUser();
+    const userListFilter = useUserListFilter();
 
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
 
@@ -58,6 +60,7 @@ export const AccessCoordinationList = () => {
             name: sorting.find(({ key }) => key === 'name')?.dir,
             createdAt: sorting.find(({ key }) => key === 'createdAt')?.dir,
         },
+        search: userListFilter.values.search,
     });
 
     const onEdit = (id: string, type: string) => {
