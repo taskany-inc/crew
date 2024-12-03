@@ -7,6 +7,8 @@ import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesMa
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { ScheduledDeactivationEditMenu } from '../ScheduledDeactivationEditMenu/ScheduledDeactivationEditMenu';
 import { useSessionUser } from '../../hooks/useSessionUser';
+import { ScheduleDeactivationForm } from '../ScheduleDeactivationForm/ScheduleDeactivationForm';
+import { CancelScheduleDeactivation } from '../CancelScheduleDeactivation/CancelScheduleDeactivation';
 
 import { tr } from './ScheduledDeactivationList.i18n';
 import s from './ScheduledDeactivationList.module.css';
@@ -20,6 +22,34 @@ interface tableData {
     id: string;
     // TODO add team after adding it to deactivation form
 }
+
+interface EditOrCancelFormProps {
+    id: string;
+    onClose: () => void;
+}
+
+const EditForm = ({ id, onClose }: EditOrCancelFormProps) => {
+    const { data: scheduledDeactivation } = trpc.scheduledDeactivation.getById.useQuery(id);
+    if (!scheduledDeactivation) return null;
+
+    return (
+        <ScheduleDeactivationForm
+            userId={id}
+            scheduledDeactivation={scheduledDeactivation}
+            visible={true}
+            onClose={onClose}
+        />
+    );
+};
+
+const CancelForm = ({ id, onClose }: EditOrCancelFormProps) => {
+    const { data: scheduledDeactivation } = trpc.scheduledDeactivation.getById.useQuery(id);
+    if (!scheduledDeactivation) return null;
+
+    return (
+        <CancelScheduleDeactivation scheduledDeactivation={scheduledDeactivation} visible={true} onClose={onClose} />
+    );
+};
 
 export const ScheduledDeactivationList = () => {
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
@@ -47,6 +77,9 @@ export const ScheduledDeactivationList = () => {
     }));
 
     const dateTitleRef = useRef(null);
+
+    const [editRequestId, setEditRequestId] = useState<undefined | string>();
+    const [cancelRequestId, setCancelRequestId] = useState<undefined | string>();
 
     return (
         <ProfilesManagementLayout>
@@ -98,12 +131,22 @@ export const ScheduledDeactivationList = () => {
                         width="100px"
                         renderCell={({ id }) => (
                             <div onClick={(e) => e.preventDefault()}>
-                                <ScheduledDeactivationEditMenu id={id} />
+                                <ScheduledDeactivationEditMenu
+                                    onEditClick={() => setEditRequestId(id)}
+                                    onCancelClick={() => setCancelRequestId(id)}
+                                />
                             </div>
                         )}
                     />
                 ))}
             </DataTable>
+
+            {nullable(editRequestId, (id) => (
+                <EditForm id={id} onClose={() => setEditRequestId(undefined)} />
+            ))}
+            {nullable(cancelRequestId, (id) => (
+                <CancelForm id={id} onClose={() => setCancelRequestId(undefined)} />
+            ))}
         </ProfilesManagementLayout>
     );
 };
