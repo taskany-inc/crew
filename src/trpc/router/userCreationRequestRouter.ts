@@ -107,6 +107,74 @@ export const userCreationRequestRouter = router({
 
         const creationRequest = await userCreationRequestsMethods.createDecreeRequest(input, ctx.session.user.id);
 
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'createUserCreationRequest', {
+            groupId: undefined,
+            userId: undefined,
+            before: undefined,
+            after: {
+                ...creationRequest,
+                groupId: creationRequest.groupId || undefined,
+                supervisorLogin: creationRequest.supervisorLogin || undefined,
+                supervisorId: creationRequest.supervisorId || undefined,
+                buddyId: creationRequest.buddyId || undefined,
+                coordinatorId: creationRequest.coordinatorId || undefined,
+                coordinatorIds: creationRequest.coordinators.length
+                    ? creationRequest.coordinators.map(({ id }) => id).join(', ')
+                    : undefined,
+                recruiterId: creationRequest.recruiterId || undefined,
+                type: creationRequest.type || undefined,
+                corporateEmail: creationRequest.corporateEmail || undefined,
+                title: creationRequest.title || undefined,
+                osPreference: creationRequest.osPreference || undefined,
+                status: null,
+                services: creationRequest.services as Record<'serviceName' | 'serviceId', string>[],
+                date: creationRequest.date?.toISOString(),
+                createExternalAccount: creationRequest.createExternalAccount,
+                externalOrganizationSupervisorLogin: creationRequest.externalOrganizationSupervisorLogin || undefined,
+                accessToInternalSystems: creationRequest.accessToInternalSystems || undefined,
+                comment: creationRequest.comment || undefined,
+                creationCause: creationRequest.creationCause || undefined,
+                location: creationRequest.location || undefined,
+                workMode: creationRequest.workMode || undefined,
+                workModeComment: creationRequest.workModeComment || undefined,
+                workSpace: creationRequest.workSpace || undefined,
+                equipment: creationRequest.equipment || undefined,
+                extraEquipment: creationRequest.extraEquipment || undefined,
+                buddyLogin: creationRequest.buddyLogin || undefined,
+                recruiterLogin: creationRequest.recruiterLogin || undefined,
+                coordinatorLogin: creationRequest.coordinatorLogin || undefined,
+                coordinatorLogins: creationRequest.coordinators.length
+                    ? creationRequest.coordinators.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerLogins: creationRequest.lineManagers.length
+                    ? creationRequest.lineManagers.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerIds: creationRequest.lineManagers.length
+                    ? creationRequest.lineManagers.map(({ id }) => id).join(', ')
+                    : undefined,
+                supplementalPositions: creationRequest.supplementalPositions.length
+                    ? creationRequest.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
+                          organizationUnitId,
+                          percentage,
+                          unitId: unitId || '',
+                      }))
+                    : undefined,
+                unitId: creationRequest.unitId || undefined,
+                workEmail: creationRequest.workEmail || undefined,
+                personalEmail: creationRequest.personalEmail || undefined,
+                reasonToGrantPermissionToServices: creationRequest.reasonToGrantPermissionToServices || undefined,
+                curatorLogins: creationRequest.curators.length
+                    ? creationRequest.curators.map(({ login }) => login).join(', ')
+                    : undefined,
+                curatorIds: creationRequest.curators.length
+                    ? creationRequest.curators.map(({ id }) => id).join(', ')
+                    : undefined,
+                permissionServices: creationRequest.permissionServices.length
+                    ? creationRequest.permissionServices.map(({ name }) => name).join(', ')
+                    : undefined,
+            },
+        });
+
         return creationRequest;
     }),
 
@@ -268,8 +336,8 @@ export const userCreationRequestRouter = router({
         await historyEventMethods.create({ user: ctx.session.user.id }, 'editUserCreationRequest', {
             groupId: undefined,
             userId: undefined,
-            before: { ...before, id: userCreationRequestBefore.id },
-            after: { ...after, id: userCreationRequestAfter.id },
+            before: { ...before, id: userCreationRequestBefore.id, type: userCreationRequestAfter.type ?? undefined },
+            after: { ...after, id: userCreationRequestAfter.id, type: userCreationRequestAfter.type ?? undefined },
         });
 
         return userCreationRequestAfter;
@@ -284,6 +352,150 @@ export const userCreationRequestRouter = router({
             userCreationRequestBefore,
             ctx.session.user.id,
         );
+
+        const { before, after } = dropUnchangedValuesFromEvent(
+            {
+                name: userCreationRequestBefore.name,
+                email: userCreationRequestBefore.email,
+                login: userCreationRequestBefore.login,
+                date: userCreationRequestBefore.date?.toISOString(),
+                groupId: userCreationRequestBefore.groupId || undefined,
+                supervisorLogin: userCreationRequestBefore.supervisorLogin || undefined,
+                supervisorId: userCreationRequestBefore.supervisorId || undefined,
+                buddyId: userCreationRequestBefore.buddyId || undefined,
+                coordinatorId: userCreationRequestBefore.coordinatorId || undefined,
+                coordinatorIds: userCreationRequestBefore.coordinators.length
+                    ? userCreationRequestBefore.coordinators.map(({ id }) => id).join(', ')
+                    : undefined,
+                recruiterId: userCreationRequestBefore.recruiterId || undefined,
+                type: userCreationRequestBefore.type || undefined,
+                corporateEmail: userCreationRequestBefore.corporateEmail || undefined,
+                title: userCreationRequestBefore.title || undefined,
+                osPreference: userCreationRequestBefore.osPreference || undefined,
+                status: null,
+                createExternalAccount: userCreationRequestBefore.createExternalAccount,
+                accessToInternalSystems: userCreationRequestBefore.accessToInternalSystems || undefined,
+                comment: userCreationRequestBefore.comment || undefined,
+                creationCause: userCreationRequestBefore.creationCause || undefined,
+                location: userCreationRequestBefore.location || undefined,
+                workMode: userCreationRequestBefore.workMode || undefined,
+                workModeComment: userCreationRequestBefore.workModeComment || undefined,
+                workSpace: userCreationRequestBefore.workSpace || undefined,
+                equipment: userCreationRequestBefore.equipment || undefined,
+                extraEquipment: userCreationRequestBefore.extraEquipment || undefined,
+                buddyLogin: userCreationRequestBefore.buddyLogin || undefined,
+                recruiterLogin: userCreationRequestBefore.recruiterLogin || undefined,
+                coordinatorLogin: userCreationRequestBefore.coordinatorLogin || undefined,
+                coordinatorLogins: userCreationRequestBefore.coordinators.length
+                    ? userCreationRequestBefore.coordinators.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerLogins: userCreationRequestBefore.lineManagers.length
+                    ? userCreationRequestBefore.lineManagers.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerIds: userCreationRequestBefore.lineManagers.length
+                    ? userCreationRequestBefore.lineManagers.map(({ id }) => id).join(', ')
+                    : undefined,
+                supplementalPositions: userCreationRequestBefore.supplementalPositions.length
+                    ? userCreationRequestBefore.supplementalPositions.map(
+                          ({ organizationUnitId, percentage, unitId }) => ({
+                              organizationUnitId,
+                              percentage,
+                              unitId: unitId || '',
+                          }),
+                      )
+                    : undefined,
+                unitId: userCreationRequestBefore.unitId || undefined,
+                workEmail: userCreationRequestBefore.workEmail || undefined,
+                personalEmail: userCreationRequestBefore.personalEmail || undefined,
+                reasonToGrantPermissionToServices:
+                    userCreationRequestBefore.reasonToGrantPermissionToServices || undefined,
+                curatorLogins: userCreationRequestBefore.curators.length
+                    ? userCreationRequestBefore.curators.map(({ login }) => login).join(', ')
+                    : undefined,
+                curatorIds: userCreationRequestBefore.curators.length
+                    ? userCreationRequestBefore.curators.map(({ id }) => id).join(', ')
+                    : undefined,
+                organizationUnitId: userCreationRequestBefore.organizationUnitId,
+                attachFilenames: userCreationRequestBefore.attaches
+                    .filter(({ deletedAt }) => !deletedAt)
+                    .map(({ filename }) => filename)
+                    .join(', '),
+            },
+            {
+                name: userCreationRequestAfter.name,
+                email: userCreationRequestAfter.email,
+                login: userCreationRequestAfter.login,
+                date: userCreationRequestAfter.date?.toISOString(),
+                groupId: userCreationRequestAfter.groupId || undefined,
+                supervisorLogin: userCreationRequestAfter.supervisorLogin || undefined,
+                supervisorId: userCreationRequestAfter.supervisorId || undefined,
+                buddyId: userCreationRequestAfter.buddyId || undefined,
+                coordinatorId: userCreationRequestAfter.coordinatorId || undefined,
+                coordinatorIds: userCreationRequestAfter.coordinators.length
+                    ? userCreationRequestAfter.coordinators.map(({ id }) => id).join(', ')
+                    : undefined,
+                recruiterId: userCreationRequestAfter.recruiterId || undefined,
+                type: userCreationRequestAfter.type || undefined,
+                corporateEmail: userCreationRequestAfter.corporateEmail || undefined,
+                title: userCreationRequestAfter.title || undefined,
+                osPreference: userCreationRequestAfter.osPreference || undefined,
+                status: null,
+                createExternalAccount: userCreationRequestAfter.createExternalAccount,
+                accessToInternalSystems: userCreationRequestAfter.accessToInternalSystems || undefined,
+                comment: userCreationRequestAfter.comment || undefined,
+                creationCause: userCreationRequestAfter.creationCause || undefined,
+                location: userCreationRequestAfter.location || undefined,
+                workMode: userCreationRequestAfter.workMode || undefined,
+                workModeComment: userCreationRequestAfter.workModeComment || undefined,
+                workSpace: userCreationRequestAfter.workSpace || undefined,
+                equipment: userCreationRequestAfter.equipment || undefined,
+                extraEquipment: userCreationRequestAfter.extraEquipment || undefined,
+                buddyLogin: userCreationRequestAfter.buddyLogin || undefined,
+                recruiterLogin: userCreationRequestAfter.recruiterLogin || undefined,
+                coordinatorLogin: userCreationRequestAfter.coordinatorLogin || undefined,
+                coordinatorLogins: userCreationRequestAfter.coordinators.length
+                    ? userCreationRequestAfter.coordinators.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerLogins: userCreationRequestAfter.lineManagers.length
+                    ? userCreationRequestAfter.lineManagers.map(({ login }) => login).join(', ')
+                    : undefined,
+                lineManagerIds: userCreationRequestAfter.lineManagers.length
+                    ? userCreationRequestAfter.lineManagers.map(({ id }) => id).join(', ')
+                    : undefined,
+                supplementalPositions: userCreationRequestAfter.supplementalPositions.length
+                    ? userCreationRequestAfter.supplementalPositions.map(
+                          ({ organizationUnitId, percentage, unitId }) => ({
+                              organizationUnitId,
+                              percentage,
+                              unitId: unitId || '',
+                          }),
+                      )
+                    : undefined,
+                unitId: userCreationRequestAfter.unitId || undefined,
+                workEmail: userCreationRequestAfter.workEmail || undefined,
+                personalEmail: userCreationRequestAfter.personalEmail || undefined,
+                reasonToGrantPermissionToServices:
+                    userCreationRequestAfter.reasonToGrantPermissionToServices || undefined,
+                curatorLogins: userCreationRequestAfter.curators.length
+                    ? userCreationRequestAfter.curators.map(({ login }) => login).join(', ')
+                    : undefined,
+                curatorIds: userCreationRequestAfter.curators.length
+                    ? userCreationRequestAfter.curators.map(({ id }) => id).join(', ')
+                    : undefined,
+                organizationUnitId: userCreationRequestAfter.organizationUnitId,
+                attachFilenames: userCreationRequestAfter.attaches
+                    .filter(({ deletedAt }) => !deletedAt)
+                    .map(({ filename }) => filename)
+                    .join(', '),
+            },
+        );
+
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'editUserCreationRequest', {
+            groupId: undefined,
+            userId: undefined,
+            before: { ...before, id: userCreationRequestBefore.id, type: userCreationRequestAfter.type ?? undefined },
+            after: { ...after, id: userCreationRequestAfter.id, type: userCreationRequestAfter.type ?? undefined },
+        });
 
         return userCreationRequestAfter;
     }),
@@ -358,6 +570,7 @@ export const userCreationRequestRouter = router({
                 name: cancelledUserRequest.name,
                 email: cancelledUserRequest.email,
                 comment: input.comment,
+                type: cancelledUserRequest.type ?? undefined,
             },
         });
 

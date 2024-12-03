@@ -65,7 +65,28 @@ export const DecreeForm: FC<DecreeFormProps> = ({
     } = methods;
 
     const organizationUnits = useMemo(
-        () => (supplementalPositions ? supplementalPositions.map((p) => p.organizationUnit) : undefined),
+        () =>
+            supplementalPositions
+                ? supplementalPositions.reduce<{
+                      organizationUnitIds: Set<string>;
+                      organizationUnits: NonNullable<
+                          ComponentProps<typeof UserFormRegistrationBlock>['organizationUnits']
+                      >;
+                  }>(
+                      (acum, p) => {
+                          if (!acum.organizationUnitIds.has(p.organizationUnitId)) {
+                              acum.organizationUnits.push(p.organizationUnit);
+                              acum.organizationUnitIds.add(p.organizationUnitId);
+                          }
+
+                          return acum;
+                      },
+                      {
+                          organizationUnits: [],
+                          organizationUnitIds: new Set(),
+                      },
+                  ).organizationUnits
+                : undefined,
         [supplementalPositions],
     );
     const organizationUnitId = watch('organizationUnitId');

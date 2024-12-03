@@ -76,11 +76,8 @@ export const useUserCreationRequestMutations = () => {
                 type === 'decree' ? 'userDecreeRequestAccept' : 'userCreationRequestAccept',
             ),
 
-        editUserCreationRequest: (data: EditUserCreationRequest, type?: string) =>
-            notifyPromise(
-                editUserCreationRequest.mutateAsync(data),
-                type === 'decree' ? 'userDecreeRequestEdit' : 'userCreationRequestEdit',
-            ),
+        editUserCreationRequest: (data: EditUserCreationRequest) =>
+            notifyPromise(editUserCreationRequest.mutateAsync(data), 'userCreationRequestEdit'),
 
         cancelUserRequest: (data: { id: string; comment?: string }, type?: string) =>
             notifyPromise(

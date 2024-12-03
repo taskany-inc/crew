@@ -404,7 +404,7 @@ export const userCreationRequestsMethods = {
                 title: data.title || undefined,
                 corporateEmail: data.corporateEmail || undefined,
                 createExternalAccount: Boolean(data.createExternalAccount),
-                services: {},
+                services: [],
                 workMode: data.workMode,
                 workModeComment: data.workModeComment,
                 equipment: data.equipment,
