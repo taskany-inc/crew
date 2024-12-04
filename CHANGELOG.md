@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.96.1](https://github.com/taskany-inc/crew/compare/v0.96.0...v0.96.1) (2024-12-04)
+
+
+### Bug Fixes
+
+* **INTERNAL-1425:** open edit and cancel deactivation modal in deactivation list ([a1b4d24](https://github.com/taskany-inc/crew/commit/a1b4d24e87c9156e1642ee2d8bc9c90a71746cae))
+* **INTERNAL-1426:** workodeCombobox in ScheduleDeactivationForm ([846d03c](https://github.com/taskany-inc/crew/commit/846d03c643e26f5e581b069c0090fd0dff9e640a))
+
 ## [0.96.0](https://github.com/taskany-inc/crew/compare/v0.95.0...v0.96.0) (2024-12-02)
 
 
