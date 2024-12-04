@@ -15,11 +15,12 @@ interface WorkModeComboboxProps {
     readOnly?: boolean;
 }
 
-export const WorkModeCombobox = ({ value, onChange, className, error, readOnly = true }: WorkModeComboboxProps) => {
+export const WorkModeCombobox = ({ value, onChange, className, error, readOnly = false }: WorkModeComboboxProps) => {
     const workModeItems = [tr('Office'), tr('Mixed'), tr('Remote')];
 
     return (
         <Select
+            arrow
             value={value ? [{ id: value }] : undefined}
             items={workModeItems.map((i) => ({ id: i }))}
             onChange={(items) => onChange(items[0].id)}
