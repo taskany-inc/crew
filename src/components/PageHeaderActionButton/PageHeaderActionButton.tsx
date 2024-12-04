@@ -18,7 +18,12 @@ export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: Us
 
     const items: { title: string; action: VoidFunction }[] = useMemo(() => {
         const result = [];
-        if (sessionUser.role?.createUser) {
+        if (
+            sessionUser.role?.createInternalUserRequest ||
+            sessionUser.role?.createExistingUserRequest ||
+            sessionUser.role?.createExternalUserRequest ||
+            sessionUser.role?.createExternalFromMainUserRequest
+        ) {
             result.push({ title: tr('User'), action: createUserModalVisibility.setTrue });
         }
         result.push({ title: tr('Team'), action: createGroupModalVisibility.setTrue });

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
@@ -14,9 +15,41 @@ import { processEvent } from '../../utils/analyticsEvent';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { protectedProcedure, router } from '../trpcBackend';
 
+import { tr } from './router.i18n';
+
+const checkRequestTypeAccess = (type: string, forbidden: boolean) => {
+    if (forbidden) {
+        throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: tr('No rights to edit {type} request', { type }),
+        });
+    }
+};
+
 export const userCreationRequestRouter = router({
     create: protectedProcedure.input(createUserCreationRequestSchema).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'createExternalFromMainUserRequest'),
+            checkRoleForAccess(ctx.session.user.role, 'createExternalUserRequest'),
+            checkRoleForAccess(ctx.session.user.role, 'createInternalUserRequest'),
+        );
+
+        [
+            {
+                type: 'internalEmployee',
+                forbidden: input.type === 'internalEmployee' && !ctx.session.user.role?.createInternalUserRequest,
+            },
+            {
+                type: 'externalEmployee',
+                forbidden: input.type === 'externalEmployee' && !ctx.session.user.role?.createExternalUserRequest,
+            },
+            {
+                type: 'externalFromMainOrgEmployee',
+                forbidden:
+                    input.type === 'externalFromMainOrgEmployee' &&
+                    !ctx.session.user.role?.createExternalFromMainUserRequest,
+            },
+        ].map(({ type, forbidden }) => checkRequestTypeAccess(type, forbidden));
 
         const creationRequest = await userCreationRequestsMethods.create(input, ctx.session.user.id);
 
@@ -110,7 +143,27 @@ export const userCreationRequestRouter = router({
     }),
 
     edit: protectedProcedure.input(editUserCreationRequestSchema).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editExternalFromMainUserRequest'),
+            checkRoleForAccess(ctx.session.user.role, 'editExternalUserRequest'),
+            checkRoleForAccess(ctx.session.user.role, 'editInternalUserRequest'),
+        );
+        [
+            {
+                type: 'internalEmployee',
+                forbidden: input.data.type === 'internalEmployee' && !ctx.session.user.role?.editInternalUserRequest,
+            },
+            {
+                type: 'externalEmployee',
+                forbidden: input.data.type === 'externalEmployee' && !ctx.session.user.role?.editExternalUserRequest,
+            },
+            {
+                type: 'externalFromMainOrgEmployee',
+                forbidden:
+                    input.data.type === 'externalFromMainOrgEmployee' &&
+                    !ctx.session.user.role?.editExternalFromMainUserRequest,
+            },
+        ].map(({ type, forbidden }) => checkRequestTypeAccess(type, forbidden));
         const userCreationRequestBefore = await userCreationRequestsMethods.getById(input.id);
 
         const userCreationRequestAfter = await userCreationRequestsMethods.edit(
@@ -275,7 +328,7 @@ export const userCreationRequestRouter = router({
     }),
 
     decline: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'decideOnUserCreationRequest'));
 
         const declinedUserRequest = await userCreationRequestsMethods.decline(input);
 
@@ -295,7 +348,7 @@ export const userCreationRequestRouter = router({
     }),
 
     accept: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'));
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'decideOnUserCreationRequest'));
 
         const acceptedRequest = await userCreationRequestsMethods.accept(input);
 
@@ -316,22 +369,64 @@ export const userCreationRequestRouter = router({
 
     getList: protectedProcedure.input(getUserCreationRequestListSchema).query(({ input, ctx }) => {
         accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
-            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+            checkRoleForAccess(ctx.session.user.role, 'readManyExternalFromMainUserRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'readManyExternalUserRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'readManyInternalUserRequests'),
         );
-        return userCreationRequestsMethods.getList(input);
+        {
+            const allowedTypes: string[] = [];
+            if (ctx.session.user.role?.readManyExternalFromMainUserRequests) {
+                allowedTypes.push('externalFromMainOrgEmployee');
+            }
+
+            if (ctx.session.user.role?.readManyExternalUserRequests) {
+                allowedTypes.push('externalEmployee');
+            }
+
+            if (ctx.session.user.role?.readManyInternalUserRequests) {
+                allowedTypes.push('internalEmployee');
+            }
+            return userCreationRequestsMethods.getList({ ...input, type: allowedTypes });
+        }
     }),
 
     getById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
         accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
-            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+            checkRoleForAccess(ctx.session.user.role, 'readManyExternalFromMainUserRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'readManyExternalUserRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'readManyInternalUserRequests'),
         );
         return userCreationRequestsMethods.getById(input);
     }),
 
     cancel: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
-        accessCheck(checkRoleForAccess(ctx.session.user.role, 'createUser'));
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editExternalFromMainUserRequest'),
+            checkRoleForAccess(ctx.session.user.role, 'editExternalUserRequest'),
+            checkRoleForAccess(ctx.session.user.role, 'editInternalUserRequest'),
+        );
+
+        const requestBeforeCancelling = await userCreationRequestsMethods.getById(input.id);
+        [
+            {
+                type: 'internalEmployee',
+                forbidden:
+                    requestBeforeCancelling.type === 'internalEmployee' &&
+                    !ctx.session.user.role?.editInternalUserRequest,
+            },
+            {
+                type: 'externalEmployee',
+                forbidden:
+                    requestBeforeCancelling.type === 'externalEmployee' &&
+                    !ctx.session.user.role?.editExternalUserRequest,
+            },
+            {
+                type: 'externalFromMainOrgEmployee',
+                forbidden:
+                    requestBeforeCancelling.type === 'externalFromMainOrgEmployee' &&
+                    !ctx.session.user.role?.editExternalFromMainUserRequest,
+            },
+        ].map(({ type, forbidden }) => checkRequestTypeAccess(type, forbidden));
 
         const cancelledUserRequest = await userCreationRequestsMethods.cancel(input, ctx.session.user.id);
 
@@ -351,25 +446,16 @@ export const userCreationRequestRouter = router({
     }),
 
     getRequestForExternalEmployeeById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
-            checkRoleForAccess(ctx.session.user.role, 'createUser'),
-        );
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'readManyExternalUserRequests'));
         return userCreationRequestsMethods.getRequestForExternalEmployeeById(input);
     }),
 
     getRequestForExternalFromMainEmployeeById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
-            checkRoleForAccess(ctx.session.user.role, 'createUser'),
-        );
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'readManyExternalFromMainUserRequests'));
         return userCreationRequestsMethods.getRequestForExternalFromMainEmployeeById(input);
     }),
     getRequestForInternalEmployeeById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
-            checkRoleForAccess(ctx.session.user.role, 'createUser'),
-        );
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'readManyInternalUserRequests'));
         return userCreationRequestsMethods.getRequestForInternalEmployeeById(input);
     }),
 });

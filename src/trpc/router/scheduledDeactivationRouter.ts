@@ -27,10 +27,7 @@ export const scheduledDeactivationRouter = router({
         return result;
     }),
     getList: protectedProcedure.input(getScheduledDeactivationListSchema).query(({ ctx, input }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'),
-            checkRoleForAccess(ctx.session.user.role, 'viewScheduledDeactivation'),
-        );
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'viewScheduledDeactivation'));
         const creatorId =
             ctx.session.user.role?.editScheduledDeactivation && !ctx.session.user.role.viewScheduledDeactivation
                 ? ctx.session.user.id
