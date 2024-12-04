@@ -593,9 +593,10 @@ enum VacancyStatus {
 }
 
 model AppConfig {
-  id      String  @id @default(cuid())
-  favicon String?
-  logo    String?
+  id         String  @id @default(cuid())
+  favicon    String?
+  logo       String?
+  orgGroupId String?
 }
 
 model Achievement {

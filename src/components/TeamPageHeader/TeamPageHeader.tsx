@@ -12,8 +12,8 @@ import { trpc } from '../../trpc/trpcClient';
 import { Link } from '../Link';
 import { pages } from '../../hooks/useRouter';
 import { GroupBreadcrumbListItem } from '../GroupBreadcrumbListItem';
-import { config } from '../../config';
 import { OrganizationUserGroupSwitch } from '../OrganizationUserGroupSwitch/OrganizationUserGroupSwitch';
+import { useAppConfig } from '../../contexts/appConfigContext';
 
 import { tr } from './TeamPageHeader.i18n';
 
@@ -33,6 +33,8 @@ type Options = Array<[string, string]>;
 
 export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
     const router = useRouter();
+
+    const appConfig = useAppConfig();
 
     const breadcrumbsQuery = trpc.group.getBreadcrumbs.useQuery(group.id);
     const breadcrumbs = breadcrumbsQuery.data ?? [];
@@ -67,7 +69,7 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
             />
 
             {nullable(
-                group.id === config.orgGroupId,
+                group.id === appConfig?.orgGroupId,
                 () => (
                     <OrganizationUserGroupSwitch value="org" />
                 ),

@@ -11,8 +11,8 @@ import { capitalize } from '../../utils/capitalize';
 import { GroupListItem } from '../GroupListItem';
 import { useBoolean } from '../../hooks/useBoolean';
 import { notifyPromise } from '../../utils/notifications/notifyPromise';
-import { trpc } from '../../trpc/trpcClient';
 import { getFavicon } from '../../utils/getFavicon';
+import { useAppConfig } from '../../contexts/appConfigContext';
 
 import s from './HistoryRecord.module.css';
 import { tr } from './HistoryRecord.i18n';
@@ -1125,15 +1125,13 @@ interface HistoryRecordProps {
 }
 
 const useAuthor = (event: HistoryEventData) => {
-    const appConfig = trpc.appConfig.get.useQuery(undefined, {
-        staleTime: Infinity,
-    });
+    const appConfig = useAppConfig();
     if (event.actingUser) return { name: event.actingUser.name, email: event.actingUser.email };
     if (event.actingToken) {
-        return { name: `${tr('API token')} ${event.actingToken.description}`, src: getFavicon(appConfig.data) };
+        return { name: `${tr('API token')} ${event.actingToken.description}`, src: getFavicon(appConfig) };
     }
     if (event.actingSubsystem) {
-        return { name: `${tr('Subsystem')} ${event.actingSubsystem}`, src: getFavicon(appConfig.data) };
+        return { name: `${tr('Subsystem')} ${event.actingSubsystem}`, src: getFavicon(appConfig) };
     }
     return { name: tr('Unknown actor') };
 };

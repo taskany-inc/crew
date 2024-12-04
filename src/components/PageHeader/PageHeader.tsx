@@ -24,7 +24,7 @@ import { useSessionUser } from '../../hooks/useSessionUser';
 import { AccessOperation } from '../../utils/access';
 import { objKeys } from '../../utils/objKeys';
 import { Restricted } from '../Restricted';
-import { config } from '../../config';
+import { useAppConfig } from '../../contexts/appConfigContext';
 
 import { tr } from './PageHeader.i18n';
 
@@ -50,9 +50,15 @@ interface HeaderLink {
 
 export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ logo, userSettings }) => {
     const sessionUser = useSessionUser();
+    const appConfig = useAppConfig();
+
     const entityListMenuItems = useMemo(() => {
         const items: HeaderLink[] = [
-            { path: config.orgGroupId ? pages.team(config.orgGroupId) : pages.teams, text: tr('Teams'), visible: true },
+            {
+                path: appConfig?.orgGroupId ? pages.team(appConfig.orgGroupId) : pages.teams,
+                text: tr('Teams'),
+                visible: true,
+            },
             { path: pages.users, text: tr('Users'), visible: true },
 
             { path: pages.logs, text: tr('Logs'), visible: !!sessionUser.role?.viewHistoryEvents },
@@ -74,7 +80,7 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             },
         ];
         return items;
-    }, [userSettings]);
+    }, [userSettings, appConfig]);
 
     const avatarRef = useRef<HTMLAnchorElement>(null);
 
