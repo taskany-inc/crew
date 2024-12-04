@@ -3,7 +3,6 @@ import { OrganizationUnit, ScheduledDeactivation } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Button,
-    Dropdown,
     Form,
     FormAction,
     FormActions,
@@ -11,7 +10,6 @@ import {
     FormRadio,
     FormRadioInput,
     FormTitle,
-    MenuItem,
     Modal,
     ModalContent,
     ModalCross,
@@ -48,6 +46,7 @@ import { AttachItem } from '../AttachItem/AttachItem';
 import { attachFormatter } from '../../utils/attachFormatter';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 import { FormControl } from '../FormControl/FormControl';
+import { WorkModeCombobox } from '../WorkModeCombobox/WorkModeCombobox';
 
 import { tr } from './ScheduleDeactivationForm.i18n';
 
@@ -159,6 +158,7 @@ export const ScheduleDeactivationForm = ({
         setValue,
         register,
         watch,
+        trigger,
         control,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateScheduledDeactivation>({
@@ -205,10 +205,6 @@ export const ScheduleDeactivationForm = ({
         [setValue],
     );
 
-    const workModeItems = [tr('Office'), tr('Mixed'), tr('Remote')].map((m) => ({
-        title: m,
-        action: () => setValue('workMode', m),
-    }));
     const deactivationRadioValues = [
         { label: tr('Retirement'), value: 'retirement' },
         { label: tr('Transfer'), value: 'transfer' },
@@ -226,6 +222,11 @@ export const ScheduleDeactivationForm = ({
     };
 
     const deactivateDate = watch('deactivateDate');
+
+    const onWorkModeChange = (mode: string) => {
+        setValue('workMode', mode);
+        trigger('workMode');
+    };
 
     return (
         <StyledModal visible={visible} onClose={hideModal} width={700}>
@@ -340,30 +341,7 @@ export const ScheduleDeactivationForm = ({
                     <StyledLabel weight="bold">{tr('Location')}</StyledLabel>
                     <StyledFormInput flat="top" autoComplete="off" error={errors.location} {...register('location')} />
                     <StyledLabel weight="bold">{tr('Work mode')}</StyledLabel>
-                    <Dropdown
-                        onChange={(item) => item.action()}
-                        text="Work mode"
-                        items={workModeItems}
-                        renderTrigger={(props) => (
-                            <FormInput
-                                defaultValue={watch('workMode')}
-                                disabled={props.disabled}
-                                onClick={props.onClick}
-                                error={errors.workMode}
-                            />
-                        )}
-                        renderItem={(props) => (
-                            <MenuItem
-                                key={props.item.title}
-                                focused={props.cursor === props.index}
-                                onClick={props.onClick}
-                                view="primary"
-                                ghost
-                            >
-                                {props.item.title}
-                            </MenuItem>
-                        )}
-                    />
+                    <WorkModeCombobox onChange={onWorkModeChange} value={watch('workMode')} error={errors.workMode} />
                     <StyledLabel weight="bold">{tr('Work place')}</StyledLabel>
                     <StyledFormInput error={errors.workPlace} autoComplete="off" {...register('workPlace')} />
                     <StyledLabel weight="bold">{tr('Unit ID')}</StyledLabel>
