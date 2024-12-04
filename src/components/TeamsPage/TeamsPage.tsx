@@ -6,8 +6,8 @@ import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { trpc } from '../../trpc/trpcClient';
 import { GroupTreeViewNode } from '../GroupTreeViewNode/GroupTreeViewNode';
 import { CommonHeader } from '../CommonHeader';
-import { config } from '../../config';
 import { OrganizationUserGroupSwitch } from '../OrganizationUserGroupSwitch/OrganizationUserGroupSwitch';
+import { useAppConfig } from '../../contexts/appConfigContext';
 
 import { tr } from './TeamsPage.i18n';
 
@@ -18,11 +18,12 @@ const StyledTreeContainer = styled.div`
 export const TeamsPage = () => {
     const rootsQuery = trpc.group.getRoots.useQuery();
     const rootsData = rootsQuery.data ?? [];
+    const appConfig = useAppConfig();
 
     return (
         <LayoutMain pageTitle={tr('Teams')}>
             <CommonHeader title={tr('Teams')} />
-            {nullable(config.orgGroupId, () => (
+            {nullable(appConfig?.orgGroupId, () => (
                 <OrganizationUserGroupSwitch value="users" />
             ))}
 

@@ -9,6 +9,7 @@ import { usePageLoad } from '../hooks/usePageLoad';
 import { TLocale, setSSRLocale } from '../utils/getLang';
 import { trpc } from '../trpc/trpcClient';
 import { PreviewContextProvider } from '../contexts/previewContext';
+import { AppConfigContextProvider } from '../contexts/appConfigContext';
 import { Previews } from '../components/Previews';
 
 import '@taskany/icons/style.css';
@@ -23,12 +24,14 @@ const TaskanyCrewApp = ({ Component, pageProps, router }: AppProps) => {
     return (
         <SessionProvider session={pageProps.session} refetchOnWindowFocus={true}>
             <ThemeProvider themes={['light', 'dark']}>
-                <PreviewContextProvider>
-                    <PageLoadProgress height={2} ref={pageLoadRef} />
-                    <Component {...pageProps} />
-                    <Previews />
-                    <ReactQueryDevtools />
-                </PreviewContextProvider>
+                <AppConfigContextProvider>
+                    <PreviewContextProvider>
+                        <PageLoadProgress height={2} ref={pageLoadRef} />
+                        <Component {...pageProps} />
+                        <Previews />
+                        <ReactQueryDevtools />
+                    </PreviewContextProvider>
+                </AppConfigContextProvider>
             </ThemeProvider>
         </SessionProvider>
     );

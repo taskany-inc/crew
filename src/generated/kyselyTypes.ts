@@ -74,6 +74,7 @@ export type AppConfig = {
     id: string;
     favicon: string | null;
     logo: string | null;
+    orgGroupId: string | null;
 };
 export type Attach = {
     id: string;

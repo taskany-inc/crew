@@ -12,6 +12,7 @@ import { Theme } from '../Theme';
 import { PageHeader } from '../PageHeader/PageHeader';
 import { PageFooter } from '../PageFooter/PageFooter';
 import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
+import { useAppConfig } from '../../contexts/appConfigContext';
 
 import s from './LayoutMain.module.css';
 
@@ -28,9 +29,7 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
     const fullTitle = pageTitle ? `${pageTitle} - Taskany Crew` : 'Taskany Crew';
 
     const { data: userSettings } = trpc.user.getSettings.useQuery();
-    const appConfig = trpc.appConfig.get.useQuery(undefined, {
-        staleTime: Infinity,
-    });
+    const appConfig = useAppConfig();
 
     const { resolvedTheme } = useTheme();
     const theme = (userSettings?.theme === 'system' ? resolvedTheme || 'dark' : userSettings?.theme || 'light') as
@@ -51,12 +50,12 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
         <>
             <Head>
                 <title>{fullTitle}</title>
-                <link rel="icon" href={getFavicon(appConfig.data)} />
+                <link rel="icon" href={getFavicon(appConfig)} />
                 <link rel="stylesheet" id="themeVariables" href={`/theme/${theme}.css`} />
             </Head>
             <OfflineBanner />
 
-            <PageHeader logo={appConfig.data?.logo ?? undefined} userSettings={userSettings} />
+            <PageHeader logo={appConfig?.logo ?? undefined} userSettings={userSettings} />
             <Theme theme={theme} />
             <div className={s.PageMain}>{children}</div>
 
