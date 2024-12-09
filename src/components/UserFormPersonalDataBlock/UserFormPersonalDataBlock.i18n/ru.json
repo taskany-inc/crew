@@ -21,5 +21,6 @@
     "Enter ID": "Введите ID",
     "Personal email": "Личная почта",
     "Work email": "Рабочая почта",
-    "Not specified": "Не указано"
+    "Not specified": "Не указано",
+    "Disable account": "Блокировка учетной записи"
 }
