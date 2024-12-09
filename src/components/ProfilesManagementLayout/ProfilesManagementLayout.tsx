@@ -1,12 +1,13 @@
 import React from 'react';
-import { GlobalSearch, Text } from '@taskany/bricks/harmony';
-import { FiltersSearchContainer } from '@taskany/bricks';
+import { Text } from '@taskany/bricks/harmony';
+import { IconSearchOutline } from '@taskany/icons';
 
 import { TabsSwitch } from '../TabsSwitch/TabsSwitch';
 import { pages } from '../../hooks/useRouter';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
+import { SearchFilter } from '../SearchFilter';
 
 import { tr } from './ProfilesManagementLayout.i18n';
 import s from './ProfilesManagementLayout.module.css';
@@ -14,6 +15,7 @@ import s from './ProfilesManagementLayout.module.css';
 export const ProfilesManagementLayout = ({ children }: { children: React.ReactNode }) => {
     const sessionUser = useSessionUser();
     const userListFilter = useUserListFilter();
+
     return (
         <LayoutMain>
             <div className={s.Wrapper}>
@@ -52,14 +54,12 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
                             },
                         ]}
                     />
-                    <FiltersSearchContainer>
-                        <GlobalSearch
-                            placeholder={tr('Search in the table')}
-                            defaultValue={userListFilter.values.search}
-                            onChange={userListFilter.setSearch}
-                            outline
-                        />
-                    </FiltersSearchContainer>
+                    <SearchFilter
+                        iconLeft={<IconSearchOutline size="s" />}
+                        placeholder={tr('Search in the table')}
+                        defaultValue={userListFilter.values.search}
+                        onChange={userListFilter.setSearch}
+                    />
                 </div>
                 {children}
             </div>

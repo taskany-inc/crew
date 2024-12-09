@@ -111,7 +111,7 @@ export const scheduledDeactivationMethods = {
 
     getList: async ({ creatorId, orderBy: order, search }: GetScheduledDeactivationList) => {
         let orderBy: Prisma.ScheduledDeactivationOrderByWithRelationAndSearchRelevanceInput[] = [];
-        const where: Prisma.ScheduledDeactivationWhereInput = {};
+        const where: Prisma.ScheduledDeactivationWhereInput = { creatorId, canceled: false };
 
         if (order?.name) {
             orderBy = [{ user: { name: order.name } }];
@@ -126,7 +126,7 @@ export const scheduledDeactivationMethods = {
         }
 
         return prisma.scheduledDeactivation.findMany({
-            where: { creatorId, canceled: false },
+            where,
             include: {
                 creator: true,
                 user: { include: { supervisor: true } },
