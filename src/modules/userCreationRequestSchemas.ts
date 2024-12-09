@@ -165,6 +165,7 @@ const getBaseDecreeSchema = () =>
             osPreference: true,
         })
         .extend({
+            id: z.string().optional(),
             userTargetId: z.string(),
             coordinatorIds: z.array(z.string()).optional(),
             buddyId: z.string().optional(),
@@ -183,6 +184,7 @@ const getBaseDecreeSchema = () =>
 export const getUserToDecreeSchema = () =>
     getBaseDecreeSchema().extend({
         type: z.literal('toDecree'),
+        disableAccount: z.boolean().optional(),
         firedOrganizationUnitId: z.string().optional(),
     });
 

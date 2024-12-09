@@ -287,23 +287,17 @@ export const userCreationRequestsMethods = {
     createDecreeRequest: async (data: UserDecreeSchema, sessionUserId: string) => {
         const currentUser = await userMethods.getById(data.userTargetId);
 
-        const findExisted = (id: string) =>
-            currentUser.supplementalPositions.find(
-                (p) =>
-                    p.organizationUnitId === id &&
-                    (data.type === 'toDecree' ? p.status === 'ACTIVE' : p.status !== 'ACTIVE'),
-            );
+        const findActive = (id: string) =>
+            currentUser.supplementalPositions.find((p) => p.organizationUnitId === id && p.status === 'ACTIVE');
 
-        const createSupplemental = (
-            existed: SupplementalPosition,
-            item: {
-                organizationUnitId: string;
-                percentage: number;
-                unitId: string | null;
-                main: boolean;
-            },
-            status: PositionStatus,
-        ): Prisma.SupplementalPositionCreateInput => {
+        const createSupplemental = (item: {
+            organizationUnitId: string;
+            percentage: number;
+            unitId: string | null;
+            main: boolean;
+            workStartDate: Date | null;
+            status: PositionStatus;
+        }): Prisma.SupplementalPositionCreateInput => {
             return {
                 organizationUnit: { connect: { id: item.organizationUnitId } },
                 percentage: item.percentage * percentageMultiply,
@@ -311,8 +305,8 @@ export const userCreationRequestsMethods = {
                 role: data.title,
                 unitId: item.unitId,
                 workEndDate: data.type === 'toDecree' ? data.date : null,
-                workStartDate: data.type === 'fromDecree' ? data.date : existed.workStartDate,
-                status,
+                workStartDate: item.workStartDate,
+                status: item.status,
             };
         };
 
@@ -320,58 +314,78 @@ export const userCreationRequestsMethods = {
 
         const supplementalPositions =
             data.supplementalPositions?.reduce<Prisma.SupplementalPositionCreateInput[]>((acum, item) => {
-                const existed = findExisted(item.organizationUnitId);
+                const baseInput = {
+                    organizationUnitId: item.organizationUnitId,
+                    percentage: item.percentage,
+                    unitId: item.unitId || null,
+                    main: false,
+                    status,
+                };
 
-                if (existed) {
+                if (data.type === 'fromDecree') {
                     acum.push(
-                        createSupplemental(
-                            existed,
-                            {
-                                organizationUnitId: item.organizationUnitId,
-                                percentage: item.percentage,
-                                unitId: item.unitId || null,
-                                main: false,
-                            },
-                            status,
-                        ),
+                        createSupplemental({
+                            ...baseInput,
+                            workStartDate: data.date,
+                        }),
                     );
+                } else {
+                    const existed = findActive(item.organizationUnitId);
+
+                    if (existed) {
+                        acum.push(
+                            createSupplemental({
+                                ...baseInput,
+                                workStartDate: existed.workStartDate,
+                            }),
+                        );
+                    }
                 }
 
                 return acum;
             }, []) || [];
 
-        const position = findExisted(data.organizationUnitId);
+        const baseInput = {
+            organizationUnitId: data.organizationUnitId,
+            percentage: data.percentage || 1,
+            unitId: data.unitId || null,
+            main: true,
+            status,
+        };
 
-        if (position) {
+        if (data.type === 'fromDecree') {
             supplementalPositions.push(
-                createSupplemental(
-                    position,
-                    {
-                        organizationUnitId: data.organizationUnitId,
-                        percentage: data.percentage || 1,
-                        unitId: data.unitId || null,
-                        main: true,
-                    },
-                    status,
-                ),
+                createSupplemental({
+                    ...baseInput,
+                    workStartDate: data.date,
+                }),
             );
+        } else {
+            const position = findActive(data.organizationUnitId);
+
+            if (position) {
+                supplementalPositions.push(
+                    createSupplemental({
+                        ...baseInput,
+                        workStartDate: position.workStartDate,
+                    }),
+                );
+            }
         }
 
         if (data.type === 'toDecree' && data.firedOrganizationUnitId) {
-            const positionToFire = findExisted(data.organizationUnitId);
+            const positionToFire = findActive(data.organizationUnitId);
 
             if (positionToFire) {
                 supplementalPositions.push(
-                    createSupplemental(
-                        positionToFire,
-                        {
-                            organizationUnitId: data.firedOrganizationUnitId,
-                            percentage: positionToFire.percentage,
-                            unitId: positionToFire.unitId,
-                            main: false,
-                        },
-                        PositionStatus.FIRED,
-                    ),
+                    createSupplemental({
+                        organizationUnitId: data.firedOrganizationUnitId,
+                        percentage: positionToFire.percentage,
+                        unitId: positionToFire.unitId,
+                        main: false,
+                        status: PositionStatus.FIRED,
+                        workStartDate: positionToFire.workStartDate,
+                    }),
                 );
             }
         }
@@ -404,6 +418,7 @@ export const userCreationRequestsMethods = {
                 title: data.title || undefined,
                 corporateEmail: data.corporateEmail || undefined,
                 createExternalAccount: Boolean(data.createExternalAccount),
+                disableAccount: data.type === 'toDecree' ? data.disableAccount : false,
                 services: [],
                 workMode: data.workMode,
                 workModeComment: data.workModeComment,
@@ -987,6 +1002,7 @@ export const userCreationRequestsMethods = {
             workSpace: editData.workSpace,
             buddy: editData.buddyId ? { connect: { id: editData.buddyId } } : undefined,
             coordinators: { connect: editData.coordinatorIds?.map((id) => ({ id })) },
+            disableAccount: editData.type === 'toDecree' ? editData.disableAccount : false,
             location: editData.location,
             unitId: editData.unitId,
             supplementalPositions: {

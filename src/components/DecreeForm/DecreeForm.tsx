@@ -38,7 +38,6 @@ const personalInfoReadOnly: ComponentProps<typeof UserFormPersonalDataBlock>['re
     workEmail: true,
     personalEmail: true,
     phone: true,
-    createExternalAccount: true,
     accountingId: true,
 };
 
@@ -173,7 +172,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                 <div className={s.Body} onScroll={onScroll}>
                     <div className={s.Form} ref={rootRef}>
                         <UserFormPersonalDataBlock
-                            type="internal"
+                            type={type}
                             className={s.FormBlock}
                             id="personal-data"
                             readOnly={mode === 'edit' ? personalInfoReadOnly : true}

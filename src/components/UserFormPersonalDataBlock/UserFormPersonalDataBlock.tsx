@@ -27,6 +27,7 @@ interface UserFormPersonalDataBlockType {
     personalEmail?: string;
     phone: string;
     createExternalAccount?: boolean;
+    disableAccount?: boolean;
     accountingId?: string;
 }
 
@@ -36,7 +37,7 @@ interface UserFormPersonalDataBlockProps {
     className: string;
     id: string;
     onIsLoginUniqueChange?: (arg: string) => void;
-    type: 'internal' | 'existing' | 'externalEmployee' | 'externalFromMainOrgEmployee';
+    type: 'internal' | 'existing' | 'externalEmployee' | 'externalFromMainOrgEmployee' | 'toDecree' | 'fromDecree';
     readOnly?: boolean | ReadOnlyMap;
     defaultValue?: UserFormPersonalDataBlockType;
 }
@@ -63,6 +64,13 @@ export const UserFormPersonalDataBlock = ({
     const onCreateExternalAccountClick = (e: ChangeEvent<HTMLInputElement>) => {
         setValue('createExternalAccount', e.target.checked);
     };
+
+    const disableAccount = watch('disableAccount');
+
+    const onDisableAccountClick = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue('disableAccount', e.target.checked);
+    };
+
     const onNameChange = () => {
         const login = loginAuto({
             firstName: getValues('firstName'),
@@ -120,6 +128,18 @@ export const UserFormPersonalDataBlock = ({
                         label={tr('Create external account')}
                         checked={createExternalAccount}
                         onChange={onCreateExternalAccountClick}
+                        className={s.CheckboxInput}
+                    />
+                </div>
+            ))}
+            {nullable(type === 'toDecree', () => (
+                <div className={s.Checkbox}>
+                    <Checkbox
+                        readOnly={getReadOnly('disableAccount')}
+                        label={tr('Disable account')}
+                        checked={disableAccount}
+                        onChange={onDisableAccountClick}
+                        className={s.CheckboxInput}
                     />
                 </div>
             ))}
@@ -212,49 +232,66 @@ export const UserFormPersonalDataBlock = ({
                     </FormControl>
                 ))}
             </div>
-            {nullable(type === 'internal' || type === 'existing', () => (
-                <Text as="h3">
-                    {tr('Email')}{' '}
-                    <Text as="span" className={s.Required}>
-                        *
+            {nullable(
+                type === 'internal' || type === 'existing' || type === 'fromDecree' || type === 'toDecree',
+                () => (
+                    <Text as="h3">
+                        {tr('Email')}{' '}
+                        <Text as="span" className={s.Required}>
+                            *
+                        </Text>
                     </Text>
-                </Text>
-            ))}
+                ),
+            )}
             <div className={s.TwoInputsRow}>
-                {nullable(type === 'internal' || type === 'externalEmployee' || type === 'existing', () => (
-                    <FormControl
-                        label={type === 'internal' || type === 'existing' ? tr('Personal') : tr('Personal email')}
-                        error={errors.personalEmail}
-                        required={type === 'externalEmployee'}
-                    >
-                        <FormControlInput
-                            readOnly={getReadOnly('personalEmail')}
-                            value={readOnly && !watch('personalEmail') ? tr('Not specified') : undefined}
-                            autoComplete="off"
-                            size="m"
-                            placeholder="name@mail.com"
-                            outline
-                            {...register('personalEmail', { onChange: onEmailChange })}
-                        />
-                    </FormControl>
-                ))}
-                {nullable(type === 'internal' || type === 'externalFromMainOrgEmployee' || type === 'existing', () => (
-                    <FormControl
-                        label={type === 'internal' || type === 'existing' ? tr('Work') : tr('Work email')}
-                        error={errors.workEmail}
-                        required={type === 'externalFromMainOrgEmployee'}
-                    >
-                        <FormControlInput
-                            readOnly={getReadOnly('workEmail')}
-                            value={readOnly && !watch('workEmail') ? tr('Not specified') : undefined}
-                            autoComplete="off"
-                            size="m"
-                            placeholder="email@example.com"
-                            outline
-                            {...register('workEmail', { onChange: onEmailChange })}
-                        />
-                    </FormControl>
-                ))}
+                {nullable(
+                    type === 'internal' ||
+                        type === 'externalEmployee' ||
+                        type === 'existing' ||
+                        type === 'fromDecree' ||
+                        type === 'toDecree',
+                    () => (
+                        <FormControl
+                            label={type === 'externalEmployee' ? tr('Personal email') : tr('Personal')}
+                            error={errors.personalEmail}
+                            required={type === 'externalEmployee'}
+                        >
+                            <FormControlInput
+                                readOnly={getReadOnly('personalEmail')}
+                                value={readOnly && !watch('personalEmail') ? tr('Not specified') : undefined}
+                                autoComplete="off"
+                                size="m"
+                                placeholder="name@mail.com"
+                                outline
+                                {...register('personalEmail', { onChange: onEmailChange })}
+                            />
+                        </FormControl>
+                    ),
+                )}
+                {nullable(
+                    type === 'internal' ||
+                        type === 'externalFromMainOrgEmployee' ||
+                        type === 'existing' ||
+                        type === 'fromDecree' ||
+                        type === 'toDecree',
+                    () => (
+                        <FormControl
+                            label={type === 'externalFromMainOrgEmployee' ? tr('Work email') : tr('Work')}
+                            error={errors.workEmail}
+                            required={type === 'externalFromMainOrgEmployee'}
+                        >
+                            <FormControlInput
+                                readOnly={getReadOnly('workEmail')}
+                                value={readOnly && !watch('workEmail') ? tr('Not specified') : undefined}
+                                autoComplete="off"
+                                size="m"
+                                placeholder="email@example.com"
+                                outline
+                                {...register('workEmail', { onChange: onEmailChange })}
+                            />
+                        </FormControl>
+                    ),
+                )}
                 {nullable(type === 'externalEmployee', () => (
                     <>
                         <div ref={emailDomainSelectRef}>
