@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.98.0](https://github.com/taskany-inc/crew/compare/v0.97.0...v0.98.0) (2024-12-09)
+
+
+### Features
+
+* **SearchinProfolesManagment:** add search by name ([7258426](https://github.com/taskany-inc/crew/commit/7258426bc1dc0aa39d01e866562e098d27307138))
+
 ## [0.97.0](https://github.com/taskany-inc/crew/compare/v0.96.1...v0.97.0) (2024-12-05)
 
 
