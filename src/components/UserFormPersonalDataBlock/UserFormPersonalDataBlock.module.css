@@ -26,3 +26,7 @@
 .Checkbox {
     margin-bottom: var(--gap-m);
 }
+
+.CheckboxInput {
+    padding: 0;
+}
