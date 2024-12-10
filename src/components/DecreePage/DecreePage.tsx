@@ -49,9 +49,11 @@ export const DecreePage: FC<DecreePageProps> = ({ request, mode }) => {
             { supplementalPositions: [], firedOrganizationUnitId: undefined, mainPosition: undefined },
         );
 
+        const { type } = request;
+
         const initial: ComponentProps<typeof DecreeForm>['defaultValues'] = {
             id: request.id,
-            type: request.type,
+            type,
             userTargetId: request.userTargetId,
             percentage: mainPosition?.percentage ?? 1,
             unitId: mainPosition?.unitId ?? undefined,

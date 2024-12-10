@@ -195,6 +195,7 @@ model UserCreationRequest {
 
   externalOrganizationSupervisorLogin String?
   accessToInternalSystems             Boolean?
+  disableAccount                      Boolean?
 
   attaches Attach[]
 
