@@ -335,6 +335,7 @@ export type UserCreationRequest = {
     percentage: number | null;
     externalOrganizationSupervisorLogin: string | null;
     accessToInternalSystems: boolean | null;
+    disableAccount: boolean | null;
     workMode: string | null;
     workModeComment: string | null;
     equipment: string | null;

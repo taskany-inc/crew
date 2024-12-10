@@ -15,6 +15,8 @@ import { useSpyNav } from '../../hooks/useSpyNav';
 import { UserFormRegistrationBlock } from '../UserFormRegistrationBlock/UserFormRegistrationBlock';
 import { UserFormWorkSpaceBlock } from '../UserFormWorkSpaceBlock/UserFormWorkSpaceBlock';
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
+import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
+import { useRouter } from '../../hooks/useRouter';
 
 import { tr } from './DecreeForm.i18n';
 import s from './DecreeForm.module.css';
@@ -49,6 +51,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({
     onSubmit,
     onCancel,
 }) => {
+    const router = useRouter();
     const methods = useForm<UserDecreeSchema>({
         resolver: zodResolver(userDecreeSchema),
         defaultValues,
@@ -62,6 +65,8 @@ export const DecreeForm: FC<DecreeFormProps> = ({
         reset,
         formState: { isSubmitting, isSubmitSuccessful },
     } = methods;
+
+    const requestId = watch('id');
 
     const organizationUnits = useMemo(
         () =>
@@ -163,11 +168,21 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                     <Text as="h2">
                         {nullable(type === 'toDecree', () => tr('Create decree'), tr('Exit from decree'))}
                     </Text>
-                    <UserFormFormActions
-                        submitDisabled={isSubmitting || isSubmitSuccessful}
-                        onCancel={onCancel}
-                        onReset={() => reset(defaultValues)}
-                    />
+                    {nullable(
+                        mode === 'read' && requestId,
+                        (rId) => (
+                            <RequestFormActions
+                                onEdit={() => router.decreeRequestEdit(rId)}
+                                requestId={rId}
+                                requestType="decree"
+                            />
+                        ),
+                        <UserFormFormActions
+                            submitDisabled={isSubmitting || isSubmitSuccessful}
+                            onCancel={onCancel}
+                            onReset={() => reset(defaultValues)}
+                        />,
+                    )}
                 </div>
                 <div className={s.Body} onScroll={onScroll}>
                     <div className={s.Form} ref={rootRef}>
