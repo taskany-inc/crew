@@ -5,7 +5,11 @@ import { EditAdditionEmails, GetAdditionEmails } from './mailingSettingsSchemas'
 export const mailSettingsMethods = {
     getAdditionEmails: async (data: GetAdditionEmails) => {
         const mailingSettings = await prisma.mailingSettings.findFirst({
-            where: { organizationUnitId: data.organizationUnitId, [data.mailingType]: true, plainEmails: true },
+            where: {
+                organizationUnitId: { in: data.organizationUnitIds },
+                [data.mailingType]: true,
+                plainEmails: true,
+            },
         });
         return mailingSettings?.additionalEmails || [];
     },

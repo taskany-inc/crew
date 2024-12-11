@@ -1,0 +1,13 @@
+.Link {
+    display: block;
+}
+
+.IconBin {
+    color: var(--text-color);
+    margin-left: var(--gap-s)
+}
+
+.AttachItem{
+    display: flex;
+    align-items: center;
+}

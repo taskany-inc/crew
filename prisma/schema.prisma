@@ -275,6 +275,7 @@ model ExternalService {
   icon        String
   linkPrefix  String?
   users       UserService[]
+  type        String?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -292,6 +293,8 @@ model ScheduledDeactivation {
   phone String
   email String
 
+  lineManagerIds String[]
+
   deactivateDate DateTime
   type           String
   disableAccount Boolean
@@ -305,7 +308,7 @@ model ScheduledDeactivation {
   newOrganizationUnitId String?
   newOrganizationUnit   OrganizationUnit? @relation("newOrganizationUnit", fields: [newOrganizationUnitId], references: [id])
 
-  teamLead    String
+  teamLead    String?
   newTeamLead String?
 
   teamLeadId    String?
@@ -323,6 +326,8 @@ model ScheduledDeactivation {
 
   testingDevices Json?
   devices        Json?
+
+  applicationForReturnOfEquipment String?
 
   comments String?
 
@@ -723,6 +728,7 @@ model Job {
 
   scheduledDeactivation ScheduledDeactivation?
   userCreationRequest   UserCreationRequest?
+  supplementalPosition  SupplementalPosition?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
@@ -755,6 +761,9 @@ model SupplementalPosition {
   status        PositionStatus @default(ACTIVE)
   role          String?
   main          Boolean        @default(false)
+
+  job   Job?    @relation(fields: [jobId], references: [id])
+  jobId String? @unique
 
   userCreationRequest   UserCreationRequest? @relation(fields: [userCreationRequestId], references: [id])
   userCreationRequestId String?

@@ -1,0 +1,17 @@
+
+.Required {
+    color: var(--danger-500)
+}
+
+.TwoInputsWithBin {
+    display: grid;
+    grid-template-columns: 1fr 1fr 20px;
+    gap: var(--gap-m);
+    margin-top: var(--gap-s);
+    margin-bottom: var(--gap-m);
+}
+
+.BinIcon {
+    align-self: end;
+    margin-bottom: 15px;
+}

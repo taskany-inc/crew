@@ -1,81 +1,17 @@
-import React, { useCallback, useState } from 'react';
-import { FormControlInput, FormControlFileUpload, Text, Button } from '@taskany/bricks/harmony';
+import React, { useCallback } from 'react';
+import { FormControlInput, FormControlFileUpload, Text } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { nullable } from '@taskany/bricks';
-import { IconBinOutline, IconFileOutline } from '@taskany/icons';
-import { Attach } from 'prisma/prisma-client';
 
 import { FormControl } from '../FormControl/FormControl';
 import { PermissionServiceSelect } from '../PermissionServiceSelect/PermissionServiceSelect';
 import { getFileIdFromPath } from '../../utils/attachFormatter';
 import { pages } from '../../hooks/useRouter';
 import { trpc } from '../../trpc/trpcClient';
-import { Link } from '../Link';
-import { useAttachMutations } from '../../modules/attachHooks';
-import { useBoolean } from '../../hooks/useBoolean';
-import { WarningModal } from '../WarningModal/WarningModal';
+import { AttachList } from '../AttachList/AttachList';
 
 import { tr } from './UserFormExternalExtraInfoBlock.i18n';
 import s from './UserFormExternalExtraInfoBlock.module.css';
-
-interface AttachListProps {
-    requestId: string;
-    onDelete?: (id: string) => void;
-}
-
-const AttachList = ({ requestId, onDelete }: AttachListProps) => {
-    const requestQuery = trpc.userCreationRequest.getById.useQuery(requestId);
-    const deleteAttachVisible = useBoolean(false);
-
-    const { deleteAttach } = useAttachMutations();
-    const [attach, setAttach] = useState<undefined | Attach>();
-
-    const onDeleteClick = (currentAttach: Attach) => {
-        setAttach(currentAttach);
-        deleteAttachVisible.setTrue();
-    };
-
-    const confirmAttachDelete = () => {
-        if (onDelete && attach) {
-            onDelete(attach.id);
-            deleteAttach(attach.id);
-            deleteAttachVisible.setFalse();
-        }
-    };
-
-    const cancelAttachDelete = () => {
-        setAttach(undefined);
-        deleteAttachVisible.setFalse();
-    };
-
-    return nullable(requestQuery.data?.attaches, (attaches) => (
-        <>
-            {attaches.map((file) => (
-                <div className={s.AttachItem} key={`attach-${file.id}`}>
-                    <Link className={s.Link} href={pages.attach(file.id)} target="_blank">
-                        <IconFileOutline size="s" /> {file.filename}{' '}
-                    </Link>
-                    {nullable(onDelete, () => (
-                        <Button
-                            type="button"
-                            view="ghost"
-                            size="s"
-                            className={s.IconBin}
-                            iconLeft={<IconBinOutline size="s" onClick={() => onDeleteClick(file)} />}
-                        />
-                    ))}
-                </div>
-            ))}
-            <WarningModal
-                view="warning"
-                visible={deleteAttachVisible.value}
-                onCancel={cancelAttachDelete}
-                onConfirm={confirmAttachDelete}
-                warningText={tr('attach deleting confirmation {filename}', { filename: attach?.filename || '' })}
-            />
-        </>
-    ));
-};
 
 interface UserFormExternalExtraInfoBlockProps {
     className: string;
@@ -175,20 +111,23 @@ export const UserFormExternalExtraInfoBlock = ({
                                 onChange={onFileChange}
                             />
                         ))}
-                        {nullable(requestId, (id) => (
-                            <AttachList
-                                requestId={id}
-                                onDelete={
-                                    !readOnly
-                                        ? (attachId) =>
-                                              setValue(
-                                                  'attachIds',
-                                                  getValues('attachIds').filter((id) => id !== attachId),
-                                              )
-                                        : undefined
-                                }
-                            />
-                        ))}
+                        {nullable(requestId, (id) => {
+                            const requestQuery = trpc.userCreationRequest.getById.useQuery(id);
+                            return (
+                                <AttachList
+                                    attaches={requestQuery.data?.attaches}
+                                    onDelete={
+                                        !readOnly
+                                            ? (attachId) =>
+                                                  setValue(
+                                                      'attachIds',
+                                                      getValues('attachIds').filter((id) => id !== attachId),
+                                                  )
+                                            : undefined
+                                    }
+                                />
+                            );
+                        })}
                     </FormControl>
                 </div>
             ))}

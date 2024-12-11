@@ -52,5 +52,7 @@
     "Name": "ФИО",
     "Corporate Email": "Корпоративная почта",
     "Screenshot": "Скриншот",
-    "In attachment": "Во вложении"
+    "In attachment": "Во вложении",
+    "Work email": "Рабочая почта",
+    "Did not take any": "Не брал"
 }

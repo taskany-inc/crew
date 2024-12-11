@@ -1,6 +1,6 @@
 {
     "Type": "Тип",
-    "Schedule profile deactivation for {userName}": "Запланировать деактивацию профиля для {userName}",
+    "Schedule transfer for {userName}": "Запланировать перевод для {userName}",
     "Cancel": "Отмена",
     "Create": "Создать",
     "TeamLead": "Тимлид",

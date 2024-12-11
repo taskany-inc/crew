@@ -10,7 +10,7 @@ export const mailSettingsRouter = router({
 
     editAdditionalEmails: protectedProcedure.input(editAdditionEmailsSchema).mutation(async ({ input, ctx }) => {
         const mailSettingsBefore = await mailSettingsMethods.getAdditionEmails({
-            organizationUnitId: input.organizationUnitId,
+            organizationUnitIds: [input.organizationUnitId],
             mailingType: input.mailingType,
         });
         const updatedMailSettings = await mailSettingsMethods.editAdditionEmails(input);
