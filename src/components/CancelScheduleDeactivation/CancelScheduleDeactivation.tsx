@@ -46,7 +46,10 @@ export const CancelScheduleDeactivation = ({
         },
     });
 
-    const onSubmit = handleSubmit(async (data) => cancelScheduledDeactivation(data));
+    const onSubmit = handleSubmit((data) => {
+        cancelScheduledDeactivation(data);
+        onClose();
+    });
 
     return (
         <Modal visible={visible} onClose={onClose} width={500}>

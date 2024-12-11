@@ -12,9 +12,15 @@ interface UserFormFormActionsProps {
     submitDisabled: boolean;
     onCancel: () => void;
     onReset?: () => void;
+    cancelConfirmation?: string;
 }
 
-export const UserFormFormActions = ({ submitDisabled, onReset, onCancel }: UserFormFormActionsProps) => {
+export const UserFormFormActions = ({
+    submitDisabled,
+    onReset,
+    onCancel,
+    cancelConfirmation = tr('cancel confirmation'),
+}: UserFormFormActionsProps) => {
     const cancelWarningVisible = useBoolean(false);
     const resetWarningVisible = useBoolean(false);
 
@@ -39,7 +45,7 @@ export const UserFormFormActions = ({ submitDisabled, onReset, onCancel }: UserF
                 visible={cancelWarningVisible.value}
                 onCancel={cancelWarningVisible.setFalse}
                 onConfirm={onCancel}
-                warningText={tr('cancel confirmation')}
+                warningText={cancelConfirmation}
             />
             <WarningModal
                 view="warning"

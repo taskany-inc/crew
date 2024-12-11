@@ -38,6 +38,7 @@ export const UserFormCommentsBlock = ({ className, id, readOnly }: UserFormComme
                             placeholder={tr('Write some comments if needed')}
                             {...field}
                             value={readOnly && !comment ? 'Not specified' : comment}
+                            disableAttaches
                         />
                     </FormControl>
                 )}

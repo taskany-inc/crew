@@ -1118,6 +1118,14 @@ const componentMap: {
             </div>
         );
     },
+    ScheduledFiringFromSupplementalPosition: ({ event }) => {
+        return (
+            <div className={s.Row}>
+                <UserListItem user={event.user} /> {tr('fired from')}
+                <BoldText>{event.after.organizationUnitId}</BoldText> <BoldText>{event.after.workEndDate}</BoldText>
+            </div>
+        );
+    },
 };
 
 interface HistoryRecordProps {

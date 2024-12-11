@@ -232,7 +232,7 @@ export const userCreationRequestsMethods = {
             await userCreationRequestsMethods.accept({ id: userCreationRequest.id });
         }
 
-        const { to } = await userMethods.getMailingList('createUserRequest', data.organizationUnitId);
+        const { to } = await userMethods.getMailingList('createUserRequest', [data.organizationUnitId]);
 
         const requestLink = () => {
             if (data.type === 'externalEmployee') return pages.externalUserRequest(userCreationRequest.id);
@@ -253,19 +253,18 @@ export const userCreationRequestsMethods = {
             text: mailText,
         });
 
-        const additionalEmails = [sessionUserId];
-
-        if (userCreationRequest.supervisorId) additionalEmails.push(userCreationRequest.supervisorId);
-
-        if (userCreationRequest.buddyId) additionalEmails.push(userCreationRequest.buddyId);
-
-        const { users, to: mailTo } = await userMethods.getMailingList(
-            'createScheduledUserRequest',
-            data.organizationUnitId,
-            additionalEmails,
-        );
-
         if (data.date) {
+            const additionalEmails = [sessionUserId];
+
+            if (userCreationRequest.supervisorId) additionalEmails.push(userCreationRequest.supervisorId);
+
+            if (userCreationRequest.buddyId) additionalEmails.push(userCreationRequest.buddyId);
+
+            const { users, to: mailTo } = await userMethods.getMailingList(
+                'createScheduledUserRequest',
+                [data.organizationUnitId],
+                additionalEmails,
+            );
             const icalSubject = newcomerSubject({
                 userCreationRequest,
                 phone: data.phone,
@@ -478,9 +477,11 @@ export const userCreationRequestsMethods = {
 
         const html = data.type === 'fromDecree' ? htmlFromDecreeRequest(request) : htmlToDecreeRequest(request);
 
-        const { to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest', data.organizationUnitId, [
-            sessionUserId,
-        ]);
+        const { to: mailTo } = await userMethods.getMailingList(
+            'createScheduledUserRequest',
+            [data.organizationUnitId],
+            [sessionUserId],
+        );
 
         const attachments = await nodemailerAttachments(request.attaches);
 
@@ -936,8 +937,8 @@ export const userCreationRequestsMethods = {
 
             const { users, to: mailTo } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
-                updatedRequest.organizationUnitId,
-                additionalEmails,
+                [updatedRequest.organizationUnitId],
+                [sessionUserId],
             );
 
             const icalSubject = newcomerSubject({
@@ -1242,7 +1243,7 @@ export const userCreationRequestsMethods = {
         if (editData.date && requestBeforeUpdate.date !== editData.date) {
             const { to } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
-                updatedRequest.organizationUnitId,
+                [updatedRequest.organizationUnitId],
                 [sessionUserId],
             );
 
@@ -1397,8 +1398,8 @@ export const userCreationRequestsMethods = {
         if (canceledRequest.date) {
             const { users, to } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
-                canceledRequest.organizationUnitId,
-                additionalEmails,
+                [canceledRequest.organizationUnitId],
+                [sessionUserId],
             );
 
             const html = htmlUserCreationRequestWithDate({

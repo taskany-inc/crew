@@ -64,6 +64,7 @@ export const GroupComboBox = ({
                     {props.item.name}
                 </Text>
             )}
+            arrow
         >
             <SelectTrigger
                 size="m"

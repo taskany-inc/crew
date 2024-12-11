@@ -22,5 +22,6 @@
     "Personal email": "Личная почта",
     "Work email": "Рабочая почта",
     "Not specified": "Не указано",
-    "Disable account": "Блокировка учетной записи"
+    "Disable account": "Блокировка учетной записи",
+    "Corporate email": "Почта Cloud"
 }

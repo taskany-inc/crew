@@ -101,6 +101,7 @@ export type EditUserFields = z.infer<typeof editUserFieldsSchema>;
 export const editUserActiveStateSchema = z.object({
     id: z.string(),
     active: z.boolean(),
+    scheduled: z.boolean().optional(),
 });
 
 export type EditUserActiveState = z.infer<typeof editUserActiveStateSchema>;

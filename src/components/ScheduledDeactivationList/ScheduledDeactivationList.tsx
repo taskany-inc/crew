@@ -1,5 +1,5 @@
-import { getTableComponents, Tooltip } from '@taskany/bricks/harmony';
-import { useRef, useState } from 'react';
+import { getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
+import { forwardRef, useRef, useState } from 'react';
 import { nullable } from '@taskany/bricks';
 
 import { trpc } from '../../trpc/trpcClient';
@@ -10,6 +10,7 @@ import { useSessionUser } from '../../hooks/useSessionUser';
 import { ScheduleDeactivationForm } from '../ScheduleDeactivationForm/ScheduleDeactivationForm';
 import { CancelScheduleDeactivation } from '../CancelScheduleDeactivation/CancelScheduleDeactivation';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
+import { pages, useRouter } from '../../hooks/useRouter';
 
 import { tr } from './ScheduledDeactivationList.i18n';
 import s from './ScheduledDeactivationList.module.css';
@@ -21,7 +22,9 @@ interface tableData {
     supervisor: string;
     deactivateDate?: string;
     id: string;
-    // TODO add team after adding it to deactivation form
+    team: string;
+    type: string;
+    userId: string;
 }
 
 interface EditOrCancelFormProps {
@@ -52,11 +55,26 @@ const CancelForm = ({ id, onClose }: EditOrCancelFormProps) => {
     );
 };
 
+const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => {
+    return nullable(
+        props.item.type === 'retirement',
+        () => (
+            <a href={pages.userDismiss(props.item.userId)} className={s.TableRowLink}>
+                <TableRow {...props} ref={ref} />
+            </a>
+        ),
+        <div className={s.TableRowLink}>
+            <TableRow {...props} ref={ref} />
+        </div>,
+    );
+});
+
 export const ScheduledDeactivationList = () => {
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
     const userListFilter = useUserListFilter();
 
     const sessionUser = useSessionUser();
+    const router = useRouter();
 
     const [sorting, setSorting] = useState<React.ComponentProps<typeof DataTable>['sorting']>([
         { key: 'deactivateDate', dir: 'desc' },
@@ -70,14 +88,25 @@ export const ScheduledDeactivationList = () => {
         search: userListFilter.values.search,
     });
 
-    const data: tableData[] = scheduledDeactivations.map((deactivation) => ({
-        name: deactivation.user.name || deactivation.user.email,
-        email: deactivation.email,
-        organization: deactivation.organizationUnit ? getOrgUnitTitle(deactivation.organizationUnit) : '',
-        supervisor: deactivation.user.supervisor?.name || '',
-        deactivateDate: deactivation.deactivateDate.toLocaleDateString(),
-        id: deactivation.id,
-    }));
+    const data: tableData[] = scheduledDeactivations.map((deactivation) => {
+        const organization = deactivation.organizationUnit
+            ? getOrgUnitTitle(deactivation.organizationUnit)
+            : deactivation.user.supplementalPositions
+                  .map(({ organizationUnit }) => getOrgUnitTitle(organizationUnit))
+                  .join(', ');
+
+        return {
+            name: deactivation.user.name || deactivation.user.email,
+            email: deactivation.email,
+            organization,
+            supervisor: deactivation.user.supervisor?.name || '',
+            deactivateDate: deactivation.deactivateDate.toLocaleDateString(),
+            team: deactivation.user.memberships.map(({ group }) => group.name).join(', '),
+            id: deactivation.id,
+            type: deactivation.type,
+            userId: deactivation.userId,
+        };
+    });
 
     const dateTitleRef = useRef(null);
 
@@ -86,26 +115,33 @@ export const ScheduledDeactivationList = () => {
 
     return (
         <ProfilesManagementLayout>
-            <DataTable data={data} sorting={sorting} onSort={(val) => setSorting([val])} className={s.Table}>
+            <DataTable
+                data={data}
+                sorting={sorting}
+                onSort={(val) => setSorting([val])}
+                className={s.Table}
+                rowComponent={ClickableRow}
+            >
                 <DataTableColumn name="name" value="name" title={tr('Name')} width="18vw" fixed />
                 <DataTableColumn
                     sortable={false}
                     name="email"
                     value="email"
-                    width="18vw"
+                    width="15vw"
                     title={tr('Email')}
                     lines={1}
                 />
                 <DataTableColumn
                     name="organization"
-                    width="18vw"
+                    width="15vw"
                     value="organization"
                     title={tr('Organization')}
                     sortable={false}
                 />
+                <DataTableColumn name="team" width="15vw" value="team" title={tr('Team')} sortable={false} />
                 <DataTableColumn
                     name="supervisor"
-                    width="18vw"
+                    width="15vw"
                     value="supervisor"
                     title={tr('Supervisor')}
                     sortable={false}
@@ -132,10 +168,12 @@ export const ScheduledDeactivationList = () => {
                         name="actions"
                         title={tr('Actions')}
                         width="100px"
-                        renderCell={({ id }) => (
+                        renderCell={({ id, type, userId }) => (
                             <div onClick={(e) => e.preventDefault()}>
                                 <ScheduledDeactivationEditMenu
-                                    onEditClick={() => setEditRequestId(id)}
+                                    onEditClick={() =>
+                                        type === 'retirement' ? router.userDismissEdit(userId) : setEditRequestId(id)
+                                    }
                                     onCancelClick={() => setCancelRequestId(id)}
                                 />
                             </div>

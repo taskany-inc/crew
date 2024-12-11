@@ -16,8 +16,9 @@ import { tr } from './UserFormTeamBlock.i18n';
 interface UserFormTeamBlockProps {
     className: string;
     id: string;
-    type: 'internal' | 'existing';
+    type: 'internal' | 'existing' | 'dismissal';
     readOnly?: boolean;
+    userId?: string;
 }
 
 interface UserFormTeamBlockType {
@@ -28,7 +29,7 @@ interface UserFormTeamBlockType {
     coordinatorIds: string[];
 }
 
-export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTeamBlockProps) => {
+export const UserFormTeamBlock = ({ className, id, type, readOnly, userId }: UserFormTeamBlockProps) => {
     const {
         setValue,
         trigger,
@@ -60,6 +61,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
     );
 
     const defaultGroupId = watch('groupId') || supervisorGroups[0]?.id;
+    const excludedUsers = userId ? [userId] : undefined;
 
     return (
         <div className={className} id={id}>
@@ -69,6 +71,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
             <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Supervisor')} required>
                     <UserSelect
+                        excludedUsers={excludedUsers}
                         readOnly={readOnly}
                         mode="single"
                         selectedUsers={supervisorId ? [supervisorId] : undefined}
@@ -78,6 +81,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
                 </FormControl>
                 <FormControl label={tr('Line managers')}>
                     <UserSelect
+                        excludedUsers={excludedUsers}
                         readOnly={readOnly}
                         mode="multiple"
                         selectedUsers={watch('lineManagerIds')}
@@ -97,6 +101,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
                     <div className={s.ThreeInputsRow}>
                         <FormControl label="Buddy">
                             <UserSelect
+                                excludedUsers={excludedUsers}
                                 readOnly={readOnly}
                                 mode="single"
                                 selectedUsers={selectedBuddyId ? [selectedBuddyId] : undefined}
@@ -116,6 +121,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
                         </FormControl>
                         <FormControl label={tr('Coordinators')}>
                             <UserSelect
+                                excludedUsers={excludedUsers}
                                 readOnly={readOnly}
                                 mode="multiple"
                                 selectedUsers={watch('coordinatorIds')}
@@ -132,6 +138,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
                 <div className={s.TwoInputsRow}>
                     <FormControl label={tr('OrgGroup')}>
                         <GroupComboBox
+                            readOnly={readOnly}
                             defaultGroupId={defaultGroupId}
                             onChange={onTeamChange}
                             error={errors.groupId}

@@ -1,0 +1,30 @@
+.RequestType {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--gap-m);
+}
+
+.Description {
+    color: var(--text-secondary)
+}
+
+.Text {
+    cursor: pointer;
+}
+
+.Text_active {
+    color: var(--link0)
+}
+
+.FormActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-s);
+}
+
+.IconTick {
+    color: var(--link0);
+    align-self: start;
+    margin-top: var(--gap-xs);
+}
