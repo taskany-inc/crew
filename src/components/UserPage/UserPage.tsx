@@ -49,6 +49,7 @@ import { formatDate } from '../../utils/dateTime';
 import { supplementPositionListToString } from '../../utils/suplementPosition';
 import { getActiveScheduledDeactivation } from '../../utils/getActiveScheduledDeactivation';
 import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
+import { FireOrTransferUserModal } from '../FireOrTransferUserModal/FireOrTransferUserModal';
 
 import { tr } from './UserPage.i18n';
 
@@ -121,6 +122,8 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const sessionUser = useSessionUser();
     const router = useRouter();
 
+    const dismissOrTransferModalVisibility = useBoolean(false);
+
     const orgMembership = user.memberships.find((m) => m.group.organizational);
     const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
 
@@ -171,7 +174,10 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const locale = useLocale();
 
     const deactivationTypeTr = useMemo<Record<ScheduleDeactivateType, string>>(
-        () => ({ retirement: tr('Retirement'), transfer: tr('Transfer') }),
+        () => ({
+            retirement: tr('Retirement scheduled on'),
+            transfer: tr('Transfer scheduled on'),
+        }),
         [],
     );
 
@@ -222,9 +228,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                         () => (
                             <Text size="s" color={gray8} weight="bold">
                                 {deactivationTypeTr[user.scheduledDeactivations[0].type as ScheduleDeactivateType]}{' '}
-                                {tr('scheduled on {date}', {
-                                    date: formatDate(user.scheduledDeactivations[0].deactivateDate, locale),
-                                })}
+                                {formatDate(user.scheduledDeactivations[0].deactivateDate, locale)}
                             </Text>
                         ),
                     )}
@@ -239,6 +243,14 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                 <Modal visible={deactivateUserFormVisibility.value} width={600}>
                     <DeactivateProfileForm user={user} onClose={deactivateUserFormVisibility.setFalse} />
                 </Modal>
+
+                <FireOrTransferUserModal
+                    visible={dismissOrTransferModalVisibility.value}
+                    onClose={dismissOrTransferModalVisibility.setFalse}
+                    onTransfer={scheduleDeactivationFormVisibility.setTrue}
+                    onDismiss={() => router.userDismissNew(user.id)}
+                />
+
                 <ScheduleDeactivationForm
                     visible={scheduleDeactivationFormVisibility.value}
                     onClose={scheduleDeactivationFormVisibility.setFalse}
@@ -285,7 +297,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                     </Restricted>
                     <Restricted visible={!activeScheduledDeactivation && !!sessionUser.role?.editScheduledDeactivation}>
                         <Button
-                            onClick={scheduleDeactivationFormVisibility.setTrue}
+                            onClick={dismissOrTransferModalVisibility.setTrue}
                             text={tr('Schedule deactivation')}
                             view="warning"
                             outline

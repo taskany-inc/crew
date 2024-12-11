@@ -7,8 +7,6 @@ import {
     FormAction,
     FormActions,
     FormInput,
-    FormRadio,
-    FormRadioInput,
     FormTitle,
     Modal,
     ModalContent,
@@ -118,6 +116,7 @@ export const ScheduleDeactivationForm = ({
 
     const defaultValuesBase = {
         userId,
+        type: scheduleDeactivateType[1],
         deactivateDate: scheduledDeactivation?.deactivateDate || undefined,
         email: scheduledDeactivation?.email || user?.email,
         teamLead: scheduledDeactivation?.teamLead || user?.supervisor?.name || undefined,
@@ -134,16 +133,18 @@ export const ScheduleDeactivationForm = ({
         phone: scheduledDeactivation?.phone || phone || undefined,
         workMode: scheduledDeactivation?.workMode || undefined,
         workModeComment: scheduledDeactivation?.workModeComment || undefined,
-        workPlace: scheduledDeactivation?.workPlace || undefined,
+        workSpace: scheduledDeactivation?.workPlace || undefined,
         comments: scheduledDeactivation?.comments || undefined,
         location: scheduledDeactivation?.location || undefined,
         unitId: scheduledDeactivation?.unitId || undefined,
         unitIdString: scheduledDeactivation?.unitIdString || undefined,
         devices: initDevices,
         testingDevices: initTestingDevices,
+        transferPercentage: scheduledDeactivation?.transferPercentage || undefined,
+        lineManagerIds: [],
     };
     const defaultValues =
-        scheduledDeactivation?.type === scheduleDeactivateType[1]
+        !scheduledDeactivation || scheduledDeactivation?.type === scheduleDeactivateType[1]
             ? {
                   ...defaultValuesBase,
                   disableAccount: !!scheduledDeactivation?.disableAccount,
@@ -162,10 +163,9 @@ export const ScheduleDeactivationForm = ({
         control,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateScheduledDeactivation>({
-        resolver: zodResolver(createScheduledDeactivationSchema),
+        resolver: zodResolver(createScheduledDeactivationSchema()),
         defaultValues,
     });
-
     useEffect(() => {
         if (!scheduledDeactivation) {
             phone && setValue('phone', phone);
@@ -189,27 +189,6 @@ export const ScheduleDeactivationForm = ({
         hideModal();
     });
 
-    const onTypeChange = useCallback(
-        (type: string) => {
-            if (type === 'retirement') {
-                setValue('type', 'retirement');
-                setValue('disableAccount', true);
-                setValue('newOrganizationRole', undefined);
-                setValue('newTeamLead', undefined);
-                setValue('newOrganizationalGroup', undefined);
-            }
-            if (type === 'transfer') {
-                setValue('type', 'transfer');
-            }
-        },
-        [setValue],
-    );
-
-    const deactivationRadioValues = [
-        { label: tr('Retirement'), value: 'retirement' },
-        { label: tr('Transfer'), value: 'transfer' },
-    ];
-
     const formatter = useCallback(
         (f: Array<{ filePath: string; name: string; type: string }>) =>
             attachFormatter(f, setFiles, (ids) => setValue('attachIds', ids as [string, ...string[]])),
@@ -232,7 +211,7 @@ export const ScheduleDeactivationForm = ({
         <StyledModal visible={visible} onClose={hideModal} width={700}>
             <ModalHeader>
                 <FormTitle>
-                    {tr('Schedule profile deactivation for {userName}', {
+                    {tr('Schedule transfer for {userName}', {
                         userName: user?.name || (user?.email as string),
                     })}
                 </FormTitle>
@@ -241,11 +220,6 @@ export const ScheduleDeactivationForm = ({
 
             <ModalContent>
                 <Form onSubmit={onSubmit}>
-                    <FormRadio label={tr('Type')} name="type" value={watch('type')} onChange={(v) => onTypeChange(v)}>
-                        {deactivationRadioValues.map(({ value, label }) => (
-                            <FormRadioInput key={value} value={value} label={label} />
-                        ))}
-                    </FormRadio>
                     {nullable(watch('type') === 'transfer', () => (
                         <StyledInputContainer>
                             <Text weight="bold" color={gray9}>
@@ -332,6 +306,7 @@ export const ScheduleDeactivationForm = ({
                                 error={errors.transferPercentage}
                                 type="number"
                                 autoComplete="off"
+                                value={watch('transferPercentage')}
                                 onChange={(e) => setValue('transferPercentage', Number(e.target.value))}
                             />
                         </>
@@ -343,9 +318,9 @@ export const ScheduleDeactivationForm = ({
                     <StyledLabel weight="bold">{tr('Work mode')}</StyledLabel>
                     <WorkModeCombobox onChange={onWorkModeChange} value={watch('workMode')} error={errors.workMode} />
                     <StyledLabel weight="bold">{tr('Work place')}</StyledLabel>
-                    <StyledFormInput error={errors.workPlace} autoComplete="off" {...register('workPlace')} />
+                    <StyledFormInput error={errors.workSpace} autoComplete="off" {...register('workSpace')} />
                     <StyledLabel weight="bold">{tr('Unit ID')}</StyledLabel>
-                    <StyledFormInput error={errors.unitId} autoComplete="off" {...register('unitIdString')} />
+                    <StyledFormInput error={errors.unitIdString} autoComplete="off" {...register('unitIdString')} />
                     <DeviceInScheduleDeactivationForm
                         initialDevices={initTestingDevices}
                         label={tr('Testing devices')}
@@ -358,7 +333,7 @@ export const ScheduleDeactivationForm = ({
                         onDeviceAdd={(devices) => setValue('devices', devices)}
                     />
                     <Controller
-                        name="comments"
+                        name="comment"
                         control={control}
                         render={({ field }) => (
                             <FormControl>

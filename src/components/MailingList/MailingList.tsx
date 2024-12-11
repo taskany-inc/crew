@@ -32,7 +32,7 @@ export const MailingList = ({ mailingType, organizationUnitId }: MailingListProp
 
     const { data: additionalEmails = [] } = trpc.mailSettings.additionalEmails.useQuery({
         mailingType,
-        organizationUnitId,
+        organizationUnitIds: [organizationUnitId],
     });
 
     const { editAdditionalEmails } = useMailSettingsMutations();

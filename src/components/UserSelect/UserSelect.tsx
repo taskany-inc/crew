@@ -72,6 +72,7 @@ export const UserSelect = ({
             onChange={onChange}
             selectable
             mode={mode}
+            arrow
             renderItem={({ item }) => <HarmonyUser name={item.name} email={item.email} />}
         >
             <SelectTrigger

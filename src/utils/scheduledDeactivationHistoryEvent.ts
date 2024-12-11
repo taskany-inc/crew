@@ -19,22 +19,22 @@ export const scheduledDeactivationHistoryEvent = (
     phone: scheduleDeactivation.phone,
     deactivateDate: scheduleDeactivation.deactivateDate,
     email: scheduleDeactivation.email,
-    organization: scheduleDeactivation.organizationUnit
-        ? getOrgUnitTitle(scheduleDeactivation.organizationUnit)
-        : undefined,
     unitId: scheduleDeactivation.unitId || undefined,
     unitIdString: scheduleDeactivation.unitIdString || undefined,
-    teamLead: scheduleDeactivation.teamLead,
+    teamLeadId: scheduleDeactivation.user.supervisorId || undefined,
     newTeamLead: scheduleDeactivation.newTeamLead || undefined,
     organizationalGroup: scheduleDeactivation.organizationalGroup || undefined,
     newOrganizationalGroup: scheduleDeactivation.newOrganizationalGroup || undefined,
-    organizationRole: scheduleDeactivation.organizationRole || undefined,
+    organizationRole: scheduleDeactivation.user.title || undefined,
     transferPercentage: scheduleDeactivation.transferPercentage || undefined,
     workMode: scheduleDeactivation.workMode || undefined,
     workPlace: scheduleDeactivation.workPlace || undefined,
     comments: scheduleDeactivation.comments || undefined,
     newOrganizationRole: scheduleDeactivation.newOrganizationRole || undefined,
+    lineManagerIds: scheduleDeactivation.lineManagerIds.join(', '),
+    applicationForReturnOfEquipment: scheduleDeactivation.applicationForReturnOfEquipment || undefined,
     newOrganization: scheduleDeactivation.newOrganizationUnit
         ? getOrgUnitTitle(scheduleDeactivation.newOrganizationUnit)
         : undefined,
+    disableAccount: String(scheduleDeactivation.disableAccount),
 });

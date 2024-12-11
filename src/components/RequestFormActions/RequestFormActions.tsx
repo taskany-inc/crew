@@ -9,6 +9,7 @@ import { WarningModal } from '../WarningModal/WarningModal';
 import { useBoolean } from '../../hooks/useBoolean';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
+import { useScheduledDeactivation } from '../../modules/scheduledDeactivationHooks';
 
 import s from './RequestFormActions.module.css';
 import { tr } from './RequestFormActions.i18n';
@@ -18,7 +19,7 @@ interface RequestFormActionsProps {
     onEdit?: () => void;
     onDecide?: () => void;
     requestStatus?: UserCreationRequestStatus;
-    requestType?: 'decree' | 'creation';
+    requestType?: 'decree' | 'creation' | 'deactivation';
     small?: boolean;
 }
 
@@ -40,6 +41,8 @@ export const RequestFormActions = ({
     const [comment, setComment] = useState<string | undefined>();
 
     const { declineUserRequest, acceptUserRequest, cancelUserRequest } = useUserCreationRequestMutations();
+    const { cancelScheduledDeactivation } = useScheduledDeactivation();
+
     const commentRef = useLatest(comment);
 
     const handleSubmit = useCallback(
@@ -90,7 +93,7 @@ export const RequestFormActions = ({
 
     return (
         <div className={s.FormActions}>
-            {nullable(canDecideOnRequest && requestType !== 'decree', () => (
+            {nullable(canDecideOnRequest && requestType !== 'decree' && requestType !== 'deactivation', () => (
                 <div
                     className={cn(s.FormActions, {
                         [s.Separator]: small && canEditRequest && canDecideOnRequest,
@@ -107,18 +110,51 @@ export const RequestFormActions = ({
                             onClick={declineWarningVisible.setTrue}
                             disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
                         />
-                    </div>
+                        <Button
+                            ref={acceptRef}
+                            iconLeft={small && <IconTickOutline size="s" />}
+                            size={small ? 's' : 'm'}
+                            type="button"
+                            text={small ? undefined : tr('Accept')}
+                            view={small ? 'default' : 'primary'}
+                            onClick={acceptWarningVisible.setTrue}
+                            disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
+                        />
 
-                    <Button
-                        ref={acceptRef}
-                        iconLeft={small && <IconTickOutline size="s" />}
-                        size={small ? 's' : 'm'}
-                        type="button"
-                        text={small ? undefined : tr('Accept')}
-                        view={small ? 'default' : 'primary'}
-                        onClick={acceptWarningVisible.setTrue}
-                        disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
-                    />
+                        {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
+                            <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
+                                {tooltipText}
+                            </Tooltip>
+                        ))}
+                        {nullable(small, () => (
+                            <>
+                                <Tooltip reference={declineRef} placement="bottom" arrow={false}>
+                                    {tr('Decline')}
+                                </Tooltip>
+                                <Tooltip reference={acceptRef} placement="bottom" arrow={false}>
+                                    {tr('Accept')}
+                                </Tooltip>
+                            </>
+                        ))}
+                        <WarningModal
+                            view="primary"
+                            visible={acceptWarningVisible.value}
+                            onCancel={onAcceptCancel}
+                            onInputChange={handleChangeComment}
+                            onConfirm={handleSubmit(acceptUserRequest)(requestId)}
+                            inputPlaceholder={tr('Enter comment if needed')}
+                            warningText={tr('Are you sure you want to accept this request?')}
+                        />
+                        <WarningModal
+                            view="danger"
+                            visible={declineWarningVisible.value}
+                            onCancel={onDeclineCancel}
+                            onConfirm={handleSubmit(declineUserRequest)(requestId)}
+                            onInputChange={handleChangeComment}
+                            inputPlaceholder={tr('Enter comment if needed')}
+                            warningText={tr('Are you sure you want to decline this request?')}
+                        />
+                    </div>
 
                     {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
                         <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
@@ -203,7 +239,11 @@ export const RequestFormActions = ({
                         visible={cancelWarningVisible.value}
                         onCancel={onCancelCancel}
                         onInputChange={handleChangeComment}
-                        onConfirm={handleSubmit(cancelUserRequest)(requestId)}
+                        onConfirm={
+                            requestType === 'deactivation'
+                                ? handleSubmit(cancelScheduledDeactivation)(requestId)
+                                : handleSubmit(cancelUserRequest)(requestId)
+                        }
                         inputPlaceholder={tr('Enter comment if needed')}
                         warningText={tr('Are you sure you want to cancel this request?')}
                     />

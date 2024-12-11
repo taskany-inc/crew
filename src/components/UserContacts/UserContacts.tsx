@@ -40,6 +40,7 @@ const getStubData = (userId: string) => {
         organizationUnitId: null,
         service: {
             displayName: null,
+            type: null,
             createdAt: new Date(),
             updatedAt: new Date(),
         },

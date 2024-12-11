@@ -14,7 +14,7 @@ import { scheduledDeactivationHistoryEvent } from '../../utils/scheduledDeactiva
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 
 export const scheduledDeactivationRouter = router({
-    create: protectedProcedure.input(createScheduledDeactivationSchema).mutation(async ({ input, ctx }) => {
+    create: protectedProcedure.input(createScheduledDeactivationSchema()).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'));
 
         const result = await scheduledDeactivationMethods.create({ ...input }, ctx.session.user.id);
@@ -42,13 +42,13 @@ export const scheduledDeactivationRouter = router({
         );
         return scheduledDeactivationMethods.getById(input);
     }),
-    edit: protectedProcedure.input(editScheduledDeactivationSchema).mutation(async ({ input, ctx }) => {
+    edit: protectedProcedure.input(editScheduledDeactivationSchema()).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'));
 
         const scheduledDeactivationBefore = await scheduledDeactivationMethods.getById(input.id);
         const historyEventsBefore = scheduledDeactivationHistoryEvent(scheduledDeactivationBefore);
 
-        const result = await scheduledDeactivationMethods.edit({ ...input }, ctx.session.user.id);
+        const result = await scheduledDeactivationMethods.edit({ ...input });
         const historyEventsAfter = scheduledDeactivationHistoryEvent(result);
 
         const { before, after } = dropUnchangedValuesFromEvent(historyEventsBefore, historyEventsAfter);

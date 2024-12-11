@@ -10,6 +10,9 @@ export const pages = {
     users: '/users',
     user: (userId: string) => `/users/${userId}`,
     userActivity: (userId: string) => `/users/${userId}/activity`,
+    userDismiss: (userId: string) => `/users/${userId}/dismiss`,
+    userDismissNew: (userId: string) => `/users/${userId}/dismiss/new`,
+    userDismissEdit: (userId: string) => `/users/${userId}/dismiss/edit`,
     userSettings: '/users/settings',
     userRequests: '/requests/users/newcomers',
     accessCoordination: '/requests/users/access',
@@ -60,6 +63,11 @@ export const useRouter = () => {
         users: () => router.push(pages.users),
         user: (userId: string) => router.push(pages.user(userId)),
         userActivity: (userId: string) => router.push(pages.userActivity(userId)),
+
+        userDismiss: (userId: string) => router.push(pages.userDismiss(userId)),
+        userDismissEdit: (userId: string) => router.push(pages.userDismissEdit(userId)),
+        userDismissNew: (userId: string) => router.push(pages.userDismissNew(userId)),
+
         toDecree: (userId: string) => router.push(pages.toDecree(userId)),
         fromDecree: (userId: string) => router.push(pages.fromDecree(userId)),
         userSettings: () => router.push(pages.userSettings),

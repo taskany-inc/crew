@@ -11,7 +11,7 @@ export const editAdditionEmailsSchema = z.object({
 export type EditAdditionEmails = z.infer<typeof editAdditionEmailsSchema>;
 
 export const getAdditionEmailsSchema = z.object({
-    organizationUnitId: z.string(),
+    organizationUnitIds: z.array(z.string()),
     mailingType: z.enum(mailingSettingType),
 });
 
