@@ -17,6 +17,10 @@ export interface JobDataMap {
     resolveDecree: {
         userCreationRequestId: string;
     };
+    scheduledFiringFromSupplementalPosition: {
+        supplementalPositionId: string;
+        userId: string;
+    };
 }
 
 export type JobKind = keyof JobDataMap;

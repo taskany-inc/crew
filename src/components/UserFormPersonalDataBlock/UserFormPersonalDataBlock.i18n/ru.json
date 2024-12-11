@@ -21,5 +21,7 @@
     "Enter ID": "Введите ID",
     "Personal email": "Личная почта",
     "Work email": "Рабочая почта",
-    "Not specified": "Не указано"
+    "Not specified": "Не указано",
+    "Block account": "Блокировка учетной записи",
+    "Corporate email": "Почта Cloud"
 }

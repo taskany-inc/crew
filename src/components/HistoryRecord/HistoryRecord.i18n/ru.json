@@ -143,5 +143,6 @@
     "edited additional emails for {orgId} in mailing type {type}": "изменил(а) дополнительные емейлы для организации {orgId} в рассылке типа {type}",
     "to going on maternity leave": "на выход в декретный отпуск",
     "to exit on maternity leave": "на выход из декретного отпуска",
-    "resolve request": "Выполнил(а) запрос"
+    "resolve request": "Выполнил(а) запрос",
+    "fired from": "уволен(а) из"
 }

@@ -121,6 +121,7 @@ export type ExternalService = {
     displayName: string | null;
     icon: string;
     linkPrefix: string | null;
+    type: string | null;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
@@ -224,6 +225,7 @@ export type ScheduledDeactivation = {
     creatorId: string;
     phone: string;
     email: string;
+    lineManagerIds: string[];
     deactivateDate: Timestamp;
     type: string;
     disableAccount: boolean;
@@ -232,7 +234,7 @@ export type ScheduledDeactivation = {
     newOrganization: string | null;
     organizationUnitId: string | null;
     newOrganizationUnitId: string | null;
-    teamLead: string;
+    teamLead: string | null;
     newTeamLead: string | null;
     teamLeadId: string | null;
     newTeamLeadId: string | null;
@@ -245,6 +247,7 @@ export type ScheduledDeactivation = {
     workPlace: string | null;
     testingDevices: unknown | null;
     devices: unknown | null;
+    applicationForReturnOfEquipment: string | null;
     comments: string | null;
     unitId: number | null;
     unitIdString: string | null;
@@ -277,6 +280,7 @@ export type SupplementalPosition = {
     status: Generated<PositionStatus>;
     role: string | null;
     main: Generated<boolean>;
+    jobId: string | null;
     userCreationRequestId: string | null;
 };
 export type User = {

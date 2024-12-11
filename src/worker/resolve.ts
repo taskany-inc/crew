@@ -1,6 +1,7 @@
 import { historyEventMethods } from '../modules/historyEventMethods';
 import { userMethods } from '../modules/userMethods';
 import { userCreationRequestsMethods } from '../modules/userCreationRequestMethods';
+import { prisma } from '../utils/prisma';
 
 import { JobDataMap } from './create';
 
@@ -57,4 +58,25 @@ export const resolveDecree = async ({ userCreationRequestId }: JobDataMap['creat
     });
 
     return user;
+};
+
+export const scheduledFiringFromSupplementalPositionResolve = async ({
+    supplementalPositionId,
+    userId,
+}: JobDataMap['scheduledFiringFromSupplementalPosition']) => {
+    const workEndDate = new Date();
+    const s = await prisma.supplementalPosition.update({
+        where: { id: supplementalPositionId },
+        data: { workEndDate, status: 'FIRED' },
+    });
+    await historyEventMethods.create(
+        { subsystem: 'Scheduled firing from supplemental position' },
+        'scheduledFiringFromSupplementalPosition',
+        {
+            userId,
+            groupId: undefined,
+            before: undefined,
+            after: { organizationUnitId: s.organizationUnitId, workEndDate: workEndDate.toLocaleDateString() },
+        },
+    );
 };

@@ -230,7 +230,7 @@ export const userCreationRequestsMethods = {
             await userCreationRequestsMethods.accept({ id: userCreationRequest.id });
         }
 
-        const { to } = await userMethods.getMailingList('createUserRequest', data.organizationUnitId);
+        const { to } = await userMethods.getMailingList('createUserRequest', [data.organizationUnitId]);
 
         const mailText = userCreationMailText(name);
 
@@ -245,7 +245,7 @@ export const userCreationRequestsMethods = {
         if (data.type === 'internalEmployee') {
             const { users, to: mailTo } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
-                data.organizationUnitId,
+                [data.organizationUnitId],
                 [sessionUserId],
             );
 
@@ -448,9 +448,11 @@ export const userCreationRequestsMethods = {
 
         const html = data.type === 'fromDecree' ? htmlFromDecreeRequest(request) : htmlToDecreeRequest(request);
 
-        const { to: mailTo } = await userMethods.getMailingList('createScheduledUserRequest', data.organizationUnitId, [
-            sessionUserId,
-        ]);
+        const { to: mailTo } = await userMethods.getMailingList(
+            'createScheduledUserRequest',
+            [data.organizationUnitId],
+            [sessionUserId],
+        );
 
         const attachments = await nodemailerAttachments(request.attaches);
 
@@ -900,7 +902,7 @@ export const userCreationRequestsMethods = {
         if (editData.date && requestBeforeUpdate.date !== editData.date) {
             const { users, to: mailTo } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
-                updatedRequest.organizationUnitId,
+                [updatedRequest.organizationUnitId],
                 [sessionUserId],
             );
 
@@ -1203,7 +1205,7 @@ export const userCreationRequestsMethods = {
         if (editData.date && requestBeforeUpdate.date !== editData.date) {
             const { to } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
-                updatedRequest.organizationUnitId,
+                [updatedRequest.organizationUnitId],
                 [sessionUserId],
             );
 
@@ -1340,7 +1342,7 @@ export const userCreationRequestsMethods = {
         if (canceledRequest.date) {
             const { users, to } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
-                canceledRequest.organizationUnitId,
+                [canceledRequest.organizationUnitId],
                 [sessionUserId],
             );
 

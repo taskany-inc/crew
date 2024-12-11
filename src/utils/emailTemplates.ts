@@ -40,9 +40,12 @@ ${tr('Sincerely,')}
 HR-team!`;
 };
 
-export const scheduledDeactivationEmailHtml = (
-    data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit,
-) => `
+export const scheduledDeactivationEmailHtml = (data: {
+    data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit;
+    workEmail: string;
+    unitId: string;
+    teamlead: string;
+}) => `
 <head>
   <style>
     table { border-collapse: collapse; }
@@ -52,10 +55,12 @@ export const scheduledDeactivationEmailHtml = (
 <body>
     ${tr('Hello colleagues!')}<br/>
     ${
-        data.type === 'retirement'
+        data.data.type === 'retirement'
             ? tr('Planning retirement of worker.')
             : tr('Planning transfer of worker to {newOrganization} {unitId}', {
-                  newOrganization: data?.newOrganizationUnit ? getOrgUnitTitle(data?.newOrganizationUnit) : '',
+                  newOrganization: data.data?.newOrganizationUnit
+                      ? getOrgUnitTitle(data.data?.newOrganizationUnit)
+                      : '',
                   unitId: data.unitId || '',
               })
     }<br/>
@@ -64,56 +69,63 @@ export const scheduledDeactivationEmailHtml = (
     <table border='1' cellpadding='8'>
         <tr>
             <th>${tr('Date')}</th>
-            <td>${formatDate(data.deactivateDate, defaultLocale)}</td>
+            <td>${formatDate(data.data.deactivateDate, defaultLocale)}</td>
         </tr>
         <tr>
             <th>${tr('Full name')}</th>
-            <td>${data.user.name}</td>
+            <td>${data.data.user.name}</td>
         </tr>
         <tr>
-            <th>${tr('Working hours,<br/>workplace (if any)')}</th>
-            <td>
-                ${data.workMode}
-                ${data.workPlace ? `, ${data.workPlace}` : ''}
-                ${data.workModeComment ? `, ${data.workModeComment}` : ''}
-            </td>
-        </tr>
-    ${
-        data.type === 'transfer'
-            ? `
-        <tr>
-            <th>${tr('Transfer from, role')}</th>
-            <td>${data.organizationalGroup}, ${data.organizationRole}</td>
-        </tr>
-        <tr>
-            <th>${tr('Transfer to, role')}</th>
-            <td>${data.newOrganizationalGroup}, ${data.newOrganizationRole}</td>
+            <th>${tr('Location')}</th>
+            <td>${data.data.location}</td>
         </tr>
         <tr>
             <th>${tr('Unit')}</th>
             <td>${data.unitId}</td>
         </tr>
-    `
-            : ''
-    }
         <tr>
-            <th>${tr('Location')}</th>
-            <td>${data.location}</td>
+            <th>${tr('Role')}</th>
+            <td>${data.data.user.title}</td>
+        </tr>
+        <tr>
+            <th>${tr('Work email')}</th>
+            <td>${data.workEmail}</td>
         </tr>
         <tr>
             <th>${tr('Email')}</th>
-            <td>${data.email}</td>
+            <td>${data.data.email}</td>
         </tr>
         <tr>
             <th>${tr('Teamlead')}</th>
-            <td>${data.teamLead}</td>
+            <td>${data.teamlead}</td>
         </tr>
+        <tr>
+            <th>${tr('Working hours,<br/>workplace (if any)')}</th>
+            <td>
+                ${data.data.workMode}
+                ${data.data.workPlace ? `, ${data.data.workPlace}` : ''}
+            </td>
+        </tr>
+    ${
+        data.data.type === 'transfer'
+            ? `
+        <tr>
+            <th>${tr('Transfer from, role')}</th>
+            <td>${data.data.organizationalGroup}, ${data.data.organizationRole}</td>
+        </tr>
+        <tr>
+            <th>${tr('Transfer to, role')}</th>
+            <td>${data.data.newOrganizationalGroup}, ${data.data.newOrganizationRole}</td>
+        </tr>
+    `
+            : ''
+    }
         <tr>
             <th>${tr('Devices')}</th>
             <td></td>
         </tr>
     ${
-        JSON.parse(data.devices as string)
+        JSON.parse(data.data.devices as string)
             ?.map(
                 (d: AdditionalDevice) =>
                     '<tr>' +
@@ -140,7 +152,7 @@ export const scheduledDeactivationEmailHtml = (
             <td></td>
         </tr>
     ${
-        JSON.parse(data.testingDevices as string)
+        JSON.parse(data.data.testingDevices as string)
             ?.map(
                 (d: AdditionalDevice) =>
                     '<tr>' +
@@ -160,11 +172,11 @@ export const scheduledDeactivationEmailHtml = (
                     `<td>${d.id}</td>` +
                     '</tr>',
             )
-            .join('') || ''
+            .join('') || tr('Did not take any')
     }
         <tr>
             <th>${tr('Comments')}</th>
-            <td>${data.comments || ''}</td>
+            <td>${data.data.comments || ''}</td>
         </tr>
     </table>
 ${tr('Sincerely,')}<br/>HR-team!

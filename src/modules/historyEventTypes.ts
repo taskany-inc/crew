@@ -392,7 +392,8 @@ interface HistoryEventsData {
             email: string;
             unitId?: number;
             unitIdString?: string;
-            teamLead: string;
+            teamLead?: string;
+            teamLeadId?: string;
             organizationalGroup?: string;
             organizationRole?: string;
             workMode?: string;
@@ -403,6 +404,9 @@ interface HistoryEventsData {
             newOrganization?: string;
             newOrganizationalGroup?: string;
             newTeamLead?: string;
+            lineManagerIds?: string;
+            disableAccount?: string;
+            applicationForReturnOfEquipment?: string;
         };
     };
     editScheduledDeactivation: {
@@ -434,7 +438,7 @@ interface HistoryEventsData {
         requireGroupId: false;
         requireUserId: true;
         requireBefore: false;
-        data: { type: string; comment: string };
+        data: { type: string; comment?: string };
     };
     changeUserRoleScope: {
         requireGroupId: false;
@@ -462,6 +466,15 @@ interface HistoryEventsData {
         data: {
             organizationUnitId: string;
             percentage: number;
+        };
+    };
+    scheduledFiringFromSupplementalPosition: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            workEndDate: string;
+            organizationUnitId: string;
         };
     };
 }

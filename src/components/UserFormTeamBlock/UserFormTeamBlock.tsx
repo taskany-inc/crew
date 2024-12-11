@@ -15,7 +15,7 @@ import { tr } from './UserFormTeamBlock.i18n';
 interface UserFormTeamBlockProps {
     className: string;
     id: string;
-    type: 'internal' | 'existing';
+    type: 'internal' | 'existing' | 'dismissal';
     readOnly?: boolean;
 }
 
@@ -117,6 +117,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
                 <div className={s.TwoInputsRow}>
                     <FormControl label={tr('OrgGroup')}>
                         <GroupComboBox
+                            readOnly={readOnly}
                             defaultGroupId={watch('groupId')}
                             onChange={onTeamChange}
                             error={errors.groupId}

@@ -9,7 +9,6 @@ import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
-import { getLastSupplementalPositions } from '../utils/supplementalPositions';
 import { calculateDiffBetweenArrays } from '../utils/calculateDiffBetweenArrays';
 
 import {
@@ -495,7 +494,7 @@ export const userMethods = {
 
         const workEndDate = new Date();
 
-        if (data.active === false) {
+        if (data.active === false && !data.scheduled) {
             await prisma.membership.deleteMany({ where: { userId: data.id, group: { organizational: true } } });
 
             await prisma.supplementalPosition.updateMany({
@@ -514,21 +513,8 @@ export const userMethods = {
                     workEndDate,
                 },
             });
-        } else {
-            const { positions: selectedPosition } = getLastSupplementalPositions(positions);
-
-            await prisma.supplementalPosition.updateMany({
-                where: {
-                    id: {
-                        in: selectedPosition.map((p) => p.id),
-                    },
-                },
-                data: {
-                    status: 'ACTIVE',
-                    workEndDate: null,
-                },
-            });
         }
+
         await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: !data.active } });
         return prisma.user.update({
             where: { id: data.id },
@@ -635,13 +621,18 @@ export const userMethods = {
 
     getMailingList: async (
         mailingType: MailingSettingType,
-        organizationUnitId: string,
+        organizationUnitIds: string[],
         additionUsersIds?: string[],
     ) => {
         const mailingList = await prisma.user.findMany({
             where: {
                 OR: [
-                    { mailingSettings: { some: { [mailingType]: true, organizationUnitId } }, active: true },
+                    {
+                        mailingSettings: {
+                            some: { [mailingType]: true, organizationUnitId: { in: organizationUnitIds } },
+                        },
+                        active: true,
+                    },
                     { id: { in: additionUsersIds } },
                 ],
             },
@@ -650,7 +641,7 @@ export const userMethods = {
 
         const additionalEmails = await mailSettingsMethods.getAdditionEmails({
             mailingType,
-            organizationUnitId,
+            organizationUnitIds,
         });
 
         const users = [
