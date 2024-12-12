@@ -71,6 +71,17 @@ const scopesObj: Record<AccessOperation, true> = {
     viewUserBonuses: true,
     viewUserExtendedInfo: true,
     importData: true,
+    decideOnUserCreationRequest: true,
+    createExistingUserRequest: true,
+    createInternalUserRequest: true,
+    createExternalUserRequest: true,
+    createExternalFromMainUserRequest: true,
+    readManyInternalUserRequests: true,
+    readManyExternalUserRequests: true,
+    readManyExternalFromMainUserRequests: true,
+    editInternalUserRequest: true,
+    editExternalUserRequest: true,
+    editExternalFromMainUserRequest: true,
 };
 
 export const scopes = objKeys(scopesObj);
