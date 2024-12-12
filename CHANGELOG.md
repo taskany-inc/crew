@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.99.1](https://github.com/taskany-inc/crew/compare/v0.99.0...v0.99.1) (2024-12-12)
+
+
+### Bug Fixes
+
+* **INTERNAL-1413:** fix header in admin scopes panel ([f956e75](https://github.com/taskany-inc/crew/commit/f956e7584fb6734f894a29c24ea7bba1dce18998))
+
 ## [0.99.0](https://github.com/taskany-inc/crew/compare/v0.98.0...v0.99.0) (2024-12-12)
 
 
