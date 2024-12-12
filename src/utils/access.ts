@@ -2,7 +2,6 @@ import { UserRole } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 
 import { config } from '../config';
-import { tr as accessTr } from '../components/PageHeader/PageHeader.i18n';
 
 import { ExtractKeysOfType } from './types';
 import { objKeys } from './objKeys';
@@ -89,43 +88,43 @@ const scopesObj: Record<AccessOperation, true> = {
 
 export const scopes = objKeys(scopesObj);
 
-export const scopesDescriptions: Record<AccessOperation, string> = {
-    editRoleScopes: accessTr('editing role scopes'),
-    editUserRole: accessTr('editing user roles'),
-    createUser: accessTr('creating users'),
-    editUser: accessTr('editing users'),
-    editUserCreationRequests: accessTr('user creation request'),
-    editUserActiveState: accessTr('deactivating users'),
-    editUserAchievements: accessTr('giving out achievements'),
-    editUserBonuses: accessTr('editing user bonus points'),
-    viewUserBonuses: accessTr('viewing user bonus points'),
-    viewUserExtendedInfo: accessTr('viewing user extended info'),
-    editScheduledDeactivation: accessTr('creating and editing scheduled deactivations'),
-    viewScheduledDeactivation: accessTr('viewing scheduled deactivations'),
+export const scopesDescriptions = (): Record<AccessOperation, string> => ({
+    editRoleScopes: tr('editing role scopes'),
+    editUserRole: tr('editing user roles'),
+    createUser: tr('creating users'),
+    editUser: tr('editing users'),
+    editUserCreationRequests: tr('user creation request'),
+    editUserActiveState: tr('deactivating users'),
+    editUserAchievements: tr('giving out achievements'),
+    editUserBonuses: tr('editing user bonus points'),
+    viewUserBonuses: tr('viewing user bonus points'),
+    viewUserExtendedInfo: tr('viewing user extended info'),
+    editScheduledDeactivation: tr('creating and editing scheduled deactivations'),
+    viewScheduledDeactivation: tr('viewing scheduled deactivations'),
 
-    editFullGroupTree: accessTr('editing any team'),
+    editFullGroupTree: tr('editing any team'),
 
-    viewHistoryEvents: accessTr('viewing history of changes'),
+    viewHistoryEvents: tr('viewing history of changes'),
 
-    importData: accessTr('import data from file'),
+    importData: tr('import data from file'),
 
-    decideOnUserCreationRequest: accessTr('decide on user creation request'),
-    createExistingUserRequest: accessTr('create request to create profile to existing employee'),
-    createInternalUserRequest: accessTr('create request to create profile to newcomer'),
-    createExternalUserRequest: accessTr('create request to create profile to external employee'),
-    createExternalFromMainUserRequest: accessTr('createExternalFromMainUserRequest {mainOrgName}', {
+    decideOnUserCreationRequest: tr('decide on user creation request'),
+    createExistingUserRequest: tr('create request to create profile to existing employee'),
+    createInternalUserRequest: tr('create request to create profile to newcomer'),
+    createExternalUserRequest: tr('create request to create profile to external employee'),
+    createExternalFromMainUserRequest: tr('createExternalFromMainUserRequest {mainOrgName}', {
         mainOrgName: config.mainOrganizationName || 'Main',
     }),
 
-    readManyInternalUserRequests: accessTr('readManyInternalUserRequests'),
-    readManyExternalUserRequests: accessTr('readManyExternalUserRequests'),
-    readManyExternalFromMainUserRequests: accessTr('readManyExternalFromMainUserRequests {mainOrgName}', {
+    readManyInternalUserRequests: tr('readManyInternalUserRequests'),
+    readManyExternalUserRequests: tr('readManyExternalUserRequests'),
+    readManyExternalFromMainUserRequests: tr('readManyExternalFromMainUserRequests {mainOrgName}', {
         mainOrgName: config.mainOrganizationName || 'Main',
     }),
 
-    editInternalUserRequest: accessTr('editInternalUserRequest'),
-    editExternalUserRequest: accessTr('editExternalUserRequest'),
-    editExternalFromMainUserRequest: accessTr('editExternalFromMainUserRequest {mainOrgName}', {
+    editInternalUserRequest: tr('editInternalUserRequest'),
+    editExternalUserRequest: tr('editExternalUserRequest'),
+    editExternalFromMainUserRequest: tr('editExternalFromMainUserRequest {mainOrgName}', {
         mainOrgName: config.mainOrganizationName || 'Main',
     }),
-};
+});

@@ -29,7 +29,7 @@ export const AdminPanel = () => {
 
     const thead: { title?: string; width: string }[] = [
         { width: '100px' },
-        ...scopes.map((scope) => ({ title: scopesDescriptions[scope], width })),
+        ...scopes.map((scope) => ({ title: scopesDescriptions()[scope], width })),
     ];
 
     const { changeRoleScope } = useUserRoleMutations();

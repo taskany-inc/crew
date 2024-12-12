@@ -88,9 +88,9 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
         const { role } = sessionUser;
         if (!role) return;
 
-        return objKeys(scopesDescriptions)
+        return objKeys(scopesDescriptions())
             .filter((name) => role[name])
-            .map((name) => scopesDescriptions[name]);
+            .map((name) => scopesDescriptions()[name]);
     }, [sessionUser]);
 
     return (
