@@ -1,9 +1,12 @@
 import { UserRole } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 
-import { tr } from './utils.i18n';
+import { config } from '../config';
+import { tr as accessTr } from '../components/PageHeader/PageHeader.i18n';
+
 import { ExtractKeysOfType } from './types';
 import { objKeys } from './objKeys';
+import { tr } from './utils.i18n';
 
 interface AccessCheckResultAllowed {
     allowed: true;
@@ -85,3 +88,44 @@ const scopesObj: Record<AccessOperation, true> = {
 };
 
 export const scopes = objKeys(scopesObj);
+
+export const scopesDescriptions: Record<AccessOperation, string> = {
+    editRoleScopes: accessTr('editing role scopes'),
+    editUserRole: accessTr('editing user roles'),
+    createUser: accessTr('creating users'),
+    editUser: accessTr('editing users'),
+    editUserCreationRequests: accessTr('user creation request'),
+    editUserActiveState: accessTr('deactivating users'),
+    editUserAchievements: accessTr('giving out achievements'),
+    editUserBonuses: accessTr('editing user bonus points'),
+    viewUserBonuses: accessTr('viewing user bonus points'),
+    viewUserExtendedInfo: accessTr('viewing user extended info'),
+    editScheduledDeactivation: accessTr('creating and editing scheduled deactivations'),
+    viewScheduledDeactivation: accessTr('viewing scheduled deactivations'),
+
+    editFullGroupTree: accessTr('editing any team'),
+
+    viewHistoryEvents: accessTr('viewing history of changes'),
+
+    importData: accessTr('import data from file'),
+
+    decideOnUserCreationRequest: accessTr('decide on user creation request'),
+    createExistingUserRequest: accessTr('create request to create profile to existing employee'),
+    createInternalUserRequest: accessTr('create request to create profile to newcomer'),
+    createExternalUserRequest: accessTr('create request to create profile to external employee'),
+    createExternalFromMainUserRequest: accessTr('createExternalFromMainUserRequest {mainOrgName}', {
+        mainOrgName: config.mainOrganizationName || 'Main',
+    }),
+
+    readManyInternalUserRequests: accessTr('readManyInternalUserRequests'),
+    readManyExternalUserRequests: accessTr('readManyExternalUserRequests'),
+    readManyExternalFromMainUserRequests: accessTr('readManyExternalFromMainUserRequests {mainOrgName}', {
+        mainOrgName: config.mainOrganizationName || 'Main',
+    }),
+
+    editInternalUserRequest: accessTr('editInternalUserRequest'),
+    editExternalUserRequest: accessTr('editExternalUserRequest'),
+    editExternalFromMainUserRequest: accessTr('editExternalFromMainUserRequest {mainOrgName}', {
+        mainOrgName: config.mainOrganizationName || 'Main',
+    }),
+};

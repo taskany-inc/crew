@@ -2,7 +2,7 @@ import { Checkbox, Table, Text } from '@taskany/bricks/harmony';
 import { useCallback } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
-import { scopes } from '../../utils/access';
+import { scopes, scopesDescriptions } from '../../utils/access';
 import { useUserRoleMutations } from '../../modules/userRoleHooks';
 import { ChangeRoleScope } from '../../modules/userRoleSchemas';
 import { AdminPanelLayout } from '../AdminPanelLayout/AdminPanelLayout';
@@ -11,11 +11,6 @@ import { TableListItem, TableListItemElement } from '../TableListItem/TableListI
 import s from './AdminPanel.module.css';
 
 const width = '200px';
-
-const thead: { title?: string; width: string }[] = [
-    { width: '100px' },
-    ...scopes.map((scope) => ({ title: scope, width })),
-];
 
 const CellCheckbox = ({
     checked,
@@ -31,6 +26,11 @@ const CellCheckbox = ({
 
 export const AdminPanel = () => {
     const { data: roles = [] } = trpc.userRole.getListWithScope.useQuery();
+
+    const thead: { title?: string; width: string }[] = [
+        { width: '100px' },
+        ...scopes.map((scope) => ({ title: scopesDescriptions[scope], width })),
+    ];
 
     const { changeRoleScope } = useUserRoleMutations();
 
