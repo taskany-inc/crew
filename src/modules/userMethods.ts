@@ -836,7 +836,9 @@ export const userMethods = {
             );
         }
 
-        const userData: Prisma.UserUpdateInput = {};
+        const userData: Prisma.UserUpdateInput = {
+            active: request.disableAccount ? false : currentUser.active,
+        };
 
         if (request.type === 'fromDecree') {
             userData.supplementalPositions = {

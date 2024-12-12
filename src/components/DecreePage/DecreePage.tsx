@@ -30,7 +30,7 @@ export const DecreePage: FC<DecreePageProps> = ({ request, mode }) => {
         return positions;
     }, [user]);
 
-    const defaultValues: ComponentProps<typeof DecreeForm>['defaultValues'] = useMemo(() => {
+    const defaultValues = useMemo(() => {
         const { mainPosition, supplementalPositions, firedOrganizationUnitId } = request.supplementalPositions.reduce<{
             supplementalPositions: SupplementalPositionWithUnit[];
             mainPosition: SupplementalPositionWithUnit | undefined;
@@ -49,9 +49,11 @@ export const DecreePage: FC<DecreePageProps> = ({ request, mode }) => {
             { supplementalPositions: [], firedOrganizationUnitId: undefined, mainPosition: undefined },
         );
 
-        return {
+        const { type } = request;
+
+        const initial: ComponentProps<typeof DecreeForm>['defaultValues'] = {
             id: request.id,
-            type: request.type,
+            type,
             userTargetId: request.userTargetId,
             percentage: mainPosition?.percentage ?? 1,
             unitId: mainPosition?.unitId ?? undefined,
@@ -73,7 +75,6 @@ export const DecreePage: FC<DecreePageProps> = ({ request, mode }) => {
             location: request.location ?? undefined,
             title: request.title ?? undefined,
             supervisorId: request.supervisorId ?? undefined,
-            recruiterId: request.recruiterId,
             buddyId: request.buddyId ?? undefined,
             workMode: request.workMode ?? undefined,
             lineManagerIds: request.lineManagerIds ?? undefined,
@@ -87,6 +88,12 @@ export const DecreePage: FC<DecreePageProps> = ({ request, mode }) => {
                     unitId: unitId ?? undefined,
                 })) ?? [],
         };
+
+        if (initial.type === 'toDecree') {
+            initial.disableAccount = request.disableAccount ?? undefined;
+        }
+
+        return initial;
     }, [request]);
 
     const { editDecreeRequest } = useUserCreationRequestMutations();
