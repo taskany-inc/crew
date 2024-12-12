@@ -21,11 +21,10 @@ import { PageHeaderLogo } from '../PageHeaderLogo';
 import { PageHeaderActionButton } from '../PageHeaderActionButton/PageHeaderActionButton';
 import { UserSettings } from '../../modules/userTypes';
 import { useSessionUser } from '../../hooks/useSessionUser';
-import { AccessOperation } from '../../utils/access';
+import { scopesDescriptions } from '../../utils/access';
 import { objKeys } from '../../utils/objKeys';
 import { Restricted } from '../Restricted';
 import { useAppConfig } from '../../contexts/appConfigContext';
-import { config } from '../../config';
 
 import { tr } from './PageHeader.i18n';
 
@@ -88,49 +87,10 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
     const roleDescriptions = useMemo(() => {
         const { role } = sessionUser;
         if (!role) return;
-        const allDescriptions: Record<AccessOperation, string> = {
-            editRoleScopes: tr('editing role scopes'),
-            editUserRole: tr('editing user roles'),
-            createUser: tr('creating users'),
-            editUser: tr('editing users'),
-            editUserCreationRequests: tr('user creation request'),
-            editUserActiveState: tr('deactivating users'),
-            editUserAchievements: tr('giving out achievements'),
-            editUserBonuses: tr('editing user bonus points'),
-            viewUserBonuses: tr('viewing user bonus points'),
-            viewUserExtendedInfo: tr('viewing user extended info'),
-            editScheduledDeactivation: tr('creating and editing scheduled deactivations'),
-            viewScheduledDeactivation: tr('viewing scheduled deactivations'),
 
-            editFullGroupTree: tr('editing any team'),
-
-            viewHistoryEvents: tr('viewing history of changes'),
-
-            importData: tr('import data from file'),
-
-            decideOnUserCreationRequest: tr('decide on user creation request'),
-            createExistingUserRequest: tr('create request to create profile to existing employee'),
-            createInternalUserRequest: tr('create request to create profile to newcomer'),
-            createExternalUserRequest: tr('create request to create profile to external employee'),
-            createExternalFromMainUserRequest: tr('createExternalFromMainUserRequest {mainOrgName}', {
-                mainOrgName: config.mainOrganizationName || 'Main',
-            }),
-
-            readManyInternalUserRequests: tr('readManyInternalUserRequests'),
-            readManyExternalUserRequests: tr('readManyExternalUserRequests'),
-            readManyExternalFromMainUserRequests: tr('readManyExternalFromMainUserRequests {mainOrgName}', {
-                mainOrgName: config.mainOrganizationName || 'Main',
-            }),
-
-            editInternalUserRequest: tr('editInternalUserRequest'),
-            editExternalUserRequest: tr('editExternalUserRequest'),
-            editExternalFromMainUserRequest: tr('editExternalFromMainUserRequest {mainOrgName}', {
-                mainOrgName: config.mainOrganizationName || 'Main',
-            }),
-        };
-        return objKeys(allDescriptions)
+        return objKeys(scopesDescriptions)
             .filter((name) => role[name])
-            .map((name) => allDescriptions[name]);
+            .map((name) => scopesDescriptions[name]);
     }, [sessionUser]);
 
     return (
