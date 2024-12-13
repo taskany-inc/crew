@@ -6,10 +6,10 @@ import { prisma } from '../utils/prisma';
 import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import {
-    cancelUserCreationMailText,
     htmlFromDecreeRequest,
     htmlToDecreeRequest,
     htmlUserCreationRequestWithDate,
+    newcomerSubject,
     userCreationMailText,
 } from '../utils/emailTemplates';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
@@ -17,6 +17,7 @@ import { createJob } from '../worker/create';
 import { jobUpdate, jobDelete } from '../worker/jobOperations';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
+import { userCreationRequestPhone } from '../utils/createUserCreationRequest';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
@@ -242,20 +243,24 @@ export const userCreationRequestsMethods = {
             text: mailText,
         });
 
-        if (data.type === 'internalEmployee') {
-            const { users, to: mailTo } = await userMethods.getMailingList(
-                'createScheduledUserRequest',
-                data.organizationUnitId,
-                [sessionUserId],
-            );
+        const additionalEmails = [sessionUserId];
 
-            const icalSubject = `${
-                userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
-            } ${name} ${getOrgUnitTitle(
-                userCreationRequest.organization,
-            )} ${userCreationRequest.supplementalPositions.map(
-                (o) => `${getOrgUnitTitle(o.organizationUnit)}(${o.percentage / percentageMultiply})`,
-            )} ${data.phone}`;
+        if (userCreationRequest.supervisorId) additionalEmails.push(userCreationRequest.supervisorId);
+
+        if (userCreationRequest.buddyId) additionalEmails.push(userCreationRequest.buddyId);
+
+        const { users, to: mailTo } = await userMethods.getMailingList(
+            'createScheduledUserRequest',
+            data.organizationUnitId,
+            additionalEmails,
+        );
+
+        if (data.date) {
+            const icalSubject = newcomerSubject({
+                userCreationRequest,
+                phone: data.phone,
+                name: userCreationRequest.name,
+            });
 
             const icalEvent = createIcalEventData({
                 id: userCreationRequest.id + config.nodemailer.authUser,
@@ -913,15 +918,23 @@ export const userCreationRequestsMethods = {
         });
 
         if (editData.date && requestBeforeUpdate.date !== editData.date) {
+            const additionalEmails = [sessionUserId];
+
+            if (updatedRequest.supervisorId) additionalEmails.push(updatedRequest.supervisorId);
+
+            if (updatedRequest.buddyId) additionalEmails.push(updatedRequest.buddyId);
+
             const { users, to: mailTo } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
                 updatedRequest.organizationUnitId,
-                [sessionUserId],
+                additionalEmails,
             );
 
-            const icalSubject = `${updatedRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')} ${
-                updatedRequest.name
-            } ${getOrgUnitTitle(updatedRequest.organization)} ${editData.phone}`;
+            const icalSubject = newcomerSubject({
+                userCreationRequest: updatedRequest,
+                phone: userCreationRequestPhone(updatedRequest),
+                name: updatedRequest.name,
+            });
 
             const icalEvent = createIcalEventData({
                 id: updatedRequest.id + config.nodemailer.authUser,
@@ -1349,43 +1362,59 @@ export const userCreationRequestsMethods = {
         const canceledRequest = await prisma.userCreationRequest.update({
             where: { id },
             data: { status: 'Denied', comment },
-            include: { organization: true, creator: true },
+            include: {
+                group: true,
+                organization: true,
+                supervisor: true,
+                buddy: true,
+                coordinators: true,
+                recruiter: true,
+                creator: true,
+                lineManagers: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+                curators: true,
+                permissionServices: true,
+            },
         });
         if (canceledRequest.jobId) await jobDelete(canceledRequest.jobId);
+
+        const additionalEmails = [sessionUserId];
+
+        if (canceledRequest.supervisorId) additionalEmails.push(canceledRequest.supervisorId);
+
+        if (canceledRequest.buddyId) additionalEmails.push(canceledRequest.buddyId);
 
         if (canceledRequest.date) {
             const { users, to } = await userMethods.getMailingList(
                 'createScheduledUserRequest',
                 canceledRequest.organizationUnitId,
-                [sessionUserId],
+                additionalEmails,
             );
 
-            const text = cancelUserCreationMailText({
-                name: canceledRequest.name,
-                organization: getOrgUnitTitle(canceledRequest.organization),
-                comment,
+            const html = htmlUserCreationRequestWithDate({
+                userCreationRequest: canceledRequest,
+                date: canceledRequest.date,
             });
 
-            const subject = tr('Cancel user request {userName}', { userName: canceledRequest.name });
-
-            const icalSublect = `
-                ${tr('Cancellation of')} ${
-                canceledRequest.creationCause === 'transfer' ? tr('transfer') : tr('employment')
-            } ${canceledRequest.name} ${getOrgUnitTitle(canceledRequest.organization)}`;
+            const subject = newcomerSubject({
+                userCreationRequest: canceledRequest,
+                phone: userCreationRequestPhone(canceledRequest),
+                name: canceledRequest.name,
+            });
 
             const icalEvent = createIcalEventData({
                 id: canceledRequest.id + config.nodemailer.authUser,
                 start: canceledRequest.date,
                 duration: 30,
                 users,
-                summary: icalSublect,
-                description: icalSublect,
+                summary: subject,
+                description: subject,
             });
 
             sendMail({
                 to,
                 subject,
-                text,
+                html,
                 icalEvent: calendarEvents({
                     method: ICalCalendarMethod.CANCEL,
                     events: [icalEvent],

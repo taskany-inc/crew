@@ -78,5 +78,10 @@
     "readManyExternalFromMainUserRequests {mainOrgName}": "чтение заявок на доступ для внешних сотрудников из {mainOrgName}",
     "editInternalUserRequest": "редактирование заявок на выход новоых сотрудников SD",
     "editExternalUserRequest": "редактирование заявок на доступ для внешних сотрудников",
-    "editExternalFromMainUserRequest {mainOrgName}": "редактирование заявок на доступ для внешних сотрудников из {mainOrgName}"
+    "editExternalFromMainUserRequest {mainOrgName}": "редактирование заявок на доступ для внешних сотрудников из {mainOrgName}",
+    "Work email": "Почта Sigma",
+    "Did not take any": "Не брал",
+    "Work mode and workplace": "Режим работы и рабочее место",
+    "Transfer": "Перевод",
+    "Employment": "Выход"
 }
