@@ -18,6 +18,7 @@ interface GroupComboBoxProps {
     onReset?: () => void;
     className?: string;
     readOnly?: boolean;
+    organizational?: boolean;
 }
 
 export const GroupComboBox = ({
@@ -27,6 +28,7 @@ export const GroupComboBox = ({
     className,
     onReset,
     readOnly,
+    organizational,
 }: GroupComboBoxProps) => {
     const [search, setSearch] = useState('');
     const sessionUser = useSessionUser();
@@ -34,7 +36,7 @@ export const GroupComboBox = ({
     const showUserGroups = !sessionUser?.role?.editFullGroupTree;
 
     const { data: groupsList = [] } = trpc.group.suggestions.useQuery(
-        { query: search, include: defaultGroupId ? [defaultGroupId] : undefined },
+        { query: search, organizational, include: defaultGroupId ? [defaultGroupId] : undefined },
         { keepPreviousData: true, enabled: !showUserGroups },
     );
     const value = groupsList.filter(({ id }) => id === defaultGroupId);
@@ -42,6 +44,7 @@ export const GroupComboBox = ({
     const { data: userGroupList = [] } = trpc.group.getUserList.useQuery(
         {
             search,
+            organizational,
         },
         {
             keepPreviousData: true,

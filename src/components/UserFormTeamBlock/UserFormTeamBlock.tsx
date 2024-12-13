@@ -8,6 +8,7 @@ import { FormControl } from '../FormControl/FormControl';
 import { UserSelect } from '../UserSelect/UserSelect';
 import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { Nullish } from '../../utils/types';
+import { trpc } from '../../trpc/trpcClient';
 
 import s from './UserFormTeamBlock.module.css';
 import { tr } from './UserFormTeamBlock.i18n';
@@ -47,6 +48,19 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
 
     const selectedBuddyId = watch('buddyId');
 
+    const supervisorId = watch('supervisorId');
+
+    const { data: supervisorGroups = [] } = trpc.group.getListByUserId.useQuery(
+        {
+            userId: supervisorId,
+        },
+        {
+            enabled: Boolean(supervisorId),
+        },
+    );
+
+    const defaultGroupId = watch('groupId') || supervisorGroups[0]?.id;
+
     return (
         <div className={className} id={id}>
             <Text className={s.SectionHeader} weight="bold" size="lg">
@@ -57,7 +71,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
                     <UserSelect
                         readOnly={readOnly}
                         mode="single"
-                        selectedUsers={watch('supervisorId') ? [watch('supervisorId')] : undefined}
+                        selectedUsers={supervisorId ? [supervisorId] : undefined}
                         onChange={(users) => onUserChange(users[0], 'supervisorId')}
                         error={errors.supervisorId}
                     />
@@ -93,9 +107,10 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
                         <FormControl label={tr('OrgGroup')}>
                             <GroupComboBox
                                 readOnly={readOnly}
-                                defaultGroupId={watch('groupId')}
+                                defaultGroupId={defaultGroupId}
                                 onChange={onTeamChange}
                                 error={errors.groupId}
+                                organizational
                                 onReset={() => setValue('groupId', undefined)}
                             />
                         </FormControl>
@@ -117,9 +132,10 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly }: UserFormTea
                 <div className={s.TwoInputsRow}>
                     <FormControl label={tr('OrgGroup')}>
                         <GroupComboBox
-                            defaultGroupId={watch('groupId')}
+                            defaultGroupId={defaultGroupId}
                             onChange={onTeamChange}
                             error={errors.groupId}
+                            organizational
                             onReset={() => setValue('groupId', undefined)}
                         />
                     </FormControl>
