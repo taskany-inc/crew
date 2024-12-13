@@ -8,6 +8,7 @@ import {
     moveGroupSchema,
     getGroupSuggestionsSchema,
     addOrRemoveUserFromGroupAdminsSchema,
+    getGroupListByUserId,
 } from '../../modules/groupSchemas';
 import { groupMethods } from '../../modules/groupMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
@@ -141,6 +142,12 @@ export const groupRouter = router({
 
     getList: protectedProcedure.input(getGroupListSchema).query(({ input }) => {
         return groupMethods.getList(input);
+    }),
+
+    getListByUserId: protectedProcedure.input(getGroupListByUserId).query(({ input }) => {
+        const { userId, ...rest } = input;
+
+        return groupMethods.getUserList(userId, rest);
     }),
 
     getUserList: protectedProcedure.input(getGroupListSchema).query(({ input, ctx }) => {

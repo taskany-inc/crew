@@ -196,10 +196,11 @@ export const groupMethods = {
         });
     },
 
-    getList: async ({ search, filter, take = 10, skip = 0, hasVacancies }: GetGroupList) => {
+    getList: async ({ search, filter, take = 10, skip = 0, hasVacancies, organizational }: GetGroupList) => {
         const where: Prisma.GroupWhereInput = {
             name: { contains: search, mode: 'insensitive' },
             archived: false,
+            organizational,
             id: { notIn: [...(filter || [])] },
         };
 
@@ -214,7 +215,7 @@ export const groupMethods = {
         });
     },
 
-    getUserList: async (userId: string, { search, filter, take = 10, skip }: GetUserGroupList) => {
+    getUserList: async (userId: string, { search, filter, take = 10, skip, organizational }: GetUserGroupList) => {
         const searchConditions = [];
 
         if (search) {
@@ -223,6 +224,10 @@ export const groupMethods = {
 
         if (filter) {
             searchConditions.push(Prisma.sql`id NOT IN (${filter.toString()})`);
+        }
+
+        if (typeof organizational === 'boolean') {
+            searchConditions.push(Prisma.sql`organizational = ${organizational}`);
         }
 
         const where = searchConditions.length
@@ -429,8 +434,8 @@ export const groupMethods = {
         ]);
     },
 
-    suggestions: async ({ query, include, take = suggestionsTake }: GetGroupSuggestions) => {
-        const where: Prisma.GroupWhereInput = { name: { contains: query, mode: 'insensitive' } };
+    suggestions: async ({ query, include, take = suggestionsTake, organizational }: GetGroupSuggestions) => {
+        const where: Prisma.GroupWhereInput = { name: { contains: query, mode: 'insensitive' }, organizational };
 
         if (include) {
             where.id = { notIn: include };

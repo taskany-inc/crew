@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     User as HarmonyUser,
     Select,
@@ -55,6 +55,11 @@ export const UserSelect = ({
     );
     const userValue = users.filter((user) => selectedUsers?.includes(user.id));
 
+    const onCloseHandler = useCallback(() => {
+        setUserQuery('');
+        onClose?.();
+    }, [onClose]);
+
     return (
         <Select
             value={userValue}
@@ -63,7 +68,7 @@ export const UserSelect = ({
                 name: user.name || user.email,
                 email: user.email,
             }))}
-            onClose={onClose}
+            onClose={onCloseHandler}
             onChange={onChange}
             selectable
             mode={mode}
@@ -97,7 +102,12 @@ export const UserSelect = ({
                 )}
             </SelectTrigger>
             <SelectPanel disabled={readOnly} placement="bottom-start" title={tr('Suggestions')}>
-                <Input autoFocus placeholder={tr('Search')} onChange={(e) => setUserQuery(e.target.value)} />
+                <Input
+                    autoFocus
+                    placeholder={tr('Search')}
+                    value={userQuery}
+                    onChange={(e) => setUserQuery(e.target.value)}
+                />
             </SelectPanel>
         </Select>
     );
