@@ -35,7 +35,7 @@ const EditForm = ({ id, onClose }: EditOrCancelFormProps) => {
 
     return (
         <ScheduleDeactivationForm
-            userId={id}
+            userId={scheduledDeactivation.userId}
             scheduledDeactivation={scheduledDeactivation}
             visible={true}
             onClose={onClose}
