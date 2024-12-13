@@ -78,5 +78,10 @@
     "readManyExternalFromMainUserRequests {mainOrgName}": "read many requests to create external from {mainOrgName} employee profiles",
     "editInternalUserRequest": "edit requests to create profile to newcomer",
     "editExternalUserRequest": "edit requests to create profile to external employee",
-    "editExternalFromMainUserRequest {mainOrgName}": "edit requests to create profile to external employee from main organinization"
+    "editExternalFromMainUserRequest {mainOrgName}": "edit requests to create profile to external employee from main organinization",
+    "Work email": "",
+    "Did not take any": "",
+    "Work mode and workplace": "",
+    "Transfer": "",
+    "Employment": ""
 }

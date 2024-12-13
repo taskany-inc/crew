@@ -77,9 +77,11 @@ export const scheduledDeactivationMethods = {
 
         const subject =
             type === 'retirement'
-                ? `${tr('Retirement of')} ${user.name} (${restData.phone}) ${tr('from')} ${
-                      scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
-                  }`
+                ? `${tr('Retirement')} ${user.name} ${
+                      scheduledDeactivation.organizationUnit
+                          ? getOrgUnitTitle(scheduledDeactivation.organizationUnit)
+                          : ''
+                  } (${restData.phone}) ${tr('from')}`
                 : `${tr('Transfer from')} ${
                       scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
                   } ${tr('to')} ${
@@ -98,7 +100,11 @@ export const scheduledDeactivationMethods = {
 
         await sendMail({
             to,
-            html: scheduledDeactivationEmailHtml(scheduledDeactivation),
+            html: scheduledDeactivationEmailHtml({
+                data: scheduledDeactivation,
+                unitId: scheduledDeactivation.unitIdString || '',
+                teamlead: scheduledDeactivation.teamLead,
+            }),
             subject,
             attachments,
             icalEvent: calendarEvents({
@@ -142,7 +148,7 @@ export const scheduledDeactivationMethods = {
         const { id, comment } = data;
         const scheduledDeactivation = await prisma.scheduledDeactivation.findUnique({
             where: { id },
-            include: { user: true, creator: true },
+            include: { user: true, creator: true, organizationUnit: true, newOrganizationUnit: true },
         });
 
         if (!scheduledDeactivation) {
@@ -153,12 +159,17 @@ export const scheduledDeactivationMethods = {
         }
         const subject =
             scheduledDeactivation.type === 'retirement'
-                ? tr('Cancel retirement of {userName}', {
-                      userName: scheduledDeactivation.user.name || scheduledDeactivation.user.email,
-                  })
-                : tr('Cancel transfer of {userName}', {
-                      userName: scheduledDeactivation.user.name || scheduledDeactivation.user.email,
-                  });
+                ? `${tr('Retirement')} ${
+                      scheduledDeactivation.organizationUnit
+                          ? getOrgUnitTitle(scheduledDeactivation.organizationUnit)
+                          : ''
+                  } ${scheduledDeactivation.user.name} (${scheduledDeactivation.phone})`
+                : `${tr('Transfer from')} ${
+                      scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
+                  } ${tr('to')} ${
+                      scheduledDeactivation?.newOrganizationUnit &&
+                      getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
+                  } ${scheduledDeactivation.user.name} (${scheduledDeactivation.phone})`;
 
         if (scheduledDeactivation.organizationUnitId) {
             const { to, users } = await userMethods.getMailingList(
@@ -246,18 +257,18 @@ export const scheduledDeactivationMethods = {
         }
 
         const subject =
-            type === 'retirement'
-                ? `${tr('Update on retirement of')} ${scheduledDeactivation.user.name} (${restData.phone}) ${tr(
-                      'from',
-                  )} ${
-                      scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
-                  }`
-                : `${tr('Update on transfer from')} ${
+            scheduledDeactivation.type === 'retirement'
+                ? `${tr('Retirement')} ${
+                      scheduledDeactivation.organizationUnit
+                          ? getOrgUnitTitle(scheduledDeactivation.organizationUnit)
+                          : ''
+                  } ${scheduledDeactivation.user.name} (${scheduledDeactivation.phone}) `
+                : `${tr('Transfer from')} ${
                       scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
                   } ${tr('to')} ${
                       scheduledDeactivation?.newOrganizationUnit &&
                       getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
-                  } ${scheduledDeactivation.user.name} (${restData.phone})`;
+                  } ${scheduledDeactivation.user.name} (${scheduledDeactivation.phone})`;
 
         if (scheduledDeactivation.organizationUnitId) {
             const { to, users } = await userMethods.getMailingList(
@@ -281,7 +292,11 @@ export const scheduledDeactivationMethods = {
 
             await sendMail({
                 to,
-                html: scheduledDeactivationEmailHtml(scheduledDeactivation),
+                html: scheduledDeactivationEmailHtml({
+                    data: scheduledDeactivation,
+                    unitId: scheduledDeactivation.unitIdString || '',
+                    teamlead: scheduledDeactivation.teamLead,
+                }),
                 subject,
                 attachments,
                 icalEvent: calendarEvents({
