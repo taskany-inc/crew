@@ -11,6 +11,7 @@ describe('CSV generation', () => {
             '"with , comma",1',
             'with ; semicolon,2',
             '"with ""quotes""",3',
+            'with undefined,',
         ].join('\n');
 
         assert.equal(
@@ -20,6 +21,7 @@ describe('CSV generation', () => {
                     { title: 'with , comma', count: 1, unused: '' },
                     { title: 'with ; semicolon', count: 2, unused: '' },
                     { title: 'with "quotes"', count: 3, unused: '' },
+                    { title: 'with undefined' },
                 ],
                 [
                     { key: 'title', name: 'Title' },
