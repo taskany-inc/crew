@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.100.0](https://github.com/taskany-inc/crew/compare/v0.99.2...v0.100.0) (2024-12-16)
+
+
+### Features
+
+* link to user request page in mail ([315eb5b](https://github.com/taskany-inc/crew/commit/315eb5beac390f56e1eadf69c94f09e5fad17b9c))
+* **Requests:** clear inputs when resetting the form ([f19c485](https://github.com/taskany-inc/crew/commit/f19c485bed947e268348eba9cd9f73f3006214f0))
+
+
+### Bug Fixes
+
+* correct styles and texts ([0b7f4eb](https://github.com/taskany-inc/crew/commit/0b7f4eb24f22ea130ce08a2a45002624de5e0fc8))
+* **INTERNAL-1398:** add filtration by org unit ([4ba8c4c](https://github.com/taskany-inc/crew/commit/4ba8c4c2fdfe713df2e81a0fda511aaeba62a816))
+
 ## [0.99.2](https://github.com/taskany-inc/crew/compare/v0.99.1...v0.99.2) (2024-12-13)
 
 
