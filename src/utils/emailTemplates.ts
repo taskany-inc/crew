@@ -7,7 +7,6 @@ import {
     SupplementalPosition,
 } from '@prisma/client';
 
-import { pages } from '../hooks/useRouter';
 import {
     AdditionalDevice,
     ScheduledDeactivationNewOrganizationUnit,
@@ -20,12 +19,14 @@ import { defaultLocale } from './getLang';
 import { formatDate } from './dateTime';
 import { tr } from './utils.i18n';
 
-export const userCreationMailText = (name: string) => `${tr('Hello colleagues!')}
+export const userCreationMailText = (name: string, link: string) => `${tr('Hello colleagues!')}
 
 ${tr('Please look at profile creation request for {userName}', { userName: name })}
             
-${process.env.NEXTAUTH_URL}${pages.accessCoordination}
-`;
+${process.env.NEXTAUTH_URL}${link}
+            
+${tr('Sincerely,')}
+HR-team!`;
 
 export const scheduledDeactivationEmailHtml = (data: {
     data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit;

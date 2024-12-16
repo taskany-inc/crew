@@ -18,6 +18,7 @@ import { jobUpdate, jobDelete } from '../worker/jobOperations';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
 import { userCreationRequestPhone } from '../utils/createUserCreationRequest';
+import { pages } from '../hooks/useRouter';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
@@ -233,7 +234,16 @@ export const userCreationRequestsMethods = {
 
         const { to } = await userMethods.getMailingList('createUserRequest', data.organizationUnitId);
 
-        const mailText = userCreationMailText(name);
+        const requestLink = () => {
+            if (data.type === 'externalEmployee') return pages.externalUserRequest(userCreationRequest.id);
+
+            if (data.type === 'externalFromMainOrgEmployee') {
+                return pages.externalUserFromMainOrgRequest(userCreationRequest.id);
+            }
+            return pages.internalUserRequest(userCreationRequest.id);
+        };
+
+        const mailText = userCreationMailText(name, requestLink());
 
         const subject = tr('New user request {userName}', { userName: name });
 
