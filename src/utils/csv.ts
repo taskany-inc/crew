@@ -17,7 +17,7 @@ export const createCsvDocument = <T extends Record<string, any>, C extends { key
     data.forEach((d) => {
         const row = columns
             .map((c) => d[c.key])
-            .map(String)
+            .map((v) => (v === undefined ? '' : String(v)))
             .map((v) => escapeSpecialChars(v, separator))
             .join(separator);
         csv += `\n${row}`;
