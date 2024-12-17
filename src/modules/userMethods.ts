@@ -371,6 +371,7 @@ export const userMethods = {
         supplementalPosition,
         organizationUnitId,
         curatorIds,
+        supervisorId,
         ...data
     }: EditUserFields) => {
         const updateUser: Prisma.UserUpdateInput = data;
@@ -409,6 +410,12 @@ export const userMethods = {
             }
         }
 
+        if (supervisorId && supervisorId !== userBeforeUpdate.supervisorId) {
+            updateUser.supervisor = {
+                connect: { id: supervisorId },
+            };
+        }
+
         if (supplementalPosition) {
             const supplementalOrganization = await prisma.organizationUnit.findUnique({
                 where: {
@@ -428,7 +435,7 @@ export const userMethods = {
 
         await externalUserMethods.update(id, {
             name: data.name,
-            supervisorId: data.supervisorId,
+            supervisorId,
         });
 
         if (savePreviousName) {
