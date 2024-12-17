@@ -1,9 +1,15 @@
 import { Group, User } from 'prisma/prisma-client';
+import СyrillicToTranslit from 'cyrillic-to-translit-js';
 
 import { prisma } from '../utils/prisma';
 
+const translit = СyrillicToTranslit();
+
 export const searchMethods = {
-    globalUsers: async (input: string, translit = ''): Promise<User[]> => {
+    globalUsers: async (input: string): Promise<User[]> => {
+        const translitEn = translit.transform(input);
+        const translitRu = translit.reverse(input);
+
         return prisma.user.findMany({
             take: 5,
             orderBy: {
@@ -18,31 +24,31 @@ export const searchMethods = {
                 OR: [
                     {
                         name: {
-                            contains: translit,
+                            contains: translitEn,
                             mode: 'insensitive',
                         },
                     },
                     {
                         name: {
-                            contains: input,
+                            contains: translitRu,
                             mode: 'insensitive',
                         },
                     },
                     {
                         email: {
-                            contains: input,
+                            contains: translitEn,
                             mode: 'insensitive',
                         },
                     },
                     {
                         login: {
-                            contains: translit,
+                            contains: translitEn,
                             mode: 'insensitive',
                         },
                     },
                     {
                         login: {
-                            contains: input,
+                            contains: translitEn,
                             mode: 'insensitive',
                         },
                     },
@@ -51,9 +57,9 @@ export const searchMethods = {
         });
     },
 
-    global: async (input: string, translit = ''): Promise<{ users: User[]; groups: Group[] }> => {
+    global: async (input: string): Promise<{ users: User[]; groups: Group[] }> => {
         const [users, groups] = await Promise.all([
-            searchMethods.globalUsers(input, translit),
+            searchMethods.globalUsers(input),
             prisma.group.findMany({
                 take: 5,
                 where: {

@@ -94,11 +94,11 @@ export const ScheduledDismissalPage = ({
     const orgMembership = user?.memberships.find((m) => m.group.organizational);
 
     const initTestingDevices: AdditionalDevice[] = scheduledDeactivation?.testingDevices
-        ? JSON.parse(scheduledDeactivation.testingDevices as string)
+        ? (scheduledDeactivation.testingDevices as Record<'name' | 'id', string>[])
         : userDevices.map((device) => ({ name: device.deviceName, id: device.deviceId }));
 
     const initDevices: AdditionalDevice[] = (scheduledDeactivation?.devices &&
-        JSON.parse(scheduledDeactivation.devices as string)) || [{ name: '', id: '' }];
+        (scheduledDeactivation.devices as Record<'name' | 'id', string>[])) || [{ name: '', id: '' }];
 
     const [surname = '', firstName = '', middleName = ''] = (user.name ?? '').split(' ');
 
@@ -191,6 +191,7 @@ export const ScheduledDismissalPage = ({
                                         requestType="deactivation"
                                         requestId={s.id}
                                         onEdit={() => router.userDismissEdit(user.id)}
+                                        onCancel={router.scheduledDeactivations}
                                     />
                                 ),
                                 <UserFormFormActions

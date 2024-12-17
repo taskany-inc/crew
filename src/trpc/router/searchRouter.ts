@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { translit } from '@taskany/bricks';
 
 import { protectedProcedure, router } from '../trpcBackend';
 import { searchMethods } from '../../modules/searchMethods';
@@ -16,7 +15,6 @@ export const searchRouter = router({
             additionalData: { query: input },
         });
 
-        const translitInput = translit(input);
-        return searchMethods.global(input, translitInput);
+        return searchMethods.global(input);
     }),
 });

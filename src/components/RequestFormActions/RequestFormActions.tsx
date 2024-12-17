@@ -18,6 +18,7 @@ interface RequestFormActionsProps {
     requestId: string;
     onEdit?: () => void;
     onDecide?: () => void;
+    onCancel?: () => void;
     requestStatus?: UserCreationRequestStatus;
     requestType?: 'decree' | 'creation' | 'deactivation';
     small?: boolean;
@@ -30,6 +31,7 @@ export const RequestFormActions = ({
     requestStatus,
     small,
     onEdit,
+    onCancel,
 }: RequestFormActionsProps) => {
     const acceptWarningVisible = useBoolean(false);
     const declineWarningVisible = useBoolean(false);
@@ -51,6 +53,7 @@ export const RequestFormActions = ({
             () => {
                 callbackUserRequest({ id, comment: commentRef.current }, requestType);
                 onDecide && onDecide();
+                onCancel && onCancel();
             },
         [commentRef, requestType, onDecide],
     );

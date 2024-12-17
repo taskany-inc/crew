@@ -407,6 +407,8 @@ interface HistoryEventsData {
             lineManagerIds?: string;
             disableAccount?: string;
             applicationForReturnOfEquipment?: string;
+            devices?: { name: string; id: string }[] | null;
+            testingDevices?: { name: string; id: string }[] | null;
         };
     };
     editScheduledDeactivation: {
@@ -432,6 +434,11 @@ interface HistoryEventsData {
             newOrganization?: string;
             newOrganizationalGroup?: string;
             newTeamLead?: string;
+            applicationForReturnOfEquipment?: string;
+            lineManagerIds?: string;
+            teamLeadId?: string;
+            devices?: { name: string; id: string }[] | null;
+            testingDevices?: { name: string; id: string }[] | null;
         };
     };
     cancelScheduledDeactivation: {

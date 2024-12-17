@@ -37,4 +37,9 @@ export const scheduledDeactivationHistoryEvent = (
         ? getOrgUnitTitle(scheduleDeactivation.newOrganizationUnit)
         : undefined,
     disableAccount: String(scheduleDeactivation.disableAccount),
+    devices: scheduleDeactivation.devices as Record<'name' | 'id', string>[],
+    testingDevices: scheduleDeactivation.testingDevices as Record<'name' | 'id', string>[],
 });
+
+export const devicesToString = (devices?: Record<'name' | 'id', string>[] | null) =>
+    devices?.map((device) => `${device.name} ${device.id}`).join(', ');
