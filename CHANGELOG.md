@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.101.0](https://github.com/taskany-inc/crew/compare/v0.100.0...v0.101.0) (2024-12-17)
+
+
+### Features
+
+* **INTERNAL-1356:** new firing form ([ef2a154](https://github.com/taskany-inc/crew/commit/ef2a1549b30d9187f77574ac8c9d3f7cbd2e4132))
+
+
+### Bug Fixes
+
+* **INTERNAL-1449:** edit user supervisor fix ([3df53fc](https://github.com/taskany-inc/crew/commit/3df53fcdd719fae6525b9dbf290c2675afa6b941))
+
 ## [0.100.0](https://github.com/taskany-inc/crew/compare/v0.99.2...v0.100.0) (2024-12-16)
 
 
