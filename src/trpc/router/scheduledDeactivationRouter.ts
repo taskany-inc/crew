@@ -56,7 +56,7 @@ export const scheduledDeactivationRouter = router({
             groupId: undefined,
             userId: result.userId,
             before,
-            after,
+            after: { ...after, type: result.type },
         });
         return result;
     }),

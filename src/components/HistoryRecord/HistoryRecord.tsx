@@ -13,6 +13,7 @@ import { useBoolean } from '../../hooks/useBoolean';
 import { notifyPromise } from '../../utils/notifications/notifyPromise';
 import { getFavicon } from '../../utils/getFavicon';
 import { useAppConfig } from '../../contexts/appConfigContext';
+import { devicesToString } from '../../utils/scheduledDeactivationHistoryEvent';
 
 import s from './HistoryRecord.module.css';
 import { tr } from './HistoryRecord.i18n';
@@ -927,6 +928,10 @@ const componentMap: {
         const visible = useBoolean(false);
         const locale = useLocale();
 
+        const devices = useMemo(() => devicesToString(event.after.devices), [event.after.devices]);
+
+        const testingDevices = useMemo(() => devicesToString(event.after.testingDevices), [event.after.testingDevices]);
+
         return (
             <>
                 <div className={s.Row}>
@@ -961,6 +966,9 @@ const componentMap: {
                             title={tr('New organizational group')}
                             after={event.after.newOrganizationalGroup}
                         />
+
+                        <ChangeListItem title={tr('Devices')} after={devices} />
+                        <ChangeListItem title={tr('Testing devices')} after={testingDevices} />
                         <ChangeListItem title={tr('Organizational role')} after={event.after.organizationRole} />
                         <ChangeListItem title={tr('New organizational role')} after={event.after.newOrganizationRole} />
                         <ChangeListItem title={tr('Unit')} after={event.after.unitId} />
@@ -968,6 +976,10 @@ const componentMap: {
                         <ChangeListItem title={tr('Work mode')} after={event.after.workMode} />
                         <ChangeListItem title={tr('Work place')} after={event.after.workPlace} />
                         <ChangeListItem title={tr('Comment')} after={event.after.comments} />
+                        <ChangeListItem
+                            title={tr('Application for return of equipment')}
+                            after={event.after.applicationForReturnOfEquipment}
+                        />
                     </>
                 ))}
             </>
@@ -978,12 +990,26 @@ const componentMap: {
         const visible = useBoolean(false);
         const locale = useLocale();
 
+        const devicesBefore = useMemo(() => devicesToString(event.before.devices), [event.before.devices]);
+
+        const testingDevicesBefore = useMemo(
+            () => devicesToString(event.before.testingDevices),
+            [event.before.testingDevices],
+        );
+
+        const devicesAfter = useMemo(() => devicesToString(event.after.devices), [event.after.devices]);
+
+        const testingDevicesAfter = useMemo(
+            () => devicesToString(event.after.testingDevices),
+            [event.after.testingDevices],
+        );
+
         return (
             <>
                 <div className={s.Row}>
                     {tr('edited scheduled')}
                     <BoldText>
-                        {event.before.type === 'retirement'
+                        {event.after.type === 'retirement'
                             ? tr('retirement of')
                             : tr('transfer to {newOrganization} of', {
                                   newOrganization: String(event.before.newOrganization),
@@ -1063,10 +1089,21 @@ const componentMap: {
                             after={event.after.workPlace}
                             before={event.before.workPlace}
                         />
+                        <ChangeListItem title={tr('Devices')} after={devicesAfter} before={devicesBefore} />
+                        <ChangeListItem
+                            title={tr('Testing devices')}
+                            after={testingDevicesAfter}
+                            before={testingDevicesBefore}
+                        />
                         <ChangeListItem
                             title={tr('Comment')}
                             after={event.after.comments}
                             before={event.before.comments}
+                        />
+                        <ChangeListItem
+                            title={tr('Application for return of equipment')}
+                            before={event.before.applicationForReturnOfEquipment}
+                            after={event.after.applicationForReturnOfEquipment}
                         />
                     </>
                 ))}

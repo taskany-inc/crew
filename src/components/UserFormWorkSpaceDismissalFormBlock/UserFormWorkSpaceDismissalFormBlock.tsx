@@ -28,6 +28,11 @@ interface UserFormWorkSpaceDismissalFormBlockType {
     attachIds: string[];
 }
 
+const Attaches = ({ id, onDelete }: { id: string; onDelete?: (id: string) => void }) => {
+    const requestQuery = trpc.scheduledDeactivation.getById.useQuery(id, { enabled: !!id });
+    return <AttachList attaches={requestQuery.data?.attaches} onDelete={onDelete} />;
+};
+
 export const UserFormWorkSpaceDismissalFormBlock = ({
     className,
     id,
@@ -123,23 +128,20 @@ export const UserFormWorkSpaceDismissalFormBlock = ({
                         onChange={onFileChange}
                     />
                 ))}
-                {nullable(type !== 'new' && requestId, (id) => {
-                    const requestQuery = trpc.scheduledDeactivation.getById.useQuery(id);
-                    return (
-                        <AttachList
-                            attaches={requestQuery.data?.attaches}
-                            onDelete={
-                                type !== 'readOnly'
-                                    ? (attachId) =>
-                                          setValue(
-                                              'attachIds',
-                                              getValues('attachIds').filter((id) => id !== attachId),
-                                          )
-                                    : undefined
-                            }
-                        />
-                    );
-                })}
+                {nullable(type !== 'new' && requestId, (id) => (
+                    <Attaches
+                        id={id}
+                        onDelete={
+                            type !== 'readOnly'
+                                ? (attachId) =>
+                                      setValue(
+                                          'attachIds',
+                                          getValues('attachIds').filter((id) => id !== attachId),
+                                      )
+                                : undefined
+                        }
+                    />
+                ))}
             </FormControl>
         </div>
     );

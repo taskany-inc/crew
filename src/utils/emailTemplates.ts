@@ -102,7 +102,7 @@ export const scheduledDeactivationEmailHtml = (data: {
             <td></td>
         </tr>
     ${
-        JSON.parse(data.data.devices as string)
+        (data.data.devices as Record<'name' | 'id', string>[])
             ?.map(
                 (d: AdditionalDevice) =>
                     '<tr>' +
@@ -129,7 +129,7 @@ export const scheduledDeactivationEmailHtml = (data: {
             <td></td>
         </tr>
     ${
-        JSON.parse(data.data.testingDevices as string)
+        (data.data.testingDevices as Record<'name' | 'id', string>[])
             ?.map(
                 (d: AdditionalDevice) =>
                     '<tr>' +

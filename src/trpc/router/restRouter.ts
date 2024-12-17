@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { VacancyStatus } from '@prisma/client';
-import { translit } from '@taskany/bricks';
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../../utils/prisma';
@@ -240,8 +239,7 @@ export const restRouter = router({
         .output(z.array(userSchema))
         .query(({ input }) => {
             const { query } = input;
-            const translitInput = translit(query);
-            return searchMethods.globalUsers(query, translitInput);
+            return searchMethods.globalUsers(query);
         }),
 
     editUserActiveState: restProcedure
