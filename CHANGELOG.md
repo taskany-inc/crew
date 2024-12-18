@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.102.0](https://github.com/taskany-inc/crew/compare/v0.101.0...v0.102.0) (2024-12-18)
+
+
+### Features
+
+* **UserCreationRequestMethods:** unitId null in user profile ([f4b310f](https://github.com/taskany-inc/crew/commit/f4b310f8ee2c0e237303fd8a914ad99afa5f56b1))
+
+
+### Bug Fixes
+
+* **INTERNAL-1451:** save devices and testing devices in logs ([5768b20](https://github.com/taskany-inc/crew/commit/5768b20bf31379f2abc1620da8e225dfc151c29f))
+
 ## [0.101.0](https://github.com/taskany-inc/crew/compare/v0.100.0...v0.101.0) (2024-12-17)
 
 
