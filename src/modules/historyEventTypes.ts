@@ -333,6 +333,12 @@ interface HistoryEventsData {
         requireBefore: false;
         data: { id: string; name: string };
     };
+    removeDevicesFromUserInDeactivation: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: { deletedDevices: string };
+    };
     createVacancy: {
         requireGroupId: true;
         requireUserId: false;

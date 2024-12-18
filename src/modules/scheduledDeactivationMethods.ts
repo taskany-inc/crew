@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
-import { Prisma } from 'prisma/prisma-client';
+import { Prisma, UserDevice } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
@@ -19,6 +19,39 @@ import {
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import { userMethods } from './userMethods';
+import { deviceMethods } from './deviceMethods';
+import { historyEventMethods } from './historyEventMethods';
+
+const deleteUserDevices = async ({
+    userDevices,
+    requestDevices,
+    sessionUserId,
+    userId,
+}: {
+    userDevices: UserDevice[];
+    requestDevices?: { id: string; name: string }[];
+    sessionUserId: string;
+    userId: string;
+}) => {
+    const devicesToDelete = userDevices.filter(
+        (d) => !requestDevices?.find(({ id, name }) => d.deviceId === id && d.deviceName === name),
+    );
+
+    await Promise.all(
+        devicesToDelete.map(({ userId, deviceId, deviceName }) =>
+            deviceMethods.deleteUserDevice({ userId, deviceId, deviceName }),
+        ),
+    );
+
+    await historyEventMethods.create({ user: sessionUserId }, 'removeDevicesFromUserInDeactivation', {
+        userId,
+        groupId: undefined,
+        before: undefined,
+        after: {
+            deletedDevices: devicesToDelete.map(({ deviceId, deviceName }) => `${deviceName} ${deviceId}`).join(', '),
+        },
+    });
+};
 
 export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {
@@ -67,9 +100,9 @@ export const scheduledDeactivationMethods = {
             include: {
                 scheduledDeactivations: true,
                 memberships: { include: { group: true } },
+                devices: true,
             },
         });
-
         if (!user) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
@@ -146,6 +179,14 @@ export const scheduledDeactivationMethods = {
                 attaches: true,
             },
         });
+
+        user.devices.length &&
+            (await deleteUserDevices({
+                userDevices: user.devices,
+                requestDevices: testingDevices,
+                userId,
+                sessionUserId,
+            }));
 
         const additionalEmails = [sessionUserId, ...restData.lineManagerIds];
 
@@ -334,7 +375,7 @@ export const scheduledDeactivationMethods = {
         });
     },
 
-    edit: async (data: EditScheduledDeactivation) => {
+    edit: async (data: EditScheduledDeactivation, sessionUserId: string) => {
         const { userId, type, devices, testingDevices, id, ...restData } = data;
 
         const deactivateDate = data.supplementalPositions
@@ -390,6 +431,7 @@ export const scheduledDeactivationMethods = {
                         supplementalPositions: true,
                         supervisor: true,
                         memberships: { include: { group: true } },
+                        devices: true,
                     },
                 },
                 creator: true,
@@ -398,6 +440,14 @@ export const scheduledDeactivationMethods = {
                 attaches: { where: { deletedAt: null } },
             },
         });
+
+        scheduledDeactivation.user.devices.length &&
+            (await deleteUserDevices({
+                userDevices: scheduledDeactivation.user.devices,
+                requestDevices: testingDevices,
+                userId,
+                sessionUserId,
+            }));
 
         data.supplementalPositions &&
             data.supplementalPositions.map(async (s) => {

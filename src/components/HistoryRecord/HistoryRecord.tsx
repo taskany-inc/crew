@@ -845,6 +845,25 @@ const componentMap: {
         );
     },
 
+    RemoveDevicesFromUserInDeactivation: ({ event }) => {
+        const visible = useBoolean(false);
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('removed devices from user')} <UserListItem user={event.user} />{' '}
+                    {tr('in scheduled deactivation')}
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Devices')} after={event.after.deletedDevices} />
+                    </>
+                ))}
+            </>
+        );
+    },
+
     CreateVacancy: ({ event }) => {
         const visible = useBoolean(false);
         return (
