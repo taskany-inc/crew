@@ -71,7 +71,7 @@ export const InternalUserCreationRequestPage = ({
             organizationUnitId: request?.organizationUnitId || '',
             lineManagerIds: request?.lineManagerIds || [],
             coordinatorIds: request?.coordinatorIds || [],
-            date: request?.date || undefined,
+            date: request?.date || null,
             groupId: request?.groupId || '',
             supplementalPositions: request?.supplementalPositions || [],
         }),

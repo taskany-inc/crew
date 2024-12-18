@@ -41,7 +41,7 @@ const defaultValues: Partial<CreateUserCreationRequestBase> = {
     title: '',
     accountingId: '',
     osPreference: '',
-    // TODO reset date also maybe like this https://github.com/colinhacks/zod/issues/1206
+    date: null,
 };
 
 export const ExistingUserCreationRequestPage = () => {

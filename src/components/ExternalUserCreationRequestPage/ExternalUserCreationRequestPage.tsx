@@ -65,7 +65,7 @@ export const ExternalUserCreationRequestPage = ({
             permissionToServices: request?.permissionToServices || [],
             reason: request?.reason || '',
             accessToInternalSystems: request?.accessToInternalSystems ?? true,
-            date: request?.date || undefined,
+            date: request?.date || null,
             osPreference: request?.osPreference || '',
             attachIds: request?.attachIds,
         }),
