@@ -96,6 +96,7 @@ export const userCreationRequestsMethods = {
             role: data.title || undefined,
             status: PositionStatus.ACTIVE,
             workStartDate: data.date,
+            unitId: data.unitId,
         };
 
         const createData: Prisma.UserCreationRequestUncheckedCreateInput = {
