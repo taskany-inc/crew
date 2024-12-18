@@ -48,7 +48,7 @@ export const scheduledDeactivationRouter = router({
         const scheduledDeactivationBefore = await scheduledDeactivationMethods.getById(input.id);
         const historyEventsBefore = scheduledDeactivationHistoryEvent(scheduledDeactivationBefore);
 
-        const result = await scheduledDeactivationMethods.edit({ ...input });
+        const result = await scheduledDeactivationMethods.edit({ ...input }, ctx.session.user.id);
         const historyEventsAfter = scheduledDeactivationHistoryEvent(result);
 
         const { before, after } = dropUnchangedValuesFromEvent(historyEventsBefore, historyEventsAfter);

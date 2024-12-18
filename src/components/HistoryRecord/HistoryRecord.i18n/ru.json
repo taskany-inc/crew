@@ -147,5 +147,8 @@
     "fired from": "уволен(а) из",
     "Devices": "Техника",
     "Testing devices": "Устройства для тестирования",
-    "Application for return of equipment": "Заявка на сдачу техники"
+    "Application for return of equipment": "Заявка на сдачу техники",
+    "removed devices from user": "Удалил устройства у юзера",
+    "in scheduled deactivation": "в запланированной деактивации",
+    "Deactivation id": "ID деактивации"
 }
