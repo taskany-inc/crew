@@ -64,6 +64,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = ({
             groupId: request?.groupId || '',
             permissionToServices: request?.permissionToServices || [],
             reason: request?.reason || '',
+            date: request?.date || null,
         }),
         [request],
     );

@@ -1090,7 +1090,7 @@ export const userCreationRequestsMethods = {
 
             if (oldMainUserPosition && oldMainUserPosition.status === 'ACTIVE') {
                 const dateInput = {
-                    workEndDate: data.date,
+                    workEndDate: data.date || null,
                     workStartDate: oldMainUserPosition.workStartDate,
                 };
                 if (oldMainInRequest) {

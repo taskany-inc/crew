@@ -10,6 +10,15 @@ export const getPhoneSchema = () =>
         .refine((e) => parsePhoneNumber(e, 'RU')?.isValid(), tr('Enter phone number in format +7(900)123-45-67'))
         .transform((e) => String(parsePhoneNumber(e, 'RU')?.number));
 
+const dateSchema = z
+    .date({
+        errorMap: () => ({
+            message: tr('Required field'),
+        }),
+    })
+    .nullable()
+    .refine((date) => date, tr('Required field'));
+
 export const getCreateUserCreationRequestBaseSchema = () =>
     z.object({
         type: z.literal('existing'),
@@ -39,11 +48,7 @@ export const getCreateUserCreationRequestBaseSchema = () =>
         corporateEmail: z.string().optional(),
         osPreference: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         createExternalAccount: z.boolean().optional(),
-        date: z.date({
-            errorMap: () => ({
-                message: tr('Required field'),
-            }),
-        }),
+        date: dateSchema,
         comment: z.string().optional(),
         attachIds: z.string().array().optional(),
         workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
@@ -94,11 +99,14 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
         location: z.string().min(1, { message: tr('Required field') }),
         creationCause: z.string(),
         unitId: z.string().optional(),
-        date: z.date({
-            errorMap: () => ({
-                message: tr('Required field'),
-            }),
-        }),
+        date: z
+            .date({
+                errorMap: () => ({
+                    message: tr('Required field'),
+                }),
+            })
+            .nullish()
+            .refine((date) => date, tr('Required field')),
         osPreference: z.string().optional(),
     });
 export type CreateUserCreationRequestInternalEmployee = z.infer<
@@ -118,11 +126,7 @@ export const getCreateUserCreationRequestExternalEmployeeSchema = () =>
             .min(1, { message: tr('Required field') })
             .email(tr('Not a valid email')),
         osPreference: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
-        date: z.date({
-            errorMap: () => ({
-                message: tr('Required field'),
-            }),
-        }),
+        date: dateSchema,
         lineManagerIds: z.array(z.string()).optional(),
         curatorIds: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
         reason: z
@@ -151,7 +155,7 @@ export const getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema = () 
         permissionToServices: z.array(z.string()).refine((ids) => ids.length, tr('Required field')),
         supervisorId: z.string().optional(),
         osPreference: z.string().optional(),
-        date: z.date().optional(),
+        date: z.date().nullish(),
         percentage: z.number().optional(),
     });
 
