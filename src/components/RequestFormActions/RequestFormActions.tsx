@@ -97,12 +97,8 @@ export const RequestFormActions = ({
     return (
         <div className={s.FormActions}>
             {nullable(canDecideOnRequest && requestType !== 'decree' && requestType !== 'deactivation', () => (
-                <div
-                    className={cn(s.FormActions, {
-                        [s.Separator]: small && canEditRequest && canDecideOnRequest,
-                    })}
-                >
-                    <div ref={tooltipRef}>
+                <div className={small && canEditRequest && canDecideOnRequest ? s.Separator : undefined}>
+                    <div ref={tooltipRef} className={s.FormActions}>
                         <Button
                             ref={declineRef}
                             iconLeft={small && <IconXOutline size="s" />}
@@ -197,17 +193,19 @@ export const RequestFormActions = ({
             {nullable(canEditRequest, () => (
                 <>
                     {nullable(onEdit, () => (
-                        <Button
-                            ref={editRef}
-                            className={cn({ [s.EditButton]: !small })}
-                            iconLeft={<IconEditOutline size="s" />}
-                            size={small ? 's' : 'm'}
-                            type="button"
-                            text={small ? undefined : tr('Edit Form')}
-                            view={small ? 'default' : 'ghost'}
-                            onClick={onEdit}
-                            disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
-                        />
+                        <div>
+                            <Button
+                                ref={editRef}
+                                className={cn({ [s.EditButton]: !small })}
+                                iconLeft={<IconEditOutline size="s" />}
+                                size={small ? 's' : 'm'}
+                                type="button"
+                                text={small ? undefined : tr('Edit Form')}
+                                view={small ? 'default' : 'ghost'}
+                                onClick={onEdit}
+                                disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
+                            />
+                        </div>
                     ))}
 
                     <div ref={tooltipRef}>
