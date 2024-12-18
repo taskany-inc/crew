@@ -208,7 +208,6 @@ export const userCreationRequestRouter = router({
                     : undefined,
             },
         });
-
         return creationRequest;
     }),
 
