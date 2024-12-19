@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.102.1](https://github.com/taskany-inc/crew/compare/v0.102.0...v0.102.1) (2024-12-19)
+
+
+### Bug Fixes
+
+* **INTERNAL-1454:** fix action buttons ([d0e5328](https://github.com/taskany-inc/crew/commit/d0e5328300fc0d7ed24bc39b76c89c0837db65ee))
+
 ## [0.102.0](https://github.com/taskany-inc/crew/compare/v0.101.0...v0.102.0) (2024-12-18)
 
 
