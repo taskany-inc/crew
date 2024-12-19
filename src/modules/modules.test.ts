@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach } from 'node:test';
+import { describe, it, beforeEach, afterEach, before } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { prisma } from '../utils/prisma';
@@ -11,6 +11,7 @@ import {
     deleteTestVacancies,
     testRootGroup,
 } from '../utils/testDbData';
+import { parseConnectionURL } from '../utils/parseConnectionUrl';
 
 import { groupMethods } from './groupMethods';
 import { userMethods } from './userMethods';
@@ -19,6 +20,16 @@ import { searchMethods } from './searchMethods';
 import { vacancyMethods } from './vacancyMethods';
 
 describe('groups', () => {
+    before(() => {
+        const connectionConfig = parseConnectionURL();
+        if (!connectionConfig) {
+            throw new Error('No connection config');
+        }
+        if (connectionConfig.host !== 'localhost' && connectionConfig.host !== 'testdb') {
+            throw new Error('Testing is allowed only in local test DB');
+        }
+    });
+
     beforeEach(async () => {
         await createTestGroups();
         await createTestUsers();
