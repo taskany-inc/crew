@@ -195,21 +195,49 @@ export const importMethods = {
 
         const structure = createNode();
 
-        const errors: string[] = [];
-        const addError: AddMessage = (error) => errors.push(error);
+        const report: {
+            columnNames: Awaited<ReturnType<typeof getExcelData>>['columnNames'];
+            messages: {
+                dataExtraction: string[];
+                userSearch: string[];
+                multipleGroupLeads: string[];
+                multipleOrgMemberships: string[];
+                multipleUserLeads: string[];
+                usersNotInStructure: string[];
+                skippedEmptyGroups: string[];
+                other: string[];
+            };
+            userLeads: (Person & { lead: Person })[];
+        } = {
+            columnNames,
+            messages: {
+                dataExtraction: [],
+                userSearch: [],
+                multipleGroupLeads: [],
+                multipleOrgMemberships: [],
+                multipleUserLeads: [],
+                usersNotInStructure: [],
+                skippedEmptyGroups: [],
+                other: [],
+            },
+            userLeads: [],
+        };
 
-        const findUser = createFindUser(addError);
+        const userLeadsRecord: Record<string, Person | undefined> = {};
+
+        const addMessage = (key: keyof typeof report.messages, error: string) => report.messages[key].push(error);
+
+        const findUser = createFindUser((error) => addMessage('userSearch', error));
 
         for (const row of rows) {
             if (row.length === 0) continue;
 
-            const rowData = getRowData(row, config, addError);
+            const rowData = getRowData(row, config, (error) => addMessage('dataExtraction', error));
 
             if (!rowData) continue;
 
             const groups = await Promise.all(
                 rowData.groups
-                    .filter((g, i, a) => a.findIndex((v) => v.name === g.name) === i)
                     .filter((g) => !skipList.includes(g.name))
                     .map(async (g) => {
                         const lead = g.lead ? await findUser({ fullName: g.lead }) : undefined;
@@ -222,6 +250,11 @@ export const importMethods = {
             groups.forEach((g, i) => {
                 const node = getNodeByPath(structure, path.slice(0, i + 1));
                 if (g.lead) {
+                    if (node.teamLead && node.teamLead.id !== g.lead.id) {
+                        const lead1 = `[${node.teamLead.id}] ${node.teamLead.name}`;
+                        const lead2 = `[${g.lead.id}] ${g.lead.name}`;
+                        addMessage('multipleGroupLeads', `/ ${path.join(' / ')}: ${lead1} AND ${lead2}`);
+                    }
                     node.teamLead = g.lead;
                 }
             });
@@ -234,14 +267,101 @@ export const importMethods = {
 
             if (!user) continue;
 
+            const lastLeadInPath = groups.reverse().find(({ lead }) => lead)?.lead;
+
+            if (lastLeadInPath && lastLeadInPath.id !== user.id) {
+                const leadInRecord = userLeadsRecord[user.id];
+                if (leadInRecord) {
+                    if (leadInRecord.id !== lastLeadInPath.id) {
+                        const u = `[${user.id}] ${user.name}`;
+                        const lead1 = `[${leadInRecord.id}] ${leadInRecord.name}`;
+                        const lead2 = `[${lastLeadInPath.id}] ${lastLeadInPath.name}`;
+                        addMessage('multipleUserLeads', `${u}: ${lead1} AND ${lead2}`);
+                    }
+                } else {
+                    userLeadsRecord[user.id] = lastLeadInPath;
+                    report.userLeads.push({ id: user.id, name: user.name, lead: lastLeadInPath });
+                }
+            }
+
             const node = getNodeByPath(structure, path);
             node.people.push(user);
         }
 
+        const membershipsMap: Record<string, string> = {};
+
+        const checkOrgMemberships = (node: StructureNode, path: string) => {
+            for (const person of node.people) {
+                if (person.id in membershipsMap) {
+                    if (membershipsMap[person.id] !== path) {
+                        addMessage(
+                            'multipleOrgMemberships',
+                            `[${person.id}] ${person.name}: ${membershipsMap[person.id]} AND ${path}`,
+                        );
+                    }
+                } else {
+                    membershipsMap[person.id] = path;
+                }
+            }
+            for (const name of Object.keys(node.nodes)) {
+                checkOrgMemberships(node.nodes[name], `${path} ${name} /`);
+            }
+        };
+
+        checkOrgMemberships(structure, '/');
+
+        const activeUsers = await db
+            .selectFrom('User')
+            .where('User.active', '=', true)
+            .select(['User.id', 'User.name'])
+            .execute();
+        const structureUserIds = new Set();
+
+        const saveStructureUsers = (node: StructureNode) => {
+            for (const person of node.people) {
+                structureUserIds.add(person.id);
+            }
+            if (node.teamLead) {
+                structureUserIds.add(node.teamLead.id);
+            }
+            for (const name of Object.keys(node.nodes)) {
+                saveStructureUsers(node.nodes[name]);
+            }
+        };
+
+        saveStructureUsers(structure);
+
+        for (const { id, name } of activeUsers) {
+            if (!structureUserIds.has(id)) {
+                addMessage('usersNotInStructure', `[${id}] ${name}`);
+            }
+        }
+
+        let runEmptyNodeCheck = true;
+
+        const isNodeEmpty = (node: StructureNode, path: string): boolean => {
+            const children = Object.keys(node.nodes);
+            if (children.length === 0 && node.people.length === 0 && !node.teamLead) return true;
+            for (const name of children) {
+                const childPath = `${path} ${name} /`;
+                const empty = isNodeEmpty(node.nodes[name], childPath);
+                if (empty) {
+                    addMessage('skippedEmptyGroups', childPath);
+                    delete node.nodes[name];
+                    runEmptyNodeCheck = true;
+                }
+            }
+            return false;
+        };
+
+        while (runEmptyNodeCheck) {
+            runEmptyNodeCheck = false;
+            isNodeEmpty(structure, '/');
+        }
+
         if (process.env.NODE_ENV === 'development') {
             dumpToJson('structure-parse', structure);
-            dumpToJson('structure-parse-errors', errors);
-            dumpToJson('structure-parse-column-names', columnNames);
+            dumpToJson('structure-parse-report', report);
         } else {
             sendMail({
                 to: currentUserEmail,
@@ -253,13 +373,8 @@ export const importMethods = {
                         contentType: 'text/plain',
                     },
                     {
-                        filename: 'structure-parse-errors.json',
-                        content: JSON.stringify(errors, null, 2),
-                        contentType: 'text/plain',
-                    },
-                    {
-                        filename: 'structure-parse-column-names.json',
-                        content: JSON.stringify(columnNames, null, 2),
+                        filename: 'structure-parse-report.json',
+                        content: JSON.stringify(report, null, 2),
                         contentType: 'text/plain',
                     },
                 ],
@@ -268,11 +383,10 @@ export const importMethods = {
     },
 
     uploadStructure: async (structure: StructureNode, rootGroupId: string, currentUserEmail: string) => {
-        const errors: string[] = [];
-        const messages: string[] = [];
+        const report: { errors: string[]; messages: string[] } = { errors: [], messages: [] };
 
-        const addError = (message: string, e?: unknown) => errors.push(parseError(message, e));
-        const addMessage: AddMessage = (message) => messages.push(message);
+        const addError = (message: string, e?: unknown) => report.errors.push(parseError(message, e));
+        const addMessage: AddMessage = (message) => report.messages.push(message);
 
         const addToGroupWithRole = async ({
             idAndPath,
@@ -354,21 +468,15 @@ export const importMethods = {
         await processNode(structure, 'ROOT', rootGroupId, 'ROOT /');
 
         if (process.env.NODE_ENV === 'development') {
-            dumpToJson('structure-upload-messages', messages);
-            dumpToJson('structure-upload-errors', errors);
+            dumpToJson('structure-upload-report', report);
         } else {
             sendMail({
                 to: currentUserEmail,
                 subject: 'Structure upload results',
                 attachments: [
                     {
-                        filename: 'structure-upload-messages.json',
-                        content: JSON.stringify(messages, null, 2),
-                        contentType: 'text/plain',
-                    },
-                    {
-                        filename: 'structure-upload-errors.json',
-                        content: JSON.stringify(errors, null, 2),
+                        filename: 'structure-upload-report.json',
+                        content: JSON.stringify(report, null, 2),
                         contentType: 'text/plain',
                     },
                 ],
