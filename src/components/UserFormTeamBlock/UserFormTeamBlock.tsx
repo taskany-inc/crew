@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text } from '@taskany/bricks/harmony';
 import { useFormContext } from 'react-hook-form';
 import { Group, User } from 'prisma/prisma-client';
@@ -60,7 +60,12 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly, userId }: Use
         },
     );
 
-    const defaultGroupId = watch('groupId') || supervisorGroups[0]?.id;
+    useEffect(() => {
+        if (supervisorGroups[0]) {
+            setValue('groupId', supervisorGroups[0]?.id);
+        }
+    }, [supervisorGroups]);
+
     const excludedUsers = userId ? [userId] : undefined;
 
     return (
@@ -112,7 +117,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly, userId }: Use
                         <FormControl label={tr('OrgGroup')}>
                             <GroupComboBox
                                 readOnly={readOnly}
-                                defaultGroupId={defaultGroupId}
+                                defaultGroupId={watch('groupId')}
                                 onChange={onTeamChange}
                                 error={errors.groupId}
                                 organizational
@@ -139,7 +144,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly, userId }: Use
                     <FormControl label={tr('OrgGroup')}>
                         <GroupComboBox
                             readOnly={readOnly}
-                            defaultGroupId={defaultGroupId}
+                            defaultGroupId={watch('groupId')}
                             onChange={onTeamChange}
                             error={errors.groupId}
                             organizational
