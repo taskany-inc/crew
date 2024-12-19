@@ -96,6 +96,66 @@ export const RequestFormActions = ({
 
     return (
         <div className={s.FormActions}>
+            {nullable(canEditRequest, () => (
+                <>
+                    {nullable(onEdit, () => (
+                        <div>
+                            <Button
+                                ref={editRef}
+                                className={cn({ [s.EditButton]: !small })}
+                                iconLeft={<IconEditOutline size="s" />}
+                                size={small ? 's' : 'm'}
+                                type="button"
+                                text={small ? undefined : tr('Edit Form')}
+                                view={small ? 'default' : 'ghost'}
+                                onClick={onEdit}
+                                disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
+                            />
+                        </div>
+                    ))}
+
+                    <div ref={tooltipRef}>
+                        <Button
+                            ref={cancelRef}
+                            iconLeft={small && <IconDeniedOutline size="s" />}
+                            size={small ? 's' : 'm'}
+                            view={small ? 'default' : 'danger'}
+                            type="button"
+                            text={small ? undefined : tr('Cancel request')}
+                            onClick={cancelWarningVisible.setTrue}
+                            disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
+                        />
+                    </div>
+                    {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
+                        <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
+                            {tooltipText}
+                        </Tooltip>
+                    ))}
+                    {nullable(small, () => (
+                        <>
+                            <Tooltip reference={editRef} placement="bottom" arrow={false}>
+                                {tr('Edit')}
+                            </Tooltip>
+                            <Tooltip reference={cancelRef} placement="bottom" arrow={false}>
+                                {tr('Cancel request')}
+                            </Tooltip>
+                        </>
+                    ))}
+                    <WarningModal
+                        view="danger"
+                        visible={cancelWarningVisible.value}
+                        onCancel={onCancelCancel}
+                        onInputChange={handleChangeComment}
+                        onConfirm={
+                            requestType === 'deactivation'
+                                ? handleSubmit(cancelScheduledDeactivation)(requestId)
+                                : handleSubmit(cancelUserRequest)(requestId)
+                        }
+                        inputPlaceholder={tr('Enter comment if needed')}
+                        warningText={tr('Are you sure you want to cancel this request?')}
+                    />
+                </>
+            ))}
             {nullable(canDecideOnRequest && requestType !== 'decree' && requestType !== 'deactivation', () => (
                 <div className={small && canEditRequest && canDecideOnRequest ? s.Separator : undefined}>
                     <div ref={tooltipRef} className={s.FormActions}>
@@ -162,6 +222,7 @@ export const RequestFormActions = ({
                     ))}
                     {nullable(small, () => (
                         <>
+                            {' '}
                             <Tooltip reference={declineRef} placement="bottom" arrow={false}>
                                 {tr('Decline')}
                             </Tooltip>
@@ -189,66 +250,6 @@ export const RequestFormActions = ({
                         warningText={tr('Are you sure you want to decline this request?')}
                     />
                 </div>
-            ))}
-            {nullable(canEditRequest, () => (
-                <>
-                    {nullable(onEdit, () => (
-                        <div>
-                            <Button
-                                ref={editRef}
-                                className={cn({ [s.EditButton]: !small })}
-                                iconLeft={<IconEditOutline size="s" />}
-                                size={small ? 's' : 'm'}
-                                type="button"
-                                text={small ? undefined : tr('Edit Form')}
-                                view={small ? 'default' : 'ghost'}
-                                onClick={onEdit}
-                                disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
-                            />
-                        </div>
-                    ))}
-
-                    <div ref={tooltipRef}>
-                        <Button
-                            ref={cancelRef}
-                            iconLeft={small && <IconDeniedOutline size="s" />}
-                            size={small ? 's' : 'm'}
-                            view={small ? 'default' : 'danger'}
-                            type="button"
-                            text={small ? undefined : tr('Cancel request')}
-                            onClick={cancelWarningVisible.setTrue}
-                            disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
-                        />
-                    </div>
-                    {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
-                        <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
-                            {tooltipText}
-                        </Tooltip>
-                    ))}
-                    {nullable(small, () => (
-                        <>
-                            <Tooltip reference={cancelRef} placement="bottom" arrow={false}>
-                                {tr('Cancel request')}
-                            </Tooltip>
-                            <Tooltip reference={editRef} placement="bottom" arrow={false}>
-                                {tr('Edit')}
-                            </Tooltip>
-                        </>
-                    ))}
-                    <WarningModal
-                        view="danger"
-                        visible={cancelWarningVisible.value}
-                        onCancel={onCancelCancel}
-                        onInputChange={handleChangeComment}
-                        onConfirm={
-                            requestType === 'deactivation'
-                                ? handleSubmit(cancelScheduledDeactivation)(requestId)
-                                : handleSubmit(cancelUserRequest)(requestId)
-                        }
-                        inputPlaceholder={tr('Enter comment if needed')}
-                        warningText={tr('Are you sure you want to cancel this request?')}
-                    />
-                </>
             ))}
         </div>
     );
