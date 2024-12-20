@@ -25,6 +25,7 @@ export const serviceMethods = {
             where: { serviceName_serviceId: { serviceName: data.serviceName, serviceId: data.serviceId } },
             include: { user: true },
         });
+
         if (userService) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',

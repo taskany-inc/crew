@@ -668,13 +668,15 @@ export const userMethods = {
         }
 
         if (request.personalEmail) {
-            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
+            const emailService = await prisma.externalService.findUnique({ where: { name: 'PersonalEmail' } });
             if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
+
             services.push({ serviceName: emailService.name, serviceId: request.personalEmail });
         }
 
         if (request.workEmail) {
-            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
+            const emailService = await prisma.externalService.findUnique({ where: { name: 'WorkEmail' } });
+
             if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
             services.push({ serviceName: emailService.name, serviceId: request.workEmail });
         }

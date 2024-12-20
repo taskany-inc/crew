@@ -1,6 +1,6 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Text } from '@taskany/bricks/harmony';
 import { nullable } from '@taskany/bricks';
 
@@ -28,19 +28,6 @@ import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 
 import { tr } from './ScheduledDismissalPage.i18n';
 import s from './ScheduledDismissalPage.module.css';
-
-const personalInfoReadOnly: React.ComponentProps<typeof UserFormPersonalDataBlock>['readOnly'] = {
-    firstName: true,
-    surname: true,
-    middleName: true,
-    login: true,
-    corporateEmail: true,
-    email: true,
-    workEmail: true,
-    personalEmail: true,
-    phone: true,
-    title: true,
-};
 
 interface ScheduledDismissalPageProps {
     user: User;
@@ -148,8 +135,23 @@ export const ScheduledDismissalPage = ({
             supplementalPositions,
             surname,
             workEmail,
+            initDevices,
+            initTestingDevices,
         ],
     );
+
+    const personalInfoReadOnly: React.ComponentProps<typeof UserFormPersonalDataBlock>['readOnly'] = {
+        firstName: true,
+        surname: true,
+        middleName: true,
+        login: true,
+        corporateEmail: true,
+        email: true,
+        workEmail: !!defaultValues.workEmail,
+        personalEmail: !!defaultValues.personalEmail,
+        phone: !!phone,
+        title: true,
+    };
 
     const methods = useForm<CreateScheduledDeactivation>({
         resolver: zodResolver(createScheduledDeactivationSchema()),
@@ -159,8 +161,19 @@ export const ScheduledDismissalPage = ({
     const {
         handleSubmit,
         reset,
+        setValue,
         formState: { isSubmitting, isSubmitSuccessful },
     } = methods;
+
+    useEffect(() => {
+        setValue(
+            'testingDevices',
+            userDevices.map((d) => ({ id: d.deviceId, name: d.deviceName })),
+        );
+        phone && setValue('phone', phone);
+        workEmail && setValue('workEmail', workEmail);
+        personalEmail && setValue('personalEmail', personalEmail);
+    }, [userDevices, phone, workEmail, personalEmail, setValue]);
 
     const onSubmit = handleSubmit(async (data) => {
         scheduledDeactivation
