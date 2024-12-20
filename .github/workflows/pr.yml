@@ -12,14 +12,14 @@ on:
       - '**/**.tsx'
 
 env:
-  DATABASE_URL: 'postgresql://user:pass@postgres:5432/crew'
+  DATABASE_URL: 'postgresql://user:pass@testdb:5432/crew'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     container: node:20.9.0-alpine
     services:
-      postgres:
+      testdb:
         image: postgres
         env:
           POSTGRES_USER: user
