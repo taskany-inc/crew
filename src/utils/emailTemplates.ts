@@ -32,6 +32,7 @@ export const scheduledDeactivationEmailHtml = (data: {
     data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit;
     unitId: string;
     teamlead: string;
+    role: string;
     workEmail?: string;
 }) => `
 <head>
@@ -62,7 +63,7 @@ export const scheduledDeactivationEmailHtml = (data: {
         </tr>
         <tr>
             <th>${tr('Role')}</th>
-            <td>${data.data.user.title}</td>
+            <td>${data.role}</td>
         </tr>
         <tr>
             <th>${tr('Work email')}</th>
@@ -126,31 +127,31 @@ export const scheduledDeactivationEmailHtml = (data: {
     }
         <tr>
             <th>${tr('Testing devices')}</th>
-            <td></td>
+            <td>${
+                (data.data.testingDevices as Record<'name' | 'id', string>[])
+                    ?.map(
+                        (d: AdditionalDevice) =>
+                            '<tr>' +
+                            '<th></th>' +
+                            `<td>${tr('Device name')}</td>` +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th></th>' +
+                            `<td>${d.name}</td>` +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th></th>' +
+                            `<td>${tr('Device id')}</td>` +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th></th>' +
+                            `<td>${d.id}</td>` +
+                            '</tr>',
+                    )
+                    .join('') || tr('Did not take any')
+            }</td>
         </tr>
-    ${
-        (data.data.testingDevices as Record<'name' | 'id', string>[])
-            ?.map(
-                (d: AdditionalDevice) =>
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${tr('Device name')}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${d.name}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${tr('Device id')}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${d.id}</td>` +
-                    '</tr>',
-            )
-            .join('') || tr('Did not take any')
-    }
+    
         <tr>
             <th>${tr('Comments')}</th>
             <td>${data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : ''}</td>
