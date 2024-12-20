@@ -21,6 +21,7 @@ import { tr } from './modules.i18n';
 import { userMethods } from './userMethods';
 import { deviceMethods } from './deviceMethods';
 import { historyEventMethods } from './historyEventMethods';
+import { serviceMethods } from './serviceMethods';
 
 const deleteUserDevices = async ({
     userDevices,
@@ -101,12 +102,33 @@ export const scheduledDeactivationMethods = {
                 scheduledDeactivations: true,
                 memberships: { include: { group: true } },
                 devices: true,
+                services: true,
             },
         });
         if (!user) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
                 message: `No user with id ${userId}`,
+            });
+        }
+
+        if (!user.services.find((s) => s.serviceName === 'Phone') && data.phone) {
+            await serviceMethods.addToUser({ userId, serviceId: data.phone, serviceName: 'Phone' });
+        }
+
+        if (!user.services.find((s) => s.serviceName === 'WorkEmail') && data.workEmail) {
+            await serviceMethods.addToUser({
+                userId,
+                serviceId: data.workEmail,
+                serviceName: 'WorkEmail',
+            });
+        }
+
+        if (!user.services.find((s) => s.serviceName === 'PersonalEmail') && data.personalEmail) {
+            await serviceMethods.addToUser({
+                userId,
+                serviceId: data.personalEmail,
+                serviceName: 'PersonalEmail',
             });
         }
 

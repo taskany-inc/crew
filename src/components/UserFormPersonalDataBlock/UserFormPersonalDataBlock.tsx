@@ -184,7 +184,7 @@ export const UserFormPersonalDataBlock = ({
                         size="m"
                         placeholder={tr('Write second name')}
                         outline
-                        value={readOnly && !watch('middleName') ? tr('Not specified') : undefined}
+                        value={getReadOnly('middleName') && !watch('middleName') ? tr('Not specified') : undefined}
                         {...register('middleName', {
                             required: tr('Required field'),
                             onChange: onNameChange,
@@ -270,7 +270,11 @@ export const UserFormPersonalDataBlock = ({
                         >
                             <FormControlInput
                                 readOnly={getReadOnly('personalEmail')}
-                                value={readOnly && !watch('personalEmail') ? tr('Not specified') : undefined}
+                                value={
+                                    getReadOnly('personalEmail') && !watch('personalEmail')
+                                        ? tr('Not specified')
+                                        : undefined
+                                }
                                 autoComplete="off"
                                 size="m"
                                 placeholder="name@mail.com"
@@ -295,7 +299,9 @@ export const UserFormPersonalDataBlock = ({
                         >
                             <FormControlInput
                                 readOnly={getReadOnly('workEmail')}
-                                value={readOnly && !watch('workEmail') ? tr('Not specified') : undefined}
+                                value={
+                                    getReadOnly('workEmail') && !watch('workEmail') ? tr('Not specified') : undefined
+                                }
                                 autoComplete="off"
                                 size="m"
                                 placeholder="email@example.com"
@@ -309,7 +315,11 @@ export const UserFormPersonalDataBlock = ({
                     <FormControl label={tr('Corporate email')} error={errors.corporateEmail}>
                         <FormControlInput
                             readOnly={getReadOnly('corporateEmail')}
-                            value={readOnly && !watch('corporateEmail') ? tr('Not specified') : undefined}
+                            value={
+                                getReadOnly('corporateEmail') && !watch('corporateEmail')
+                                    ? tr('Not specified')
+                                    : undefined
+                            }
                             autoComplete="off"
                             size="m"
                             placeholder="email@example.com"

@@ -66,6 +66,7 @@ const baseSchema = () =>
             .optional(),
         applicationForReturnOfEquipment: z.string().optional(),
         workEmail: z.string().optional(),
+        personalEmail: z.string().optional(),
         groupId: z.string().optional(),
         teamLead: z.string().optional(),
         organizationUnitId: z.string().optional(),
