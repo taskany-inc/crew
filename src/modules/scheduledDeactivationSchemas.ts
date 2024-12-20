@@ -71,6 +71,7 @@ const baseSchema = () =>
         organizationUnitId: z.string().optional(),
         unitIdString: z.string().optional(),
         deactivateDate: z.date().optional(),
+        title: z.string().optional(),
     });
 
 export const createScheduledDeactivationSchema = () =>

@@ -109,7 +109,10 @@ export const ScheduledDismissalPage = ({
             email: user.email,
             login: user.login,
             title:
-                user.title || orgMembership?.roles.map(({ name }) => name).join(', ') || mainSupplementalPosition?.role,
+                orgMembership?.roles.map(({ name }) => name).join(', ') ||
+                user.title ||
+                mainSupplementalPosition?.role ||
+                undefined,
             groupId: orgMembership?.groupId,
             surname,
             firstName,
@@ -226,6 +229,7 @@ export const ScheduledDismissalPage = ({
                                     className={s.FormBlock}
                                     id="team"
                                     type="dismissal"
+                                    defaultGroupId={defaultValues.groupId}
                                 />
 
                                 <UserFormWorkSpaceDismissalFormBlock

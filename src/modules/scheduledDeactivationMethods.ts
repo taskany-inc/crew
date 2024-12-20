@@ -237,6 +237,7 @@ export const scheduledDeactivationMethods = {
                           .map(({ unitId }) => unitId)
                           .join(', ')
                     : restData.unitIdString || '',
+                role: restData.title || '',
                 workEmail: restData.workEmail || '',
             }),
             subject,
@@ -571,6 +572,7 @@ export const scheduledDeactivationMethods = {
                               .map(({ unitId }) => unitId)
                               .join(', ')
                         : restData.unitIdString || '',
+                    role: restData.title || '',
                 }),
                 subject,
                 attachments,

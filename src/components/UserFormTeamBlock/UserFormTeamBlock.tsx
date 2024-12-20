@@ -19,6 +19,7 @@ interface UserFormTeamBlockProps {
     type: 'internal' | 'existing' | 'dismissal';
     readOnly?: boolean;
     userId?: string;
+    defaultGroupId?: string;
 }
 
 interface UserFormTeamBlockType {
@@ -29,7 +30,14 @@ interface UserFormTeamBlockType {
     coordinatorIds: string[];
 }
 
-export const UserFormTeamBlock = ({ className, id, type, readOnly, userId }: UserFormTeamBlockProps) => {
+export const UserFormTeamBlock = ({
+    className,
+    id,
+    type,
+    readOnly,
+    userId,
+    defaultGroupId,
+}: UserFormTeamBlockProps) => {
     const {
         setValue,
         trigger,
@@ -54,6 +62,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly, userId }: Use
     const { data: supervisorGroups = [] } = trpc.group.getListByUserId.useQuery(
         {
             userId: supervisorId,
+            organizational: true,
         },
         {
             enabled: Boolean(supervisorId),
@@ -61,7 +70,7 @@ export const UserFormTeamBlock = ({ className, id, type, readOnly, userId }: Use
     );
 
     useEffect(() => {
-        if (supervisorGroups[0]) {
+        if (supervisorGroups[0] && !defaultGroupId) {
             setValue('groupId', supervisorGroups[0]?.id);
         }
     }, [supervisorGroups]);
