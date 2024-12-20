@@ -28,13 +28,9 @@ export default function ExternalUserCreationRequest({ userId }: { userId: string
     const userServiceQuery = trpc.service.getUserServices.useQuery(userId);
     const phone = userServiceQuery.data?.find((s) => s.serviceName === 'Phone')?.serviceId;
 
-    const workEmail = userServiceQuery.data?.find(
-        (s) => s.serviceName === 'Email' && s.service.type === 'workEmail',
-    )?.serviceId;
+    const workEmail = userServiceQuery.data?.find((s) => s.serviceName === 'WorkEmail')?.serviceId;
 
-    const personalEmail = userServiceQuery.data?.find(
-        (s) => s.serviceName === 'Email' && s.service.type === 'personalEmail',
-    )?.serviceId;
+    const personalEmail = userServiceQuery.data?.find((s) => s.serviceName === 'PersonalEmail')?.serviceId;
 
     if (!user) return null;
 

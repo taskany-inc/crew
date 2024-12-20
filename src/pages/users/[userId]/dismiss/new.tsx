@@ -28,13 +28,12 @@ export const getServerSideProps = createGetServerSideProps({
                 },
             };
         }
-        const userServiceQuery = await ssg.service.getUserServices.fetch(stringIds.userId);
-        const phone = userServiceQuery.find((s) => s.serviceName === 'Phone')?.serviceId;
 
-        return { userId: stringIds.userId, phone };
+        return { userId: stringIds.userId };
     },
 });
-export default function ExternalUserCreationRequest({ userId, phone }: { userId: string; phone?: string }) {
+
+export default function ExternalUserCreationRequest({ userId }: { userId: string }) {
     const { data: user } = trpc.user.getById.useQuery(userId);
     const userDeviceQuery = trpc.device.getUserDevices.useQuery(userId);
 
@@ -42,13 +41,10 @@ export default function ExternalUserCreationRequest({ userId, phone }: { userId:
 
     const userServiceQuery = trpc.service.getUserServices.useQuery(userId);
 
-    const workEmail = userServiceQuery.data?.find(
-        (s) => s.serviceName === 'Email' && s.service.type === 'workEmail',
-    )?.serviceId;
+    const phone = userServiceQuery.data?.find((s) => s.serviceName === 'Phone')?.serviceId;
+    const workEmail = userServiceQuery.data?.find((s) => s.serviceName === 'WorkEmail')?.serviceId;
 
-    const personalEmail = userServiceQuery.data?.find(
-        (s) => s.serviceName === 'Email' && s.service.type === 'personalEmail',
-    )?.serviceId;
+    const personalEmail = userServiceQuery.data?.find((s) => s.serviceName === 'PersonalEmail')?.serviceId;
 
     if (!user) return null;
 
