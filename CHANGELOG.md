@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.104.0](https://github.com/taskany-inc/crew/compare/v0.103.0...v0.104.0) (2024-12-23)
+
+
+### Features
+
+* **INTERNAL-1429:** extended structure parse report ([db6d190](https://github.com/taskany-inc/crew/commit/db6d19033dc9eb838759fdbdbb1d8af1c05169bb))
+
+
+### Bug Fixes
+
+* default group and mail text fixes ([caf6fc5](https://github.com/taskany-inc/crew/commit/caf6fc5925fe0c6c74de9092091a3f837b615501))
+
 ## [0.103.0](https://github.com/taskany-inc/crew/compare/v0.102.0...v0.103.0) (2024-12-19)
 
 
