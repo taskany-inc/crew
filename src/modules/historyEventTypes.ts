@@ -6,6 +6,8 @@ interface HistoryEventsData {
         data: {
             name?: string;
             email: string;
+            personalEmail?: string;
+            workEmail?: string;
             phone?: string;
             login?: string;
             organizationalUnitId?: string;
@@ -23,6 +25,8 @@ interface HistoryEventsData {
             savePreviousName?: boolean;
             supervisorId?: string;
             email?: string;
+            personalEmail?: string;
+            workEmail?: string;
             phone?: string;
             login?: string;
             organizationalUnitId?: string;
@@ -116,6 +120,8 @@ interface HistoryEventsData {
             name?: string;
             email?: string;
             comment?: string;
+            personalEmail?: string;
+            workEmail?: string;
         };
     };
     declineUserCreationRequest: {
@@ -127,6 +133,8 @@ interface HistoryEventsData {
             name: string;
             email: string;
             comment?: string;
+            personalEmail?: string;
+            workEmail?: string;
         };
     };
     editUserCreationRequest: {
@@ -390,6 +398,8 @@ interface HistoryEventsData {
             phone: string;
             deactivateDate: Date;
             email: string;
+            personalEmail?: string;
+            workEmail?: string;
             unitId?: number;
             unitIdString?: string;
             teamLead?: string;
@@ -421,6 +431,8 @@ interface HistoryEventsData {
             phone?: string;
             deactivateDate?: Date;
             email?: string;
+            personalEmail?: string;
+            workEmail?: string;
             unitId?: number;
             unitIdString?: string;
             teamLead?: string;
@@ -500,7 +512,14 @@ export type HistoryEventData<
     E extends HistoryEventsData[A] = HistoryEventsData[A],
 > = {
     id: string;
-    actingUser?: { id: string; name: string | null; email: string; active?: boolean } | null;
+    actingUser?: {
+        id: string;
+        name: string | null;
+        email: string;
+        personalEmail?: string;
+        workEmail?: string;
+        active?: boolean;
+    } | null;
     actingToken?: { description: string } | null;
     actingSubsystem?: string | null;
     group: E['requireGroupId'] extends true ? { id: string; name: string } : null;

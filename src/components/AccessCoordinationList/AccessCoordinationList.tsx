@@ -70,7 +70,7 @@ export const AccessCoordinationList = () => {
 
     const data: tableData[] = userRequests.map((request) => ({
         name: request.name,
-        email: request.email,
+        email: request.corporateEmail || request.personalEmail || request.email,
         login: request.login,
         phone: request.services?.find((s) => s.serviceName === 'Phone')?.serviceId || '',
         organization: getOrgUnitTitle(request.organization),
