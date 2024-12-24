@@ -127,6 +127,8 @@ interface HistoryEventsData {
             name: string;
             email: string;
             comment?: string;
+            personalEmail?: string;
+            workEmail?: string;
         };
     };
     editUserCreationRequest: {
@@ -396,6 +398,8 @@ interface HistoryEventsData {
             phone: string;
             deactivateDate: Date;
             email: string;
+            personalEmail?: string;
+            workEmail?: string;
             unitId?: number;
             unitIdString?: string;
             teamLead?: string;
@@ -427,6 +431,8 @@ interface HistoryEventsData {
             phone?: string;
             deactivateDate?: Date;
             email?: string;
+            personalEmail?: string;
+            workEmail?: string;
             unitId?: number;
             unitIdString?: string;
             teamLead?: string;
