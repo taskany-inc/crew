@@ -26,5 +26,9 @@
 .IconTick {
     color: var(--link0);
     align-self: start;
-    margin-top: var(--gap-xs);
+    margin-top: var(--gap-xxs);
+}
+
+.Modal {
+    max-width: 530px;
 }

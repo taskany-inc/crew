@@ -68,7 +68,7 @@ export const CreateUserModal = ({ visible, onClose }: CreateUserModalProps) => {
 
     const router = useRouter();
     return (
-        <Modal visible={visible} onClose={onClose} width={530}>
+        <Modal className={s.Modal} visible={visible} onClose={onClose} width={530}>
             <ModalHeader>
                 <Text weight="bold">{tr('Which request you want to create?')}</Text>
             </ModalHeader>
