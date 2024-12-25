@@ -3,6 +3,7 @@ import { UserRoleDeprecated } from 'prisma/prisma-client';
 import { hashPassword } from '../src/utils/passwords';
 import { prisma } from '../src/utils/prisma';
 import { AccessOperation } from '../src/utils/access';
+import { ExternalServiceName } from '../src/utils/externalServices';
 
 const main = async () => {
     const adminEmail = 'admin@taskany.org';
@@ -95,15 +96,15 @@ const main = async () => {
     });
 
     const servicesData = [
-        { name: 'Email', icon: 'IconEnvelopeOutline', linkPrefix: 'mailto:' },
-        { name: 'WorkEmail', icon: 'IconEnvelopeOutline', linkPrefix: 'mailto:' },
-        { name: 'PersonalEmail', icon: 'IconEnvelopeOutline', linkPrefix: 'mailto:' },
-        { name: 'Phone', icon: 'IconPhoneOutline', linkPrefix: 'tel:' },
-        { name: 'Github', icon: 'IconGithubOutline', linkPrefix: 'https://github.com/' },
-        { name: 'Gitlab', icon: 'IconGitlabOutline', linkPrefix: 'https://gitlab.com/' },
-        { name: 'Telegram', icon: 'IconTelegramOutline', linkPrefix: 'https://t.me/' },
-        { name: 'Accounting system', icon: 'IconCalculatorOutline' },
-        { name: 'ServiceNumber', icon: 'IconReceiptOutline' },
+        { name: ExternalServiceName.Email, icon: 'IconEnvelopeOutline', linkPrefix: 'mailto:' },
+        { name: ExternalServiceName.WorkEmail, icon: 'IconEnvelopeOutline', linkPrefix: 'mailto:' },
+        { name: ExternalServiceName.PersonalEmail, icon: 'IconEnvelopeOutline', linkPrefix: 'mailto:' },
+        { name: ExternalServiceName.Phone, icon: 'IconPhoneOutline', linkPrefix: 'tel:' },
+        { name: ExternalServiceName.Github, icon: 'IconGithubOutline', linkPrefix: 'https://github.com/' },
+        { name: ExternalServiceName.Gitlab, icon: 'IconGitlabOutline', linkPrefix: 'https://gitlab.com/' },
+        { name: ExternalServiceName.Telegram, icon: 'IconTelegramOutline', linkPrefix: 'https://t.me/' },
+        { name: ExternalServiceName.AccountingSystem, icon: 'IconCalculatorOutline' },
+        { name: ExternalServiceName.ServiceNumber, icon: 'IconReceiptOutline' },
     ];
 
     await prisma.externalService.createMany({ data: servicesData });

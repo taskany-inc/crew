@@ -2,6 +2,7 @@ import { historyEventMethods } from '../modules/historyEventMethods';
 import { userMethods } from '../modules/userMethods';
 import { userCreationRequestsMethods } from '../modules/userCreationRequestMethods';
 import { prisma } from '../utils/prisma';
+import { ExternalServiceName, findService } from '../utils/externalServices';
 
 import { JobDataMap } from './create';
 
@@ -18,7 +19,7 @@ export const scheduledDeactivation = async ({ userId }: JobDataMap['scheduledDea
 export const createProfile = async ({ userCreationRequestId }: JobDataMap['createProfile']) => {
     const user = await userMethods.createUserFromRequest(userCreationRequestId);
 
-    const phone = user.services.find((service) => service.serviceName === 'Phone')?.serviceId;
+    const phone = findService(ExternalServiceName.Phone, user.services);
 
     await historyEventMethods.create({ subsystem: 'Scheduled profile creation' }, 'createUser', {
         userId: user.id,
@@ -40,7 +41,7 @@ export const resolveDecree = async ({ userCreationRequestId }: JobDataMap['creat
 
     const user = await userMethods.resolveDecreeRequest(userCreationRequestId);
 
-    const phone = user.services.find((service) => service.serviceName === 'Phone')?.serviceId;
+    const phone = findService(ExternalServiceName.Phone, user.services);
 
     await historyEventMethods.create({ subsystem: 'Scheduled profile management' }, 'resolveUserDecreeRequest', {
         userId: user.id,

@@ -19,6 +19,7 @@ import { DecreeForm } from '../DecreeForm/DecreeForm';
 import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
 import { trpc } from '../../trpc/trpcClient';
 import { useRouter } from '../../hooks/useRouter';
+import { ExternalServiceName } from '../../utils/externalServices';
 
 interface CreateDecreeFormProps {
     user: NonNullable<
@@ -60,10 +61,10 @@ export const CreateDecreeForm: FC<CreateDecreeFormProps> = ({ user, type, onSubm
                     return acum;
                 }
 
-                if (item.serviceName === 'Phone' && !acum.phone) {
+                if (item.serviceName === ExternalServiceName.Phone && !acum.phone) {
                     acum.phone = item.serviceId;
                 }
-                if (item.serviceName === 'Email' && !acum.personalEmail) {
+                if (item.serviceName === ExternalServiceName.Email && !acum.personalEmail) {
                     acum.personalEmail = item.serviceId;
                 }
 

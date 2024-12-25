@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { ExternalServiceName } from '../utils/externalServices';
+
 import { tr } from './modules.i18n';
 
 export const createServiceSchema = z.object({
@@ -15,7 +17,7 @@ export const createServiceSchema = z.object({
                 })
                 .join(''),
         }),
-    serviceName: z.string({
+    serviceName: z.nativeEnum(ExternalServiceName, {
         invalid_type_error: tr('Choose a service'),
         required_error: tr('Choose a service'),
     }),

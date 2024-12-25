@@ -1,6 +1,8 @@
 import СyrillicToTranslit from 'cyrillic-to-translit-js';
 import { UserCreationRequest } from '@prisma/client';
 
+import { ExternalServiceName, findService } from './externalServices';
+
 interface LoginAutoType {
     firstName?: string;
     middleName?: string;
@@ -14,6 +16,4 @@ export const loginAuto = ({ firstName, middleName, surname = '' }: LoginAutoType
 };
 
 export const userCreationRequestPhone = (request: UserCreationRequest) =>
-    (request.services as Record<'serviceName' | 'serviceId', string>[]).find(
-        (service) => service.serviceName === 'Phone',
-    )?.serviceId || '';
+    findService(ExternalServiceName.Phone, request.services as Record<'serviceName' | 'serviceId', string>[]) || '';

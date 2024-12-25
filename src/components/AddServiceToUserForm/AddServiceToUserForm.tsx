@@ -8,6 +8,7 @@ import { IconPlusCircleSolid } from '@taskany/icons';
 import { trpc } from '../../trpc/trpcClient';
 import { InlineTrigger } from '../InlineTrigger';
 import { useServiceMutations } from '../../modules/serviceHooks';
+import { ExternalServiceName } from '../../utils/externalServices';
 
 import { tr } from './AddServiceToUserForm.i18n';
 
@@ -40,7 +41,7 @@ export const AddServiceToUserForm = ({ userId }: ServicesFormProps) => {
         await addServiceToUser({
             serviceId,
             userId,
-            serviceName: selectedService.name,
+            serviceName: selectedService.name as ExternalServiceName,
         });
         onReset();
     };

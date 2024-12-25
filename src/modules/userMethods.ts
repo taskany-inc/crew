@@ -7,6 +7,7 @@ import { suggestionsTake } from '../utils/suggestions';
 import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
 import { calculateDiffBetweenArrays } from '../utils/calculateDiffBetweenArrays';
+import { ExternalServiceName, findService } from '../utils/externalServices';
 
 import {
     MembershipInfo,
@@ -533,7 +534,7 @@ export const userMethods = {
         const serviceNumberService = await prisma.userService.findFirst({
             where: {
                 userId: user.id,
-                serviceName: 'ServiceNumber',
+                serviceName: ExternalServiceName.ServiceNumber,
                 organizationUnitId: user.organizationUnitId ?? undefined,
             },
         });
@@ -542,13 +543,13 @@ export const userMethods = {
             prisma.userService.findFirst({
                 where: {
                     userId: user.id,
-                    serviceName: 'Phone',
+                    serviceName: ExternalServiceName.Phone,
                 },
             }),
             prisma.userService.findFirst({
                 where: {
                     userId: user.id,
-                    serviceName: 'AccountingId',
+                    serviceName: ExternalServiceName.AccountingSystem,
                 },
             }),
         ]);
@@ -662,22 +663,30 @@ export const userMethods = {
         const services = request.services as { serviceId: string; serviceName: string }[];
 
         if (request.corporateEmail && !request.email) {
-            const emailService = await prisma.externalService.findUnique({ where: { name: 'Email' } });
+            const emailService = await prisma.externalService.findUnique({
+                where: { name: ExternalServiceName.Email },
+            });
             if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
             services.push({ serviceName: emailService.name, serviceId: request.email });
         }
 
         if (request.personalEmail) {
-            const emailService = await prisma.externalService.findUnique({ where: { name: 'PersonalEmail' } });
-            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
+            const emailService = await prisma.externalService.findUnique({
+                where: { name: ExternalServiceName.PersonalEmail },
+            });
+            if (!emailService) {
+                throw new TRPCError({ code: 'BAD_REQUEST', message: 'Personal email service not found' });
+            }
 
             services.push({ serviceName: emailService.name, serviceId: request.personalEmail });
         }
 
         if (request.workEmail) {
-            const emailService = await prisma.externalService.findUnique({ where: { name: 'WorkEmail' } });
+            const emailService = await prisma.externalService.findUnique({
+                where: { name: ExternalServiceName.WorkEmail },
+            });
 
-            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email service not found' });
+            if (!emailService) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Work email service not found' });
             services.push({ serviceName: emailService.name, serviceId: request.workEmail });
         }
 
@@ -691,7 +700,7 @@ export const userMethods = {
                 });
             }
 
-            const phone = services.find((service) => service.serviceName === 'Phone')?.serviceId;
+            const phone = findService(ExternalServiceName.Phone, services);
 
             if (!phone) {
                 throw new TRPCError({ code: 'BAD_REQUEST', message: 'Phone service is required' });
