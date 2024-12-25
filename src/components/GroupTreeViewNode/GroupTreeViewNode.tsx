@@ -17,7 +17,7 @@ const GroupRow = ({ group }: { group: Group & { supervisor: User | null } }) => 
                 <Text className={s.GroupName} size="l">
                     {group.name}
                 </Text>
-                <HarmonyUser className={s.User} email={group.supervisor?.email} name={group.supervisor?.name} />
+                <HarmonyUser email={group.supervisor?.email} name={group.supervisor?.name} />
             </div>
         </Link>
     );
