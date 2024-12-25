@@ -19,6 +19,7 @@ import { percentageMultiply } from '../utils/suplementPosition';
 import { PositionStatus } from '../generated/kyselyTypes';
 import { userCreationRequestPhone } from '../utils/createUserCreationRequest';
 import { pages } from '../hooks/useRouter';
+import { ExternalServiceName, findService } from '../utils/externalServices';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
@@ -71,8 +72,8 @@ export const userCreationRequestsMethods = {
         data.date && data.date.setUTCHours(config.employmentUtcHour);
 
         const [phoneService, accountingService] = await Promise.all([
-            prisma.externalService.findUnique({ where: { name: 'Phone' } }),
-            prisma.externalService.findUnique({ where: { name: 'Accounting system' } }),
+            prisma.externalService.findUnique({ where: { name: ExternalServiceName.Phone } }),
+            prisma.externalService.findUnique({ where: { name: ExternalServiceName.AccountingSystem } }),
         ]);
 
         const servicesData: { serviceName: string; serviceId: string }[] = [];
@@ -581,9 +582,7 @@ export const userCreationRequestsMethods = {
 
         const fullNameArray = name.split(' ');
 
-        const s = services as { serviceId: string; serviceName: string }[];
-
-        const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
+        const phone = findService(ExternalServiceName.Phone, services as { serviceId: string; serviceName: string }[]);
 
         if (
             !date ||
@@ -688,9 +687,7 @@ export const userCreationRequestsMethods = {
 
         const fullNameArray = name.split(' ');
 
-        const s = services as { serviceId: string; serviceName: string }[];
-
-        const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
+        const phone = findService(ExternalServiceName.Phone, services as { serviceId: string; serviceName: string }[]);
 
         if (!title || !workEmail || !corporateEmail || !phone || reasonToGrantPermissionToServices === null) {
             throw new TRPCError({
@@ -758,8 +755,8 @@ export const userCreationRequestsMethods = {
         editData.date && editData.date.setUTCHours(config.employmentUtcHour);
 
         const [phoneService, accountingService] = await Promise.all([
-            prisma.externalService.findUnique({ where: { name: 'Phone' } }),
-            prisma.externalService.findUnique({ where: { name: 'Accounting system' } }),
+            prisma.externalService.findUnique({ where: { name: ExternalServiceName.Phone } }),
+            prisma.externalService.findUnique({ where: { name: ExternalServiceName.AccountingSystem } }),
         ]);
         const servicesData: { serviceName: string; serviceId: string }[] = [];
         if (phoneService) {
@@ -1488,9 +1485,7 @@ export const userCreationRequestsMethods = {
 
         const fullNameArray = name.split(' ');
 
-        const s = services as { serviceId: string; serviceName: string }[];
-
-        const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
+        const phone = findService(ExternalServiceName.Phone, services as { serviceId: string; serviceName: string }[]);
 
         if (!date || !title || !phone || !supervisorId || !workMode || !equipment || !location || !creationCause) {
             throw new TRPCError({
@@ -1603,7 +1598,7 @@ export const userCreationRequestsMethods = {
 
         const s = userTarget?.services as { serviceId: string; serviceName: string }[];
 
-        const phone = s.find((service) => service.serviceName === 'Phone')?.serviceId;
+        const phone = findService(ExternalServiceName.Phone, s);
 
         if (
             !userTarget ||

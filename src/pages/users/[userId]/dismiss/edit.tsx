@@ -2,6 +2,7 @@ import { ScheduledDismissalPage } from '../../../../components/ScheduledDismissa
 import { pages } from '../../../../hooks/useRouter';
 import { trpc } from '../../../../trpc/trpcClient';
 import { createGetServerSideProps } from '../../../../utils/createGetSSRProps';
+import { ExternalServiceName, findService } from '../../../../utils/externalServices';
 
 export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
@@ -26,11 +27,11 @@ export default function ExternalUserCreationRequest({ userId }: { userId: string
     const userDevices = userDeviceQuery.data || [];
 
     const userServiceQuery = trpc.service.getUserServices.useQuery(userId);
-    const phone = userServiceQuery.data?.find((s) => s.serviceName === 'Phone')?.serviceId;
 
-    const workEmail = userServiceQuery.data?.find((s) => s.serviceName === 'WorkEmail')?.serviceId;
+    const phone = findService(ExternalServiceName.Phone, userServiceQuery.data);
+    const workEmail = findService(ExternalServiceName.WorkEmail, userServiceQuery.data);
 
-    const personalEmail = userServiceQuery.data?.find((s) => s.serviceName === 'PersonalEmail')?.serviceId;
+    const personalEmail = findService(ExternalServiceName.PersonalEmail, userServiceQuery.data);
 
     if (!user) return null;
 

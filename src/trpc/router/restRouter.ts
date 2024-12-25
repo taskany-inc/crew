@@ -22,6 +22,7 @@ import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFro
 import { searchMethods } from '../../modules/searchMethods';
 import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { config } from '../../config';
+import { ExternalServiceName } from '../../utils/externalServices';
 
 import { tr } from './router.i18n';
 
@@ -103,7 +104,7 @@ export const restRouter = router({
             const phoneService = await prisma.userService.findFirst({
                 where: {
                     userId: user.id,
-                    serviceName: 'Phone',
+                    serviceName: ExternalServiceName.Phone,
                 },
             });
 
@@ -112,12 +113,12 @@ export const restRouter = router({
                     await prisma.userService.update({
                         where: {
                             serviceName_serviceId: {
-                                serviceName: 'Phone',
+                                serviceName: ExternalServiceName.Phone,
                                 serviceId: phoneService.serviceId,
                             },
                         },
                         data: {
-                            serviceName: 'Phone',
+                            serviceName: ExternalServiceName.Phone,
                             serviceId: input.data.phone,
                         },
                     });
@@ -125,7 +126,7 @@ export const restRouter = router({
                     await prisma.userService.create({
                         data: {
                             userId: user.id,
-                            serviceName: 'Phone',
+                            serviceName: ExternalServiceName.Phone,
                             serviceId: input.data.phone,
                         },
                     });

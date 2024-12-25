@@ -10,6 +10,7 @@ import { historyEventMethods } from '../modules/historyEventMethods';
 import { prisma } from './prisma';
 import { verifyPassword } from './passwords';
 import { dropUnchangedValuesFromEvent } from './dropUnchangedValuesFromEvents';
+import { ExternalServiceName } from './externalServices';
 
 const providers: NextAuthOptions['providers'] = [];
 
@@ -113,11 +114,15 @@ export const authOptions: NextAuthOptions = {
                     before,
                     after,
                 });
-                if (existingUser.services.find((s) => s.serviceName === 'Email' && s.serviceId === mainEmail)) {
+                if (
+                    existingUser.services.find(
+                        (s) => s.serviceName === ExternalServiceName.Email && s.serviceId === mainEmail,
+                    )
+                ) {
                     await prisma.userService.update({
                         where: {
                             userId: existingUser.id,
-                            serviceName_serviceId: { serviceName: 'Email', serviceId: mainEmail },
+                            serviceName_serviceId: { serviceName: ExternalServiceName.Email, serviceId: mainEmail },
                         },
                         data: { serviceId: secondaryEmail },
                     });

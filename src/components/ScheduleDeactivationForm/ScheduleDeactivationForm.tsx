@@ -45,6 +45,7 @@ import { attachFormatter } from '../../utils/attachFormatter';
 import { FormControlEditor } from '../FormControlEditorForm/FormControlEditorForm';
 import { FormControl } from '../FormControl/FormControl';
 import { WorkModeCombobox } from '../WorkModeCombobox/WorkModeCombobox';
+import { ExternalServiceName, findService } from '../../utils/externalServices';
 
 import { tr } from './ScheduleDeactivationForm.i18n';
 
@@ -112,7 +113,7 @@ export const ScheduleDeactivationForm = ({
         (scheduledDeactivation?.devices && JSON.parse(scheduledDeactivation.devices as string)) || [];
 
     const userServiceQuery = trpc.service.getUserServices.useQuery(userId);
-    const phone = userServiceQuery.data?.find((s) => s.serviceName === 'Phone')?.serviceId;
+    const phone = findService(ExternalServiceName.Phone, userServiceQuery.data);
 
     const defaultValuesBase = {
         userId,

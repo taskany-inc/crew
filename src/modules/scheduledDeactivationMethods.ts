@@ -9,6 +9,7 @@ import { createJob } from '../worker/create';
 import { scheduledDeactivationEmailHtml } from '../utils/emailTemplates';
 import { getActiveScheduledDeactivation } from '../utils/getActiveScheduledDeactivation';
 import { percentageMultiply } from '../utils/suplementPosition';
+import { ExternalServiceName, findService } from '../utils/externalServices';
 
 import {
     CreateScheduledDeactivation,
@@ -112,23 +113,23 @@ export const scheduledDeactivationMethods = {
             });
         }
 
-        if (!user.services.find((s) => s.serviceName === 'Phone') && data.phone) {
-            await serviceMethods.addToUser({ userId, serviceId: data.phone, serviceName: 'Phone' });
+        if (!findService(ExternalServiceName.Phone, user.services) && data.phone) {
+            await serviceMethods.addToUser({ userId, serviceId: data.phone, serviceName: ExternalServiceName.Phone });
         }
 
-        if (!user.services.find((s) => s.serviceName === 'WorkEmail') && data.workEmail) {
+        if (!findService(ExternalServiceName.WorkEmail, user.services) && data.workEmail) {
             await serviceMethods.addToUser({
                 userId,
                 serviceId: data.workEmail,
-                serviceName: 'WorkEmail',
+                serviceName: ExternalServiceName.WorkEmail,
             });
         }
 
-        if (!user.services.find((s) => s.serviceName === 'PersonalEmail') && data.personalEmail) {
+        if (!findService(ExternalServiceName.PersonalEmail, user.services) && data.personalEmail) {
             await serviceMethods.addToUser({
                 userId,
                 serviceId: data.personalEmail,
-                serviceName: 'PersonalEmail',
+                serviceName: ExternalServiceName.PersonalEmail,
             });
         }
 

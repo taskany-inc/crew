@@ -2,6 +2,7 @@ import { ScheduledDismissalPage } from '../../../../components/ScheduledDismissa
 import { pages } from '../../../../hooks/useRouter';
 import { trpc } from '../../../../trpc/trpcClient';
 import { createGetServerSideProps } from '../../../../utils/createGetSSRProps';
+import { ExternalServiceName, findService } from '../../../../utils/externalServices';
 import { getActiveScheduledDeactivation } from '../../../../utils/getActiveScheduledDeactivation';
 
 export const getServerSideProps = createGetServerSideProps({
@@ -42,11 +43,10 @@ export default function ExternalUserCreationRequest({ userId }: { userId: string
 
     const userServiceQuery = trpc.service.getUserServices.useQuery(userId);
 
-    const phone = userServiceQuery.data?.find((s) => s.serviceName === 'Phone')?.serviceId;
+    const phone = findService(ExternalServiceName.Phone, userServiceQuery.data);
+    const workEmail = findService(ExternalServiceName.WorkEmail, userServiceQuery.data);
 
-    const workEmail = userServiceQuery.data?.find((s) => s.serviceName === 'WorkEmail')?.serviceId;
-
-    const personalEmail = userServiceQuery.data?.find((s) => s.serviceName === 'PersonalEmail')?.serviceId;
+    const personalEmail = findService(ExternalServiceName.PersonalEmail, userServiceQuery.data);
 
     if (!user) return null;
 

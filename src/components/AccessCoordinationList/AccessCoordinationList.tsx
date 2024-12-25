@@ -8,6 +8,7 @@ import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesMa
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
+import { ExternalServiceName, findService } from '../../utils/externalServices';
 
 import s from './AccessCoordinationList.module.css';
 import { tr } from './AccessCoordinationList.i18n';
@@ -72,7 +73,7 @@ export const AccessCoordinationList = () => {
         name: request.name,
         email: request.email,
         login: request.login,
-        phone: request.services?.find((s) => s.serviceName === 'Phone')?.serviceId || '',
+        phone: findService(ExternalServiceName.Phone, request.services || undefined) || '',
         organization: getOrgUnitTitle(request.organization),
         title: request.title || '',
         lineManagers: request.lineManagers.map(({ name }) => name).join(', '),
