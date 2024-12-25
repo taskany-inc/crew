@@ -167,7 +167,7 @@ const main = async () => {
 
     const rootOrgGroup = await prisma.group.findFirst({ where: { parentId: null, organizational: true } });
 
-    await prisma.appConfig.create({ data: { orgGroupId: rootOrgGroup?.id } });
+    await prisma.appConfig.create({ data: { orgGroupId: rootOrgGroup?.id, orgGroupUpdatedAt: new Date() } });
 };
 
 main();

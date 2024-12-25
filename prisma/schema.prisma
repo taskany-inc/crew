@@ -248,9 +248,9 @@ model UserRole {
   tokens ApiToken[]
 
   // TODO: remove
-  createUser                Boolean @default(false)
-  editRoleScopes            Boolean @default(false)
-  editUserRole              Boolean @default(false)
+  createUser     Boolean @default(false)
+  editRoleScopes Boolean @default(false)
+  editUserRole   Boolean @default(false)
 
   // TODO: remove
   editUserCreationRequests  Boolean @default(false)
@@ -265,19 +265,19 @@ model UserRole {
 
   decideOnUserCreationRequest Boolean @default(false)
 
-  createExistingUserRequest  Boolean @default(false)
+  createExistingUserRequest Boolean @default(false)
 
-  createInternalUserRequest  Boolean @default(false)
-  readManyInternalUserRequests  Boolean @default(false)
-  editInternalUserRequest  Boolean @default(false)
+  createInternalUserRequest    Boolean @default(false)
+  readManyInternalUserRequests Boolean @default(false)
+  editInternalUserRequest      Boolean @default(false)
 
-  createExternalUserRequest  Boolean @default(false)
-  readManyExternalUserRequests  Boolean @default(false)
-  editExternalUserRequest  Boolean @default(false)
+  createExternalUserRequest    Boolean @default(false)
+  readManyExternalUserRequests Boolean @default(false)
+  editExternalUserRequest      Boolean @default(false)
 
-  createExternalFromMainUserRequest  Boolean @default(false)
-  readManyExternalFromMainUserRequests  Boolean @default(false)
-  editExternalFromMainUserRequest  Boolean @default(false)
+  createExternalFromMainUserRequest    Boolean @default(false)
+  readManyExternalFromMainUserRequests Boolean @default(false)
+  editExternalFromMainUserRequest      Boolean @default(false)
 
   editFullGroupTree Boolean @default(false)
 
@@ -618,10 +618,12 @@ enum VacancyStatus {
 }
 
 model AppConfig {
-  id         String  @id @default(cuid())
-  favicon    String?
-  logo       String?
-  orgGroupId String?
+  id      String  @id @default(cuid())
+  favicon String?
+  logo    String?
+
+  orgGroupId        String?
+  orgGroupUpdatedAt DateTime?
 }
 
 model Achievement {
