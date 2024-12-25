@@ -23,10 +23,6 @@ const StyledCommonHeaderSubtitle = styled(Text)`
     padding-top: ${gapS};
 `;
 
-const StyledCommonHeaderTitle = styled(Text)`
-    width: 850px;
-`;
-
 const StyledDescription = styled(Text)<{ truncate: boolean }>`
     width: 850px;
     padding-top: ${gapS};
@@ -64,9 +60,9 @@ export const CommonHeader: React.FC<CommonHeaderProps> = ({
                 </StyledCommonHeaderSubtitle>
             ))}
 
-            <StyledCommonHeaderTitle size="xxl" weight="bolder">
+            <Text size="xxl" weight="bolder">
                 {title}
-            </StyledCommonHeaderTitle>
+            </Text>
 
             {nullable(description, (d) => (
                 <StyledDescription size="m" color={gray6} truncate={truncateDescription} onClick={toggleDescription}>

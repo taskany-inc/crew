@@ -3,6 +3,7 @@ import { Group } from 'prisma/prisma-client';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import { Dropdown, TabsMenu, TabsMenuItem, nullable } from '@taskany/bricks';
+import { Text } from '@taskany/bricks/harmony';
 import { gapL, gray8 } from '@taskany/colors';
 import { IconMoreHorizontalOutline } from '@taskany/icons';
 
@@ -14,7 +15,10 @@ import { pages } from '../../hooks/useRouter';
 import { GroupBreadcrumbListItem } from '../GroupBreadcrumbListItem';
 import { OrganizationUserGroupSwitch } from '../OrganizationUserGroupSwitch/OrganizationUserGroupSwitch';
 import { useAppConfig } from '../../contexts/appConfigContext';
+import { formatDate } from '../../utils/dateTime';
+import { useLocale } from '../../hooks/useLocale';
 
+import s from './TeamPageHeader.module.css';
 import { tr } from './TeamPageHeader.i18n';
 
 interface TeamPageHeaderProps {
@@ -33,6 +37,7 @@ type Options = Array<[string, string]>;
 
 export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
     const router = useRouter();
+    const locale = useLocale();
 
     const appConfig = useAppConfig();
 
@@ -46,6 +51,8 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
         }
         return options;
     }, [group.id, group.meta.isEditable]);
+
+    const isOrgGroup = group.id === appConfig?.orgGroupId;
 
     return (
         <>
@@ -64,12 +71,21 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
                         <Link href={pages.team(parent.id)}>{parent.name}</Link>
                     </>
                 ))}
-                title={group.name}
+                title={
+                    <div className={s.TeamPageHeaderDate}>
+                        {group.name}
+                        {nullable(isOrgGroup && appConfig?.orgGroupUpdatedAt, (d) => (
+                            <Text size="m">
+                                {tr('Updated at:')} {formatDate(d, locale)}
+                            </Text>
+                        ))}
+                    </div>
+                }
                 description={group.description}
             />
 
             {nullable(
-                group.id === appConfig?.orgGroupId,
+                isOrgGroup,
                 () => (
                     <OrganizationUserGroupSwitch value="org" />
                 ),
