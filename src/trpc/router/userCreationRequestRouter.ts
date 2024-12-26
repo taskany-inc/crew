@@ -602,7 +602,7 @@ export const userCreationRequestRouter = router({
             checkRoleForAccess(ctx.session.user.role, 'readManyInternalUserRequests'),
         );
         {
-            const allowedTypes: string[] = [];
+            const allowedTypes: string[] = ['toDecree', 'fromDecree'];
             if (ctx.session.user.role?.readManyExternalFromMainUserRequests) {
                 allowedTypes.push('externalFromMainOrgEmployee');
             }
@@ -614,7 +614,10 @@ export const userCreationRequestRouter = router({
             if (ctx.session.user.role?.readManyInternalUserRequests) {
                 allowedTypes.push('internalEmployee');
             }
-            return userCreationRequestsMethods.getList({ ...input, type: allowedTypes });
+
+            const type = input.type ? input.type.filter((t) => allowedTypes.includes(t)) : allowedTypes;
+
+            return userCreationRequestsMethods.getList({ ...input, type });
         }
     }),
 
