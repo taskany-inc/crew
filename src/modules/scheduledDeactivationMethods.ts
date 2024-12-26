@@ -524,7 +524,11 @@ export const scheduledDeactivationMethods = {
                 await prisma.job.deleteMany({ where: { id: { in: jobIds } } });
             }
 
-            if (scheduledDeactivationBeforeUpdate.deactivateDate !== scheduledDeactivation.deactivateDate) {
+            if (
+                scheduledDeactivationBeforeUpdate.deactivateDate.getTime() !==
+                scheduledDeactivation.deactivateDate.getTime()
+            ) {
+                scheduledDeactivation.deactivateDate.setUTCHours(config.deactivateJobUtcHour);
                 await prisma.job.update({
                     where: { id: scheduledDeactivationBeforeUpdate.jobId },
                     data: { date: scheduledDeactivation.deactivateDate },
