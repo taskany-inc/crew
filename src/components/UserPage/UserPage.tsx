@@ -232,9 +232,9 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             </Text>
                         ),
                     )}
-                    <Text size="xxl" weight="bold" color={user.active && hasActivePosition ? textColor : gray8}>
+                    <Text size="xxl" weight="bold" color={user.active ? textColor : gray8}>
                         {user.name}
-                        {(!user.active || !hasActivePosition) && tr(' [inactive]')}
+                        {!user.active && tr(' [inactive]')}
                     </Text>
                 </StyledUserNameWrapper>
                 <Modal visible={updateUserFormVisibility.value} width={600}>
