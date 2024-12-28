@@ -319,6 +319,8 @@ export const scheduledDeactivationMethods = {
                 user: {
                     include: {
                         supplementalPositions: { include: { organizationUnit: true } },
+                        services: true,
+                        supervisor: true,
                     },
                 },
                 organizationUnit: true,
@@ -381,10 +383,27 @@ export const scheduledDeactivationMethods = {
             description: subject,
         });
 
+        const workEmail = scheduledDeactivation.user.services.find((s) => s.serviceName === 'WorkEmail')?.serviceId;
+
         await sendMail({
             to,
             subject,
-            text: comment || '',
+            html: scheduledDeactivationEmailHtml({
+                data: scheduledDeactivation,
+                workEmail: workEmail || '',
+                teamlead: scheduledDeactivation.user.supervisor?.name || '',
+                unitId: scheduledDeactivation.user.supplementalPositions
+                    .filter(({ workEndDate }) => workEndDate)
+                    .map(({ unitId }) => unitId)
+                    .join(', '),
+                role:
+                    scheduledDeactivation.user.supplementalPositions
+                        .filter(({ workEndDate }) => workEndDate)
+                        .map(({ role }) => role)
+                        .join(', ') ||
+                    scheduledDeactivation.user.title ||
+                    '',
+            }),
             icalEvent: calendarEvents({
                 method: ICalCalendarMethod.CANCEL,
                 events: [icalEvent],

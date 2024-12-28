@@ -171,6 +171,8 @@ export const htmlUserCreationRequestWithDate = (data: {
         organization: OrganizationUnit;
     } & {
         lineManagers: User[] | null;
+    } & {
+        supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
     };
     date: Date;
 }) => {
@@ -193,6 +195,29 @@ export const htmlUserCreationRequestWithDate = (data: {
                     <tr>
                         <th>${tr('Name')}</th>
                         <td>${userCreationRequest.name}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Role')}</th>
+                        <td>${userCreationRequest.title}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Location')}</th>
+                        <td>${userCreationRequest.location}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Unit Id')}</th>
+                        <td>${userCreationRequest.unitId}</td>
+                    </tr>
+                    <tr>
+                        <th>${tr('Organizaion')}</th>
+                        <td>${
+                            userCreationRequest.supplementalPositions.length === 1
+                                ? getOrgUnitTitle(userCreationRequest.supplementalPositions[0].organizationUnit)
+                                : `(${tr('employment in')} ${data.userCreationRequest.supplementalPositions
+                                      .sort((a, b) => Number(b.main) - Number(a.main))
+                                      .map((o) => `${getOrgUnitTitle(o.organizationUnit)}`)
+                                      .join(' + ')})`
+                        }</td>
                     </tr>
                     <tr>
                         <th>${tr('Email')}</th>
@@ -223,6 +248,14 @@ export const htmlUserCreationRequestWithDate = (data: {
                         <th>${tr('Teamlead')}</th>
                         <td>${userCreationRequest.supervisor.name}</td>
                     </tr>`
+                            : ''
+                    }
+                    ${
+                        userCreationRequest.recruiter
+                            ? `<tr>
+                            <th>${tr('Recruiter')}</th>
+                            <td>${userCreationRequest.recruiter.name}</td>
+                        </tr>`
                             : ''
                     }
                     ${
@@ -257,14 +290,6 @@ export const htmlUserCreationRequestWithDate = (data: {
                     }
                     <tr>
                     <tr>
-                        <th>${tr('Organizaion')}</th>
-                        <td>${getOrgUnitTitle(userCreationRequest.organization)}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Unit Id')}</th>
-                        <td>${userCreationRequest.unitId}</td>
-                    </tr>
-                    <tr>
                         <th>${tr('Equipment')}</th>
                         <td>${userCreationRequest.equipment}</td>
                     </tr>
@@ -288,22 +313,6 @@ export const htmlUserCreationRequestWithDate = (data: {
                         <th>${tr('Work mode comment')}</th>
                         <td>${userCreationRequest.workModeComment || ''}</td>
                     </tr>
-                    <tr>
-                        <th>${tr('Location')}</th>
-                        <td>${userCreationRequest.location}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Role')}</th>
-                        <td>${userCreationRequest.title}</td>
-                    </tr>
-                    ${
-                        userCreationRequest.recruiter
-                            ? `<tr>
-                            <th>${tr('Recruiter')}</th>
-                            <td>${userCreationRequest.recruiter.name}</td>
-                        </tr>`
-                            : ''
-                    }
                     <tr>
                         <th>${tr('Comments')}</th>
                         <td>${
@@ -481,22 +490,24 @@ export const htmlFromDecreeRequest = (
 };
 
 export const newcomerSubject = (data: {
-    userCreationRequest: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
+    userCreationRequest: UserCreationRequest & {
         supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
-    } & {
-        recruiter: User | null;
-    } & {
-        coordinators: User[] | null;
-    } & {
-        organization: OrganizationUnit;
-    } & {
-        lineManagers: User[] | null;
     };
     name: string;
     phone: string;
-}) =>
-    `${
-        data.userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
-    } ${data.userCreationRequest.supplementalPositions.map((o) => `${getOrgUnitTitle(o.organizationUnit)}`)} ${
-        data.name
-    }  (${data.phone})`;
+}) => {
+    if (data.userCreationRequest.supplementalPositions.length === 1) {
+        return `${
+            data.userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
+        } ${data.userCreationRequest.supplementalPositions
+            .map((o) => `${getOrgUnitTitle(o.organizationUnit)}`)
+            .join(', ')} ${data.name}  (${data.phone})`;
+    }
+
+    return `${data.userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')} ${tr(
+        'part-time',
+    )} (${tr('employment in')} ${data.userCreationRequest.supplementalPositions
+        .sort((a, b) => Number(b.main) - Number(a.main))
+        .map((o) => `${getOrgUnitTitle(o.organizationUnit)}`)
+        .join(' + ')}) ${data.name}  (${data.phone})`;
+};
