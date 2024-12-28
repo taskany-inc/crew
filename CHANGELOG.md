@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.105.0](https://github.com/taskany-inc/crew/compare/v0.104.0...v0.105.0) (2024-12-28)
+
+
+### Features
+
+* enum for external service names ([a338cb3](https://github.com/taskany-inc/crew/commit/a338cb3689f0391cba47bfc0160092e763ae3755))
+* **INTERNAL-1463:** update date for org group ([e6b78fa](https://github.com/taskany-inc/crew/commit/e6b78fac026c7d9c6a8ede2ba2c8a59d2252ecc3))
+
+
+### Bug Fixes
+
+* **GroupTreeViewNode:** fix supervisor position and background color ([df7a099](https://github.com/taskany-inc/crew/commit/df7a0990656b89665ed3d7ed17d4e541d3bd34a6))
+* **INTERNAL-1467:** decree list ([d5b6ea8](https://github.com/taskany-inc/crew/commit/d5b6ea847ab72ea1dd28c45c2bd93c25cc58fd43))
+
 ## [0.104.0](https://github.com/taskany-inc/crew/compare/v0.103.0...v0.104.0) (2024-12-24)
 
 
