@@ -61,15 +61,15 @@ export const resolveDecree = async ({ userCreationRequestId }: JobDataMap['creat
     return user;
 };
 
-export const scheduledFiringFromSupplementalPositionResolve = async ({
+export const scheduledFiringFromSupplementalPosition = async ({
     supplementalPositionId,
     userId,
 }: JobDataMap['scheduledFiringFromSupplementalPosition']) => {
-    const workEndDate = new Date();
     const s = await prisma.supplementalPosition.update({
         where: { id: supplementalPositionId },
-        data: { workEndDate, status: 'FIRED' },
+        data: { status: 'FIRED' },
     });
+
     await historyEventMethods.create(
         { subsystem: 'Scheduled firing from supplemental position' },
         'scheduledFiringFromSupplementalPosition',
@@ -77,7 +77,10 @@ export const scheduledFiringFromSupplementalPositionResolve = async ({
             userId,
             groupId: undefined,
             before: undefined,
-            after: { organizationUnitId: s.organizationUnitId, workEndDate: workEndDate.toLocaleDateString() },
+            after: {
+                organizationUnitId: s.organizationUnitId,
+                workEndDate: s.workEndDate?.toLocaleDateString() || new Date().toLocaleDateString(),
+            },
         },
     );
 };
