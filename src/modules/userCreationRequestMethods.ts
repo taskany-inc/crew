@@ -254,7 +254,7 @@ export const userCreationRequestsMethods = {
             text: mailText,
         });
 
-        if (data.date) {
+        if (data.date && data.type === 'internalEmployee') {
             const additionalEmails = [sessionUserId];
 
             if (userCreationRequest.supervisorId) additionalEmails.push(userCreationRequest.supervisorId);
