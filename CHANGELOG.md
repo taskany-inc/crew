@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.105.1](https://github.com/taskany-inc/crew/compare/v0.105.0...v0.105.1) (2025-01-13)
+
+
+### Bug Fixes
+
+* **INTERNAL-1345:** mail subjects and texts fix ([9b9d9d2](https://github.com/taskany-inc/crew/commit/9b9d9d260da9bafcbe4aca6d664c84eb10d44074))
+* **sheduledDeactivationMethods:** fix deactivate date at edit bug ([67c6916](https://github.com/taskany-inc/crew/commit/67c69163d5f79023b533837eeaba7fa18b09f0fb))
+* **UserPage:** fix active display ([b5dcf1f](https://github.com/taskany-inc/crew/commit/b5dcf1ff503ba9a9c4f0c0f0af7927e2c1dacfa4))
+
 ## [0.105.0](https://github.com/taskany-inc/crew/compare/v0.104.0...v0.105.0) (2024-12-28)
 
 
