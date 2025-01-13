@@ -28,13 +28,7 @@ ${process.env.NEXTAUTH_URL}${link}
 ${tr('Sincerely,')}
 HR-team!`;
 
-export const scheduledDeactivationEmailHtml = (data: {
-    data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit;
-    unitId: string;
-    teamlead: string;
-    role: string;
-    workEmail?: string;
-}) => `
+const tableTemplate = (data: { title: string; content: string }[]) => `
 <head>
     <style>
         body { -webkit-text-size-adjust:none; font-size: 11px; }
@@ -45,120 +39,76 @@ export const scheduledDeactivationEmailHtml = (data: {
 <body>
     ${tr('The meeting is for informational purposes only.')}<br/>
     <table border='1' cellpadding='8'>
-        <tr>
-            <th>${tr('Date')}</th>
-            <td>${formatDate(data.data.deactivateDate, defaultLocale)}</td>
-        </tr>
-        <tr>
-            <th>${tr('Full name')}</th>
-            <td>${data.data.user.name}</td>
-        </tr>
-        <tr>
-            <th>${tr('Location')}</th>
-            <td>${data.data.location}</td>
-        </tr>
-        <tr>
-            <th>${tr('Unit')}</th>
-            <td>${data.unitId}</td>
-        </tr>
-        <tr>
-            <th>${tr('Role')}</th>
-            <td>${data.role}</td>
-        </tr>
-        <tr>
-            <th>${tr('Work email')}</th>
-            <td>${data.workEmail}</td>
-        </tr>
-        <tr>
-            <th>${tr('Email')}</th>
-            <td>${data.data.email}</td>
-        </tr>
-        <tr>
-            <th>${tr('Teamlead')}</th>
-            <td>${data.teamlead}</td>
-        </tr>
-        <tr>
-            <th>${tr('Work mode and workplace')}</th>
-            <td>
-                ${data.data.workMode}
-                ${data.data.workPlace ? `, ${data.data.workPlace}` : ''}
-            </td>
-        </tr>
-    ${
-        data.data.type === 'transfer'
-            ? `
-        <tr>
-            <th>${tr('Transfer from, role')}</th>
-            <td>${data.data.organizationalGroup}, ${data.data.organizationRole}</td>
-        </tr>
-        <tr>
-            <th>${tr('Transfer to, role')}</th>
-            <td>${data.data.newOrganizationalGroup}, ${data.data.newOrganizationRole}</td>
-        </tr>
-    `
-            : ''
-    }
-        <tr>
-            <th>${tr('Devices')}</th>
-            <td></td>
-        </tr>
-    ${
-        (data.data.devices as Record<'name' | 'id', string>[])
-            ?.map(
-                (d: AdditionalDevice) =>
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${tr('Device name')}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${d.name}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${tr('Device id')}</td>` +
-                    '</tr>' +
-                    '<tr>' +
-                    '<th></th>' +
-                    `<td>${d.id}</td>` +
-                    '</tr>',
-            )
-            .join('') || ''
-    }
-        <tr>
-            <th>${tr('Testing devices')}</th>
-            <td>${
-                (data.data.testingDevices as Record<'name' | 'id', string>[])
-                    ?.map(
-                        (d: AdditionalDevice) =>
-                            '<tr>' +
-                            '<th></th>' +
-                            `<td>${tr('Device name')}</td>` +
-                            '</tr>' +
-                            '<tr>' +
-                            '<th></th>' +
-                            `<td>${d.name}</td>` +
-                            '</tr>' +
-                            '<tr>' +
-                            '<th></th>' +
-                            `<td>${tr('Device id')}</td>` +
-                            '</tr>' +
-                            '<tr>' +
-                            '<th></th>' +
-                            `<td>${d.id}</td>` +
-                            '</tr>',
-                    )
-                    .join('') || tr('Did not take any')
-            }</td>
-        </tr>
-    
-        <tr>
-            <th>${tr('Comments')}</th>
-            <td>${data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : ''}</td>
-        </tr>
+    ${data
+        .map(
+            ({ title, content }) => ` <tr>
+            <th>${title}</th>
+            <td>${content}</td>
+        </tr>`,
+        )
+        .join('')}
     </table>
 </body>
 `;
+
+const devicesToTable = (devices?: Record<'name' | 'id', string>[], fallback = '') => `
+${
+    !devices || !devices.length
+        ? fallback
+        : devices
+              .map(
+                  (d: AdditionalDevice) =>
+                      '<tr>' +
+                      '<th></th>' +
+                      `<td style="font-weight:bold">${tr('Device name')}</td>` +
+                      '</tr>' +
+                      '<tr>' +
+                      '<th></th>' +
+                      `<td>${d.name}</td>` +
+                      '</tr>' +
+                      '<tr>' +
+                      '<th></th>' +
+                      `<td style="font-weight:bold">${tr('Device id')}</td>` +
+                      '</tr>' +
+                      '<tr>' +
+                      '<th></th>' +
+                      `<td>${d.id}</td>` +
+                      '</tr>',
+              )
+              .join('')
+}
+`;
+
+export const scheduledDeactivationEmailHtml = (data: {
+    data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit;
+    unitId: string;
+    teamlead: string;
+    role: string;
+    workEmail?: string;
+}) =>
+    tableTemplate([
+        { title: tr('Date'), content: formatDate(data.data.deactivateDate, defaultLocale) },
+        { title: tr('Full name'), content: data.data.user.name || '' },
+        { title: tr('Location'), content: data.data.location },
+        { title: tr('Unit'), content: data.unitId },
+        { title: tr('Role'), content: data.role },
+        { title: tr('Work email'), content: data.workEmail || '' },
+        { title: tr('Email'), content: data.data.email },
+        { title: tr('Teamlead'), content: data.teamlead },
+        {
+            title: tr('Work mode and workplace'),
+            content: `${data.data.workMode} ${data.data.workPlace ? `, ${data.data.workPlace}` : ''} `,
+        },
+        { title: tr('Devices'), content: devicesToTable(data.data.devices as Record<'name' | 'id', string>[]) },
+        {
+            title: tr('Testing devices'),
+            content: devicesToTable(
+                data.data.testingDevices as Record<'name' | 'id', string>[],
+                tr('Did not take any'),
+            ),
+        },
+        { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
+    ]);
 
 export const htmlUserCreationRequestWithDate = (data: {
     userCreationRequest: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
@@ -177,151 +127,59 @@ export const htmlUserCreationRequestWithDate = (data: {
     date: Date;
 }) => {
     const { userCreationRequest, date } = data;
-    return `
-            <head>
-              <style>
-                body { -webkit-text-size-adjust:none; font-size: 11px; }
-                table { border-collapse: collapse; font-size: 16px; margin-top: 8px; margin-bottom: 8px; }
-                th { text-align: left; }
-              </style>
-            </head>        
-            <body>
-                ${tr('The meeting is for informational purposes only.')}<br/>
-                <table border='1' cellpadding='8'>
-                    <tr>
-                        <th>${tr('Start date')}</th>
-                        <td>${formatDate(date, defaultLocale)}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Name')}</th>
-                        <td>${userCreationRequest.name}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Role')}</th>
-                        <td>${userCreationRequest.title}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Location')}</th>
-                        <td>${userCreationRequest.location}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Unit Id')}</th>
-                        <td>${userCreationRequest.unitId}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Organizaion')}</th>
-                        <td>${
-                            userCreationRequest.supplementalPositions.length === 1
-                                ? getOrgUnitTitle(userCreationRequest.supplementalPositions[0].organizationUnit)
-                                : `(${tr('employment in')} ${data.userCreationRequest.supplementalPositions
-                                      .sort((a, b) => Number(b.main) - Number(a.main))
-                                      .map((o) => `${getOrgUnitTitle(o.organizationUnit)}`)
-                                      .join(' + ')})`
-                        }</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Email')}</th>
-                        <td>${
-                            userCreationRequest.workEmail
-                                ? `${userCreationRequest.corporateEmail || userCreationRequest.email} / ${
-                                      userCreationRequest.workEmail
-                                  }`
-                                : userCreationRequest.corporateEmail || userCreationRequest.email
-                        }</td>
-                    </tr>
-                    ${
-                        userCreationRequest.personalEmail
-                            ? `<tr>
-                        <th>${tr('Personal mail')}</th>
-                        <td>${userCreationRequest.personalEmail}</td>
-                    </tr>`
-                            : ''
-                    }
-                    <tr>
-                        <th>${tr('Team')}</th>
-                        <td>${userCreationRequest.group ? userCreationRequest.group.name : ''}</td>
-                    </tr>
-                    ${
-                        userCreationRequest.supervisor
-                            ? `
-                    <tr>
-                        <th>${tr('Teamlead')}</th>
-                        <td>${userCreationRequest.supervisor.name}</td>
-                    </tr>`
-                            : ''
-                    }
-                    ${
-                        userCreationRequest.recruiter
-                            ? `<tr>
-                            <th>${tr('Recruiter')}</th>
-                            <td>${userCreationRequest.recruiter.name}</td>
-                        </tr>`
-                            : ''
-                    }
-                    ${
-                        userCreationRequest.buddy
-                            ? `<tr>
-                            <th>${tr('Buddy')}</th>
-                            <td>${userCreationRequest.buddy.name}</td>
-                        </tr>`
-                            : ''
-                    }
-                    ${
-                        userCreationRequest.coordinators && userCreationRequest.coordinators.length
-                            ? userCreationRequest.coordinators.map(
-                                  (c) => `
-                            <tr>
-                                <th>${tr('Coordinator')}</th>
-                                <td>${c.name}</td>
-                            </tr>`,
-                              )
-                            : ''
-                    }
-                    ${
-                        userCreationRequest.lineManagers && userCreationRequest.lineManagers.length
-                            ? userCreationRequest.lineManagers.map(
-                                  (l) => `
-                            <tr>
-                                <th>${tr('Line manager')}</th>
-                                <td>${l.name}</td>
-                            </tr>`,
-                              )
-                            : ''
-                    }
-                    <tr>
-                    <tr>
-                        <th>${tr('Equipment')}</th>
-                        <td>${userCreationRequest.equipment}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Work space request')}</th>
-                        <td>${userCreationRequest.workSpace || ''}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Extra equipment')}</th>
-                        <td>${userCreationRequest.extraEquipment || ''}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Corporate email needed')} ${config.corporateEmailDomain || ''}</th>
-                        <td>${userCreationRequest.corporateEmail || tr('No')}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Work mode')}</th>
-                        <td>${userCreationRequest.workMode}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Work mode comment')}</th>
-                        <td>${userCreationRequest.workModeComment || ''}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Comments')}</th>
-                        <td>${
-                            userCreationRequest.comment ? userCreationRequest.comment.replace(/\n/g, '<br/>') : ''
-                        }</td>
-                    </tr>
-                </table>
-            </body>
-            `;
+    return tableTemplate([
+        { title: tr('Start date'), content: formatDate(date, defaultLocale) },
+        { title: tr('Name'), content: userCreationRequest.name },
+        { title: tr('Role'), content: userCreationRequest.title || '' },
+        { title: tr('Location'), content: userCreationRequest.location || '' },
+        { title: tr('Unit Id'), content: userCreationRequest.unitId || '' },
+        {
+            title: tr('Organizaion'),
+            content:
+                userCreationRequest.supplementalPositions.length === 1
+                    ? getOrgUnitTitle(userCreationRequest.supplementalPositions[0].organizationUnit)
+                    : `(${tr('employment in')} ${data.userCreationRequest.supplementalPositions
+                          .sort((a, b) => Number(b.main) - Number(a.main))
+                          .map((o) => `${getOrgUnitTitle(o.organizationUnit)}`)
+                          .join(' + ')})`,
+        },
+
+        {
+            title: tr('Email'),
+            content: userCreationRequest.workEmail
+                ? `${userCreationRequest.corporateEmail || userCreationRequest.email} / ${
+                      userCreationRequest.workEmail
+                  }`
+                : userCreationRequest.corporateEmail || userCreationRequest.email,
+        },
+        { title: tr('Personal mail'), content: userCreationRequest.personalEmail || '' },
+        { title: tr('Team'), content: userCreationRequest.group ? userCreationRequest.group.name : '' },
+        { title: tr('Teamlead'), content: userCreationRequest.supervisor?.name || '' },
+        { title: tr('Recruiter'), content: userCreationRequest.recruiter?.name || '' },
+        { title: tr('Buddy'), content: userCreationRequest.buddy?.name || '' },
+        {
+            title: tr('Coordinator'),
+            content: userCreationRequest.coordinators?.map(({ name }) => name).join(', ') || '',
+        },
+        {
+            title: tr('Line manager'),
+            content: userCreationRequest.lineManagers?.map(({ name }) => name).join(', ') || '',
+        },
+        { title: tr('Organizaion'), content: getOrgUnitTitle(userCreationRequest.organization) },
+        { title: tr('Equipment'), content: userCreationRequest.equipment || '' },
+        { title: tr('Work space request'), content: userCreationRequest.workSpace || '' },
+        { title: tr('Extra equipment'), content: userCreationRequest.extraEquipment || '' },
+        {
+            title: `${tr('Corporate email needed')} ${config.corporateEmailDomain || ''}`,
+            content: userCreationRequest.corporateEmail || tr('No'),
+        },
+        { title: tr('Work mode'), content: userCreationRequest.workMode || '' },
+        { title: tr('Work mode comment'), content: userCreationRequest.workModeComment || '' },
+        {
+            title: tr('Comments'),
+            content: userCreationRequest.comment ? userCreationRequest.comment.replace(/\n/g, '<br/>') : '',
+        },
+    ]);
 };
 
 export const htmlToDecreeRequest = (
@@ -336,73 +194,21 @@ export const htmlToDecreeRequest = (
     } & {
         lineManagers: User[] | null;
     },
-) => {
-    return `
-            <head>
-              <style>
-                body { -webkit-text-size-adjust:none; font-size: 11px; }
-                table { border-collapse: collapse; font-size: 16px; margin-top: 8px; margin-bottom: 8px; }
-                th { text-align: left; }
-              </style>
-            </head>        
-            <body>
-                ${tr('The meeting is for informational purposes only.')}<br/>
-                <table border='1' cellpadding='8'>
-                    <tr>
-                        <th>${tr('Date')}</th>
-                        <td>${data.date ? formatDate(data.date, defaultLocale) : ''}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Name')}</th>
-                        <td>${data.name}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Location')}</th>
-                        <td>${data.location}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Unit')}</th>
-                        <td>${data.unitId}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Role')}</th>
-                        <td>${data.title}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Corporate Email')}</th>
-                        <td>${data.corporateEmail}</td>
-                    </tr>
-
-                    <tr>
-                        <th>${tr('Teamlead')}</th>
-                        <td>${data.supervisor?.name ?? ''}</td>
-                    </tr>
-
-                    <tr>
-                        <th>${tr('Work mode')}</th>
-                        <td>${data.workMode}</td>
-                    </tr>
-
-                    <tr>
-                        <th>${tr('Equipment')}</th>
-                        <td>${data.equipment}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Extra equipment')}</th>
-                        <td>${data.extraEquipment || ''}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Screenshot')}</th>
-                        <td>${tr('In attachment')}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Comments')}</th>
-                        <td>${data.comment ? data.comment.replace(/\n/g, '<br/>') : ''}</td>
-                    </tr>
-                </table>
-            </body>
-    `;
-};
+) =>
+    tableTemplate([
+        { title: tr('Date'), content: data.date ? formatDate(data.date, defaultLocale) : '' },
+        { title: tr('Name'), content: data.name || '' },
+        { title: tr('Location'), content: data.location || '' },
+        { title: tr('Unit'), content: data.unitId || '' },
+        { title: tr('Role'), content: data.title || '' },
+        { title: tr('Corporate Email'), content: data.corporateEmail || '' },
+        { title: tr('Teamlead'), content: data.supervisor?.name ?? '' },
+        { title: tr('Work mode'), content: data.workMode || '' },
+        { title: tr('Equipment'), content: data.equipment || '' },
+        { title: tr('Extra equipment'), content: data.extraEquipment || '' },
+        { title: tr('Screenshot'), content: tr('In attachment') },
+        { title: tr('Comments'), content: data.comment ? data.comment.replace(/\n/g, '<br/>') : '' },
+    ]);
 
 export const htmlFromDecreeRequest = (
     data: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
@@ -416,78 +222,20 @@ export const htmlFromDecreeRequest = (
     } & {
         lineManagers: User[] | null;
     },
-) => {
-    return `
-            <head>
-              <style>
-                body { -webkit-text-size-adjust:none; font-size: 11px; }
-                table { border-collapse: collapse; font-size: 16px; margin-top: 8px; margin-bottom: 8px; }
-                th { text-align: left; }
-              </style>
-            </head>        
-            <body>
-                ${tr('The meeting is for informational purposes only.')}<br/>
-
-                <table border='1' cellpadding='8'>
-                    <tr>
-                        <th>${tr('Date')}</th>
-                        <td>${data.date ? formatDate(data.date, defaultLocale) : ''}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Name')}</th>
-                        <td>${data.name}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Location')}</th>
-                        <td>${data.location}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Unit')}</th>
-                        <td>${data.unitId}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Role')}</th>
-                        <td>${data.title}</td>
-                    </tr>
-
-                    <tr>
-                        <th>${tr('Teamlead')}</th>
-                        <td>${data.supervisor?.name ?? ''}</td>
-                    </tr>
-
-                    ${
-                        data.coordinators && data.coordinators.length
-                            ? data.coordinators.map(
-                                  (c) => `
-                            <tr>
-                                <th>${tr('Coordinator')}</th>
-                                <td>${c.name}</td>
-                            </tr>`,
-                              )
-                            : ''
-                    }
-
-                    <tr>
-                        <th>${tr('Work mode')}</th>
-                        <td>${data.workMode}</td>
-                    </tr>
-
-                    <tr>
-                        <th>${tr('Equipment')}</th>
-                        <td>${data.equipment}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Extra equipment')}</th>
-                        <td>${data.extraEquipment || ''}</td>
-                    </tr>
-                    <tr>
-                        <th>${tr('Comments')}</th>
-                        <td>${data.comment ? data.comment.replace(/\n/g, '<br/>') : ''}</td>
-                    </tr>
-                </table>
-            </body>
-    `;
-};
+) =>
+    tableTemplate([
+        { title: tr('Date'), content: data.date ? formatDate(data.date, defaultLocale) : '' },
+        { title: tr('Name'), content: data.name || '' },
+        { title: tr('Location'), content: data.location || '' },
+        { title: tr('Unit'), content: data.unitId || '' },
+        { title: tr('Role'), content: data.title || '' },
+        { title: tr('Teamlead'), content: data.supervisor?.name ?? '' },
+        { title: tr('Coordinator'), content: data.coordinators?.map(({ name }) => name).join(', ') || '' },
+        { title: tr('Work mode'), content: data.workMode || '' },
+        { title: tr('Equipment'), content: data.equipment || '' },
+        { title: tr('Extra equipment'), content: data.extraEquipment || '' },
+        { title: tr('Comments'), content: data.comment ? data.comment.replace(/\n/g, '<br/>') : '' },
+    ]);
 
 export const newcomerSubject = (data: {
     userCreationRequest: UserCreationRequest & {
