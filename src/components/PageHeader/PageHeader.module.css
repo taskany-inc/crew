@@ -1,0 +1,27 @@
+.HeaderNav {
+    display: flex;
+    align-items: center;
+   
+}
+
+.HeaderSearch {
+    margin-left: var(--gapM);
+}
+
+.Wrapper {
+    display: flex;
+    gap:  var(--gap-m);
+}
+
+.HeaderNavLink:hover {
+    color: var(--base-white);
+    border-color: var(--blue-700);
+}
+
+.HeaderNavLink:active {
+    color: var(--blue-700);
+}
+
+.HeaderNavLink:focus {
+    color: var(--blue-700);
+}

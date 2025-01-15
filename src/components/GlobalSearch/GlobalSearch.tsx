@@ -72,9 +72,9 @@ export const GlobalSearch = () => {
             value={query}
             onChange={setQuery}
             searchResultExists={resultsExists || nothingFound}
-            placeholder={tr('Search or jump to...')}
+            placeholder={tr('Search')}
             placement="bottom-end"
-            offset={[8, -40]}
+            offset={[8, -20]}
             outline
         >
             <ListView onKeyboardClick={onKeyboardNavigate}>
