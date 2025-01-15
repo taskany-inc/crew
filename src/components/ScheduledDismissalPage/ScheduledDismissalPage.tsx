@@ -19,11 +19,10 @@ import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormComments
 import { UserFormFormActions } from '../UserFormFormActions/UserFormFormActions';
 import { useRouter } from '../../hooks/useRouter';
 import { UserFormSupplementalPositionsBlock } from '../UserFormSupplementalPositionsBlock/UserFormSupplementalPositionsBlock';
-import { User, UserDevices } from '../../trpc/inferredTypes';
+import { ScheduledDeactivation, User, UserDevices } from '../../trpc/inferredTypes';
 import { percentageMultiply } from '../../utils/suplementPosition';
 import { UserFormDevicesBlock } from '../UserFormDevicesBlock/UserFormDevicesBlock';
 import { UserFormWorkSpaceDismissalFormBlock } from '../UserFormWorkSpaceDismissalFormBlock/UserFormWorkSpaceDismissalFormBlock';
-import { getActiveScheduledDeactivation } from '../../utils/getActiveScheduledDeactivation';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 
 import { tr } from './ScheduledDismissalPage.i18n';
@@ -31,12 +30,12 @@ import s from './ScheduledDismissalPage.module.css';
 
 interface ScheduledDismissalPageProps {
     user: User;
-
     userDevices: UserDevices;
     personalEmail?: string;
     workEmail?: string;
     phone?: string;
     type?: 'new' | 'edit' | 'readOnly';
+    scheduledDeactivation?: ScheduledDeactivation;
 }
 
 export const ScheduledDismissalPage = ({
@@ -46,37 +45,60 @@ export const ScheduledDismissalPage = ({
     userDevices,
     personalEmail,
     workEmail,
+    scheduledDeactivation,
 }: ScheduledDismissalPageProps) => {
     const { createScheduledDeactivation, editScheduledDeactivation } = useScheduledDeactivation();
 
     const router = useRouter();
     const rootRef = useRef<HTMLDivElement>(null);
 
-    const mainSupplementalPosition = user.supplementalPositions.find((s) => s.main && s.status !== 'FIRED');
+    const mainSupplementalPosition =
+        type === 'new'
+            ? user.supplementalPositions.find((s) => s.main && s.status !== 'FIRED')
+            : scheduledDeactivation?.supplementalPositions.find((s) => s.main);
 
-    const supplementalPositions = [
-        {
-            id: mainSupplementalPosition?.id || '',
-            organizationUnitId: mainSupplementalPosition?.organizationUnitId || '',
-            percentage:
-                mainSupplementalPosition?.percentage && !Number.isNaN(mainSupplementalPosition.percentage)
-                    ? mainSupplementalPosition.percentage / percentageMultiply
-                    : 1,
-            unitId: mainSupplementalPosition?.unitId || undefined,
-            workEndDate: mainSupplementalPosition?.workEndDate,
-        },
-        ...user.supplementalPositions
-            .filter((s) => s.status === 'FIRED' || !s.main)
-            .map(({ percentage, organizationUnitId, unitId, workEndDate, id }) => ({
-                id,
-                organizationUnitId,
-                percentage: percentage / percentageMultiply,
-                unitId: unitId || undefined,
-                workEndDate,
-            })),
-    ];
+    const supplementalPositions: Array<{
+        id: string;
+        organizationUnitId: string;
+        percentage: number;
+        unitId?: string;
+        workEndDate?: Date | null;
+    }> = [];
 
-    const scheduledDeactivation = getActiveScheduledDeactivation(user);
+    supplementalPositions.push({
+        id: mainSupplementalPosition?.id || '',
+        organizationUnitId: mainSupplementalPosition?.organizationUnitId || '',
+        percentage:
+            mainSupplementalPosition?.percentage && !Number.isNaN(mainSupplementalPosition.percentage)
+                ? mainSupplementalPosition.percentage / percentageMultiply
+                : 1,
+        unitId: mainSupplementalPosition?.unitId || undefined,
+        workEndDate: mainSupplementalPosition?.workEndDate,
+    });
+
+    scheduledDeactivation
+        ? supplementalPositions.push(
+              ...scheduledDeactivation.supplementalPositions
+                  .filter((s) => !s.main)
+                  .map(({ percentage, organizationUnitId, unitId, workEndDate, id }) => ({
+                      id,
+                      organizationUnitId,
+                      percentage: percentage / percentageMultiply,
+                      unitId: unitId || undefined,
+                      workEndDate,
+                  })),
+          )
+        : supplementalPositions.push(
+              ...user.supplementalPositions
+                  .filter((s) => s.status === 'FIRED' || !s.main)
+                  .map(({ percentage, organizationUnitId, unitId, workEndDate, id }) => ({
+                      id,
+                      organizationUnitId,
+                      percentage: percentage / percentageMultiply,
+                      unitId: unitId || undefined,
+                      workEndDate,
+                  })),
+          );
 
     const orgMembership = user?.memberships.find((m) => m.group.organizational);
 
@@ -206,7 +228,7 @@ export const ScheduledDismissalPage = ({
                                     <RequestFormActions
                                         requestType="deactivation"
                                         requestId={s.id}
-                                        onEdit={() => router.userDismissEdit(user.id)}
+                                        onEdit={() => router.userDismissEdit(s.id)}
                                         onCancel={router.scheduledDeactivations}
                                     />
                                 ),
