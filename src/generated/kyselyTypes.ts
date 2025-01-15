@@ -283,6 +283,7 @@ export type SupplementalPosition = {
     main: Generated<boolean>;
     jobId: string | null;
     userCreationRequestId: string | null;
+    scheduledDeactivationId: string | null;
 };
 export type User = {
     id: Generated<string>;

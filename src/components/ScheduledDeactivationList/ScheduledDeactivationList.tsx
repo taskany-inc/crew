@@ -59,7 +59,7 @@ const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((prop
     return nullable(
         props.item.type === 'retirement',
         () => (
-            <a href={pages.userDismiss(props.item.userId)} className={s.TableRowLink}>
+            <a href={pages.userDismiss(props.item.id)} className={s.TableRowLink}>
                 <TableRow {...props} ref={ref} />
             </a>
         ),
@@ -168,11 +168,11 @@ export const ScheduledDeactivationList = () => {
                         name="actions"
                         title={tr('Actions')}
                         width="100px"
-                        renderCell={({ id, type, userId }) => (
+                        renderCell={({ id, type }) => (
                             <div onClick={(e) => e.preventDefault()}>
                                 <ScheduledDeactivationEditMenu
                                     onEditClick={() =>
-                                        type === 'retirement' ? router.userDismissEdit(userId) : setEditRequestId(id)
+                                        type === 'retirement' ? router.userDismissEdit(id) : setEditRequestId(id)
                                     }
                                     onCancelClick={() => setCancelRequestId(id)}
                                 />

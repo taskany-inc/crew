@@ -1,9 +1,9 @@
-import { ScheduledDismissalPage } from '../../../../components/ScheduledDismissalPage/ScheduledDismissalPage';
-import { pages } from '../../../../hooks/useRouter';
-import { trpc } from '../../../../trpc/trpcClient';
-import { createGetServerSideProps } from '../../../../utils/createGetSSRProps';
-import { ExternalServiceName, findService } from '../../../../utils/externalServices';
-import { getActiveScheduledDeactivation } from '../../../../utils/getActiveScheduledDeactivation';
+import { ScheduledDismissalPage } from '../../../components/ScheduledDismissalPage/ScheduledDismissalPage';
+import { pages } from '../../../hooks/useRouter';
+import { trpc } from '../../../trpc/trpcClient';
+import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
+import { ExternalServiceName, findService } from '../../../utils/externalServices';
+import { getActiveScheduledDeactivation } from '../../../utils/getActiveScheduledDeactivation';
 
 export const getServerSideProps = createGetServerSideProps({
     requireSession: true,

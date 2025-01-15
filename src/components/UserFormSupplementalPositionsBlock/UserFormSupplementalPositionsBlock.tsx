@@ -43,6 +43,7 @@ export const UserFormSupplementalPositionsBlock = ({
         control,
         name: 'supplementalPositions',
     });
+
     return (
         <div id={id} className={className}>
             <Text className={s.SectionHeader} weight="bold" size="lg">
@@ -106,8 +107,9 @@ export const UserFormSupplementalPositionsBlock = ({
                                     type="date"
                                     readOnly={readOnly}
                                     value={
-                                        workEndDate && (edit || readOnly)
-                                            ? workEndDate.toISOString().substring(0, 10)
+                                        workEndDate && JSON.stringify(workEndDate) !== 'null' && (edit || readOnly)
+                                            ? // main supplemental position
+                                              workEndDate.toISOString().substring(0, 10)
                                             : undefined
                                     }
                                     {...register(`supplementalPositions.${index}.workEndDate`, {
