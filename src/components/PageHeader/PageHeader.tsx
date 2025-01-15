@@ -1,19 +1,16 @@
 import { useMemo, useRef } from 'react';
-import styled from 'styled-components';
 import NextLink from 'next/link';
-import { gapM } from '@taskany/colors';
+import { UserMenu, Text, nullable } from '@taskany/bricks';
 import {
-    UserMenu,
+    Popup,
     Header,
-    HeaderContent,
-    HeaderLogo,
-    HeaderNav,
     HeaderNavLink,
     HeaderMenu,
-    Text,
-    nullable,
-} from '@taskany/bricks';
-import { Popup } from '@taskany/bricks/harmony';
+    HeaderLogo,
+    HeaderNav,
+    HeaderContent,
+} from '@taskany/bricks/harmony';
+import { useRouter } from 'next/router';
 
 import { pages } from '../../hooks/useRouter';
 import { GlobalSearch } from '../GlobalSearch/GlobalSearch';
@@ -27,20 +24,7 @@ import { Restricted } from '../Restricted';
 import { useAppConfig } from '../../contexts/appConfigContext';
 
 import { tr } from './PageHeader.i18n';
-
-const StyledNav = styled(HeaderNav)`
-    display: flex;
-    align-items: center;
-`;
-
-const HeaderSearch = styled.div`
-    margin-left: ${gapM};
-`;
-
-const StyledList = styled.ul`
-    margin: 0;
-    padding-left: ${gapM};
-`;
+import s from './PageHeader.module.css';
 
 interface HeaderLink {
     path: string;
@@ -51,6 +35,7 @@ interface HeaderLink {
 export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ logo, userSettings }) => {
     const sessionUser = useSessionUser();
     const appConfig = useAppConfig();
+    const router = useRouter();
 
     const entityListMenuItems = useMemo(() => {
         const items: HeaderLink[] = [
@@ -113,13 +98,13 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
                                     {tr('User role')}: {r.name}
                                 </Text>
                                 {nullable(roleDescriptions, (descriptions) => (
-                                    <StyledList>
+                                    <div>
                                         {descriptions.map((d) => (
                                             <Text size="xs" key={d} as="li">
                                                 {d}
                                             </Text>
                                         ))}
-                                    </StyledList>
+                                    </div>
                                 ))}
                             </>
                         ))}
@@ -127,22 +112,22 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
                 </HeaderMenu>
             }
             nav={
-                <StyledNav>
+                <HeaderNav>
                     {entityListMenuItems.map((item) => (
                         <Restricted visible={item.visible} key={item.path}>
                             <NextLink href={item.path} passHref legacyBehavior>
-                                <HeaderNavLink>{item.text}</HeaderNavLink>
+                                <HeaderNavLink active={item.path === router.asPath}>{item.text}</HeaderNavLink>
                             </NextLink>
                         </Restricted>
                     ))}
-                    <HeaderSearch>
-                        <GlobalSearch />
-                    </HeaderSearch>
-                </StyledNav>
+                </HeaderNav>
             }
         >
             <HeaderContent>
-                <PageHeaderActionButton userSettings={userSettings} />
+                <div className={s.HeaderNav}>
+                    <PageHeaderActionButton userSettings={userSettings} />
+                    <GlobalSearch />
+                </div>
             </HeaderContent>
         </Header>
     );
