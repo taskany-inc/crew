@@ -1,0 +1,18 @@
+.HeaderNav {
+    display: flex;
+    align-items: center;
+   
+}
+
+.HeaderSearch {
+    margin-left: var(--gapM);
+}
+
+.Wrapper {
+    display: flex;
+    gap:  var(--gap-m);
+}
+
+.HeaderNavLinkActive {
+    color: var(--blue-700);
+}

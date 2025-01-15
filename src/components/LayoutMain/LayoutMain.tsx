@@ -13,6 +13,7 @@ import { PageHeader } from '../PageHeader/PageHeader';
 import { PageFooter } from '../PageFooter/PageFooter';
 import { OfflineBanner } from '../OfflineBanner/OfflineBanner';
 import { useAppConfig } from '../../contexts/appConfigContext';
+import { PageSep } from '../PageSep/PageSep';
 
 import s from './LayoutMain.module.css';
 
@@ -56,6 +57,7 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
             <OfflineBanner />
 
             <PageHeader logo={appConfig?.logo ?? undefined} userSettings={userSettings} />
+            <PageSep />
             <Theme theme={theme} />
             <div className={s.PageMain}>{children}</div>
 
