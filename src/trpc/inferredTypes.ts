@@ -11,3 +11,5 @@ export type AppConfig = RouterOutputs['appConfig']['get'];
 export type User = RouterOutputs['user']['getById'];
 
 export type UserDevices = RouterOutputs['device']['getUserDevices'];
+
+export type ScheduledDeactivation = RouterOutputs['scheduledDeactivation']['getById'];
