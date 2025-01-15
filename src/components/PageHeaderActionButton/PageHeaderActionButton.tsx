@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { Button, Dropdown, MenuItem } from '@taskany/bricks';
-import { IconDownSmallSolid, IconUpSmallSolid } from '@taskany/icons';
+import { Dropdown, MenuItem } from '@taskany/bricks';
+import { IconDownSmallOutline, IconUpSmallOutline } from '@taskany/icons';
+import { Button } from '@taskany/bricks/harmony';
 
 import { CreateUserModal } from '../CreateUserModal/CreateUserModal';
 import { CreateGroupModal } from '../CreateGroupModal/CreateGroupModal';
@@ -9,6 +10,7 @@ import { UserSettings } from '../../modules/userTypes';
 import { useSessionUser } from '../../hooks/useSessionUser';
 
 import { tr } from './PageHeaderActionButton.i18n';
+import s from './PageHeaderActionButton.module.css';
 
 export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ userSettings }) => {
     const sessionUser = useSessionUser();
@@ -34,32 +36,35 @@ export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: Us
 
     return (
         <>
-            <Button text={tr('Create')} view="primary" outline brick="right" onClick={items[0].action} />
-            <Dropdown
-                onChange={(item) => item.action()}
-                items={items}
-                renderTrigger={(props) => (
-                    <Button
-                        view="primary"
-                        outline
-                        brick="left"
-                        iconRight={props.visible ? <IconUpSmallSolid size="s" /> : <IconDownSmallSolid size="s" />}
-                        ref={props.ref}
-                        onClick={props.onClick}
-                    />
-                )}
-                renderItem={(props) => (
-                    <MenuItem
-                        key={props.item.title}
-                        focused={props.cursor === props.index}
-                        onClick={props.onClick}
-                        view="primary"
-                        ghost
-                    >
-                        {props.item.title}
-                    </MenuItem>
-                )}
-            />
+            <div className={s.Wrapper}>
+                <Button text={tr('Create')} brick="right" onClick={items[0].action} />
+                <Dropdown
+                    className={s.Dropdown}
+                    onChange={(item) => item.action()}
+                    items={items}
+                    renderTrigger={(props) => (
+                        <Button
+                            brick="left"
+                            iconRight={
+                                props.visible ? <IconUpSmallOutline size="s" /> : <IconDownSmallOutline size="s" />
+                            }
+                            ref={props.ref}
+                            onClick={props.onClick}
+                        />
+                    )}
+                    renderItem={(props) => (
+                        <MenuItem
+                            key={props.item.title}
+                            focused={props.cursor === props.index}
+                            onClick={props.onClick}
+                            view="primary"
+                            ghost
+                        >
+                            {props.item.title}
+                        </MenuItem>
+                    )}
+                />
+            </div>
             <CreateUserModal visible={createUserModalVisibility.value} onClose={createUserModalVisibility.setFalse} />
             <CreateGroupModal
                 visible={createGroupModalVisibility.value}
