@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.106.0](https://github.com/taskany-inc/crew/compare/v0.105.1...v0.106.0) (2025-01-16)
+
+
+### Features
+
+* **INTERNAL-1465:** deactivation by deactivation id ([58d96b6](https://github.com/taskany-inc/crew/commit/58d96b6b331f47daab22856e490eb549a0bb1ae4))
+
 ## [0.105.1](https://github.com/taskany-inc/crew/compare/v0.105.0...v0.105.1) (2025-01-13)
 
 
