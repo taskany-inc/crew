@@ -71,7 +71,7 @@ export const AccessCoordinationList = () => {
 
     const data: tableData[] = userRequests.map((request) => ({
         name: request.name,
-        email: request.email,
+        email: request.corporateEmail || request.personalEmail || request.email,
         login: request.login,
         phone: findService(ExternalServiceName.Phone, request.services || undefined) || '',
         organization: getOrgUnitTitle(request.organization),
