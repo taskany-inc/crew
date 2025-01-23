@@ -1,5 +1,6 @@
 import { Group, Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { sql } from 'kysely';
 
 import { prisma } from '../utils/prisma';
 import { objByKey, objByKeyMulti } from '../utils/objByKey';
@@ -187,6 +188,42 @@ export const groupMethods = {
         if (group.archived) throw new TRPCError({ code: 'BAD_REQUEST', message: tr('Group is archived') });
         return addCalculatedGroupFields(group, sessionUser);
     },
+
+    getGroupTree: (id: string) =>
+        db
+            .withRecursive('tree', (qc) =>
+                qc
+                    .selectFrom('Group')
+                    .select(({ fn }) => [
+                        'id',
+                        'parentId',
+                        'name',
+                        sql<number>`1::int`.as('level'),
+                        fn.agg<string[]>('array_agg', ['parentId']).as('chain'),
+                    ])
+                    .where('id', '=', id)
+                    .where('archived', '=', false)
+                    .groupBy('id')
+                    .union((qb) =>
+                        qb
+                            .selectFrom('Group as g')
+                            .innerJoin('tree', 'tree.id', 'g.parentId')
+                            .select(({ fn, ref }) => [
+                                ref('g.id').as('id'),
+                                ref('g.parentId').as('parentId'),
+                                ref('g.name').as('name'),
+                                sql<number>`tree."level"::int + 1`.as('level'),
+                                fn.agg<string[]>('array_append', ['tree.chain', 'g.parentId']).as('chain'),
+                            ])
+                            .where('archived', '=', false),
+                    ),
+            )
+            .selectFrom('Group as gr')
+            .innerJoin('User as u', (join) => join.onRef('u.id', '=', 'gr.supervisorId'))
+            .innerJoin('tree as tr', 'tr.id', 'gr.id')
+            .select(['gr.id', 'gr.name', 'gr.supervisorId', 'tr.level', 'tr.chain', 'u.name as supervisorName'])
+            .orderBy('tr.level')
+            .execute(),
 
     getChildren: (id: string) => {
         return prisma.group.findMany({
