@@ -35,41 +35,38 @@ export const PageHeaderActionButton: React.FC<{ logo?: string; userSettings?: Us
     if (items.length === 0) return null;
 
     return (
-        <>
-            <div className={s.Wrapper}>
-                <Button text={tr('Create')} brick="right" onClick={items[0].action} />
-                <Dropdown
-                    className={s.Dropdown}
-                    onChange={(item) => item.action()}
-                    items={items}
-                    renderTrigger={(props) => (
-                        <Button
-                            brick="left"
-                            iconRight={
-                                props.visible ? <IconUpSmallOutline size="s" /> : <IconDownSmallOutline size="s" />
-                            }
-                            ref={props.ref}
-                            onClick={props.onClick}
-                        />
-                    )}
-                    renderItem={(props) => (
-                        <MenuItem
-                            key={props.item.title}
-                            focused={props.cursor === props.index}
-                            onClick={props.onClick}
-                            view="primary"
-                            ghost
-                        >
-                            {props.item.title}
-                        </MenuItem>
-                    )}
-                />
-            </div>
+        <div className={s.Wrapper}>
+            <Button text={tr('Create')} className={s.Button} brick="right" onClick={items[0].action} />
+            <Dropdown
+                className={s.Dropdown}
+                onChange={(item) => item.action()}
+                items={items}
+                renderTrigger={(props) => (
+                    <Button
+                        brick="left"
+                        iconRight={props.visible ? <IconUpSmallOutline size="s" /> : <IconDownSmallOutline size="s" />}
+                        ref={props.ref}
+                        onClick={props.onClick}
+                    />
+                )}
+                renderItem={(props) => (
+                    <MenuItem
+                        key={props.item.title}
+                        focused={props.cursor === props.index}
+                        onClick={props.onClick}
+                        view="primary"
+                        ghost
+                    >
+                        {props.item.title}
+                    </MenuItem>
+                )}
+            />
+
             <CreateUserModal visible={createUserModalVisibility.value} onClose={createUserModalVisibility.setFalse} />
             <CreateGroupModal
                 visible={createGroupModalVisibility.value}
                 onClose={createGroupModalVisibility.setFalse}
             />
-        </>
+        </div>
     );
 };

@@ -1,5 +1,8 @@
 .Wrapper {
     display: flex;
-    gap: var(--gap-xs);
     margin-right: var(--gap-s);
+}
+
+.Button {
+    margin-right: 1px;
 }

@@ -74,7 +74,7 @@ export const GlobalSearch = () => {
             searchResultExists={resultsExists || nothingFound}
             placeholder={tr('Search')}
             placement="bottom-end"
-            offset={[8, -20]}
+            offset={[8, -40]}
             outline
         >
             <ListView onKeyboardClick={onKeyboardNavigate}>

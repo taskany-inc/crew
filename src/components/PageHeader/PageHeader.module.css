@@ -1,18 +1,29 @@
 .HeaderNav {
     display: flex;
     align-items: center;
-   
 }
 
 .HeaderSearch {
-    margin-left: var(--gapM);
+    margin-left: 1px;
 }
 
 .Wrapper {
     display: flex;
-    gap:  var(--gap-m);
+    padding-left: var(--gap-xs);
 }
 
 .HeaderNavLinkActive {
     color: var(--blue-700);
+}
+
+.Link { 
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+}
+
+
+.TitleLogo {
+    fill:var(--text-primary);
+    color: var(--text-primary);
 }
