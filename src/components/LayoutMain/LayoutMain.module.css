@@ -6,3 +6,8 @@
 .PageContent {
     padding: var(--gap-m) var(--gap-l) var(--gap-l) var(--gap-l);
 }
+
+.TitleLogo {
+    color: red;
+    fill: red;
+}

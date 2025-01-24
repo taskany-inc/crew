@@ -81,7 +81,7 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
     return (
         <Header
             logo={
-                <HeaderLogo>
+                <HeaderLogo className={s.HeaderLogo}>
                     <PageHeaderLogo logo={logo} />
                 </HeaderLogo>
             }
