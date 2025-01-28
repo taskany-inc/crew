@@ -640,6 +640,35 @@ const componentMap: {
         );
     },
 
+    AddEmailToMailingSettings: ({ event }) => {
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('added additional email for {orgId} in mailing type {type}', {
+                        orgId: event.after.organizationUnitId || '',
+                        type: event.after.type,
+                    })}
+                </div>
+                <ChangeListItem title={tr('Additional email')} after={event.after.email} />
+                <ChangeListItem title={tr('Notify work space')} after={event.after.workSpaceNotify} />
+            </>
+        );
+    },
+
+    DeleteEmailFormMailingSettings: ({ event }) => {
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('deleted additional email from {orgId} in mailing type {type}', {
+                        orgId: event.after.organizationUnitId || '',
+                        type: event.after.type,
+                    })}
+                </div>
+                <ChangeListItem title={tr('Additional email')} after={event.after.email} />
+                <ChangeListItem title={tr('Notify work space')} after={event.after.workSpaceNotify} />
+            </>
+        );
+    },
     AddUserToGroup: ({ event }) => {
         return (
             <div className={s.Row}>

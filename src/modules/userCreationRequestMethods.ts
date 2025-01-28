@@ -266,6 +266,7 @@ export const userCreationRequestsMethods = {
                 'createScheduledUserRequest',
                 [data.organizationUnitId],
                 additionalEmails,
+                !!data.workSpace,
             );
             const icalSubject = newcomerSubject({
                 userCreationRequest,
@@ -926,7 +927,7 @@ export const userCreationRequestsMethods = {
             },
         });
 
-        if (editData.date && requestBeforeUpdate.date !== editData.date) {
+        if (editData.date && requestBeforeUpdate.date !== editData.date && editData.type === 'internalEmployee') {
             const additionalEmails = [sessionUserId];
 
             if (updatedRequest.supervisorId) additionalEmails.push(updatedRequest.supervisorId);
@@ -937,6 +938,7 @@ export const userCreationRequestsMethods = {
                 'createScheduledUserRequest',
                 [updatedRequest.organizationUnitId],
                 [sessionUserId],
+                !!editData.workSpace,
             );
 
             const icalSubject = newcomerSubject({

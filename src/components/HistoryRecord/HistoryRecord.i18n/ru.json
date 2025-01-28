@@ -150,5 +150,9 @@
     "Application for return of equipment": "Заявка на сдачу техники",
     "removed devices from user": "Удалил устройства у юзера",
     "in scheduled deactivation": "в запланированной деактивации",
-    "Deactivation id": "ID деактивации"
+    "Deactivation id": "ID деактивации",
+    "added additional email for {orgId} in mailing type {type}": "добавил(а) емейл для организации {orgId} в рассылке типа {type}",
+    "Additional email": "Дополнительная почта",
+    "Notify work space": "Уведомить о рабочем месте",
+    "deleted additional email from {orgId} in mailing type {type}": "удалил(а) емейл для организации {orgId} в рассылке типа {type}"
 }

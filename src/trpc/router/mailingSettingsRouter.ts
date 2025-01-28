@@ -1,32 +1,41 @@
-import { editAdditionEmailsSchema, getAdditionEmailsSchema } from '../../modules/mailingSettingsSchemas';
+import { addOrDeleteEmailSchema, getEmailsSchema } from '../../modules/mailingSettingsSchemas';
 import { protectedProcedure, router } from '../trpcBackend';
 import { mailSettingsMethods } from '../../modules/mailSettingsMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 
 export const mailSettingsRouter = router({
-    additionalEmails: protectedProcedure
-        .input(getAdditionEmailsSchema)
-        .query(async ({ input }) => mailSettingsMethods.getAdditionEmails(input)),
+    getEmails: protectedProcedure
+        .input(getEmailsSchema)
+        .query(async ({ input }) => mailSettingsMethods.getEmails(input)),
 
-    editAdditionalEmails: protectedProcedure.input(editAdditionEmailsSchema).mutation(async ({ input, ctx }) => {
-        const mailSettingsBefore = await mailSettingsMethods.getAdditionEmails({
-            organizationUnitIds: [input.organizationUnitId],
-            mailingType: input.mailingType,
-        });
-        const updatedMailSettings = await mailSettingsMethods.editAdditionEmails(input);
+    addEmail: protectedProcedure.input(addOrDeleteEmailSchema).mutation(async ({ input, ctx }) => {
+        await mailSettingsMethods.addEmail(input);
 
-        await historyEventMethods.create({ user: ctx.session.user.id }, 'editAdditionalEmailMailingSettings', {
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'addEmailToMailingSettings', {
             groupId: undefined,
             userId: undefined,
-            before: {
-                type: input.mailingType,
-                organizationUnitId: input.organizationUnitId,
-                additionalEmails: mailSettingsBefore.join(', '),
-            },
+            before: undefined,
             after: {
                 type: input.mailingType,
                 organizationUnitId: input.organizationUnitId,
-                additionalEmails: updatedMailSettings.additionalEmails.join(', '),
+                email: input.email,
+                workSpaceNotify: input.workSpaceNotify,
+            },
+        });
+    }),
+
+    deleteEmail: protectedProcedure.input(addOrDeleteEmailSchema).mutation(async ({ input, ctx }) => {
+        await mailSettingsMethods.deleteEmail(input);
+
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'addEmailToMailingSettings', {
+            groupId: undefined,
+            userId: undefined,
+            before: undefined,
+            after: {
+                type: input.mailingType,
+                organizationUnitId: input.organizationUnitId,
+                email: input.email,
+                workSpaceNotify: input.workSpaceNotify || undefined,
             },
         });
     }),
