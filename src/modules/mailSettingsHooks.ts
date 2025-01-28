@@ -1,17 +1,23 @@
 import { trpc } from '../trpc/trpcClient';
 
-import { EditAdditionEmails } from './mailingSettingsSchemas';
+import { AddOrDeleteEmail } from './mailingSettingsSchemas';
 
 export const useMailSettingsMutations = () => {
     const utils = trpc.useContext();
 
-    const editAdditionalEmails = trpc.mailSettings.editAdditionalEmails.useMutation({
+    const addEmail = trpc.mailSettings.addEmail.useMutation({
         onSuccess: () => {
-            utils.mailSettings.additionalEmails.invalidate();
+            utils.mailSettings.getEmails.invalidate();
         },
     });
 
+    const deleteEmail = trpc.mailSettings.deleteEmail.useMutation({
+        onSuccess: () => {
+            utils.mailSettings.getEmails.invalidate();
+        },
+    });
     return {
-        editAdditionalEmails: (data: EditAdditionEmails) => editAdditionalEmails.mutateAsync(data),
+        addEmail: (data: AddOrDeleteEmail) => addEmail.mutateAsync(data),
+        deleteEmail: (data: AddOrDeleteEmail) => deleteEmail.mutateAsync(data),
     };
 };

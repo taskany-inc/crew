@@ -150,5 +150,9 @@
     "Application for return of equipment": "",
     "removed devices from user": "",
     "in scheduled deactivation": "",
-    "Deactivation id": ""
+    "Deactivation id": "",
+    "added additional email for {orgId} in mailing type {type}": "",
+    "Additional email": "",
+    "Notify work space": "",
+    "deleted additional email from {orgId} in mailing type {type}": ""
 }

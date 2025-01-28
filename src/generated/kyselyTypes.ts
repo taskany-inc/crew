@@ -173,11 +173,13 @@ export type Job = {
     updatedAt: Generated<Timestamp>;
 };
 export type MailingSettings = {
-    id: string;
+    id: Generated<string>;
     userId: string | null;
     organizationUnitId: string | null;
     additionalEmails: string[];
     plainEmails: boolean | null;
+    email: string | null;
+    workSpaceNotify: Generated<boolean>;
     createUserRequest: Generated<boolean>;
     createScheduledUserRequest: Generated<boolean>;
     scheduledDeactivation: Generated<boolean>;

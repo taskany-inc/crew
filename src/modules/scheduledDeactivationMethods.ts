@@ -254,6 +254,7 @@ export const scheduledDeactivationMethods = {
                       .map(({ organizationUnitId }) => organizationUnitId)
                 : [],
             additionalEmails,
+            !!data.workSpace,
         );
 
         const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
@@ -652,6 +653,7 @@ export const scheduledDeactivationMethods = {
                           .map(({ organizationUnitId }) => organizationUnitId)
                     : [],
                 additionalEmails,
+                !!restData.workSpace,
             );
 
             const icalEvent = createIcalEventData({

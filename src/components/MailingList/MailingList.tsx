@@ -30,15 +30,17 @@ export const MailingList = ({ mailingType, organizationUnitId }: MailingListProp
 
     const userQuery = trpc.user.getList.useQuery({ mailingSettings: { type: mailingType, organizationUnitId } });
 
-    const { data: additionalEmails = [] } = trpc.mailSettings.additionalEmails.useQuery({
+    const { data: additionalEmails = [] } = trpc.mailSettings.getEmails.useQuery({
         mailingType,
         organizationUnitIds: [organizationUnitId],
     });
 
-    const { editAdditionalEmails } = useMailSettingsMutations();
-
-    const onEmailsChange = (additionalEmails: string[]) =>
-        editAdditionalEmails({ organizationUnitId, mailingType, additionalEmails });
+    const { data: workSpaceEmails = [] } = trpc.mailSettings.getEmails.useQuery({
+        mailingType,
+        organizationUnitIds: [organizationUnitId],
+        workSpaceNotify: true,
+    });
+    const { addEmail, deleteEmail } = useMailSettingsMutations();
 
     const { editUserMailingSettings } = useUserMutations();
 
@@ -74,15 +76,24 @@ export const MailingList = ({ mailingType, organizationUnitId }: MailingListProp
     );
 
     const [newEmail, setNewEmail] = useState('');
-    const isEmailValid = useBoolean(true);
+    const [newWorkSpaceEmail, setNewWorkSpaceEmail] = useState('');
 
-    const onEmainAdd = () => {
-        if (!regexTestEmail(newEmail)) {
-            isEmailValid.setFalse();
+    const isEmailValid = useBoolean(true);
+    const isWorkSpaceEmailValid = useBoolean(true);
+
+    const onEmainAdd = (workSpaceNotify?: boolean) => {
+        const email = workSpaceNotify ? newWorkSpaceEmail : newEmail;
+        if (!regexTestEmail(email)) {
+            workSpaceNotify ? isWorkSpaceEmailValid.setFalse() : isEmailValid.setFalse();
             return;
         }
-        onEmailsChange([...additionalEmails, newEmail]);
-        setNewEmail('');
+        addEmail({
+            organizationUnitId,
+            mailingType,
+            email,
+            workSpaceNotify,
+        });
+        workSpaceNotify ? setNewWorkSpaceEmail('') : setNewEmail('');
     };
 
     const onEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,6 +102,15 @@ export const MailingList = ({ mailingType, organizationUnitId }: MailingListProp
             isEmailValid.setTrue();
         }
     };
+    const onWorkSpaceEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewWorkSpaceEmail(e.target.value);
+        if (!isWorkSpaceEmailValid.value && regexTestEmail(newWorkSpaceEmail)) {
+            isWorkSpaceEmailValid.setTrue();
+        }
+    };
+
+    const onEmailDelete = (email: string, workSpaceNotify?: boolean) =>
+        deleteEmail({ email, organizationUnitId, mailingType, workSpaceNotify });
 
     return (
         <div className={s.UserList}>
@@ -127,7 +147,7 @@ export const MailingList = ({ mailingType, organizationUnitId }: MailingListProp
                     value={newEmail}
                     onChange={onEmailChange}
                 />
-                <Button brick="left" onClick={onEmainAdd} text={tr('Add')} view="primary" />
+                <Button brick="left" onClick={() => onEmainAdd()} text={tr('Add')} view="primary" />
                 {nullable(!isEmailValid.value, () => (
                     <FormControlError error={{ message: tr('Enter valid email') }} />
                 ))}
@@ -138,12 +158,31 @@ export const MailingList = ({ mailingType, organizationUnitId }: MailingListProp
                     iconLeft={<IconEnvelopeOpenOutline size="s" />}
                     text={email}
                     action="dynamic"
-                    iconRight={
-                        <IconXCircleOutline
-                            size="s"
-                            onClick={() => onEmailsChange(additionalEmails.filter((e) => e !== email))}
-                        />
-                    }
+                    iconRight={<IconXCircleOutline size="s" onClick={() => onEmailDelete(email)} />}
+                />
+            ))}
+
+            <Text as="h4">{tr('Workspace emails')}</Text>
+            <FormControl className={s.NewEmailForm}>
+                <FormControlInput
+                    outline
+                    placeholder={tr('Add new workspace email')}
+                    brick="right"
+                    value={newWorkSpaceEmail}
+                    onChange={onWorkSpaceEmailChange}
+                />
+                <Button brick="left" onClick={() => onEmainAdd(true)} text={tr('Add')} view="primary" />
+                {nullable(!isWorkSpaceEmailValid.value, () => (
+                    <FormControlError error={{ message: tr('Enter valid email') }} />
+                ))}
+            </FormControl>
+            {workSpaceEmails.map((email) => (
+                <Badge
+                    key={email}
+                    iconLeft={<IconEnvelopeOpenOutline size="s" />}
+                    text={email}
+                    action="dynamic"
+                    iconRight={<IconXCircleOutline size="s" onClick={() => onEmailDelete(email, true)} />}
                 />
             ))}
 

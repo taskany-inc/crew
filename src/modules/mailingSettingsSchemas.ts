@@ -2,17 +2,19 @@ import z from 'zod';
 
 import { mailingSettingType } from './userTypes';
 
-export const editAdditionEmailsSchema = z.object({
+export const addOrDeleteEmailSchema = z.object({
     organizationUnitId: z.string(),
     mailingType: z.enum(mailingSettingType),
-    additionalEmails: z.array(z.string()),
+    email: z.string(),
+    workSpaceNotify: z.boolean().optional(),
 });
 
-export type EditAdditionEmails = z.infer<typeof editAdditionEmailsSchema>;
+export type AddOrDeleteEmail = z.infer<typeof addOrDeleteEmailSchema>;
 
-export const getAdditionEmailsSchema = z.object({
+export const getEmailsSchema = z.object({
     organizationUnitIds: z.array(z.string()),
     mailingType: z.enum(mailingSettingType),
+    workSpaceNotify: z.boolean().optional(),
 });
 
-export type GetAdditionEmails = z.infer<typeof getAdditionEmailsSchema>;
+export type GetEmails = z.infer<typeof getEmailsSchema>;

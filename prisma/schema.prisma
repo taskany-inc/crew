@@ -721,15 +721,18 @@ model Attach {
 }
 
 model MailingSettings {
-  id     String  @id @default(uuid())
+  id     String  @id @default(dbgenerated("gen_random_uuid()"))
   user   User?   @relation(fields: [userId], references: [id])
   userId String?
 
   organizationUnit   OrganizationUnit? @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId String?
 
-  additionalEmails String[]
-  plainEmails      Boolean?
+  additionalEmails String[] // DEPRECATED
+  plainEmails      Boolean? // DEPRECATED
+
+  email           String?
+  workSpaceNotify Boolean @default(false)
 
   createUserRequest          Boolean @default(false)
   createScheduledUserRequest Boolean @default(false)
@@ -789,8 +792,8 @@ model SupplementalPosition {
   job   Job?    @relation(fields: [jobId], references: [id])
   jobId String? @unique
 
-  userCreationRequest     UserCreationRequest?   @relation(fields: [userCreationRequestId], references: [id])
-  userCreationRequestId   String?
+  userCreationRequest   UserCreationRequest? @relation(fields: [userCreationRequestId], references: [id])
+  userCreationRequestId String?
 
   scheduledDeactivation   ScheduledDeactivation? @relation(fields: [scheduledDeactivationId], references: [id])
   scheduledDeactivationId String?

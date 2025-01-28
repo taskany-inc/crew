@@ -588,6 +588,7 @@ export const userMethods = {
         mailingType: MailingSettingType,
         organizationUnitIds: string[],
         additionUsersIds?: string[],
+        workSpaceNotify?: boolean,
     ) => {
         const mailingList = await prisma.user.findMany({
             where: {
@@ -604,10 +605,19 @@ export const userMethods = {
             select: { email: true, name: true },
         });
 
-        const additionalEmails = await mailSettingsMethods.getAdditionEmails({
+        const additionalEmails = await mailSettingsMethods.getEmails({
             mailingType,
             organizationUnitIds,
         });
+
+        if (workSpaceNotify) {
+            const workSpaceNotifyEmails = await mailSettingsMethods.getEmails({
+                mailingType,
+                organizationUnitIds,
+                workSpaceNotify,
+            });
+            additionalEmails.push(...workSpaceNotifyEmails);
+        }
 
         const users = [
             ...mailingList.map(({ email, name }) => ({ email, name: name || undefined })),

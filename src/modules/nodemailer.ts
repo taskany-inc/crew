@@ -41,7 +41,7 @@ const message = ({ from = 'Crew', to, subject, text, html, icalEvent, attachment
 
 export const sendMail = (body: MessageBody) => {
     if (!config.nodemailer.enabled) {
-        console.log(`Skipping mail ${body.subject}`);
+        console.log(`Skipping mail ${body.subject} to ${body.to}`);
         return;
     }
 

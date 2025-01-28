@@ -215,6 +215,18 @@ interface HistoryEventsData {
         requireBefore: true;
         data: { type: string; organizationUnitId?: string; additionalEmails?: string };
     };
+    addEmailToMailingSettings: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: false;
+        data: { type: string; email: string; organizationUnitId?: string; workSpaceNotify?: boolean };
+    };
+    deleteEmailFormMailingSettings: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: false;
+        data: { type: string; email: string; organizationUnitId?: string; workSpaceNotify?: boolean };
+    };
     addUserToGroup: {
         requireGroupId: true;
         requireUserId: true;
