@@ -36,7 +36,6 @@ type ReadOnlyMap = Partial<Record<keyof UserFormPersonalDataBlockType, boolean>>
 interface UserFormPersonalDataBlockProps {
     className: string;
     id: string;
-    onIsLoginUniqueChange?: (arg: string) => void;
     type:
         | 'internal'
         | 'existing'
@@ -49,13 +48,7 @@ interface UserFormPersonalDataBlockProps {
     defaultValue?: UserFormPersonalDataBlockType;
 }
 
-export const UserFormPersonalDataBlock = ({
-    className,
-    id,
-    onIsLoginUniqueChange,
-    type,
-    readOnly = true,
-}: UserFormPersonalDataBlockProps) => {
+export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true }: UserFormPersonalDataBlockProps) => {
     const {
         register,
         setValue,
@@ -83,14 +76,12 @@ export const UserFormPersonalDataBlock = ({
             middleName: getValues('middleName'),
             surname: getValues('surname'),
         });
-        onIsLoginUniqueChange && onIsLoginUniqueChange(login);
         setValue('login', login);
         setValue('corporateEmail', getCorporateEmail(login));
         setValue('email', getCorporateEmail(login));
     };
 
     const onLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
-        onIsLoginUniqueChange && onIsLoginUniqueChange(e.target.value);
         setValue('corporateEmail', getCorporateEmail(e.target.value));
         setValue('email', getCorporateEmail(e.target.value));
     };

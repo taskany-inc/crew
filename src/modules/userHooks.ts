@@ -78,6 +78,8 @@ export const useUserMutations = () => {
         },
     });
 
+    const isLoginUnique = utils.user.isLoginUnique.fetch;
+
     return {
         editUserRole: (data: EditUserRoleData) => notifyPromise(editUserRole.mutateAsync(data), 'userUpdate'),
 
@@ -99,5 +101,7 @@ export const useUserMutations = () => {
 
         editUserActiveState: (data: EditUserActiveState) =>
             notifyPromise(editUserActiveState.mutateAsync(data), 'userUpdate'),
+
+        isLoginUnique: (login: string) => isLoginUnique(login),
     };
 };
