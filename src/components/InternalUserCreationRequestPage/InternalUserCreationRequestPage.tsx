@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Text } from '@taskany/bricks/harmony';
-import { debounce } from 'throttle-debounce';
 import { nullable } from '@taskany/bricks';
 import { UserCreationRequestStatus } from 'prisma/prisma-client';
+import { z } from 'zod';
 
 import {
     CreateUserCreationRequestInternalEmployee,
@@ -19,10 +19,10 @@ import { useRouter } from '../../hooks/useRouter';
 import { UserFormFormActions } from '../UserFormFormActions/UserFormFormActions';
 import { NavMenu } from '../NavMenu/NavMenu';
 import { useSpyNav } from '../../hooks/useSpyNav';
-import { trpc } from '../../trpc/trpcClient';
 import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
+import { useUserMutations } from '../../modules/userHooks';
 
 import s from './InternalUserCreationRequestPage.module.css';
 import { tr } from './InternalUserCreationRequestPage.i18n';
@@ -33,6 +33,27 @@ interface InternalUserCreationRequestPageProps {
     requestStatus?: UserCreationRequestStatus;
     type?: 'new' | 'readOnly' | 'edit';
 }
+
+const internalUserRequestSchema = (isloginUnique: (login: string) => Promise<boolean>) =>
+    getCreateUserCreationRequestInternalEmployeeSchema()
+        .refine(({ workEmail, personalEmail }) => workEmail !== '' || personalEmail !== '', {
+            message: tr('Enter Email'),
+            path: ['workEmail'],
+        })
+        .refine(({ workEmail, personalEmail }) => workEmail !== '' || personalEmail !== '', {
+            message: tr('Enter Email'),
+            path: ['personalEmail'],
+        })
+        .superRefine(async (val, ctx) => {
+            const unique = await isloginUnique(val.login);
+            if (!unique) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: tr('User with login already exist'),
+                    path: ['login'],
+                });
+            }
+        });
 
 export const InternalUserCreationRequestPage = ({
     requestId,
@@ -80,48 +101,22 @@ export const InternalUserCreationRequestPage = ({
 
     const router = useRouter();
 
+    const rootRef = useRef<HTMLDivElement>(null);
+
+    const { isLoginUnique } = useUserMutations();
+
     const methods = useForm<CreateUserCreationRequestInternalEmployee>({
-        resolver: zodResolver(getCreateUserCreationRequestInternalEmployeeSchema()),
+        resolver: zodResolver(internalUserRequestSchema(isLoginUnique)),
         defaultValues,
     });
 
     const {
         handleSubmit,
-        watch,
         reset,
-        setError,
-        trigger,
-        getValues,
         formState: { isSubmitting, isSubmitSuccessful },
     } = methods;
 
-    const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
-    const rootRef = useRef<HTMLDivElement>(null);
-
-    const isLoginUnique = trpc.user.isLoginUnique.useQuery(isLoginUniqueQuery, {
-        enabled: isLoginUniqueQuery.length > 1,
-    });
-
-    useEffect(() => {
-        if (getValues('login') && isLoginUnique.data === false && getValues('login') !== request?.login) {
-            setError('login', { message: tr('User with login already exist') });
-        } else if (getValues('login')) trigger('login');
-    }, [isLoginUnique.data, setError, trigger, getValues, request?.login]);
-
-    const debouncedLoginSearchHandler = debounce(300, setIsLoginUniqueQuery);
-
     const onFormSubmit = handleSubmit(async (data) => {
-        if (!watch('personalEmail') && !watch('workEmail')) {
-            setError('personalEmail', { message: tr('Enter Email') });
-            setError('workEmail', { message: tr('Enter Email') });
-            return;
-        }
-
-        if (isLoginUnique.data === false && data.login !== request?.login) {
-            setError('login', { message: tr('User with login already exist') });
-            return;
-        }
-
         if (type === 'edit' && requestId) {
             await editUserCreationRequest({ id: requestId, data });
             return router.userRequests();
@@ -167,7 +162,6 @@ export const InternalUserCreationRequestPage = ({
                                 <UserFormPersonalDataBlock
                                     type="internal"
                                     readOnly={type === 'readOnly'}
-                                    onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
                                     id="personal-data"
                                 />

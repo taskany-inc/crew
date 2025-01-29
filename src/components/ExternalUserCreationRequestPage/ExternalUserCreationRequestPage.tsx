@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormControlInput, Text } from '@taskany/bricks/harmony';
-import { debounce } from 'throttle-debounce';
 import { OrganizationUnit, UserCreationRequestStatus } from 'prisma/prisma-client';
 import { nullable } from '@taskany/bricks';
+import { z } from 'zod';
 
 import {
     CreateUserCreationRequestExternalEmployee,
@@ -16,7 +16,6 @@ import { UserFormPersonalDataBlock } from '../UserFormPersonalDataBlock/UserForm
 import { useRouter } from '../../hooks/useRouter';
 import { UserFormFormActions } from '../UserFormFormActions/UserFormFormActions';
 import { NavMenu } from '../NavMenu/NavMenu';
-import { trpc } from '../../trpc/trpcClient';
 import { FormControl } from '../FormControl/FormControl';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { UserFormExternalTeamBlock } from '../UserFormExternalTeamBlock/UserFormExternalTeamBlock';
@@ -24,6 +23,7 @@ import { UserFormExternalExtraInfoBlock } from '../UserFormExternalExtraInfoBloc
 import { useSpyNav } from '../../hooks/useSpyNav';
 import { Nullish } from '../../utils/types';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
+import { useUserMutations } from '../../modules/userHooks';
 
 import s from './ExternalUserCreationRequestPage.module.css';
 import { tr } from './ExternalUserCreationRequestPage.i18n';
@@ -34,6 +34,18 @@ interface ExternalUserCreationRequestPageProps {
     requestId?: string;
     requestStatus?: UserCreationRequestStatus;
 }
+
+const externalUserRequestSchema = (isloginUnique: (login: string) => Promise<boolean>) =>
+    getCreateUserCreationRequestExternalEmployeeSchema().superRefine(async (val, ctx) => {
+        const unique = await isloginUnique(val.login);
+        if (!unique) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: tr('User with login already exist'),
+                path: ['login'],
+            });
+        }
+    });
 
 export const ExternalUserCreationRequestPage = ({
     request,
@@ -72,8 +84,10 @@ export const ExternalUserCreationRequestPage = ({
         [request],
     );
 
+    const { isLoginUnique } = useUserMutations();
+
     const methods = useForm<CreateUserCreationRequestExternalEmployee>({
-        resolver: zodResolver(getCreateUserCreationRequestExternalEmployeeSchema()),
+        resolver: zodResolver(externalUserRequestSchema(isLoginUnique)),
         defaultValues,
     });
 
@@ -82,9 +96,7 @@ export const ExternalUserCreationRequestPage = ({
     const {
         handleSubmit,
         reset,
-        setError,
         trigger,
-        getValues,
         watch,
         setValue,
         register,
@@ -97,26 +109,7 @@ export const ExternalUserCreationRequestPage = ({
         }
     });
 
-    const [isLoginUniqueQuery, setIsLoginUniqueQuery] = useState('');
-
-    const isLoginUnique = trpc.user.isLoginUnique.useQuery(isLoginUniqueQuery, {
-        enabled: isLoginUniqueQuery.length > 1,
-    });
-
-    useEffect(() => {
-        if (getValues('login') && isLoginUnique.data === false && getValues('login') !== request?.login) {
-            setError('login', { message: tr('User with login already exist') });
-        } else if (getValues('login')) trigger('login');
-    }, [isLoginUnique.data, setError, trigger, getValues, request?.login]);
-
-    const debouncedLoginSearchHandler = debounce(300, setIsLoginUniqueQuery);
-
     const onFormSubmit = handleSubmit(async (data) => {
-        if (isLoginUnique.data === false && data.login !== request?.login) {
-            setError('login', { message: tr('User with login already exist') });
-            return;
-        }
-
         if (type === 'edit' && requestId) {
             await editUserCreationRequest({ id: requestId, data });
             return router.accessCoordination();
@@ -162,7 +155,6 @@ export const ExternalUserCreationRequestPage = ({
                                 <UserFormPersonalDataBlock
                                     readOnly={type === 'readOnly'}
                                     type="externalEmployee"
-                                    onIsLoginUniqueChange={debouncedLoginSearchHandler}
                                     className={s.FormBlock}
                                     id="personal-data"
                                 />
