@@ -23,7 +23,6 @@ import { EditUser, EditUserFields, editUserFieldsSchema } from '../../modules/us
 import { useUserMutations } from '../../modules/userHooks';
 import { UserCurators, UserOrganizationUnit, UserSupervisor, UserSupplementalPositions } from '../../modules/userTypes';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
-import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';
 import { SupplementalPositionItem } from '../SupplementalPositionItem/SupplementalPositionItem';
 import { useSupplementalPositionMutations } from '../../modules/supplementalPositionHooks';
 import { UserSelect } from '../UserSelect/UserSelect';
@@ -154,23 +153,6 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                 ))}
                             </div>
                         ))}
-                        <AddSupplementalPosition
-                            setPercentage={(percentage) =>
-                                percentage && setValue('supplementalPosition.percentage', percentage)
-                            }
-                            onClose={() => setValue('supplementalPosition', undefined)}
-                            onOrganizatioUnitChange={(id) =>
-                                id && setValue('supplementalPosition.organizationUnitId', id)
-                            }
-                            percentage={watch('supplementalPosition.percentage')}
-                            organizationUnitId={watch('supplementalPosition.organizationUnitId')}
-                            unitId={watch('supplementalPosition.unitId')}
-                            setUnitId={(unitId) => unitId && setValue('supplementalPosition.unitId', unitId)}
-                            errors={{
-                                percentage: errors.supplementalPosition?.percentage,
-                                organizationUnitId: errors.supplementalPosition?.organizationUnitId,
-                            }}
-                        />
                     </div>
 
                     <FormActions flat="top">
