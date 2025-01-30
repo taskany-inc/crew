@@ -1,0 +1,16 @@
+
+.GroupMember {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: var(--gap-m);
+    align-items: center;
+}
+
+.GroupMemberIcon {
+    display: inline-flex;
+    height: 32px;
+    min-width: 32px;
+    align-items: center;
+    justify-content: center;
+}

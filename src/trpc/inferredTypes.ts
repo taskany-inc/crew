@@ -13,3 +13,4 @@ export type User = RouterOutputs['user']['getById'];
 export type UserDevices = RouterOutputs['device']['getUserDevices'];
 
 export type ScheduledDeactivation = RouterOutputs['scheduledDeactivation']['getById'];
+export type GroupTree = RouterOutputs['group']['getGroupTree'];

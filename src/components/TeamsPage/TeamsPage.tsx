@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { nullable, TreeView } from '@taskany/bricks';
+import { nullable } from '@taskany/bricks';
+import { TreeView } from '@taskany/bricks/harmony';
 import { gapL, gapM } from '@taskany/colors';
 
 import { LayoutMain } from '../LayoutMain/LayoutMain';

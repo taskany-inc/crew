@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { defaultTake } from '../utils';
 import { SessionUser } from '../utils/auth';
+import { db } from '../utils/db';
 
 import { CreateVacancy, GetVacancyList, EditVacancy } from './vacancySchemas';
 import { tr } from './modules.i18n';
@@ -183,4 +184,13 @@ export const vacancyMethods = {
     },
 
     delete: (id: string) => prisma.vacancy.delete({ where: { id } }),
+
+    count: (id?: string) => {
+        return db
+            .selectFrom('Vacancy')
+            .select(({ fn, cast }) => [cast(fn.count<number>('Vacancy.userId').distinct(), 'integer').as('vacancy')])
+            .where('Vacancy.archived', 'is not', true)
+            .$if(id != null, (qb) => qb.where('Vacancy.groupId', '=', id!))
+            .executeTakeFirst();
+    },
 };
