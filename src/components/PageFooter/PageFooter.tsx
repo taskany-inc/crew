@@ -2,6 +2,7 @@ import { FC, useCallback, useState } from 'react';
 import { Footer, FooterItem, Modal } from '@taskany/bricks';
 import { useRouter } from 'next/router';
 
+import { trpc } from '../../trpc/trpcClient';
 import FeedbackCreateForm from '../FeedbackCreateForm/FeedbackCreateForm';
 import { Link } from '../Link';
 import { defaultLocale, languages } from '../../utils/getLang';
@@ -11,13 +12,13 @@ import { tr } from './PageFooter.i18n';
 
 export const PageFooter: FC = () => {
     const [openFeedbackForm, setOpenFeedbackForm] = useState(false);
-
+    const config = trpc.appConfig.get.useQuery(undefined, {
+        staleTime: Infinity,
+    });
     const menuItems = [
-        { title: tr('Terms'), url: '/terms' },
         { title: tr('Docs'), url: '/docs' },
-        { title: tr('Contact Taskany'), url: '/contactTaskany' },
+        { title: tr('Support'), url: config.data?.supportLink ?? undefined },
         { title: tr('API'), url: '/api-docs' },
-        { title: tr('About'), url: '/about' },
     ];
 
     const router = useRouter();
