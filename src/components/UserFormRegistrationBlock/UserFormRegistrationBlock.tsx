@@ -28,7 +28,7 @@ interface UserFormRegistrationBlockProps {
 interface UserFormRegistrationBlockType {
     organizationUnitId: string;
     percentage: number;
-    supplementalPositions?: Array<{ organizationUnitId: string; percentage: number; unitId?: string }>;
+    supplementalPositions?: Array<{ organizationUnitId: string; percentage: number; startDate: Date; unitId?: string }>;
     firedOrganizationUnitId?: string;
     unitId?: string;
     date: Date;
@@ -45,7 +45,6 @@ export const UserFormRegistrationBlock = ({
     edit,
     organizationUnits,
     onOrganistaionUnitChange,
-    onSupplementalOrganistaionUnitChange,
     onFiredOrganizationUnitChange,
 }: UserFormRegistrationBlockProps) => {
     const {
@@ -71,13 +70,6 @@ export const UserFormRegistrationBlock = ({
             onFiredOrganizationUnitChange?.(o.id);
         }
         trigger('firedOrganizationUnitId');
-    };
-
-    const onSuplementalPositionChange = (orgId: string | undefined) => {
-        if (orgId) {
-            setValue('supplementalPositions.0.organizationUnitId', orgId);
-            onSupplementalOrganistaionUnitChange?.(orgId);
-        }
     };
 
     const onPercentageChange = (
@@ -206,25 +198,7 @@ export const UserFormRegistrationBlock = ({
             </div>
 
             <div className={s.AddSupplementalPosition}></div>
-            <AddSupplementalPosition
-                visible={!!watch('supplementalPositions.0.organizationUnitId')}
-                readOnly={readOnly}
-                onOrganizatioUnitChange={onSuplementalPositionChange}
-                organizationUnitId={watch('supplementalPositions.0.organizationUnitId')}
-                percentage={watch('supplementalPositions.0.percentage')}
-                setPercentage={(percentage) => {
-                    percentage && setValue('supplementalPositions.0.percentage', percentage);
-                    percentage && onPercentageChange(percentage, 'supplementalPositions.0.percentage');
-                }}
-                onClose={() => {
-                    setValue('supplementalPositions', undefined);
-                    trigger('supplementalPositions');
-                }}
-                organizationUnits={organizationUnits}
-                unitId={watch('supplementalPositions.0.unitId')}
-                setUnitId={(unitId) => unitId && setValue('supplementalPositions.0.unitId', unitId)}
-                errors={errors.supplementalPositions instanceof Array && errors.supplementalPositions[0]}
-            />
+            <AddSupplementalPosition readOnly={readOnly} />
         </div>
     );
 };
