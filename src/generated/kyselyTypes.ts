@@ -76,6 +76,7 @@ export type AppConfig = {
     logo: string | null;
     orgGroupId: string | null;
     orgGroupUpdatedAt: Timestamp | null;
+    support_link: string | null;
 };
 export type Attach = {
     id: string;
