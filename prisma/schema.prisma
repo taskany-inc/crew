@@ -626,6 +626,8 @@ model AppConfig {
 
   orgGroupId        String?
   orgGroupUpdatedAt DateTime?
+
+  supportLink String?
 }
 
 model Achievement {
@@ -789,8 +791,8 @@ model SupplementalPosition {
   job   Job?    @relation(fields: [jobId], references: [id])
   jobId String? @unique
 
-  userCreationRequest     UserCreationRequest?   @relation(fields: [userCreationRequestId], references: [id])
-  userCreationRequestId   String?
+  userCreationRequest   UserCreationRequest? @relation(fields: [userCreationRequestId], references: [id])
+  userCreationRequestId String?
 
   scheduledDeactivation   ScheduledDeactivation? @relation(fields: [scheduledDeactivationId], references: [id])
   scheduledDeactivationId String?
