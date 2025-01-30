@@ -1,0 +1,10 @@
+.PageWrapper {
+    padding: 0 var(--gap-xl);
+}
+
+.PageWrapper_Content {
+    margin-top: var(--gap-m);
+    padding: calc(var(--gap-m) + var(--gap-s)); /* 'cause we haven't 1.5rems gap */
+    background-color: var(--layer);
+    border-radius: 20px;
+}

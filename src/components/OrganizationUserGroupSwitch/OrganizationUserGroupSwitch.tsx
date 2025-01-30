@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import { Switch, SwitchControl } from '@taskany/bricks/harmony';
 
 import { useRouter } from '../../hooks/useRouter';
@@ -8,13 +9,14 @@ import { tr } from './OrganizationUserGroupSwitch.i18n';
 
 interface OrganizationUserGroupSwitchProps {
     value: 'org' | 'users';
+    noGap?: boolean;
 }
-export const OrganizationUserGroupSwitch = ({ value }: OrganizationUserGroupSwitchProps) => {
+export const OrganizationUserGroupSwitch = ({ value, noGap }: OrganizationUserGroupSwitchProps) => {
     const router = useRouter();
     const appConfig = useAppConfig();
 
     return (
-        <Switch value={value} className={s.Switch}>
+        <Switch value={value} className={cn(s.Switch, { [s.Switch_noGap]: noGap })}>
             <SwitchControl
                 text={tr('Organization groups')}
                 value="org"

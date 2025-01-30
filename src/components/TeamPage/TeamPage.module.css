@@ -1,0 +1,18 @@
+.TeamPageHeadingRow {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    margin-bottom: 20px;
+}
+
+.TeamPageHeading {
+    flex: 1;
+}
+
+.TeamPageHeadingControls {
+    margin-right: auto;
+    display: flex;
+    flex-direction: row;
+    gap: var(--gap-s);
+}
