@@ -5,6 +5,7 @@ import { IconBinOutline } from '@taskany/icons';
 
 import { FormControl } from '../FormControl/FormControl';
 import { AddInlineTrigger } from '../AddInlineTrigger/AddInlineTrigger';
+import { errorPicker } from '../../utils/errorPicker';
 
 import { tr } from './UserFormDevicesBlock.i18n';
 import s from './UserFormDevicesBlock.module.css';
@@ -14,14 +15,19 @@ interface UserFormDevicesBlockProps {
     readOnly?: boolean;
 }
 
+interface Device {
+    name: string;
+    id: string;
+}
+
 export const UserFormDevicesBlock = ({ className, readOnly }: UserFormDevicesBlockProps) => {
     const {
         register,
         control,
         formState: { errors },
     } = useFormContext<{
-        devices: Array<{ name: string; id: string }>;
-        testingDevices: Array<{ name: string; id: string }>;
+        devices: Array<Device>;
+        testingDevices: Array<Device>;
     }>();
 
     const {
@@ -53,10 +59,7 @@ export const UserFormDevicesBlock = ({ className, readOnly }: UserFormDevicesBlo
             </Text>
             {deviceFields.map((field, index) => (
                 <div key={field.id} className={s.TwoInputsWithBin}>
-                    <FormControl
-                        label={tr('Name')}
-                        error={errors?.devices instanceof Array && errors?.devices[index].name}
-                    >
+                    <FormControl label={tr('Name')} error={errorPicker<Device>(errors.devices, index, 'name')}>
                         <FormControlInput
                             readOnly={readOnly}
                             placeholder={tr('For example smart speaker')}
@@ -66,7 +69,7 @@ export const UserFormDevicesBlock = ({ className, readOnly }: UserFormDevicesBlo
                             {...register(`devices.${index}.name`)}
                         />
                     </FormControl>
-                    <FormControl label={tr('ID')} error={errors?.devices instanceof Array && errors?.devices[index].id}>
+                    <FormControl label={tr('ID')} error={errorPicker<Device>(errors.devices, index, 'id')}>
                         <FormControlInput
                             readOnly={readOnly}
                             placeholder="123456789"
@@ -88,10 +91,7 @@ export const UserFormDevicesBlock = ({ className, readOnly }: UserFormDevicesBlo
 
             {testingDeviceFields.map((field, index) => (
                 <div key={field.id} className={s.TwoInputsWithBin}>
-                    <FormControl
-                        label={tr('Name')}
-                        error={errors?.testingDevices instanceof Array && errors?.testingDevices[index]?.name}
-                    >
+                    <FormControl label={tr('Name')} error={errorPicker<Device>(errors.testingDevices, index, 'name')}>
                         <FormControlInput
                             readOnly={readOnly}
                             placeholder={tr('For example smart speaker')}
@@ -101,10 +101,7 @@ export const UserFormDevicesBlock = ({ className, readOnly }: UserFormDevicesBlo
                             {...register(`testingDevices.${index}.name`)}
                         />
                     </FormControl>
-                    <FormControl
-                        label={tr('ID')}
-                        error={errors?.testingDevices instanceof Array && errors?.testingDevices[index]?.id}
-                    >
+                    <FormControl label={tr('ID')} error={errorPicker<Device>(errors.testingDevices, index, 'id')}>
                         <FormControlInput
                             readOnly={readOnly}
                             placeholder="123456789"

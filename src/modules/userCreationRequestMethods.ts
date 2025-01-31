@@ -134,13 +134,13 @@ export const userCreationRequestsMethods = {
             createData.supplementalPositions = {
                 create: [
                     mainPosition,
-                    ...data.supplementalPositions.map(({ organizationUnitId, percentage, unitId }) => ({
+                    ...data.supplementalPositions.map(({ organizationUnitId, percentage, unitId, workStartDate }) => ({
                         organizationUnit: { connect: { id: organizationUnitId } },
                         percentage: percentage * percentageMultiply,
                         main: false,
                         role: data.title || undefined,
                         status: PositionStatus.ACTIVE,
-                        workStartDate: data.date,
+                        workStartDate,
                         unitId,
                     })),
                 ],
@@ -177,15 +177,17 @@ export const userCreationRequestsMethods = {
             createData.supplementalPositions = {
                 create: [
                     mainPosition,
-                    ...(data.supplementalPositions?.map(({ organizationUnitId, percentage, unitId }) => ({
-                        organizationUnit: { connect: { id: organizationUnitId } },
-                        percentage: percentage * percentageMultiply,
-                        main: false,
-                        role: data.title || undefined,
-                        status: PositionStatus.ACTIVE,
-                        workStartDate: data.date,
-                        unitId,
-                    })) || []),
+                    ...(data.supplementalPositions?.map(
+                        ({ organizationUnitId, percentage, unitId, workStartDate }) => ({
+                            organizationUnit: { connect: { id: organizationUnitId } },
+                            percentage: percentage * percentageMultiply,
+                            main: false,
+                            role: data.title || undefined,
+                            status: PositionStatus.ACTIVE,
+                            workStartDate,
+                            unitId,
+                        }),
+                    ) || []),
                 ],
             };
             createData.workMode = data.workMode || undefined;
@@ -615,11 +617,14 @@ export const userCreationRequestsMethods = {
             organizationUnitId: organization.id,
             supervisorId: supervisor?.id,
             lineManagerIds: lineManagers.map(({ id }) => id),
-            supplementalPositions: supplementalPositions.map(({ organizationUnitId, unitId, percentage }) => ({
-                organizationUnitId,
-                unitId: unitId || undefined,
-                percentage,
-            })),
+            supplementalPositions: supplementalPositions.map(
+                ({ organizationUnitId, unitId, percentage, workStartDate }) => ({
+                    organizationUnitId,
+                    unitId: unitId || undefined,
+                    percentage,
+                    workStartDate,
+                }),
+            ),
             permissionToServices: permissionServices.map(({ id }) => id),
             curatorIds: curators.map(({ id }) => id),
             attachIds: attaches.map(({ id }) => id) as [string, ...string[]],
@@ -710,11 +715,14 @@ export const userCreationRequestsMethods = {
             organizationUnitId: organization.id,
             supervisorId: supervisor?.id,
             lineManagerIds: lineManagers.map(({ id }) => id),
-            supplementalPositions: supplementalPositions.map(({ organizationUnitId, unitId, percentage }) => ({
-                organizationUnitId,
-                unitId: unitId || undefined,
-                percentage,
-            })),
+            supplementalPositions: supplementalPositions.map(
+                ({ organizationUnitId, unitId, percentage, workStartDate }) => ({
+                    organizationUnitId,
+                    unitId: unitId || undefined,
+                    percentage,
+                    workStartDate,
+                }),
+            ),
             permissionToServices: permissionServices.map(({ id }) => id),
             curatorIds: curators.map(({ id }) => id),
             unitId: unitId || undefined,
@@ -846,7 +854,7 @@ export const userCreationRequestsMethods = {
                 main: false,
                 role: editData.title,
                 status: PositionStatus.ACTIVE,
-                workStartDate: editData.date,
+                workStartDate: newSupplemental.workStartDate,
                 unitId: newSupplemental.unitId,
             };
             createNewSupplementalPositions.push(newSupplementalPosition);
@@ -856,7 +864,7 @@ export const userCreationRequestsMethods = {
             supplementalPositionBefore &&
             newSupplemental &&
             (editData.title !== supplementalPositionBefore.role ||
-                editData.date !== supplementalPositionBefore.workStartDate ||
+                newSupplemental.workStartDate !== supplementalPositionBefore.workStartDate ||
                 newSupplemental.organizationUnitId !== supplementalPositionBefore.organizationUnitId ||
                 newSupplemental.unitId !== supplementalPositionBefore.unitId ||
                 newSupplemental.percentage * percentageMultiply !== supplementalPositionBefore.percentage)
@@ -864,13 +872,17 @@ export const userCreationRequestsMethods = {
             await prisma.supplementalPosition.update({
                 where: { id: supplementalPositionBefore.id },
                 data: {
-                    workStartDate: editData.date,
+                    workStartDate: newSupplemental.workStartDate,
                     organizationUnitId: newSupplemental.organizationUnitId,
                     role: editData.title,
                     percentage: newSupplemental.percentage * percentageMultiply,
                     unitId: newSupplemental.unitId,
                 },
             });
+        }
+
+        if (supplementalPositionBefore && !newSupplemental) {
+            await prisma.supplementalPosition.delete({ where: { id: supplementalPositionBefore.id } });
         }
 
         if (restEditData.percentage) {
@@ -1526,10 +1538,11 @@ export const userCreationRequestsMethods = {
             workEmail: workEmail || undefined,
             supplementalPositions: supplementalPositions
                 .filter((position) => !position.main)
-                .map(({ organizationUnitId, unitId, percentage }) => ({
+                .map(({ organizationUnitId, unitId, percentage, workStartDate }) => ({
                     organizationUnitId,
                     unitId: unitId || undefined,
                     percentage: percentage / percentageMultiply,
+                    workStartDate,
                 })),
             osPreference: osPreference || undefined,
             unitId: unitId || undefined,

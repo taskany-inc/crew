@@ -70,6 +70,7 @@ export const getCreateUserCreationRequestBaseSchema = () =>
                         .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
                         .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
                     unitId: z.string().optional(),
+                    workStartDate: dateSchema,
                 }),
             )
             .optional(),

@@ -4,17 +4,20 @@ import { nullable } from '@taskany/bricks';
 
 import { FormControl } from '../FormControl/FormControl';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
+import { errorPicker } from '../../utils/errorPicker';
 
 import { tr } from './UserFormSupplementalPositionsBlock.i18n';
 import s from './UserFormSupplementalPositionsBlock.module.css';
 
+interface Position {
+    organizationUnitId: string;
+    percentage: number;
+    unitId?: string;
+    workEndDate?: Date;
+}
+
 interface SupplementalPositionsType {
-    supplementalPositions?: Array<{
-        organizationUnitId: string;
-        percentage: number;
-        unitId?: string;
-        workEndDate?: Date;
-    }>;
+    supplementalPositions?: Array<Position>;
 }
 
 interface UserFormSupplementalPositionsBlockProps {
@@ -65,20 +68,18 @@ export const UserFormSupplementalPositionsBlock = ({
                                         setValue(`supplementalPositions.${index}.organizationUnitId`, orgUnit.id)
                                     }
                                     organizationUnitId={watch(`supplementalPositions.${index}.organizationUnitId`)}
-                                    error={
-                                        errors?.supplementalPositions instanceof Array &&
-                                        errors?.supplementalPositions[index]?.organizationUnitId
-                                    }
+                                    error={errorPicker<Position>(
+                                        errors.supplementalPositions,
+                                        index,
+                                        'organizationUnitId',
+                                    )}
                                     readOnly={readOnly}
                                 />
                             </FormControl>
                             <FormControl
                                 label={tr('Percentage')}
                                 required
-                                error={
-                                    errors?.supplementalPositions instanceof Array &&
-                                    errors?.supplementalPositions[index]?.percentage
-                                }
+                                error={errorPicker<Position>(errors.supplementalPositions, index, 'percentage')}
                             >
                                 <FormControlInput
                                     placeholder={tr('Write percentage from 0.01 to 1')}
@@ -95,8 +96,7 @@ export const UserFormSupplementalPositionsBlock = ({
                                 required={fields.length > 1 && index === 0}
                                 label={tr('Dismsissal date')}
                                 error={
-                                    (errors?.supplementalPositions instanceof Array &&
-                                        errors?.supplementalPositions[index]?.workEndDate) ||
+                                    errorPicker<Position>(errors.supplementalPositions, index, 'workEndDate') ||
                                     errors?.supplementalPositions?.root
                                 }
                             >
