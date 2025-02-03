@@ -27,6 +27,7 @@ import {
     UserServices,
     UserCurators,
     UserCuratorOf,
+    UserLocation,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -42,12 +43,14 @@ import {
     EditUserMailingSettings,
     UpdateMembershipPercentage,
 } from './userSchemas';
+import { Location } from './locationTypes';
 import { tr } from './modules.i18n';
 import { addCalculatedGroupFields, groupMethods } from './groupMethods';
 import { userAccess } from './userAccess';
 import { externalUserMethods } from './externalUserMethods';
 import { supplementalPositionMethods } from './supplementalPositionMethods';
 import { mailSettingsMethods } from './mailSettingsMethods';
+import { locationMethods } from './locationMethods';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -229,7 +232,8 @@ export const userMethods = {
             UserSupplementalPositions &
             UserServices &
             UserCurators &
-            UserCuratorOf
+            UserCuratorOf &
+            UserLocation
     > => {
         const user = await prisma.user.findUnique({
             where: { id },
@@ -263,6 +267,7 @@ export const userMethods = {
                 },
                 curators: true,
                 curatorOf: { where: { active: true } },
+                location: true,
                 supplementalPositions: { include: { organizationUnit: true } },
             },
         });
@@ -700,6 +705,11 @@ export const userMethods = {
             services.push({ serviceName: emailService.name, serviceId: request.workEmail });
         }
 
+        let location: Location | undefined;
+        if (request.location) {
+            location = await locationMethods.findOrCreate(request.location);
+        }
+
         if (request.createExternalAccount) {
             const [surname, firstName, middleName] = request.name.split(' ');
 
@@ -745,6 +755,7 @@ export const userMethods = {
                         id,
                     })),
                 },
+                location: location ? { connect: { id: location.id } } : undefined,
                 curators: {
                     connect: request.curators.map(({ id }) => ({
                         id,

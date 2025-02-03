@@ -3,17 +3,17 @@ import { gapS, gray9 } from '@taskany/colors';
 import styled from 'styled-components';
 import { User } from 'prisma/prisma-client';
 
-import { UserCurators, UserSupervisor } from '../../modules/userTypes';
+import { UserCurators, UserLocation, UserSupervisor } from '../../modules/userTypes';
 import { NarrowSection } from '../NarrowSection';
 import { UserListItem } from '../UserListItem/UserListItem';
 
 import { tr } from './UserSummary.i18n';
 
 interface UserSummaryProps {
-    user: User & UserSupervisor & UserCurators;
+    user: User & UserSupervisor & UserCurators & UserLocation;
 }
 
-const StyledSupervisorText = styled(Text)`
+const StyledText = styled(Text)`
     display: flex;
     gap: ${gapS};
 `;
@@ -22,20 +22,25 @@ export const UserSummary = ({ user }: UserSummaryProps) => {
     return (
         <>
             <NarrowSection title={tr('Quick summary')}>
+                {nullable(user.location, (location) => (
+                    <Text size="m" color={gray9}>
+                        {tr('Location')}: <Text as="span">{location.name}</Text>
+                    </Text>
+                ))}
                 {nullable(user.supervisor, (supervisor) => (
-                    <StyledSupervisorText size="m" color={gray9}>
+                    <StyledText size="m" color={gray9}>
                         {tr('Supervisor')}
                         <UserListItem user={supervisor} />
-                    </StyledSupervisorText>
+                    </StyledText>
                 ))}
             </NarrowSection>
             {nullable(user.curators, (curators) => (
-                <StyledSupervisorText size="m" color={gray9}>
+                <StyledText size="m" color={gray9}>
                     {tr('Curators:')}
                     {curators.map((curator) => (
                         <UserListItem key={curator.id} user={curator} />
                     ))}
-                </StyledSupervisorText>
+                </StyledText>
             ))}
         </>
     );

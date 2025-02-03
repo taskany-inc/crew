@@ -137,7 +137,7 @@ export const ScheduledDismissalPage = ({
             workMode: scheduledDeactivation?.workMode || undefined,
             workSpace: scheduledDeactivation?.workPlace || undefined,
             comment: scheduledDeactivation?.comments || undefined,
-            location: scheduledDeactivation?.location || undefined,
+            location: scheduledDeactivation?.location || user?.location?.name || undefined,
             devices: initDevices,
             testingDevices: initTestingDevices,
             disableAccount: scheduledDeactivation?.disableAccount ?? true,

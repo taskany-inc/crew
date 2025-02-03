@@ -140,6 +140,9 @@ model User {
   workStartDate         DateTime?
   supplementalPositions SupplementalPosition[]
 
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+
   curatorOf User[] @relation(name: "userCurator")
   curators  User[] @relation(name: "userCurator")
 
@@ -482,6 +485,12 @@ model Role {
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
+}
+
+model Location {
+  id    String @id @default(dbgenerated("gen_random_uuid()"))
+  name  String @unique
+  users User[]
 }
 
 model BonusRule {
