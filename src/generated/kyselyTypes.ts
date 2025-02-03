@@ -77,6 +77,7 @@ export type AppConfig = {
     orgGroupId: string | null;
     orgGroupUpdatedAt: Timestamp | null;
     supportLink: string | null;
+    documentLink: string | null;
 };
 export type Attach = {
     id: string;

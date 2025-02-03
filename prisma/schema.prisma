@@ -627,7 +627,8 @@ model AppConfig {
   orgGroupId        String?
   orgGroupUpdatedAt DateTime?
 
-  supportLink String?
+  supportLink  String?
+  documentLink String?
 }
 
 model Achievement {
