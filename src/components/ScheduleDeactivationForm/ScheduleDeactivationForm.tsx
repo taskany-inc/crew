@@ -136,7 +136,7 @@ export const ScheduleDeactivationForm = ({
         workModeComment: scheduledDeactivation?.workModeComment || undefined,
         workSpace: scheduledDeactivation?.workPlace || undefined,
         comments: scheduledDeactivation?.comments || undefined,
-        location: scheduledDeactivation?.location || undefined,
+        location: scheduledDeactivation?.location || user?.location?.name || undefined,
         unitId: scheduledDeactivation?.unitId || undefined,
         unitIdString: scheduledDeactivation?.unitIdString || undefined,
         devices: initDevices,

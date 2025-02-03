@@ -22,6 +22,7 @@ import {
     ScheduledDeactivationNewOrganizationUnit,
     ScheduledDeactivationOrganizationUnit,
 } from './scheduledDeactivationTypes';
+import { Location } from './locationTypes';
 
 export interface UserSettings {
     userId: string;
@@ -66,6 +67,10 @@ export interface UserCuratorOf {
 
 export interface UserSupervisorIn {
     supervisorIn: Nullish<Group[]>;
+}
+
+export interface UserLocation {
+    location: Nullish<Location>;
 }
 
 export interface UserFilterQuery {

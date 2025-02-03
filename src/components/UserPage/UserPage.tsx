@@ -32,6 +32,7 @@ import { Nullish } from '../../utils/types';
 import {
     UserAchievements,
     UserCurators,
+    UserLocation,
     UserMemberships,
     UserMeta,
     UserNames,
@@ -110,7 +111,8 @@ interface UserPageInnerProps {
         UserSupervisorIn &
         UserScheduledDeactivations &
         UserSupplementalPositions &
-        UserCurators;
+        UserCurators &
+        UserLocation;
 }
 
 export const UserPageInner = ({ user }: UserPageInnerProps) => {

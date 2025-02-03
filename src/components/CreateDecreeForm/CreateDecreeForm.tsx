@@ -3,6 +3,7 @@ import { User } from 'prisma/prisma-client';
 
 import {
     UserAchievements,
+    UserLocation,
     UserMemberships,
     UserMeta,
     UserNames,
@@ -35,7 +36,8 @@ interface CreateDecreeFormProps {
             UserSupervisorIn &
             UserScheduledDeactivations &
             UserSupplementalPositions &
-            UserServices
+            UserServices &
+            UserLocation
     >;
     type: ComponentProps<typeof DecreeForm>['type'];
     onSubmit: ComponentProps<typeof DecreeForm>['onSubmit'];
@@ -95,6 +97,7 @@ export const CreateDecreeForm: FC<CreateDecreeFormProps> = ({ user, type, onSubm
             equipment: devices.reduce((a, d) => (d.active ? `${a}${a.length > 0 ? ', ' : ''}${d.deviceName}` : a), ''),
             email: user.email,
             date: new Date(),
+            location: user.location?.name,
         };
     }, [user, role, type, devices]);
 

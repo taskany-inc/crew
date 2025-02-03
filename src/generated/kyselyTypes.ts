@@ -174,6 +174,10 @@ export type Job = {
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
+export type Location = {
+    id: Generated<string>;
+    name: string;
+};
 export type MailingSettings = {
     id: Generated<string>;
     userId: string | null;
@@ -305,6 +309,7 @@ export type User = {
     roleCode: string | null;
     deactivatedAt: Timestamp | null;
     workStartDate: Timestamp | null;
+    locationId: string | null;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
@@ -488,6 +493,7 @@ export type DB = {
     GroupAdmin: GroupAdmin;
     HistoryEvent: HistoryEvent;
     Job: Job;
+    Location: Location;
     MailingSettings: MailingSettings;
     Membership: Membership;
     OrganizationDomain: OrganizationDomain;
