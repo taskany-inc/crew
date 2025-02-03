@@ -16,7 +16,7 @@ export const PageFooter: FC = () => {
         staleTime: Infinity,
     });
     const menuItems = [
-        { title: tr('Docs'), url: '/docs' },
+        { title: tr('Docs'), url: config.data?.documentLink ?? undefined },
         { title: tr('Support'), url: config.data?.supportLink ?? undefined },
         { title: tr('API'), url: '/api-docs' },
     ];
