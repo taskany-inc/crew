@@ -1,0 +1,13 @@
+.TeamVacancies {
+    display: flex;
+    gap: var(--gap-xs);
+    flex-direction: column;
+}
+
+.TriggerIcon {
+    color: var(--text-secondary);
+}
+
+.Empty {
+    margin-top: var(--gap-xs);
+}

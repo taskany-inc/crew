@@ -1,6 +1,8 @@
 .PageMain {
     /* presses the footer to the bottom*/
     min-height: calc(100vh - 160px);
+    display: flex;
+    flex-direction: column;
 }
 
 .PageContent {

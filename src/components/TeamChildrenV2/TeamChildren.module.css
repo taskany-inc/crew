@@ -1,0 +1,9 @@
+.TeamChildren {
+    display: flex;
+    gap: var(--gap-xs);
+    flex-direction: column;
+}
+
+.Empty {
+    margin-top: var(--gap-xs);
+}

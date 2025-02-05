@@ -1,0 +1,12 @@
+.List {
+    display: flex;
+    flex-direction: column;
+}
+
+.ListItem {
+    padding: var(--gap-s) 0;
+}
+
+.ListItem:not(:last-of-type) {
+    border-bottom: 1px solid var(--layer-border);
+}

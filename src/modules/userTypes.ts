@@ -33,7 +33,7 @@ export interface UserSettings {
 
 export type MembershipInfo = Membership & {
     group: Group & GroupMeta;
-    user: User & UserOrganizationUnit;
+    user: User & UserSupplementalPositions;
     roles: Role[];
 };
 
@@ -114,3 +114,5 @@ export interface UserSupplementalPositions {
 export interface UserServices {
     services: Array<UserService>;
 }
+
+export type UserWithSuplementalPositions = User & UserSupplementalPositions;

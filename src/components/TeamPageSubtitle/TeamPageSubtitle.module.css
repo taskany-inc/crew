@@ -1,0 +1,13 @@
+.TeamPageSubtitle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    width: 100%;
+}
+
+.TeamPageSubtitleContent {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: var(--gap-sm);
+}

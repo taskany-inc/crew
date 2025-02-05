@@ -1,0 +1,13 @@
+.TeamPageTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    width: 100%;
+}
+
+.TeamPageTitleWrapper {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--gap-sm);
+}

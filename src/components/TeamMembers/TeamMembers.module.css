@@ -1,0 +1,32 @@
+.TeamMembers {
+    display: flex;
+    gap: var(--gap-xs);
+    flex-direction: column;
+}
+
+.TeamMembersItem {
+    margin: var(--gap-xs) 0;
+    flex: 1;
+}
+
+.TeamMembersItemWrapper {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+    flex-direction: row;
+}
+
+.IconArchive {
+    color: var(--button-danger);
+}
+
+.TeamMembersItemAction {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+}
+
+.Empty {
+    margin-top: var(--gap-s);
+    padding-top: var(--gap-xs);
+}

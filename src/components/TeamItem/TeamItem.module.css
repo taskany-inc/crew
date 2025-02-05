@@ -1,0 +1,24 @@
+.TeamItem {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-s);
+}
+
+.TeamItemHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--gap-sm);
+}
+
+.TeamItemSupervisor {
+    color: var(--text-secondary);
+}
+
+.TeamCounter {
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--gap-s);
+}
