@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.107.1](https://github.com/taskany-inc/crew/compare/v0.107.0...v0.107.1) (2025-02-05)
+
+
+### Bug Fixes
+
+* **Footer:** update footer ([989030d](https://github.com/taskany-inc/crew/commit/989030d096e2ba681c57402afd9aa68a050c69e9))
+
 ## [0.107.0](https://github.com/taskany-inc/crew/compare/v0.106.0...v0.107.0) (2025-02-03)
 
 
