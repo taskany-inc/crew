@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Text, nullable } from '@taskany/bricks';
-import { IconPlusCircleSolid } from '@taskany/icons';
+import { IconPlusCircleOutline } from '@taskany/icons';
 import { danger0, gapS } from '@taskany/colors';
 
 import { InlineTrigger } from '../InlineTrigger';
@@ -21,6 +21,7 @@ import { tr } from './AddUserToTeamForm.i18n';
 
 interface AddUserToTeamFormProps {
     groupId: string;
+    triggerText?: string;
 }
 
 const StyledBottomRow = styled.div`
@@ -34,7 +35,7 @@ const StyledSubmitButton = styled(Button)`
     margin-left: auto;
 `;
 
-export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
+export const AddUserToTeamForm = ({ groupId, triggerText }: AddUserToTeamFormProps) => {
     const { addUserToGroup } = useUserMutations();
 
     const popupVisibility = useBoolean(false);
@@ -101,7 +102,11 @@ export const AddUserToTeamForm = ({ groupId }: AddUserToTeamFormProps) => {
         <PopupTrigger
             placement="bottom-start"
             renderTrigger={(props) => (
-                <InlineTrigger text={tr('Add participant')} icon={<IconPlusCircleSolid size="s" />} {...props} />
+                <InlineTrigger
+                    text={triggerText ?? tr('Add participant')}
+                    icon={<IconPlusCircleOutline size="s" />}
+                    {...props}
+                />
             )}
             visible={popupVisibility.value}
             setVisible={popupVisibility.setValue}

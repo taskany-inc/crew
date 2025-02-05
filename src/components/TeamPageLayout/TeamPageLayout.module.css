@@ -1,0 +1,36 @@
+.TeamPageLayout {
+    display: flex;
+    padding: var(--gap-ml) 0;
+    background-color: var(--layer);
+    border-top-left-radius: var( --radius-xl);
+    border-top-right-radius: var( --radius-xl);
+    margin: var(--gap-sm) var( --gap-xl) 0;
+    flex: 1;
+}
+
+.TeamPageLayoutContent {
+    display: flex;
+    flex: 1;
+    max-width: 828px;
+    flex-direction: column;
+    gap: var(--gap-ml);
+    padding: 0 var(--gap-ml);
+}
+
+.TeamPageLayoutAsideContent {
+    padding: 0 var(--gap-ml);
+    gap: var(--gap-ml);
+    border-left: 1px solid var(--layer-border);
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
+}
+
+.TeamPageLayoutAside {
+    position: relative;
+    min-width: 500px;
+    flex: 1;
+}

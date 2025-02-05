@@ -1,0 +1,21 @@
+.TeamItem {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.TeamName {
+    color: var(--text-secondary);
+}
+.TeamItemContent {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.VacancyItemAction {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+}
+.IconArchive {
+    color: var(--button-danger);
+}

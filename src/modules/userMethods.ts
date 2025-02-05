@@ -242,7 +242,11 @@ export const userMethods = {
                         roles: true,
                         user: {
                             include: {
-                                organizationUnit: true,
+                                supplementalPositions: {
+                                    include: {
+                                        organizationUnit: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -351,7 +355,11 @@ export const userMethods = {
                 roles: true,
                 user: {
                     include: {
-                        organizationUnit: true,
+                        supplementalPositions: {
+                            include: {
+                                organizationUnit: true,
+                            },
+                        },
                     },
                 },
             },

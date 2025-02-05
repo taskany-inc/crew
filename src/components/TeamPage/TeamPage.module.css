@@ -1,0 +1,13 @@
+.TeamPageLists {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-m);
+}
+
+.TeamSupervisor {
+    margin-top: var(--gap-m);
+}
+
+.TeamSupervisorEmpty {
+    margin-top: var(--gap-s);
+}

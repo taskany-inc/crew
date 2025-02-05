@@ -19,7 +19,7 @@ import {
     GetUserGroupList,
 } from './groupSchemas';
 import { tr } from './modules.i18n';
-import { GroupMeta, GroupParent, GroupSupervisor, GroupVacancies } from './groupTypes';
+import { GroupMeta, GroupParent, GroupSupervisorWithPositions, GroupVacancies } from './groupTypes';
 import { groupAccess } from './groupAccess';
 import { MembershipInfo } from './userTypes';
 
@@ -172,15 +172,23 @@ export const groupMethods = {
     getById: async (
         id: string,
         sessionUser?: SessionUser,
-    ): Promise<Group & GroupMeta & GroupParent & GroupSupervisor & GroupVacancies> => {
+    ): Promise<Group & GroupMeta & GroupParent & GroupSupervisorWithPositions & GroupVacancies> => {
         const group = await prisma.group.findUnique({
             where: { id, archived: false },
             include: {
                 parent: true,
-                supervisor: true,
+                supervisor: {
+                    include: {
+                        supplementalPositions: {
+                            include: {
+                                organizationUnit: true,
+                            },
+                        },
+                    },
+                },
                 vacancies: {
                     where: { archived: false, status: { not: 'CLOSED' } },
-                    include: { hr: true, hiringManager: true },
+                    include: { hr: true, hiringManager: true, group: true },
                 },
             },
         });
@@ -318,7 +326,11 @@ export const groupMethods = {
                 roles: true,
                 user: {
                     include: {
-                        organizationUnit: true,
+                        supplementalPositions: {
+                            include: {
+                                organizationUnit: true,
+                            },
+                        },
                     },
                 },
             },
