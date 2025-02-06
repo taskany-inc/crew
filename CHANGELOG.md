@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.107.2](https://github.com/taskany-inc/crew/compare/v0.107.1...v0.107.2) (2025-02-06)
+
+
+### Bug Fixes
+
+* **INTERNAL-1436:** user location ([2ae77ed](https://github.com/taskany-inc/crew/commit/2ae77edfcd6182805440c124012b399a0bc822ac))
+
 ## [0.107.1](https://github.com/taskany-inc/crew/compare/v0.107.0...v0.107.1) (2025-02-05)
 
 
