@@ -35,9 +35,11 @@ interface ExternalUserCreationRequestPageProps {
     requestStatus?: UserCreationRequestStatus;
 }
 
-const externalUserRequestSchema = (isloginUnique: (login: string) => Promise<boolean>) =>
-    getCreateUserCreationRequestExternalEmployeeSchema().superRefine(async (val, ctx) => {
-        const unique = await isloginUnique(val.login);
+const externalUserRequestSchema = (isloginUnique: (login: string) => Promise<boolean>, editFormLogin?: string) =>
+    getCreateUserCreationRequestExternalEmployeeSchema().superRefine(async ({ login }, ctx) => {
+        if (login === editFormLogin) return;
+
+        const unique = await isloginUnique(login);
         if (!unique) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
@@ -87,7 +89,7 @@ export const ExternalUserCreationRequestPage = ({
     const { isLoginUnique } = useUserMutations();
 
     const methods = useForm<CreateUserCreationRequestExternalEmployee>({
-        resolver: zodResolver(externalUserRequestSchema(isLoginUnique)),
+        resolver: zodResolver(externalUserRequestSchema(isLoginUnique, request?.login)),
         defaultValues,
     });
 
