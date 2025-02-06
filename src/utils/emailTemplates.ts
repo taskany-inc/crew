@@ -13,6 +13,7 @@ import {
     ScheduledDeactivationUser,
 } from '../modules/scheduledDeactivationTypes';
 import { config } from '../config';
+import { UserCreationRequestWithRelations } from '../modules/userCreationRequestTypes';
 
 import { getOrgUnitTitle } from './organizationUnit';
 import { defaultLocale } from './getLang';
@@ -111,19 +112,7 @@ export const scheduledDeactivationEmailHtml = (data: {
     ]);
 
 export const htmlUserCreationRequestWithDate = (data: {
-    userCreationRequest: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
-        buddy: User | null;
-    } & {
-        recruiter: User | null;
-    } & {
-        coordinators: User[] | null;
-    } & {
-        organization: OrganizationUnit;
-    } & {
-        lineManagers: User[] | null;
-    } & {
-        supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
-    };
+    userCreationRequest: UserCreationRequestWithRelations;
     date: Date;
 }) => {
     const { userCreationRequest, date } = data;
@@ -252,10 +241,19 @@ export const newcomerSubject = (data: {
             .join(', ')} ${data.name}  (${data.phone})`;
     }
 
+    const sameDate = data.userCreationRequest.supplementalPositions
+        .map(({ workStartDate }) => workStartDate)
+        .every((val, _index, arr) => val === arr[0]);
+
     return `${data.userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')} ${tr(
         'part-time',
     )} (${tr('employment in')} ${data.userCreationRequest.supplementalPositions
         .sort((a, b) => Number(b.main) - Number(a.main))
-        .map((o) => `${getOrgUnitTitle(o.organizationUnit)}`)
-        .join(' + ')}) ${data.name}  (${data.phone})`;
+        .map(
+            (o) =>
+                `${getOrgUnitTitle(o.organizationUnit)} ${
+                    o.workStartDate && !sameDate ? formatDate(o.workStartDate, defaultLocale) : ''
+                }`,
+        )
+        .join(' + ')}) ${data.name} (${data.phone})`;
 };
