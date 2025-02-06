@@ -59,6 +59,30 @@ export const scheduledDeactivationMethods = {
     create: async (data: CreateScheduledDeactivation, sessionUserId: string) => {
         const { userId, type, devices, testingDevices, attachIds, ...restData } = data;
 
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                scheduledDeactivations: true,
+                memberships: { include: { group: true } },
+                devices: true,
+                services: true,
+            },
+        });
+
+        if (!user) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No user with id ${userId}`,
+            });
+        }
+
+        if (!user.active || !!getActiveScheduledDeactivation(user)) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: `User ${userId} already inactive or has deactivation scheduled`,
+            });
+        }
+
         const deactivateDate = data.supplementalPositions
             ? data.supplementalPositions.reduce((acc: Date | undefined | null, rec) => {
                   if (!acc) return rec.workEndDate;
@@ -124,22 +148,6 @@ export const scheduledDeactivationMethods = {
                     }
                 }),
             ));
-
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            include: {
-                scheduledDeactivations: true,
-                memberships: { include: { group: true } },
-                devices: true,
-                services: true,
-            },
-        });
-        if (!user) {
-            throw new TRPCError({
-                code: 'NOT_FOUND',
-                message: `No user with id ${userId}`,
-            });
-        }
 
         if (!findService(ExternalServiceName.Phone, user.services) && data.phone) {
             await serviceMethods.addToUser({ userId, serviceId: data.phone, serviceName: ExternalServiceName.Phone });
