@@ -29,3 +29,14 @@ export interface UserDecreeRequest extends BaseUserCreationRequest {
     firstName: string;
     middleName: string;
 }
+
+export interface UserCreationRequestWithRelations extends UserCreationRequest {
+    group: Group | null;
+    supervisor: User | null;
+    buddy: User | null;
+    recruiter: User | null;
+    coordinators: User[] | null;
+    organization: OrganizationUnit;
+    lineManagers: User[] | null;
+    supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
+}

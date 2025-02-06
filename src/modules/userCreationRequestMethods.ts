@@ -35,7 +35,77 @@ import {
     UserDecreeEditSchema,
     UserDecreeSchema,
 } from './userCreationRequestSchemas';
-import { CompleteUserCreationRequest, BaseUserCreationRequest, UserDecreeRequest } from './userCreationRequestTypes';
+import {
+    CompleteUserCreationRequest,
+    BaseUserCreationRequest,
+    UserDecreeRequest,
+    UserCreationRequestWithRelations,
+} from './userCreationRequestTypes';
+
+interface SendNewcomerEmails {
+    request: UserCreationRequestWithRelations;
+    sessionUserId: string;
+    method: ICalCalendarMethod.REQUEST | ICalCalendarMethod.CANCEL;
+    newOrganizationIds?: string[];
+}
+
+const sendNewCommerEmails = ({ request, sessionUserId, method, newOrganizationIds }: SendNewcomerEmails) =>
+    Promise.all(
+        request.supplementalPositions.map(async ({ organizationUnitId, workStartDate, main }) => {
+            if (!workStartDate) return;
+
+            if (
+                method === ICalCalendarMethod.CANCEL &&
+                newOrganizationIds &&
+                newOrganizationIds.includes(organizationUnitId)
+            ) {
+                return;
+            }
+
+            const additionalEmails = [sessionUserId];
+
+            if (request.creatorId && request.creatorId !== sessionUserId) additionalEmails.push(request.creatorId);
+
+            if (request.supervisorId && main) additionalEmails.push(request.supervisorId);
+
+            if (request.buddyId && main) additionalEmails.push(request.buddyId);
+
+            const { users, to } = await userMethods.getMailingList(
+                'createScheduledUserRequest',
+                [organizationUnitId],
+                additionalEmails,
+                !!request.workSpace,
+            );
+            const subject = newcomerSubject({
+                userCreationRequest: request,
+                phone: userCreationRequestPhone(request),
+                name: request.name,
+            });
+
+            const icalEvent = createIcalEventData({
+                id: request.id + config.nodemailer.authUser + organizationUnitId,
+                start: workStartDate,
+                duration: 30,
+                users,
+                summary: subject,
+                description: subject,
+            });
+
+            const html = htmlUserCreationRequestWithDate({
+                userCreationRequest: request,
+                date: workStartDate,
+            });
+            sendMail({
+                to,
+                subject,
+                html,
+                icalEvent: calendarEvents({
+                    method,
+                    events: [icalEvent],
+                }),
+            });
+        }),
+    );
 
 export const userCreationRequestsMethods = {
     create: async (
@@ -258,45 +328,10 @@ export const userCreationRequestsMethods = {
         });
 
         if (data.date && data.type === 'internalEmployee') {
-            const additionalEmails = [sessionUserId];
-
-            if (userCreationRequest.supervisorId) additionalEmails.push(userCreationRequest.supervisorId);
-
-            if (userCreationRequest.buddyId) additionalEmails.push(userCreationRequest.buddyId);
-
-            const { users, to: mailTo } = await userMethods.getMailingList(
-                'createScheduledUserRequest',
-                [data.organizationUnitId],
-                additionalEmails,
-                !!data.workSpace,
-            );
-            const icalSubject = newcomerSubject({
-                userCreationRequest,
-                phone: data.phone,
-                name: userCreationRequest.name,
-            });
-
-            const icalEvent = createIcalEventData({
-                id: userCreationRequest.id + config.nodemailer.authUser,
-                start: data.date,
-                duration: 30,
-                users,
-                summary: icalSubject,
-                description: icalSubject,
-            });
-
-            const html = htmlUserCreationRequestWithDate({
-                userCreationRequest,
-                date: data.date,
-            });
-            sendMail({
-                to: mailTo,
-                subject: icalSubject,
-                html,
-                icalEvent: calendarEvents({
-                    method: ICalCalendarMethod.REQUEST,
-                    events: [icalEvent],
-                }),
+            await sendNewCommerEmails({
+                request: userCreationRequest,
+                sessionUserId,
+                method: ICalCalendarMethod.REQUEST,
             });
         }
 
@@ -738,7 +773,7 @@ export const userCreationRequestsMethods = {
 
     edit: async (
         data: EditUserCreationRequest,
-        requestBeforeUpdate: UserCreationRequest & { supplementalPositions: SupplementalPosition[] },
+        requestBeforeUpdate: UserCreationRequestWithRelations,
         sessionUserId: string,
     ) => {
         const { id, data: editData } = data;
@@ -940,46 +975,18 @@ export const userCreationRequestsMethods = {
         });
 
         if (editData.date && requestBeforeUpdate.date !== editData.date && editData.type === 'internalEmployee') {
-            const additionalEmails = [sessionUserId];
-
-            if (updatedRequest.supervisorId) additionalEmails.push(updatedRequest.supervisorId);
-
-            if (updatedRequest.buddyId) additionalEmails.push(updatedRequest.buddyId);
-
-            const { users, to: mailTo } = await userMethods.getMailingList(
-                'createScheduledUserRequest',
-                [updatedRequest.organizationUnitId],
-                [sessionUserId],
-                !!editData.workSpace,
-            );
-
-            const icalSubject = newcomerSubject({
-                userCreationRequest: updatedRequest,
-                phone: userCreationRequestPhone(updatedRequest),
-                name: updatedRequest.name,
+            await sendNewCommerEmails({
+                request: requestBeforeUpdate,
+                sessionUserId,
+                method: ICalCalendarMethod.CANCEL,
+                newOrganizationIds: updatedRequest.supplementalPositions.map(
+                    ({ organizationUnitId }) => organizationUnitId,
+                ),
             });
-
-            const icalEvent = createIcalEventData({
-                id: updatedRequest.id + config.nodemailer.authUser,
-                start: editData.date,
-                duration: 30,
-                users,
-                summary: icalSubject,
-                description: icalSubject,
-            });
-
-            const html = htmlUserCreationRequestWithDate({
-                userCreationRequest: updatedRequest,
-                date: editData.date,
-            });
-            sendMail({
-                to: mailTo,
-                subject: icalSubject,
-                html,
-                icalEvent: calendarEvents({
-                    method: ICalCalendarMethod.REQUEST,
-                    events: [icalEvent],
-                }),
+            await sendNewCommerEmails({
+                request: updatedRequest,
+                sessionUserId,
+                method: ICalCalendarMethod.REQUEST,
             });
 
             if (requestBeforeUpdate.jobId) await jobUpdate(requestBeforeUpdate.jobId, { date: editData.date });
