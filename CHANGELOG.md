@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.108.0](https://github.com/taskany-inc/crew/compare/v0.107.1...v0.108.0) (2025-02-06)
+
+
+### Features
+
+* **issues/1471:** different mails to different organizations ([05391af](https://github.com/taskany-inc/crew/commit/05391af26072b47e5d4cd733aba7b2108d948315))
+
+
+### Bug Fixes
+
+* **INTERNAL-1436:** user location ([2ae77ed](https://github.com/taskany-inc/crew/commit/2ae77edfcd6182805440c124012b399a0bc822ac))
+* **INTERNAL-1520:** throw error on creating deactivation if user has active one ([1d46a2a](https://github.com/taskany-inc/crew/commit/1d46a2abf0b557afa9d4024aafc8261a1f3be81c))
+* **INTERNAL-1612:** do not check on unique default login ([0f68677](https://github.com/taskany-inc/crew/commit/0f686775cf13e03c1ffb6f03a0f968b80cc945d1))
+
 ## [0.107.1](https://github.com/taskany-inc/crew/compare/v0.107.0...v0.107.1) (2025-02-05)
 
 
