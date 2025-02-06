@@ -34,7 +34,7 @@ interface InternalUserCreationRequestPageProps {
     type?: 'new' | 'readOnly' | 'edit';
 }
 
-const internalUserRequestSchema = (isloginUnique: (login: string) => Promise<boolean>) =>
+const internalUserRequestSchema = (isloginUnique: (login: string) => Promise<boolean>, editFormLogin?: string) =>
     getCreateUserCreationRequestInternalEmployeeSchema()
         .refine(({ workEmail, personalEmail }) => workEmail !== '' || personalEmail !== '', {
             message: tr('Enter Email'),
@@ -44,8 +44,10 @@ const internalUserRequestSchema = (isloginUnique: (login: string) => Promise<boo
             message: tr('Enter Email'),
             path: ['personalEmail'],
         })
-        .superRefine(async (val, ctx) => {
-            const unique = await isloginUnique(val.login);
+        .superRefine(async ({ login }, ctx) => {
+            if (login === editFormLogin) return;
+
+            const unique = await isloginUnique(login);
             if (!unique) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
@@ -106,7 +108,7 @@ export const InternalUserCreationRequestPage = ({
     const { isLoginUnique } = useUserMutations();
 
     const methods = useForm<CreateUserCreationRequestInternalEmployee>({
-        resolver: zodResolver(internalUserRequestSchema(isLoginUnique)),
+        resolver: zodResolver(internalUserRequestSchema(isLoginUnique, request?.login)),
         defaultValues,
     });
 
