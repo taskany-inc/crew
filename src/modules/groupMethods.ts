@@ -202,15 +202,15 @@ export const groupMethods = {
             .withRecursive('tree', (qc) =>
                 qc
                     .selectFrom('Group')
-                    .select(({ fn }) => [
+                    .select([
                         'id',
                         'parentId',
                         'name',
-                        sql<number>`1::int`.as('level'),
-                        fn.agg<string[]>('array_agg', ['parentId']).as('chain'),
+                        sql<number>`0::int`.as('level'),
+                        sql<string[]>`array[]::text[]`.as('chain'),
                     ])
-                    .where('id', '=', id)
-                    .where('archived', '=', false)
+                    .where('parentId', '=', id)
+                    .where('archived', 'is not', true)
                     .groupBy('id')
                     .union((qb) =>
                         qb
@@ -230,7 +230,7 @@ export const groupMethods = {
             .innerJoin('User as u', (join) => join.onRef('u.id', '=', 'gr.supervisorId'))
             .innerJoin('tree as tr', 'tr.id', 'gr.id')
             .select(['gr.id', 'gr.name', 'gr.supervisorId', 'tr.level', 'tr.chain', 'u.name as supervisorName'])
-            .orderBy('tr.level')
+            .orderBy(['tr.level', 'gr.name asc'])
             .execute(),
 
     getChildren: (id: string) => {
@@ -240,6 +240,54 @@ export const groupMethods = {
             orderBy: { name: 'asc' },
         });
     },
+
+    getVacancyCountsByGroupIds: (ids: string[]) =>
+        db
+            .selectFrom('Vacancy')
+            .select(({ fn, cast }) => [
+                'Vacancy.groupId',
+                cast<number>(fn.count('Vacancy.id').distinct(), 'integer').as('count'),
+            ])
+            .where('Vacancy.groupId', 'in', ids)
+            .where('Vacancy.archived', 'is not', true)
+            .where('Vacancy.userId', 'in', ({ selectFrom }) =>
+                selectFrom('User')
+                    .select('User.id')
+                    .whereRef('User.id', '=', 'Vacancy.userId')
+                    .where('User.active', 'is', true),
+            )
+            .groupBy('Vacancy.groupId')
+            .execute(),
+
+    getMembershipCountsByGroupIds: (ids: string[]) =>
+        db
+            .selectFrom('Membership')
+            .select(({ fn, cast }) => [
+                'Membership.groupId',
+                cast<number>(fn.count('Membership.id').distinct(), 'integer').as('count'),
+            ])
+            .where('Membership.groupId', 'in', ids)
+            .where('Membership.archived', 'is not', true)
+            .where('Membership.userId', 'in', ({ selectFrom }) =>
+                selectFrom('User')
+                    .select('User.id')
+                    .whereRef('User.id', '=', 'Membership.userId')
+                    .where('User.active', 'is', true),
+            )
+            .groupBy('Membership.groupId')
+            .execute(),
+
+    getSupervisorByGroupIds: (ids: string[]) =>
+        db
+            .with('group_ids', (qb) =>
+                qb.selectFrom('Group').select(['Group.id', 'Group.supervisorId']).where('Group.id', 'in', ids),
+            )
+            .selectFrom('User')
+            .innerJoin('group_ids', 'group_ids.supervisorId', 'User.id')
+            .select('group_ids.id as groupId')
+            .selectAll('User')
+            .select('User.role as roleDeprecated')
+            .execute(),
 
     getList: async ({ search, filter, take = 10, skip = 0, hasVacancies, organizational }: GetGroupList) => {
         const where: Prisma.GroupWhereInput = {
@@ -526,5 +574,29 @@ export const groupMethods = {
                 userId_groupId: { userId: data.userId, groupId: data.groupId },
             },
         });
+    },
+
+    count: (id?: string) => {
+        return db
+            .selectFrom('Membership')
+            .select(({ fn, cast }) => [
+                cast<number>(fn.count('Membership.userId').distinct(), 'integer').as('membership'),
+            ])
+            .where('Membership.archived', 'is not', true)
+            .$if(id != null, (qb) => qb.where('Membership.groupId', '=', id!))
+            .executeTakeFirst();
+    },
+
+    getMothershipGroup: () => {
+        return db
+            .with('mothrship_group_id', (qb) =>
+                qb.selectFrom('AppConfig').select('AppConfig.orgGroupId as id').limit(1),
+            )
+            .selectFrom('Group')
+            .selectAll('Group')
+            .where('Group.archived', 'is not', true)
+            .where('Group.id', 'in', (qb) => qb.selectFrom('mothrship_group_id').select('id'))
+            .orderBy('Group.updatedAt desc')
+            .executeTakeFirstOrThrow();
     },
 };

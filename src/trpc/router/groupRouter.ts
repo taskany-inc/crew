@@ -16,6 +16,27 @@ import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFro
 import { groupAccess } from '../../modules/groupAccess';
 import { accessCheck, checkRoleForAccess } from '../../utils/access';
 import { processEvent } from '../../utils/analyticsEvent';
+import { addCalculatedUserFields } from '../../modules/userMethods';
+import { Nullish } from '../../utils/types';
+import { vacancyMethods } from '../../modules/vacancyMethods';
+
+type SupervisorUserWithMeta = ReturnType<typeof addCalculatedUserFields>;
+
+export interface GroupTree {
+    [key: string]: {
+        group: {
+            id: string;
+            name: string;
+            supervisorId: string | null;
+            supervisor: Nullish<SupervisorUserWithMeta>;
+            counts: {
+                memberships?: number;
+                vacancies?: number;
+            } | null;
+        } | null;
+        childs: GroupTree | null;
+    };
+}
 
 export const groupRouter = router({
     create: protectedProcedure.input(createGroupSchema).mutation(async ({ input, ctx }) => {
@@ -215,4 +236,95 @@ export const groupRouter = router({
 
             return result;
         }),
+
+    getGroupTree: protectedProcedure.input(z.string()).query(async ({ input, ctx }) => {
+        const arrayToMap = <T extends { groupId: string }>(array: T[]): Map<string, T> => {
+            return new Map<string, T>(array.map((value) => [value.groupId, value]));
+        };
+
+        const map: GroupTree = {};
+
+        const groups = await groupMethods.getGroupTree(input);
+        const groupIds = Array.from(new Set(groups.map(({ id }) => id)));
+
+        if (groupIds.length === 0) {
+            return map;
+        }
+
+        const meta = await Promise.all([
+            groupMethods.getMembershipCountsByGroupIds(groupIds).then(arrayToMap),
+            groupMethods.getVacancyCountsByGroupIds(groupIds).then(arrayToMap),
+            groupMethods.getSupervisorByGroupIds(groupIds).then(arrayToMap),
+        ]).then(([mc, vc, sv]) => {
+            const target = new Map<
+                string,
+                { vacancies?: number; memberships?: number; supervisor?: Nullish<SupervisorUserWithMeta> }
+            >();
+
+            for (const id of groupIds) {
+                const supervisor = sv.get(id);
+                target.set(id, {
+                    vacancies: vc.get(id)?.count,
+                    memberships: mc.get(id)?.count,
+                    supervisor: supervisor != null ? addCalculatedUserFields(supervisor, ctx.session.user) : null,
+                });
+            }
+
+            return target;
+        });
+        const sourceMap = new Map(
+            groups.map((group) => {
+                const { vacancies, memberships, supervisor } = meta.get(group.id) || {};
+                return [
+                    group.id,
+                    {
+                        ...group,
+                        supervisor,
+                        counts: { vacancies, memberships },
+                    },
+                ];
+            }),
+        );
+
+        groups.forEach(({ id, chain, level }) => {
+            const path = chain.filter(Boolean);
+
+            path.reduce((acc, key, i) => {
+                if (!acc[key]) {
+                    acc[key] = {
+                        group: sourceMap.get(key) ?? null,
+                        childs: {
+                            [id]: {
+                                group: sourceMap.get(id) ?? null,
+                                childs: {},
+                            },
+                        },
+                    };
+                } else if (i === level) {
+                    acc[key].childs = {
+                        ...acc[key].childs,
+                        [id]: {
+                            group: sourceMap.get(id) ?? null,
+                            childs: null,
+                        },
+                    };
+                }
+
+                return acc[key].childs as GroupTree;
+            }, map);
+        });
+
+        return map;
+    }),
+
+    getFunctionalGroupCounts: protectedProcedure.input(z.string().optional()).query(async ({ input }) => {
+        return Promise.all([groupMethods.count(input), vacancyMethods.count(input)]).then(([mc, vc]) => ({
+            ...mc,
+            ...vc,
+        }));
+    }),
+
+    getMothrshipGroup: protectedProcedure.query(async () => {
+        return groupMethods.getMothershipGroup();
+    }),
 });

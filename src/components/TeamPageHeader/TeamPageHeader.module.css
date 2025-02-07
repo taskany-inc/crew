@@ -1,5 +1,38 @@
-.TeamPageHeaderDate {
+.TeamPageHeader {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    flex-direction: column;
+}
+
+.TeamPageHeaderBreadcrumbsTrigger {
+    display: flex;
+    max-width: 300px;
+}
+.TeamPageHeaderBreadcrumbsTriggerValue {
+    display: flex;
+    flex-direction: column;
+}
+
+.TeamPageHeaderInfo {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: var(--gap-s);
+    margin: var(--gap-s) 0 var(--gap-m);
+}
+
+.TeamPageHeaderTabs {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.TeamPageHeaderSupervisor {
+    /* font-size: var(--font-size-m); */
+    background-color: var(--gray-800);
+}
+
+.TeamPageHeaderUpdatedAt {
+    margin-left: auto;
+    color: var(--text-secondary);
 }

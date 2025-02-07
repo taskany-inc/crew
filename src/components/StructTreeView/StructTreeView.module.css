@@ -1,0 +1,68 @@
+.Branch, .Leaf {
+    border-bottom: 1px solid var(--layer-border);
+    position: relative;
+}
+
+.Leaf {
+    padding: var(--gap-s);
+}
+
+.Branch .Branch:last-of-type, .Branch .Leaf:last-child {
+    margin-bottom: -1px;
+}
+
+.Heading {
+    padding: var(--gap-s);
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.IconWrapper {
+    display: inline-flex;
+    height: 32px;
+    width: 32px;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.IconArrow {
+    transition: transform var(--transition-func) var(--transition-time);
+}
+
+.Content {
+    flex: 1;
+}
+
+.BranchContent {
+    transition: height var(--transition-func) var(--transition-time);
+}
+
+.Branch.isOpen > .Heading .IconArrow {
+    transform: rotate(90deg);
+}
+
+.Branch > .BranchContent {
+    padding-left: calc(var(--gap-l) + var(--gap-s));
+}
+
+.Branch.isOpen > .Heading {
+    position: sticky;
+    top: 0;
+    background-color: var(--layer);
+    z-index: 1;
+    border-bottom: 1px solid var(--layer-border);
+    margin-bottom: -1px;
+}
+
+.Branch.isOpen > .BranchContent {
+    z-index: 0;
+    position: relative;
+
+}
+
+.Branch.isOpen > .BranchContent .Heading {
+    top: var(--tree-sticky-heading-inner-offset);
+}

@@ -4,17 +4,10 @@
 
 .GroupRow {
     cursor: pointer;
-    background-color: var(--gray-900);
-    padding: var(--gap-s);
-    border-radius: var(--radius-m);
     display: flex;
     align-items: center;
     color: var(--text-color);
-    gap: var(--gap-m)
-}
-
-.GroupRow:hover {
-    background-color: var(--gray-800);
+    gap: var(--gap-m);
 }
 
 .TreeViewNodeContainer {
@@ -28,4 +21,16 @@
 .GroupName {
     margin-left: var(--gap-m);
     max-width: 45%;
+}
+
+.GroupNameBadgeData {
+    color: var(--text-secondary);
+}
+
+.GroupName_new {
+    margin-left: var(--gap-m);
+}
+
+.Link_new {
+    width: auto;
 }
