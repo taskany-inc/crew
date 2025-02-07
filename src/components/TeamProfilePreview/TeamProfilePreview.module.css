@@ -1,4 +1,4 @@
-.TeamPageLists {
+.TeamDrawerBody {
     display: flex;
     flex-direction: column;
     gap: var(--gap-m);

@@ -11,7 +11,7 @@ import { useBoolean } from '../../hooks/useBoolean';
 import { VacancyItem } from '../VacancyItem/VacancyItem';
 import { Restricted } from '../Restricted';
 
-import { tr } from './TeamVacancies.i18n';
+import { tr } from './TeamVacanciesV2.i18n';
 import s from './TeamVacancies.module.css';
 
 interface TeamChildrenProps extends HTMLAttributes<HTMLDivElement> {
@@ -19,15 +19,24 @@ interface TeamChildrenProps extends HTMLAttributes<HTMLDivElement> {
         vacancies: ComponentProps<typeof VacancyItem>['item'][];
     };
     editable?: boolean;
+    size?: ComponentProps<typeof TeamPageSubtitle>['size'];
 }
 
-export const TeamVacancies: FC<TeamChildrenProps> = ({ className, children, group, editable = false, ...props }) => {
+export const TeamVacancies: FC<TeamChildrenProps> = ({
+    className,
+    children,
+    group,
+    editable = false,
+    size,
+    ...props
+}) => {
     const createVacancyModalVisibility = useBoolean(false);
 
     return (
         <>
             <div className={cn(s.TeamVacancies, className)} {...props}>
                 <TeamPageSubtitle
+                    size={size}
                     counter={group.vacancies.length}
                     action={
                         <Restricted visible={editable}>
@@ -49,7 +58,7 @@ export const TeamVacancies: FC<TeamChildrenProps> = ({ className, children, grou
                         <List>
                             {group.vacancies.map((v, index) => (
                                 <ListItem key={index}>
-                                    <VacancyItem item={v} editable={editable} />
+                                    <VacancyItem size={size} item={v} editable={editable} />
                                 </ListItem>
                             ))}
                         </List>

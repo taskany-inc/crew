@@ -1,7 +1,14 @@
 .TeamItem {
     display: flex;
     flex-direction: column;
+}
+
+.TeamItem_L {
     gap: var(--gap-s);
+}
+
+.TeamItem_M {
+    gap: var(--gap-xs);
 }
 
 .TeamItemHeader {

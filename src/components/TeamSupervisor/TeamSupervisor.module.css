@@ -1,0 +1,11 @@
+.TeamSupervisorUser_M {
+    margin-top: var(--gap-s);
+}
+
+.TeamSupervisorUser_L {
+    margin-top: var(--gap-m);
+}
+
+.TeamSupervisorEmpty {
+    margin-top: var(--gap-s);
+}

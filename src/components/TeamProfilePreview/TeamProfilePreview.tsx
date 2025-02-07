@@ -1,69 +1,69 @@
-import styled from 'styled-components';
-import { ModalPreview, Text, nullable } from '@taskany/bricks';
-import { gapS, gray9 } from '@taskany/colors';
+import { nullable } from '@taskany/bricks';
+import { Button, Drawer, DrawerHeader, TextSkeleton } from '@taskany/bricks/harmony';
+import { IconTopRightOutline } from '@taskany/icons';
 
-import { PreviewHeader } from '../PreviewHeader/PreviewHeader';
-import { PreviewContent } from '../PreviewContent';
-import { UserListItem } from '../UserListItem/UserListItem';
-import { NarrowSection } from '../NarrowSection';
 import { trpc } from '../../trpc/trpcClient';
-import { pages } from '../../hooks/useRouter';
+import { useRouter } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
+import { TeamPageTitle } from '../TeamPageTitle/TeamPageTitle';
+import { TeamPageDecription } from '../TeamPageDecription/TeamPageDecription';
 import { TeamChildren } from '../TeamChildren/TeamChildren';
-import { TransferGroupForm } from '../TransferGroupForm/TransferGroupForm';
-import { TeamPeople } from '../TeamPeople/TeamPeople';
-import { TeamVacancies } from '../TeamVacancies/TeamVacancies';
-import { ExportTeamMembers } from '../ExportTeamMembers/ExportTeamMembers';
-import { ArchiveGroupForm } from '../ArchiveGroupForm/ArchiveGroupForm';
-import { Restricted } from '../Restricted';
+import { TeamMembers } from '../TeamMembers/TeamMembers';
+import { TeamVacancies } from '../TeamVacanciesV2/TeamVacancies';
+import { TeamSupervisor } from '../TeamSupervisor/TeamSupervisor';
 
-import { tr } from './TeamProfilePreview.i18n';
+import s from './TeamProfilePreview.module.css';
 
 interface UserProps {
     groupId: string;
 }
 
-const StyledModalPreview = styled(ModalPreview)`
-    display: flex;
-    flex-direction: column;
-`;
-
-const StyledSupervisorText = styled(Text)`
-    display: flex;
-    gap: ${gapS};
-`;
-
 export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const groupQuery = trpc.group.getById.useQuery(groupId);
     const childrenQuery = trpc.group.getChildren.useQuery(groupId);
+    const { team } = useRouter();
 
     return (
-        <>
-            {nullable(groupQuery.data, (group) => (
-                <StyledModalPreview visible onClose={hidePreview}>
-                    <PreviewHeader subtitle={group.parent?.name} title={group?.name} link={pages.team(group.id)} />
-                    <PreviewContent>
-                        {nullable(group.supervisor, (supervisor) => (
-                            <NarrowSection title={tr('Quick summary')}>
-                                <StyledSupervisorText size="m" color={gray9}>
-                                    {tr('Supervisor')}
-                                    <UserListItem user={supervisor} />
-                                </StyledSupervisorText>
-                            </NarrowSection>
-                        ))}
+        <Drawer animated visible onClose={hidePreview}>
+            <DrawerHeader>
+                {nullable(groupQuery.data, (group) => (
+                    <TeamPageTitle
+                        counter={17}
+                        size="m"
+                        action={
+                            <Button
+                                view="ghost"
+                                text="Перейти к команде"
+                                iconLeft={<IconTopRightOutline size="s" />}
+                                onClick={() => team(group.id)}
+                            />
+                        }
+                    >
+                        {group.name}
+                    </TeamPageTitle>
+                ))}
+            </DrawerHeader>
 
-                        <TeamChildren
-                            group={group}
-                            groupChildren={childrenQuery.data ?? []}
-                            isEditable={group.meta.isEditable}
-                        />
+            {nullable(
+                groupQuery.data,
+                (group) => (
+                    <div className={s.TeamDrawerBody}>
+                        <TeamSupervisor size="m" supervisor={group.supervisor ?? undefined} />
 
-                        <TeamPeople groupId={group.id} isEditable={group.meta.isEditable} />
+                        <TeamPageDecription size="m" value={group.description ?? undefined} />
 
-                        <TeamVacancies group={group} />
+                        <TeamChildren size="m" items={childrenQuery.data ?? []} />
 
-                        <NarrowSection>
+                        <TeamMembers size="m" groupId={group.id} />
+
+                        <TeamVacancies size="m" group={group} />
+                    </div>
+                ),
+                <TextSkeleton lines={6} />,
+            )}
+
+            {/* <NarrowSection>
                             <Restricted visible={group.meta.isEditable}>
                                 <TransferGroupForm group={group} />
                             </Restricted>
@@ -79,10 +79,7 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                             </Restricted>
 
                             <ExportTeamMembers group={group} />
-                        </NarrowSection>
-                    </PreviewContent>
-                </StyledModalPreview>
-            ))}
-        </>
+                        </NarrowSection> */}
+        </Drawer>
     );
 };
