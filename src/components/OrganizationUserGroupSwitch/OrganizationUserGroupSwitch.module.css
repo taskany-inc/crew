@@ -3,3 +3,7 @@
     margin-left: var(--gap-l);
     margin-top: var(--gap-m);
 }
+
+.Switch_noGap {
+    margin: 0;
+}

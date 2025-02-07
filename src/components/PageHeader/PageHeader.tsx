@@ -21,7 +21,7 @@ import { useSessionUser } from '../../hooks/useSessionUser';
 import { scopesDescriptions } from '../../utils/access';
 import { objKeys } from '../../utils/objKeys';
 import { Restricted } from '../Restricted';
-import { useAppConfig } from '../../contexts/appConfigContext';
+import { useLocale } from '../../hooks/useLocale';
 
 import { tr } from './PageHeader.i18n';
 import s from './PageHeader.module.css';
@@ -34,13 +34,13 @@ interface HeaderLink {
 
 export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }> = ({ logo, userSettings }) => {
     const sessionUser = useSessionUser();
-    const appConfig = useAppConfig();
     const router = useRouter();
+    const locale = useLocale();
 
     const entityListMenuItems = useMemo(() => {
         const items: HeaderLink[] = [
             {
-                path: appConfig?.orgGroupId ? pages.team(appConfig.orgGroupId) : pages.teams,
+                path: pages.teams,
                 text: tr('Teams'),
                 visible: true,
             },
@@ -65,7 +65,16 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
             },
         ];
         return items;
-    }, [userSettings, appConfig]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        sessionUser.role?.editRoleScopes,
+        sessionUser.role?.readManyExternalFromMainUserRequests,
+        sessionUser.role?.readManyExternalUserRequests,
+        sessionUser.role?.readManyInternalUserRequests,
+        sessionUser.role?.viewHistoryEvents,
+        sessionUser.role?.viewScheduledDeactivation,
+        locale,
+    ]);
 
     const avatarRef = useRef<HTMLAnchorElement>(null);
 

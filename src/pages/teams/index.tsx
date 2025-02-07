@@ -4,12 +4,11 @@ import { createGetServerSideProps } from '../../utils/createGetSSRProps';
 export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
     action: async ({ ssg }) => {
-        const roots = await ssg.group.getRoots.fetch();
-        await Promise.all(
-            roots.map(async (group) => {
-                await ssg.group.getChildren.fetch(group.id);
-            }),
-        );
+        // `superjson` cannot parse date those getting from `kysely`
+        const { createdAt: _1, updatedAt: _2, ...mothership } = await ssg.group.getMothrshipGroup.fetch();
+        await ssg.group.getGroupTree.fetch(mothership.id);
+
+        return { mothership };
     },
 });
 
