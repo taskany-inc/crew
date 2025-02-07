@@ -1,20 +1,21 @@
 import React from 'react';
+import { Button } from '@taskany/bricks/harmony';
+import { IconEdit1Outline } from '@taskany/icons';
 import { nullable } from '@taskany/bricks';
-import { Text } from '@taskany/bricks/harmony';
 
 import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { TeamPageLayout } from '../TeamPageLayout/TeamPageLayout';
 import { TeamPageTitle } from '../TeamPageTitle/TeamPageTitle';
-import { TeamPageSubtitle } from '../TeamPageSubtitle/TeamPageSubtitle';
-import { UserItem } from '../UserItem/UserItem';
 import { TeamPageDecription } from '../TeamPageDecription/TeamPageDecription';
 import { TeamMembers } from '../TeamMembers/TeamMembers';
-import { TeamChildren } from '../TeamChildrenV2/TeamChildren';
+import { TeamChildren } from '../TeamChildren/TeamChildren';
 import { TeamVacancies } from '../TeamVacanciesV2/TeamVacancies';
+import { TeamSupervisor } from '../TeamSupervisor/TeamSupervisor';
+import { useRouter } from '../../hooks/useRouter';
 
-import { tr } from './TeamPage.i18n';
 import s from './TeamPage.module.css';
+import { tr } from './TeamPage.i18n';
 
 interface TeamPageProps {
     teamId: string;
@@ -23,27 +24,27 @@ interface TeamPageProps {
 export const TeamPage = ({ teamId }: TeamPageProps) => {
     const groupQuery = trpc.group.getById.useQuery(teamId);
     const group = groupQuery.data;
+    const { teamSettings } = useRouter();
 
     const childrenQuery = trpc.group.getChildren.useQuery(teamId);
     if (!group) return null;
 
     return (
         <LayoutMain pageTitle={group.name}>
-            <TeamPageLayout sidebar={<TeamMembers groupId={group.id} editable={group.meta.isEditable} />}>
-                <TeamPageTitle counter={17} groupId={group.id} editable={group.meta.isEditable}>
+            <TeamPageLayout sidebar={<TeamMembers showAvatar groupId={group.id} editable={group.meta.isEditable} />}>
+                <TeamPageTitle
+                    counter={17}
+                    action={nullable(group.meta.isEditable, () => (
+                        <Button
+                            iconLeft={<IconEdit1Outline size="s" />}
+                            text={tr('Edit')}
+                            onClick={() => teamSettings(group.id)}
+                        />
+                    ))}
+                >
                     {group.name}
                 </TeamPageTitle>
-                <div>
-                    <TeamPageSubtitle>{tr('Supervisor')}</TeamPageSubtitle>
-                    {nullable(
-                        group.supervisor,
-                        (supervisor) => (
-                            <UserItem className={s.TeamSupervisor} user={supervisor} />
-                        ),
-                        <Text className={s.TeamSupervisorEmpty}>{tr('Not provided')}</Text>,
-                    )}
-                </div>
-
+                <TeamSupervisor supervisor={group.supervisor ?? undefined} />
                 <TeamPageDecription value={group.description ?? undefined} />
                 <div className={s.TeamPageLists}>
                     <TeamChildren items={childrenQuery.data ?? []} />

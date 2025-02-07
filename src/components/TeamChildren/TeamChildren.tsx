@@ -1,53 +1,46 @@
-import { Group } from 'prisma/prisma-client';
-import { gapM, gapS } from '@taskany/colors';
-import styled from 'styled-components';
-import { IconPlusCircleSolid } from '@taskany/icons';
+import { ComponentProps, FC, HTMLAttributes } from 'react';
+import cn from 'classnames';
+import { nullable } from '@taskany/bricks';
+import { Text } from '@taskany/bricks/harmony';
 
-import { NarrowSection } from '../NarrowSection';
-import { GroupListItem } from '../GroupListItem';
-import { Restricted } from '../Restricted';
-import { useBoolean } from '../../hooks/useBoolean';
-import { CreateGroupModal } from '../CreateGroupModal/CreateGroupModal';
-import { InlineTrigger } from '../InlineTrigger';
+import { pages } from '../../hooks/useRouter';
+import { usePreviewContext } from '../../contexts/previewContext';
+import { TeamPageSubtitle } from '../TeamPageSubtitle/TeamPageSubtitle';
+import { TeamItem } from '../TeamItem/TeamItem';
+import { List, ListItem } from '../List/List';
+import { Link } from '../Link';
 
 import { tr } from './TeamChildren.i18n';
+import s from './TeamChildren.module.css';
 
-const StyledChildrenList = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: ${gapS};
-    margin-bottom: ${gapM};
-`;
-
-interface GroupTeamsProps {
-    group: Group;
-    groupChildren: Group[];
-    isEditable: boolean;
+interface TeamChildrenProps extends HTMLAttributes<HTMLDivElement> {
+    items: ComponentProps<typeof TeamItem>['item'][];
+    size?: ComponentProps<typeof TeamPageSubtitle>['size'];
 }
 
-export const TeamChildren = ({ group, groupChildren, isEditable }: GroupTeamsProps) => {
-    const createGroupModalVisibility = useBoolean(false);
+export const TeamChildren: FC<TeamChildrenProps> = ({ className, children, items, size = 'l', ...props }) => {
+    const { showGroupPreview } = usePreviewContext();
 
     return (
-        <NarrowSection title={tr('Teams')}>
-            <StyledChildrenList>
-                {groupChildren.map((g) => (
-                    <GroupListItem key={g.id} groupId={g.id} groupName={g.name} />
-                ))}
-            </StyledChildrenList>
-
-            <Restricted visible={isEditable}>
-                <InlineTrigger
-                    text={tr('Add team')}
-                    icon={<IconPlusCircleSolid size="s" />}
-                    onClick={createGroupModalVisibility.setTrue}
-                />
-            </Restricted>
-            <CreateGroupModal
-                visible={createGroupModalVisibility.value}
-                onClose={createGroupModalVisibility.setFalse}
-                parentId={group.id}
-            />
-        </NarrowSection>
+        <div className={cn(s.TeamChildren, className)} {...props}>
+            <TeamPageSubtitle size={size} counter={items.length}>
+                {tr('Teams')}
+            </TeamPageSubtitle>
+            {nullable(
+                items,
+                () => (
+                    <List>
+                        {items.map((g, index) => (
+                            <ListItem key={index}>
+                                <Link onClick={() => showGroupPreview(g.id)} href={pages.team(g.id)}>
+                                    <TeamItem size={size} item={g} />
+                                </Link>
+                            </ListItem>
+                        ))}
+                    </List>
+                ),
+                <Text className={s.Empty}>{tr('Not provided')}</Text>,
+            )}
+        </div>
     );
 };

@@ -8,13 +8,21 @@ import s from './TeamPageSubtitle.module.css';
 interface TeamPageSubtitleProps extends HTMLAttributes<HTMLDivElement> {
     counter?: number;
     action?: ReactNode;
+    size?: 'l' | 'm';
 }
 
-export const TeamPageSubtitle: FC<TeamPageSubtitleProps> = ({ children, className, counter, action, ...rest }) => {
+export const TeamPageSubtitle: FC<TeamPageSubtitleProps> = ({
+    children,
+    className,
+    counter,
+    action,
+    size = 'l',
+    ...rest
+}) => {
     return (
         <div className={cn(s.TeamPageSubtitle, className)} {...rest}>
             <div className={s.TeamPageSubtitleContent}>
-                <Text size="l" weight="bold">
+                <Text size={size} weight="bold">
                     {children}
                 </Text>
                 {nullable(typeof counter === 'number', () => (

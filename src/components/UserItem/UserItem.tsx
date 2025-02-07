@@ -1,4 +1,4 @@
-import { FC, HTMLAttributes, useMemo } from 'react';
+import { ComponentProps, FC, HTMLAttributes, useMemo } from 'react';
 import cn from 'classnames';
 import { nullable } from '@taskany/bricks';
 import {
@@ -31,12 +31,21 @@ import { Link } from '../Link';
 import s from './UserItem.module.css';
 import { tr } from './UserItem.i18n';
 
+type Size = 'm' | 'l';
+
 interface UserItemProps extends HTMLAttributes<HTMLDivElement> {
     user: UserWithSuplementalPositions;
     editable?: boolean;
+    size?: Size;
+    showAvatar?: boolean;
 }
 
-export const UserItem: FC<UserItemProps> = ({ className, user, editable = false, ...rest }) => {
+const textSizesMap: Record<Size, ComponentProps<typeof Text>['size']> = {
+    m: 's',
+    l: 'sm',
+};
+
+export const UserItem: FC<UserItemProps> = ({ className, user, editable = false, size = 'l', showAvatar, ...rest }) => {
     const mainPosition = useMemo(() => {
         const { positions } = getLastSupplementalPositions(user.supplementalPositions);
 
@@ -72,31 +81,54 @@ export const UserItem: FC<UserItemProps> = ({ className, user, editable = false,
     const { showUserPreview } = usePreviewContext();
 
     return (
-        <div className={cn(s.UserItem, className)} {...rest}>
+        <div
+            className={cn(
+                s.UserItem,
+                {
+                    [s.UserItem_L]: size === 'l',
+                    [s.UserItem_M]: size === 'm',
+                },
+                className,
+            )}
+            {...rest}
+        >
             <Link className={s.UserItemContent} href={pages.user(user.id)} onClick={() => showUserPreview(user.id)}>
                 <div className={s.UserInfo}>
-                    <Avatar size="l" email={user.email} name={user.name} src={user.image} />
+                    {nullable(showAvatar, () => (
+                        <Avatar size={size === 'm' ? 'ml' : 'l'} email={user.email} name={user.name} src={user.image} />
+                    ))}
                     <div className={s.UserPersonalInfo}>
-                        <Text className={cn(s.UserName, s.UserInfoText)} size="sm">
+                        <Text className={cn(s.UserName, s.UserInfoText)} size={textSizesMap[size]}>
                             {user.name}
                         </Text>
                         {nullable(mainPosition, (p) => (
                             <>
-                                <Text className={s.UserInfoText} size="sm">
+                                <Text className={s.UserInfoText} size={textSizesMap[size]}>
                                     {p.role}
                                 </Text>
-                                <Text className={s.UserInfoText} size="sm">
+                                <Text className={s.UserInfoText} size={textSizesMap[size]}>
                                     {p.organizationUnit.name}
                                 </Text>
                             </>
                         ))}
                     </div>
                 </div>
-                <div className={s.Contacts}>
+                <div
+                    className={cn(s.Contacts, {
+                        [s.Contacts_L]: size === 'l',
+                        [s.Contacts_M]: size === 'm',
+                    })}
+                >
                     {nullable(user.email, () => (
                         <div className={s.ContactsBadge}>
                             <IconEnvelopeOutline className={s.UserInfoText} size="s" />
-                            <Text className={s.UserInfoText} title={user.email} lines={1} size="sm" ellipsis>
+                            <Text
+                                className={s.UserInfoText}
+                                title={user.email}
+                                lines={1}
+                                size={textSizesMap[size]}
+                                ellipsis
+                            >
                                 {user.email}
                             </Text>
                         </div>
@@ -105,7 +137,13 @@ export const UserItem: FC<UserItemProps> = ({ className, user, editable = false,
                     {nullable(user.login, () => (
                         <div className={s.ContactsBadge}>
                             <IconChatOutline className={s.UserInfoText} size="s" />
-                            <Text className={s.UserInfoText} title={user.login ?? ''} lines={1} size="sm" ellipsis>
+                            <Text
+                                className={s.UserInfoText}
+                                title={user.login ?? ''}
+                                lines={1}
+                                size={textSizesMap[size]}
+                                ellipsis
+                            >
                                 {user.login}
                             </Text>
                         </div>

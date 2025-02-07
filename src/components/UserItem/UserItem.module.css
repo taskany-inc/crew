@@ -4,6 +4,16 @@
     align-items: center;
 }
 
+.UserItem_L {
+    --row-gap: var(--gap-xs);
+    --avatar-gap:var(--gap-sm);
+}
+
+.UserItem_M {
+    --row-gap: 0;
+    --avatar-gap:var(--gap-s);
+}
+
 .UserItemContent {
     flex: 1;
     display: flex;
@@ -21,21 +31,28 @@
 
 .UserInfo {
     display: flex;
-    gap: var(--gap-sm);
+    gap: var(--avatar-gap);
     flex: 1;
 }
 
 .UserPersonalInfo {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-xs);
+    gap: var(--row-gap);
 }
 
 .Contacts {
     display: flex;
     flex-direction: column;
+    gap: var(--row-gap);
+}
+
+.Contacts_L {
     width: 240px;
-    gap: var(--gap-xs);
+}
+
+.Contacts_M {
+    width: 220px;
 }
 
 .ContactsBadge {

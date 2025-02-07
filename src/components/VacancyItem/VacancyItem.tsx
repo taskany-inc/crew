@@ -1,4 +1,4 @@
-import { FC, HTMLAttributes, useMemo } from 'react';
+import { ComponentProps, FC, HTMLAttributes, useMemo } from 'react';
 import cn from 'classnames';
 import {
     Button,
@@ -23,12 +23,20 @@ import { Restricted } from '../Restricted';
 import s from './VacancyItem.module.css';
 import { tr } from './VacancyItem.i18n';
 
+type Size = 'm' | 'l';
+
+const textSizesMap: Record<Size, ComponentProps<typeof Text>['size']> = {
+    m: 's',
+    l: 'm',
+};
+
 interface VacancyItemProps extends HTMLAttributes<HTMLDivElement> {
     item: GroupVacancies['vacancies'][number];
     editable: boolean;
+    size?: Size;
 }
 
-export const VacancyItem: FC<VacancyItemProps> = ({ className, editable, item, ...props }) => {
+export const VacancyItem: FC<VacancyItemProps> = ({ className, editable, item, size = 'l', ...props }) => {
     const dropdownVisibility = useBoolean(false);
     const editVacancyModalVisibility = useBoolean(false);
     const archiveVacancyModalVisibility = useBoolean(false);
@@ -60,9 +68,9 @@ export const VacancyItem: FC<VacancyItemProps> = ({ className, editable, item, .
             <div className={cn(s.TeamItem, className)} {...props}>
                 <div className={s.TeamItemContent}>
                     <Link href={`${config.hireIntegration.url}/candidates?vacancyIds=${item.id}`} target="_blank">
-                        <Text size="m">{item.name}</Text>
+                        <Text size={textSizesMap[size]}>{item.name}</Text>
                     </Link>
-                    <Text size="m" className={s.TeamName}>
+                    <Text size={textSizesMap[size]} className={s.TeamName}>
                         {item.group.name}
                     </Text>
                 </div>

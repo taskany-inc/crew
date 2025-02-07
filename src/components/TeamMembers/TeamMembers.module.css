@@ -5,8 +5,11 @@
 }
 
 .TeamMembersItem {
-    margin: var(--gap-xs) 0;
     flex: 1;
+}
+
+.TeamMembersItem_L {
+    margin: var(--gap-xs) 0;
 }
 
 .TeamMembersItemWrapper {
@@ -27,6 +30,9 @@
 }
 
 .Empty {
-    margin-top: var(--gap-s);
     padding-top: var(--gap-xs);
+}
+
+.Empty_L {
+    margin-top: var(--gap-s);
 }

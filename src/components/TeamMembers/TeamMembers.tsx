@@ -1,4 +1,4 @@
-import { FC, HTMLAttributes, useState, useMemo } from 'react';
+import { FC, HTMLAttributes, useState, useMemo, ComponentProps } from 'react';
 import cn from 'classnames';
 import { nullable } from '@taskany/bricks';
 import {
@@ -29,9 +29,19 @@ import { tr } from './TeamMembers.i18n';
 interface TeamMembersProps extends HTMLAttributes<HTMLDivElement> {
     editable?: boolean;
     groupId: string;
+    size?: ComponentProps<typeof TeamPageSubtitle>['size'];
+    showAvatar?: ComponentProps<typeof UserItem>['showAvatar'];
 }
 
-export const TeamMembers: FC<TeamMembersProps> = ({ className, children, editable = false, groupId, ...props }) => {
+export const TeamMembers: FC<TeamMembersProps> = ({
+    className,
+    children,
+    editable = false,
+    groupId,
+    size,
+    showAvatar,
+    ...props
+}) => {
     const { data: memberships = [] } = trpc.group.getMemberships.useQuery(groupId);
     const [editMembership, setEditMembership] = useState<MembershipInfo | null>(null);
     const [removeMembership, setRemoveMembership] = useState<MembershipInfo | null>(null);
@@ -63,6 +73,7 @@ export const TeamMembers: FC<TeamMembersProps> = ({ className, children, editabl
         <>
             <div className={cn(s.TeamMembers, className)} {...props}>
                 <TeamPageSubtitle
+                    size={size}
                     counter={memberships.length}
                     action={
                         <Restricted visible={editable}>
@@ -79,7 +90,14 @@ export const TeamMembers: FC<TeamMembersProps> = ({ className, children, editabl
                         () =>
                             memberships.map((m, index) => (
                                 <ListItem className={s.TeamMembersItemWrapper} key={index}>
-                                    <UserItem className={s.TeamMembersItem} user={m.user} />
+                                    <UserItem
+                                        showAvatar={showAvatar}
+                                        className={cn(s.TeamMembersItem, {
+                                            [s.TeamMembersItem_L]: size === 'l',
+                                        })}
+                                        user={m.user}
+                                        size={size}
+                                    />
                                     {nullable(editable, () => (
                                         <Dropdown isOpen={dropdownId === m.id} onClose={() => setDropdownId(null)}>
                                             <DropdownTrigger
@@ -122,7 +140,13 @@ export const TeamMembers: FC<TeamMembersProps> = ({ className, children, editabl
                                     ))}
                                 </ListItem>
                             )),
-                        <Text className={s.Empty}>{tr('No members')}</Text>,
+                        <Text
+                            className={cn(s.Empty, {
+                                [s.Empty_L]: size === 'l',
+                            })}
+                        >
+                            {tr('No members')}
+                        </Text>,
                     )}
                 </List>
             </div>

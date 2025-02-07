@@ -4,7 +4,7 @@ export const pages = {
     home: '/',
 
     teams: '/teams',
-    team: (teamId: string) => `/teams/${teamId}`,
+    team: (teamId: string) => `/team/${teamId}`,
     teamSettings: (teamId: string) => `/teams/${teamId}/settings`,
 
     users: '/users',
