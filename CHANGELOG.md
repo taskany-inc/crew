@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.109.0](https://github.com/taskany-inc/crew/compare/v0.108.0...v0.109.0) (2025-02-08)
+
+
+### Features
+
+* **INTERNAL-1477:** a brand new interface for structure ([ba82c85](https://github.com/taskany-inc/crew/commit/ba82c85a66020e9a28d077b08c686d8701d2606a))
+* **INTERNAL-1514:** new team page ([3447622](https://github.com/taskany-inc/crew/commit/344762241bbac7c58b50d9c578979530e9d629b8))
+* new release flow ([e32604d](https://github.com/taskany-inc/crew/commit/e32604d780d058ae2eafceb2d7f55e7b57137ad2))
+
 ## [0.108.0](https://github.com/taskany-inc/crew/compare/v0.107.1...v0.108.0) (2025-02-06)
 
 
