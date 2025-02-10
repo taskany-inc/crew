@@ -14,7 +14,7 @@ import { IconEdit1Outline, IconMoreVerticalOutline, IconXCircleOutline } from '@
 
 import { config } from '../../config';
 import { useBoolean } from '../../hooks/useBoolean';
-import { GroupVacancies } from '../../modules/groupTypes';
+import { GroupVacancies } from '../../trpc/inferredTypes';
 import { Link } from '../Link';
 import { UpdateVacancyModal } from '../UpdateVacancyModal/UpdateVacancyModal';
 import { ArchiveVacancyModal } from '../ArchiveVacancyModal/ArchiveVacancyModal';
@@ -31,7 +31,7 @@ const textSizesMap: Record<Size, ComponentProps<typeof Text>['size']> = {
 };
 
 interface VacancyItemProps extends HTMLAttributes<HTMLDivElement> {
-    item: GroupVacancies['vacancies'][number];
+    item: GroupVacancies[number];
     editable: boolean;
     size?: Size;
 }
@@ -71,7 +71,7 @@ export const VacancyItem: FC<VacancyItemProps> = ({ className, editable, item, s
                         <Text size={textSizesMap[size]}>{item.name}</Text>
                     </Link>
                     <Text size={textSizesMap[size]} className={s.TeamName}>
-                        {item.group.name}
+                        {item.group?.name}
                     </Text>
                 </div>
                 <Restricted visible={editable}>
@@ -113,7 +113,7 @@ export const VacancyItem: FC<VacancyItemProps> = ({ className, editable, item, s
             <UpdateVacancyModal
                 visible={editVacancyModalVisibility.value}
                 vacancy={item}
-                groupName={item.group.name}
+                groupName={item.group?.name || ''}
                 onClose={editVacancyModalVisibility.setFalse}
             />
 

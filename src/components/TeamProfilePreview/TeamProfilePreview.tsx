@@ -22,6 +22,8 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const groupQuery = trpc.group.getById.useQuery(groupId);
     const childrenQuery = trpc.group.getChildren.useQuery(groupId);
+    const { data: counter } = trpc.group.getTreeMembershipsCount.useQuery(groupId);
+
     const { team } = useRouter();
 
     return (
@@ -29,7 +31,7 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
             <DrawerHeader>
                 {nullable(groupQuery.data, (group) => (
                     <TeamPageTitle
-                        counter={17}
+                        counter={counter}
                         size="m"
                         action={
                             <Button

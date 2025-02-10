@@ -327,4 +327,8 @@ export const groupRouter = router({
     getMothrshipGroup: protectedProcedure.query(async () => {
         return groupMethods.getMothershipGroup();
     }),
+
+    getGroupChidrenVacancies: protectedProcedure.input(z.string()).query(async ({ input }) => {
+        return groupMethods.getGroupChidrenVacancies(input);
+    }),
 });

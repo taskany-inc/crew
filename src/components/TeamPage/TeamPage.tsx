@@ -27,13 +27,15 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
     const { teamSettings } = useRouter();
 
     const childrenQuery = trpc.group.getChildren.useQuery(teamId);
+    const { data: counter } = trpc.group.getTreeMembershipsCount.useQuery(teamId);
+
     if (!group) return null;
 
     return (
         <LayoutMain pageTitle={group.name}>
             <TeamPageLayout sidebar={<TeamMembers showAvatar groupId={group.id} editable={group.meta.isEditable} />}>
                 <TeamPageTitle
-                    counter={17}
+                    counter={counter}
                     action={nullable(group.meta.isEditable, () => (
                         <Button
                             iconLeft={<IconEdit1Outline size="s" />}
