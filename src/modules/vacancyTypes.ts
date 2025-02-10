@@ -7,9 +7,9 @@ export interface VacancyUser {
 }
 
 export interface VacancyHr {
-    hr: User;
+    hr: Nullish<Omit<User, 'roleDeprecated'>>;
 }
 
 export interface VacancyHiringManager {
-    hiringManager: User;
+    hiringManager: Nullish<Omit<User, 'roleDeprecated'>>;
 }

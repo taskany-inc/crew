@@ -4,6 +4,7 @@ import { Text } from '@taskany/bricks/harmony';
 import { IconUsersOutline } from '@taskany/icons';
 
 import { GroupWithSupervisor } from '../../modules/groupTypes';
+import { trpc } from '../../trpc/trpcClient';
 
 import s from './TeamItem.module.css';
 
@@ -19,27 +20,31 @@ interface TeamItemProps extends HTMLAttributes<HTMLDivElement> {
     size?: Size;
 }
 
-export const TeamItem: FC<TeamItemProps> = ({ className, item, size = 'l', ...props }) => (
-    <div
-        className={cn(
-            s.TeamItem,
-            {
-                [s.TeamItem_L]: size === 'l',
-                [s.TeamItem_M]: size === 'm',
-            },
-            className,
-        )}
-        {...props}
-    >
-        <div className={s.TeamItemHeader}>
-            <Text size={textSizesMap[size]}>{item.name}</Text>
-            <div className={s.TeamCounter}>
-                <IconUsersOutline size="s" />
-                <Text size="s">5</Text>
+export const TeamItem: FC<TeamItemProps> = ({ className, item, size = 'l', ...props }) => {
+    const { data: counter } = trpc.group.getTreeMembershipsCount.useQuery(item.id);
+
+    return (
+        <div
+            className={cn(
+                s.TeamItem,
+                {
+                    [s.TeamItem_L]: size === 'l',
+                    [s.TeamItem_M]: size === 'm',
+                },
+                className,
+            )}
+            {...props}
+        >
+            <div className={s.TeamItemHeader}>
+                <Text size={textSizesMap[size]}>{item.name}</Text>
+                <div className={s.TeamCounter}>
+                    <IconUsersOutline size="s" />
+                    <Text size="s">{counter}</Text>
+                </div>
             </div>
+            <Text size={textSizesMap[size]} className={s.TeamItemSupervisor}>
+                {item.supervisor?.name}
+            </Text>
         </div>
-        <Text size={textSizesMap[size]} className={s.TeamItemSupervisor}>
-            {item.supervisor?.name}
-        </Text>
-    </div>
-);
+    );
+};

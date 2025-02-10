@@ -21,7 +21,7 @@ import { AddInlineTrigger } from '../AddInlineTrigger/AddInlineTrigger';
 import s from './UserComboBox.module.css';
 
 interface UserComboBoxProps {
-    value?: Nullish<User>;
+    value?: Nullish<Omit<User, 'roleDeprecated'>>;
     placeholder?: string;
     blank?: boolean;
 

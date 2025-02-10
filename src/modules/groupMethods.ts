@@ -1,6 +1,7 @@
 import { Group, Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { sql } from 'kysely';
+import { jsonObjectFrom } from 'kysely/helpers/postgres';
 
 import { prisma } from '../utils/prisma';
 import { objByKey, objByKeyMulti } from '../utils/objByKey';
@@ -390,28 +391,30 @@ export const groupMethods = {
     },
 
     getTreeMembershipsCount: async (id: string) => {
-        const treeViewGroups = await prisma.$queryRaw<{ id: string }[]>`
-            WITH RECURSIVE group_hierarchy AS (
-                SELECT *
-                FROM "Group"
-                WHERE "parentId" = ${id} AND archived = FALSE
-            UNION ALL
-                SELECT g.* FROM "Group" g
-                INNER JOIN group_hierarchy gh
-                    ON gh.id = g."parentId"
-                WHERE g.archived = FALSE
+        const userCount = await db
+            .withRecursive('rectree', (qc) =>
+                qc
+                    .selectFrom('Group')
+                    .select(['id'])
+                    .where('Group.id', '=', id)
+                    .where('archived', 'is not', true)
+                    .unionAll((qb) =>
+                        qb
+                            .selectFrom('Group')
+                            .select(['Group.id'])
+                            .innerJoin('rectree', 'rectree.id', 'Group.parentId')
+                            .where('archived', '=', false),
+                    ),
             )
-            SELECT id FROM group_hierarchy;
-        `;
+            .selectFrom('Membership')
+            .where('Membership.archived', 'is not', true)
+            .innerJoin('rectree', 'rectree.id', 'Membership.groupId')
+            .innerJoin('User', 'User.id', 'Membership.userId')
+            .where('User.active', '=', true)
+            .select(({ fn }) => fn.count<number>('User.id').distinct().as('count'))
+            .executeTakeFirstOrThrow();
 
-        const subtreeTotalGroups = await prisma.user.count({
-            where: {
-                memberships: { some: { groupId: { in: [...treeViewGroups.map((g) => g.id), id] } } },
-                active: true,
-            },
-        });
-
-        return subtreeTotalGroups;
+        return Number(userCount.count);
     },
 
     getHierarchy: async (id: string) => {
@@ -599,4 +602,43 @@ export const groupMethods = {
             .orderBy('Group.updatedAt desc')
             .executeTakeFirstOrThrow();
     },
+
+    getGroupChidrenVacancies: (groupId: string) =>
+        db
+            .withRecursive('rectree', (qc) =>
+                qc
+                    .selectFrom('Group')
+                    .select(['id'])
+                    .where('id', '=', groupId)
+                    .where('archived', '=', false)
+                    .unionAll((qb) =>
+                        qb
+                            .selectFrom('Group')
+                            .select(['Group.id'])
+                            .innerJoin('rectree', 'rectree.id', 'Group.parentId')
+                            .where('archived', '=', false),
+                    ),
+            )
+            .selectFrom('Vacancy')
+            .where('Vacancy.status', '=', 'ACTIVE')
+            .where('Vacancy.archived', 'is not', true)
+            .innerJoin('rectree', 'rectree.id', 'Vacancy.groupId')
+            .selectAll()
+            .select((eb) => [
+                'Vacancy.id',
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'Vacancy.hiringManagerId'),
+                ).as('hiringManager'),
+            ])
+            .select((eb) => [
+                'Vacancy.id',
+                jsonObjectFrom(eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'Vacancy.hrId')).as('hr'),
+            ])
+            .select((eb) => [
+                'Vacancy.id',
+                jsonObjectFrom(eb.selectFrom('Group').selectAll().whereRef('Group.id', '=', 'Vacancy.groupId')).as(
+                    'group',
+                ),
+            ])
+            .execute(),
 };
