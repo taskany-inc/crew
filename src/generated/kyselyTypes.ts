@@ -443,6 +443,7 @@ export type UserSettings = {
     userId: string;
     theme: Generated<string>;
     locale: Generated<string>;
+    beta: Generated<boolean>;
     showAchievements: Generated<boolean>;
 };
 export type Vacancy = {

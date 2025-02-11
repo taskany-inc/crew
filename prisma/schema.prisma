@@ -404,6 +404,8 @@ model UserSettings {
   theme  String @default("system")
   locale String @default("en")
 
+  beta Boolean @default(false)
+
   showAchievements Boolean @default(true)
 }
 

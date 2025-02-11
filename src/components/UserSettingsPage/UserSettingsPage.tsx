@@ -40,6 +40,10 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
         editUserSettings({ showAchievements: e.target.checked });
     };
 
+    const onBetaChange = (e: ChangeEvent<HTMLInputElement>) => {
+        editUserSettings({ beta: e.target.checked });
+    };
+
     return (
         <LayoutMain pageTitle={user.name}>
             <CommonHeader
@@ -88,14 +92,20 @@ export const UserSettingsPageBase = ({ user, settings }: UserSettingPageBaseProp
                                 <Text weight="bold" className={s.AchievementsInput}>
                                     {tr('Show achievements: ')}
                                 </Text>
-                                <Checkbox
-                                    value="createExternalAccount"
-                                    checked={settings.showAchievements}
-                                    onChange={onShowAchievementsChange}
-                                />
+                                <Checkbox checked={settings.showAchievements} onChange={onShowAchievementsChange} />
                             </div>
                         </Fieldset>
                     </form>
+                </SettingsCard>
+                <SettingsCard>
+                    <Fieldset title={tr('You are a hero')}>
+                        <div className={s.StyledInputContainer}>
+                            <Text weight="bold" className={s.AchievementsInput}>
+                                {tr('Beta features')}
+                            </Text>
+                            <Checkbox checked={settings.beta} onChange={onBetaChange} />
+                        </div>
+                    </Fieldset>
                 </SettingsCard>
                 <SettingsCard view="warning">
                     <Fieldset title={tr('Danger zone')} view="warning">

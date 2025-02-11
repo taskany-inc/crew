@@ -45,6 +45,7 @@ export const useUserMutations = () => {
                           theme: newSettings.theme ?? oldSettings.theme,
                           showAchievements: newSettings.showAchievements ?? oldSettings.showAchievements,
                           locale: newSettings.locale ?? oldSettings.locale,
+                          beta: newSettings.beta ?? oldSettings.beta,
                       }
                     : undefined;
             });
