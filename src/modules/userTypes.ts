@@ -29,6 +29,7 @@ export interface UserSettings {
     theme: Theme;
     showAchievements: boolean;
     locale: string;
+    beta: boolean;
 }
 
 export type MembershipInfo = Membership & {

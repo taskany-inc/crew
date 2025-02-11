@@ -110,6 +110,7 @@ export const editUserSettingsSchema = z.object({
     theme: z.enum(themes).optional(),
     showAchievements: z.boolean().optional(),
     locale: z.string().optional(),
+    beta: z.boolean().optional(),
 });
 export type EditUserSettings = z.infer<typeof editUserSettingsSchema>;
 
