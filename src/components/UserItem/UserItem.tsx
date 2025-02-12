@@ -95,7 +95,7 @@ export const UserItem: FC<UserItemProps> = ({ className, user, editable = false,
             <Link className={s.UserItemContent} href={pages.user(user.id)} onClick={() => showUserPreview(user.id)}>
                 <div className={s.UserInfo}>
                     {nullable(showAvatar, () => (
-                        <Avatar size={size === 'm' ? 'ml' : 'l'} email={user.email} name={user.name} src={user.image} />
+                        <Avatar email={user.email} name={user.name} src={user.image} />
                     ))}
                     <div className={s.UserPersonalInfo}>
                         <Text className={cn(s.UserName, s.UserInfoText)} size={textSizesMap[size]}>
