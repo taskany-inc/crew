@@ -13,7 +13,6 @@ import {
     MembershipInfo,
     UserAchievements,
     UserMemberships,
-    UserSupervisor,
     UserSettings,
     UserSupervisorOf,
     UserSupervisorIn,
@@ -28,6 +27,7 @@ import {
     UserCurators,
     UserCuratorOf,
     UserLocation,
+    UserSupervisorWithSupplementalPositions,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -222,7 +222,7 @@ export const userMethods = {
             UserMeta &
             UserNames &
             UserMemberships &
-            UserSupervisor &
+            UserSupervisorWithSupplementalPositions &
             UserAchievements &
             UserSupervisorOf &
             UserSupervisorIn &
@@ -257,7 +257,15 @@ export const userMethods = {
                     orderBy: { group: { name: 'asc' } },
                 },
                 services: true,
-                supervisor: true,
+                supervisor: {
+                    include: {
+                        supplementalPositions: {
+                            include: {
+                                organizationUnit: true,
+                            },
+                        },
+                    },
+                },
                 achievements: { include: { achievement: true }, where: { achievement: { hidden: false } } },
                 settings: true,
                 supervisorOf: { where: { active: true } },

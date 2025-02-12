@@ -3,7 +3,7 @@ import { Button, Drawer, DrawerHeader, TextSkeleton } from '@taskany/bricks/harm
 import { IconTopRightOutline } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
-import { useRouter } from '../../hooks/useRouter';
+import { pages, useRouter } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
 import { TeamPageTitle } from '../TeamPageTitle/TeamPageTitle';
 import { TeamPageDecription } from '../TeamPageDecription/TeamPageDecription';
@@ -11,8 +11,10 @@ import { TeamChildren } from '../TeamChildren/TeamChildren';
 import { TeamMembers } from '../TeamMembers/TeamMembers';
 import { TeamVacancies } from '../TeamVacanciesV2/TeamVacancies';
 import { TeamSupervisor } from '../TeamSupervisor/TeamSupervisor';
+import { Link } from '../Link';
 
 import s from './TeamProfilePreview.module.css';
+import { tr } from './TeamProfilePreview.i18n';
 
 interface UserProps {
     groupId: string;
@@ -34,12 +36,13 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                         counter={counter}
                         size="m"
                         action={
-                            <Button
-                                view="ghost"
-                                text="Перейти к команде"
-                                iconLeft={<IconTopRightOutline size="s" />}
-                                onClick={() => team(group.id)}
-                            />
+                            <Link onClick={() => team(group.id)} href={pages.user(group.id)}>
+                                <Button
+                                    view="ghost"
+                                    text={tr('Show team')}
+                                    iconLeft={<IconTopRightOutline size="s" />}
+                                />
+                            </Link>
                         }
                     >
                         {group.name}

@@ -46,18 +46,3 @@
     flex-direction: column;
     gap: var(--row-gap);
 }
-
-.Contacts_L {
-    width: 240px;
-}
-
-.Contacts_M {
-    width: 220px;
-}
-
-.ContactsBadge {
-    padding: 0;
-    display: flex;
-    gap: var(--gap-xs);
-    align-items: center;
-}

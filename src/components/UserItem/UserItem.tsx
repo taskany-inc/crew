@@ -1,13 +1,7 @@
 import { ComponentProps, FC, HTMLAttributes, useMemo } from 'react';
 import cn from 'classnames';
 import { nullable } from '@taskany/bricks';
-import {
-    IconChatOutline,
-    IconEdit1Outline,
-    IconEnvelopeOutline,
-    IconMoreVerticalOutline,
-    IconXCircleOutline,
-} from '@taskany/icons';
+import { IconEdit1Outline, IconMoreVerticalOutline, IconXCircleOutline } from '@taskany/icons';
 import {
     Button,
     Avatar,
@@ -27,6 +21,7 @@ import { pages } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
 import { Restricted } from '../Restricted';
 import { Link } from '../Link';
+import { UserContacts } from '../UserContactsV2/UserContactsV2';
 
 import s from './UserItem.module.css';
 import { tr } from './UserItem.i18n';
@@ -113,42 +108,7 @@ export const UserItem: FC<UserItemProps> = ({ className, user, editable = false,
                         ))}
                     </div>
                 </div>
-                <div
-                    className={cn(s.Contacts, {
-                        [s.Contacts_L]: size === 'l',
-                        [s.Contacts_M]: size === 'm',
-                    })}
-                >
-                    {nullable(user.email, () => (
-                        <div className={s.ContactsBadge}>
-                            <IconEnvelopeOutline className={s.UserInfoText} size="s" />
-                            <Text
-                                className={s.UserInfoText}
-                                title={user.email}
-                                lines={1}
-                                size={textSizesMap[size]}
-                                ellipsis
-                            >
-                                {user.email}
-                            </Text>
-                        </div>
-                    ))}
-
-                    {nullable(user.login, () => (
-                        <div className={s.ContactsBadge}>
-                            <IconChatOutline className={s.UserInfoText} size="s" />
-                            <Text
-                                className={s.UserInfoText}
-                                title={user.login ?? ''}
-                                lines={1}
-                                size={textSizesMap[size]}
-                                ellipsis
-                            >
-                                {user.login}
-                            </Text>
-                        </div>
-                    ))}
-                </div>
+                <UserContacts user={user} size={size} />
             </Link>
             <Restricted visible={editable}>
                 <Dropdown isOpen={dropdownVisibility.value} onClose={() => dropdownVisibility.setFalse()}>
