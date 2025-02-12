@@ -21,7 +21,12 @@ import { FormControl } from '../FormControl/FormControl';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { EditUser, EditUserFields, editUserFieldsSchema } from '../../modules/userSchemas';
 import { useUserMutations } from '../../modules/userHooks';
-import { UserCurators, UserOrganizationUnit, UserSupervisor, UserSupplementalPositions } from '../../modules/userTypes';
+import {
+    UserCurators,
+    UserOrganizationUnit,
+    UserSupervisorWithSupplementalPositions,
+    UserSupplementalPositions,
+} from '../../modules/userTypes';
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { SupplementalPositionItem } from '../SupplementalPositionItem/SupplementalPositionItem';
 import { useSupplementalPositionMutations } from '../../modules/supplementalPositionHooks';
@@ -31,7 +36,11 @@ import { tr } from './UserUpdateForm.i18n';
 import s from './UserUpdateForm.module.css';
 
 interface UserDataFormProps {
-    user: User & UserSupervisor & UserOrganizationUnit & UserSupplementalPositions & UserCurators;
+    user: User &
+        UserSupervisorWithSupplementalPositions &
+        UserOrganizationUnit &
+        UserSupplementalPositions &
+        UserCurators;
     onClose: () => void;
 }
 

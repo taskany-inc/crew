@@ -1,0 +1,24 @@
+.UserProfilePreviewAvatar {
+    display: flex;
+    gap: var(--gap-sm);
+}
+
+.UserProfilePreviewAvatarInfo {
+    display: flex;
+    gap: var(--gap-xs);
+    flex-direction: column;
+    flex: 1;
+}
+
+.UserProfilePreviewAvatarPositionWrapper {
+    display: flex;
+    gap: var(--gap-xs);
+    flex-direction: row;
+    align-items: end;
+}
+
+.UserProfilePreviewAvatarPosition {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}

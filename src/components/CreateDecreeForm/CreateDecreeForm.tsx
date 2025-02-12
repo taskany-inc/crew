@@ -11,7 +11,7 @@ import {
     UserRoleData,
     UserScheduledDeactivations,
     UserServices,
-    UserSupervisor,
+    UserSupervisorWithSupplementalPositions,
     UserSupervisorIn,
     UserSupervisorOf,
     UserSupplementalPositions,
@@ -29,7 +29,7 @@ interface CreateDecreeFormProps {
             UserNames &
             UserMemberships &
             UserOrganizationUnit &
-            UserSupervisor &
+            UserSupervisorWithSupplementalPositions &
             UserRoleData &
             UserAchievements &
             UserSupervisorOf &

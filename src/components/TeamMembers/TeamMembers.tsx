@@ -73,6 +73,7 @@ export const TeamMembers: FC<TeamMembersProps> = ({
         <>
             <div className={cn(s.TeamMembers, className)} {...props}>
                 <TeamPageSubtitle
+                    className={s.TeamMembersSubtitle}
                     size={size}
                     counter={memberships.length}
                     action={
@@ -84,7 +85,7 @@ export const TeamMembers: FC<TeamMembersProps> = ({
                     {tr('Members')}
                 </TeamPageSubtitle>
 
-                <List>
+                <List className={s.TeamMembersList}>
                     {nullable(
                         memberships,
                         () =>

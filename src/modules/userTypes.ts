@@ -54,6 +54,10 @@ export interface UserSupervisor {
     supervisor: Nullish<User>;
 }
 
+export interface UserSupervisorWithSupplementalPositions {
+    supervisor: Nullish<UserWithSuplementalPositions>;
+}
+
 export interface UserSupervisorOf {
     supervisorOf: Nullish<User[]>;
 }
@@ -117,3 +121,5 @@ export interface UserServices {
 }
 
 export type UserWithSuplementalPositions = User & UserSupplementalPositions;
+
+export type UserWithMemberships = User & UserMemberships;
