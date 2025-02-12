@@ -32,10 +32,10 @@ export const ScheduledDeactivationEditMenu = ({ onEditClick, onCancelClick }: Sc
                     onClick={onCancelClick}
                 />
             </div>
-            <Tooltip reference={cancelRef} placement="bottom" arrow={false}>
+            <Tooltip reference={cancelRef} placement="bottom">
                 {tr('Cancel')}
             </Tooltip>
-            <Tooltip reference={editRef} placement="bottom" arrow={false}>
+            <Tooltip reference={editRef} placement="bottom">
                 {tr('Edit')}
             </Tooltip>
         </>

@@ -78,11 +78,11 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
                 className={s.Table}
                 rowComponent={ClickableRow}
             >
-                <DataTableColumn name="name" value="name" title={tr('Name')} width="17vw" fixed />
-                <DataTableColumn sortable={false} name="title" value="email" width="17vw" title={tr('Email')} />
+                <DataTableColumn name="name" value="name" title={tr('Name')} width="15vw" fixed />
+                <DataTableColumn sortable={false} name="title" value="email" width="15vw" title={tr('Email')} />
                 <DataTableColumn
                     name="team"
-                    width="15vw"
+                    width="12vw"
                     value="organization"
                     title={tr('Organization')}
                     sortable={false}
@@ -90,7 +90,7 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
                 <DataTableColumn name="group" width="15vw" value="group" title={tr('Group')} sortable={false} />
                 <DataTableColumn
                     name="supervisor"
-                    width="17vw"
+                    width="15vw"
                     value="supervisor"
                     title={tr('Supervisor')}
                     sortable={false}
@@ -101,13 +101,15 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
                     value="date"
                     title={
                         <>
-                            <span ref={dateTitleRef}>{tr('Start date')}</span>
-                            <Tooltip reference={dateTitleRef} placement="right">
+                            <span className={s.StartDate} ref={dateTitleRef}>
+                                {tr('Start date')}
+                            </span>
+                            <Tooltip reference={dateTitleRef} placement="bottom">
                                 {tr('Start date')}
                             </Tooltip>
                         </>
                     }
-                    width="140px"
+                    width="12vw"
                     lines={1}
                 />
                 <DataTableColumn

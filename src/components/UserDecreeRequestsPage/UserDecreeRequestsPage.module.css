@@ -61,3 +61,7 @@
 .TableRowLink {
     display: contents;
 }
+
+.StartDate {
+    white-space: nowrap;
+}

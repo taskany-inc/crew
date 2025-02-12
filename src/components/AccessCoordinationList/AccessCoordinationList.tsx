@@ -112,7 +112,7 @@ export const AccessCoordinationList = () => {
                 className={s.Table}
                 rowComponent={ClickableRow}
             >
-                <DataTableColumn name="name" value="name" title={tr('Name')} width="8vw" fixed />
+                <DataTableColumn lines={2} ellipsis name="name" value="name" title={tr('Name')} width="9vw" fixed />
                 <DataTableColumn
                     name="email"
                     value="email"
@@ -120,6 +120,7 @@ export const AccessCoordinationList = () => {
                     width="8vw"
                     lines={1}
                     sortable={false}
+                    ellipsis
                 />
 
                 <DataTableColumn
@@ -129,6 +130,7 @@ export const AccessCoordinationList = () => {
                     title={tr('Login')}
                     lines={1}
                     sortable={false}
+                    ellipsis
                 />
                 <DataTableColumn
                     name="phone"
@@ -137,6 +139,7 @@ export const AccessCoordinationList = () => {
                     title={tr('Phone')}
                     lines={1}
                     sortable={false}
+                    ellipsis
                 />
                 <DataTableColumn
                     name="organization"
@@ -144,6 +147,7 @@ export const AccessCoordinationList = () => {
                     value="organization"
                     title={tr('Organization')}
                     sortable={false}
+                    ellipsis
                 />
                 <DataTableColumn name="title" width="8vw" value="title" lines={1} title={tr('Role')} sortable={false} />
                 <DataTableColumn
@@ -152,13 +156,14 @@ export const AccessCoordinationList = () => {
                     value="lineManagers"
                     title={tr('Manager')}
                     sortable={false}
+                    ellipsis
                 />
-                <DataTableColumn name="author" width="8vw" value="author" title={tr('Author')} sortable={false} />
                 <DataTableColumn
-                    name="requestType"
-                    width="8vw"
-                    value="requestType"
-                    title={tr('Request type')}
+                    name="author"
+                    width="9vw"
+                    value="author"
+                    ellipsis
+                    title={tr('Author')}
                     sortable={false}
                 />
                 <DataTableColumn
@@ -167,14 +172,15 @@ export const AccessCoordinationList = () => {
                     value="createdAt"
                     title={
                         <>
-                            <span ref={dateTitleRef}>{tr('Creation date')}</span>
-                            <Tooltip reference={dateTitleRef} placement="right">
+                            <span className={s.CreationData} ref={dateTitleRef}>
+                                {tr('Creation date')}
+                            </span>
+                            <Tooltip reference={dateTitleRef} placement="bottom">
                                 {tr('Creation date')}
                             </Tooltip>
                         </>
                     }
-                    width="150px"
-                    lines={1}
+                    width="10vw"
                 />
                 <DataTableColumn
                     sortable={false}
