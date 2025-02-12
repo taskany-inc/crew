@@ -8,6 +8,7 @@
 
 .StatusText {
     color: var(--status-in-progress);
+    white-space: nowrap;
 }
 
 .StatusTextApproved {
@@ -28,4 +29,8 @@
 
 .StatusDotDenied {
     background-color: var(--status-failed);
+}
+
+.StartDate {
+    white-space: nowrap;
 }

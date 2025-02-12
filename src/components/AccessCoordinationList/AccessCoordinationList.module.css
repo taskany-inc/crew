@@ -1,7 +1,12 @@
 .Table {
     width: fit-content;
+    white-space: nowrap;
 }
 
 .TableRowLink {
     display: contents;
+}
+
+.CreationData {
+    white-space: nowrap;
 }

@@ -111,7 +111,7 @@ export const ScheduledDeactivationList = () => {
                 className={s.Table}
                 rowComponent={ClickableRow}
             >
-                <DataTableColumn name="name" value="name" title={tr('Name')} width="18vw" fixed />
+                <DataTableColumn name="name" value="name" title={tr('Name')} width="12vw" fixed />
                 <DataTableColumn
                     sortable={false}
                     name="email"
@@ -119,21 +119,24 @@ export const ScheduledDeactivationList = () => {
                     width="12vw"
                     title={tr('Email')}
                     lines={1}
+                    ellipsis
                 />
                 <DataTableColumn
                     name="organization"
-                    width="12vw"
+                    width="13vw"
                     value="organization"
                     title={tr('Organization')}
                     sortable={false}
+                    ellipsis
                 />
                 <DataTableColumn name="team" width="12vw" value="team" title={tr('Team')} sortable={false} />
                 <DataTableColumn
                     name="supervisor"
-                    width="12vw"
+                    width="13vw"
                     value="supervisor"
                     title={tr('Supervisor')}
                     sortable={false}
+                    lines={2}
                 />
                 <DataTableColumn
                     name="requestType"
@@ -144,12 +147,14 @@ export const ScheduledDeactivationList = () => {
                 />
                 <DataTableColumn
                     name="deactivateDate"
-                    width="170px"
+                    width="14vw"
                     value="deactivateDate"
                     title={
                         <>
-                            <span ref={dateTitleRef}>{tr('Date')}</span>
-                            <Tooltip reference={dateTitleRef} placement="right">
+                            <span className={s.Date} ref={dateTitleRef}>
+                                {tr('Date')}
+                            </span>
+                            <Tooltip reference={dateTitleRef} placement="bottom">
                                 {tr('Firing or transfer date')}
                             </Tooltip>
                         </>
@@ -163,7 +168,7 @@ export const ScheduledDeactivationList = () => {
                         fixed="right"
                         name="actions"
                         title={tr('Actions')}
-                        width="100px"
+                        width="11vw"
                         renderCell={({ id, type }) => (
                             <div onClick={(e) => e.preventDefault()}>
                                 <ScheduledDeactivationEditMenu

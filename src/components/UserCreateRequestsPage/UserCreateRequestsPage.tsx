@@ -122,7 +122,7 @@ export const UserCreateRequestsPage = () => {
                         />
                     )}
                     title={tr('Status')}
-                    width="180px"
+                    width="11vw"
                     fixed
                 />
                 <DataTableColumn name="name" value="name" title={tr('Name')} width="8vw" fixed />
@@ -163,13 +163,15 @@ export const UserCreateRequestsPage = () => {
                     value="date"
                     title={
                         <>
-                            <span ref={dateTitleRef}>{tr('Start date')}</span>
-                            <Tooltip reference={dateTitleRef} placement="right">
+                            <span className={s.StartDate} ref={dateTitleRef}>
+                                {tr('Start date')}
+                            </span>
+                            <Tooltip reference={dateTitleRef} placement="bottom">
                                 {tr('Start date')}
                             </Tooltip>
                         </>
                     }
-                    width="140px"
+                    width="9vw"
                     lines={1}
                 />
                 <DataTableColumn

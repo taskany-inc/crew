@@ -5,3 +5,7 @@
 .TableRowLink {
     display: contents;
 }
+
+.Date {
+    white-space: nowrap;
+}
