@@ -1,0 +1,9 @@
+.UserSupervisorSimple {
+    padding-bottom: var(--gap-s);
+}
+.UserSupervisorSimpleTitle {
+    margin-bottom: var(--gap-xs);
+}
+.UserSupervisorPosition {
+    color: var(--text-secondary);
+}

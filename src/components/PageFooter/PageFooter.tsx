@@ -41,7 +41,7 @@ export const PageFooter: FC = () => {
                 <FooterItem onClick={() => setOpenFeedbackForm(true)}>{tr('Feedback')}</FooterItem>
             </Link>
             {menuItems.map(({ title, url }) => (
-                <Link key={url} href={url}>
+                <Link key={title} href={url}>
                     <FooterItem>{title}</FooterItem>
                 </Link>
             ))}

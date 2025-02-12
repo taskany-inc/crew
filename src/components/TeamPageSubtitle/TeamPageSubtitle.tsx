@@ -21,7 +21,12 @@ export const TeamPageSubtitle: FC<TeamPageSubtitleProps> = ({
 }) => {
     return (
         <div className={cn(s.TeamPageSubtitle, className)} {...rest}>
-            <div className={s.TeamPageSubtitleContent}>
+            <div
+                className={cn(s.TeamPageSubtitleContent, {
+                    [s.TeamPageSubtitleContent_L]: size === 'l',
+                    [s.TeamPageSubtitleContent_M]: size === 'm',
+                })}
+            >
                 <Text size={size} weight="bold">
                     {children}
                 </Text>

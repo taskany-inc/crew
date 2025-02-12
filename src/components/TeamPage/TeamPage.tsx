@@ -33,7 +33,16 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
 
     return (
         <LayoutMain pageTitle={group.name}>
-            <TeamPageLayout sidebar={<TeamMembers showAvatar groupId={group.id} editable={group.meta.isEditable} />}>
+            <TeamPageLayout
+                sidebar={
+                    <TeamMembers
+                        className={s.TeamMembers}
+                        showAvatar
+                        groupId={group.id}
+                        editable={group.meta.isEditable}
+                    />
+                }
+            >
                 <TeamPageTitle
                     counter={counter}
                     action={nullable(group.meta.isEditable, () => (

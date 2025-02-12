@@ -39,7 +39,7 @@ import {
     UserOrganizationUnit,
     UserRoleData,
     UserScheduledDeactivations,
-    UserSupervisor,
+    UserSupervisorWithSupplementalPositions,
     UserSupervisorIn,
     UserSupervisorOf,
     UserSupplementalPositions,
@@ -104,7 +104,7 @@ interface UserPageInnerProps {
         UserNames &
         UserMemberships &
         UserOrganizationUnit &
-        UserSupervisor &
+        UserSupervisorWithSupplementalPositions &
         UserRoleData &
         UserAchievements &
         UserSupervisorOf &

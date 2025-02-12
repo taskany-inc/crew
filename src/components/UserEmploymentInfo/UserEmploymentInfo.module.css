@@ -1,0 +1,8 @@
+.UserEmploymentInfo {
+    display: flex;
+    gap: var(--gap-s);
+}
+
+.UserEmploymentTitle {
+    flex: 1;
+}

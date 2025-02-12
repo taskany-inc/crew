@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { usePreviewContext } from '../contexts/previewContext';
 
 import { TeamProfilePreview } from './TeamProfilePreview/TeamProfilePreview';
-import { UserProfilePreview } from './UserProfilePreview';
+import { UserProfilePreview } from './UserProfilePreview/UserProfilePreview';
 
 export const Previews = () => {
     const { userId, groupId, hidePreview } = usePreviewContext();

@@ -2,10 +2,22 @@
     display: flex;
     gap: var(--gap-xs);
     flex-direction: column;
+    margin-right: calc(var(--gap-m) * -1);
+}
+
+.TeamMembersSubtitle, .TeamMembersList {
+    box-sizing: border-box;
+    padding-right: var(--gap-m);
+}
+
+.TeamMembersList {
+    flex: 1;
+    overflow: auto;
 }
 
 .TeamMembersItem {
     flex: 1;
+    overflow: hidden;
 }
 
 .TeamMembersItem_L {
