@@ -1,5 +1,6 @@
 .Table {
     width: fit-content;
+    white-space: nowrap;
 }
 
 .TableRowLink {

@@ -113,30 +113,30 @@ export const UserCreateRequestsPage = () => {
                         />
                     )}
                     title={tr('Status')}
-                    width="180px"
+                    width="20%"
                     fixed
                 />
-                <DataTableColumn name="name" value="name" title={tr('Name')} width="9vw" fixed />
-                <DataTableColumn sortable={false} name="title" value="title" width="9vw" title={tr('Role')} />
-                <DataTableColumn name="team" width="9vw" value="team" title={tr('Team')} sortable={false} />
+                <DataTableColumn name="name" value="name" title={tr('Name')} width="20%" fixed />
+                <DataTableColumn sortable={false} name="title" value="title" width="20%" title={tr('Role')} />
+                <DataTableColumn name="team" width="20%" value="team" title={tr('Team')} sortable={false} />
                 <DataTableColumn
                     name="supervisor"
-                    width="9vw"
+                    width="20%"
                     value="supervisor"
                     title={tr('Supervisor')}
                     sortable={false}
                 />
-                <DataTableColumn name="author" width="9vw" value="author" title={tr('Author')} sortable={false} />
+                <DataTableColumn name="author" width="20%" value="author" title={tr('Author')} sortable={false} />
                 <DataTableColumn
                     name="coordinators"
-                    width="9vw"
+                    width="20%"
                     value="coordinators"
                     title={tr('Coordinator')}
                     sortable={false}
                 />
                 <DataTableColumn
                     name="recruiter"
-                    width="9vw"
+                    width="20%"
                     value="recruiter"
                     title={tr('Recruiter')}
                     sortable={false}
@@ -153,7 +153,7 @@ export const UserCreateRequestsPage = () => {
                             </Tooltip>
                         </>
                     }
-                    width="140px"
+                    width="50%"
                     lines={1}
                 />
                 <DataTableColumn
@@ -161,7 +161,7 @@ export const UserCreateRequestsPage = () => {
                     fixed="right"
                     name="actions"
                     title={tr('Actions')}
-                    width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
+                    width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '8%' : '10%'}
                     renderCell={({ id }) => (
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions

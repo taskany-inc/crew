@@ -127,16 +127,16 @@ export const RequestFormActions = ({
                         />
                     </div>
                     {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
-                        <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
+                        <Tooltip reference={tooltipRef} placement="bottom">
                             {tooltipText}
                         </Tooltip>
                     ))}
                     {nullable(small, () => (
                         <>
-                            <Tooltip reference={editRef} placement="bottom" arrow={false}>
+                            <Tooltip reference={editRef} placement="bottom">
                                 {tr('Edit')}
                             </Tooltip>
-                            <Tooltip reference={cancelRef} placement="bottom" arrow={false}>
+                            <Tooltip reference={cancelRef} placement="bottom">
                                 {tr('Cancel request')}
                             </Tooltip>
                         </>
@@ -181,16 +181,16 @@ export const RequestFormActions = ({
                         />
 
                         {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
-                            <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
+                            <Tooltip reference={tooltipRef} placement="bottom">
                                 {tooltipText}
                             </Tooltip>
                         ))}
                         {nullable(small, () => (
                             <>
-                                <Tooltip reference={declineRef} placement="bottom" arrow={false}>
+                                <Tooltip reference={declineRef} placement="bottom">
                                     {tr('Decline')}
                                 </Tooltip>
-                                <Tooltip reference={acceptRef} placement="bottom" arrow={false}>
+                                <Tooltip reference={acceptRef} placement="bottom">
                                     {tr('Accept')}
                                 </Tooltip>
                             </>
@@ -216,17 +216,17 @@ export const RequestFormActions = ({
                     </div>
 
                     {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
-                        <Tooltip reference={tooltipRef} placement="bottom" arrow={false}>
+                        <Tooltip reference={tooltipRef} placement="bottom">
                             {tooltipText}
                         </Tooltip>
                     ))}
                     {nullable(small, () => (
                         <>
                             {' '}
-                            <Tooltip reference={declineRef} placement="bottom" arrow={false}>
+                            <Tooltip reference={declineRef} placement="bottom">
                                 {tr('Decline')}
                             </Tooltip>
-                            <Tooltip reference={acceptRef} placement="bottom" arrow={false}>
+                            <Tooltip reference={acceptRef} placement="bottom">
                                 {tr('Accept')}
                             </Tooltip>
                         </>
