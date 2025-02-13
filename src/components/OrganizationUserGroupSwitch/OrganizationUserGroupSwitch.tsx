@@ -18,11 +18,12 @@ export const OrganizationUserGroupSwitch = ({ value, noGap }: OrganizationUserGr
     return (
         <Switch value={value} className={cn(s.Switch, { [s.Switch_noGap]: noGap })}>
             <SwitchControl
-                text={tr('Organization groups')}
+                text={tr('Functional groups')}
                 value="org"
                 onClick={() => value === 'users' && appConfig?.orgGroupId && router.team(appConfig.orgGroupId)}
             />
             <SwitchControl text={tr('User groups')} value="users" onClick={() => value === 'org' && router.teams()} />
+            <SwitchControl text={tr('V-teams')} value="users" onClick={() => value === 'org' && router.teams()} />
         </Switch>
     );
 };

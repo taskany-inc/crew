@@ -109,7 +109,7 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
                 {nullable(isOrgGroup && appConfig?.orgGroupUpdatedAt, (d) => (
                     <Text className={s.TeamPageHeaderUpdatedAt} size="m">
                         {tr
-                            .raw('Version at', {
+                            .raw('Updated at: {date}', {
                                 date: formatDate(d, locale),
                             })
                             .join(' ')}
