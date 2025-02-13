@@ -1,0 +1,17 @@
+.Description {
+    display: flex;
+}
+
+.DescriptionText {
+    transition: height 300ms ease-in-out;
+}
+
+.DescriptionExpanded {
+    display: block;
+    text-overflow: unset;
+    height: auto;
+}
+
+.Button {
+    margin-left: auto;
+}
