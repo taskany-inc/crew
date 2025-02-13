@@ -1,0 +1,22 @@
+.TeamPageDecription {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-s);
+}
+
+.TeamPageDecriptionHeader {
+    display: flex;
+    justify-content: space-between;
+}
+
+.PreviewButton {
+    min-width: 35px;
+}
+
+.Description {
+    display: flex;
+}
+
+.Button {
+    margin-left: auto;
+}
