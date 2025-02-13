@@ -1,9 +1,9 @@
 import { nullable } from '@taskany/bricks';
-import { Button, Drawer, DrawerHeader, TextSkeleton } from '@taskany/bricks/harmony';
+import { Breadcrumb, Breadcrumbs, Button, Drawer, DrawerHeader, TextSkeleton } from '@taskany/bricks/harmony';
 import { IconTopRightOutline } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
-import { useRouter } from '../../hooks/useRouter';
+import { pages, useRouter } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
 import { TeamPageTitle } from '../TeamPageTitle/TeamPageTitle';
 import { TeamPageDecription } from '../TeamPageDecription/TeamPageDecription';
@@ -11,6 +11,8 @@ import { TeamChildren } from '../TeamChildren/TeamChildren';
 import { TeamMembers } from '../TeamMembers/TeamMembers';
 import { TeamVacancies } from '../TeamVacanciesV2/TeamVacancies';
 import { TeamSupervisor } from '../TeamSupervisor/TeamSupervisor';
+import { Link } from '../Link';
+import { useAppConfig } from '../../contexts/appConfigContext';
 
 import s from './TeamProfilePreview.module.css';
 
@@ -19,16 +21,32 @@ interface UserProps {
 }
 
 export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
-    const { hidePreview } = usePreviewContext();
+    const { showGroupPreview, hidePreview } = usePreviewContext();
     const groupQuery = trpc.group.getById.useQuery(groupId);
     const childrenQuery = trpc.group.getChildren.useQuery(groupId);
     const { data: counter } = trpc.group.getTreeMembershipsCount.useQuery(groupId);
+    const breadcrumbsQuery = trpc.group.getBreadcrumbs.useQuery(groupId);
+    const appConfig = useAppConfig();
 
     const { team } = useRouter();
 
     return (
         <Drawer animated visible onClose={hidePreview}>
-            <DrawerHeader>
+            <DrawerHeader
+                topBarContent={nullable(breadcrumbsQuery.data, (breadcrumbs) => (
+                    <Breadcrumbs className={s.TeamBreadcrumbs}>
+                        {breadcrumbs
+                            .filter((b) => b.id !== appConfig?.orgGroupId)
+                            .map((b) => (
+                                <Breadcrumb key={b.id}>
+                                    <Link href={pages.team(b.id)} onClick={() => showGroupPreview(b.id)}>
+                                        {b.name}
+                                    </Link>
+                                </Breadcrumb>
+                            ))}
+                    </Breadcrumbs>
+                ))}
+            >
                 {nullable(groupQuery.data, (group) => (
                     <TeamPageTitle
                         counter={counter}

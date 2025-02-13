@@ -15,6 +15,7 @@
     flex-direction: column;
     gap: var(--gap-ml);
     padding: 0 var(--gap-ml);
+    width: 0;
 }
 
 .TeamPageLayoutAsideContent {
@@ -33,4 +34,5 @@
     position: relative;
     min-width: 500px;
     flex: 1;
+    width: 40%;
 }
