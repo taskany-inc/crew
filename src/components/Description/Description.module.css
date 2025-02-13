@@ -1,0 +1,18 @@
+.Description {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.DescriptionText {
+    transition: height 300ms ease-in-out;
+    overflow: hidden;
+    white-space: pre-line;
+}
+
+.DescriptionExpanded {
+    -webkit-line-clamp: unset;
+}
+
+.DescriprionCollaseBtn {
+    align-self: flex-end;
+}
