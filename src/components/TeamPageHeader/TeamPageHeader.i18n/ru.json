@@ -1,8 +1,7 @@
 {
     "Settings": "Настройки",
     "Team": "Команда",
-    "Updated at:": "Дата обновления:",
-    "Version at": "Версия от {date}",
-    "Total membership count": "Обшая численность",
+    "Updated at: {date}": "Дата обновления: {date}",
+    "Total membership count": "Общая численность",
     "Total open vacancy count": "Всего открытых вакансий"
 }
