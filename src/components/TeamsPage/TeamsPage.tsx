@@ -47,6 +47,7 @@ export const TeamsPage: React.FC<TeamsPage> = ({ mothership }) => {
         if (groupMembersQuery.data == null || group == null) {
             return null;
         }
+        console.log('data', groupMembersQuery.data);
 
         const membersWithoutSupervisor = groupMembersQuery.data
             .filter(({ user }) => user.id !== group.supervisorId)

@@ -47,7 +47,7 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
                     {group.name}
                 </TeamPageTitle>
                 <TeamSupervisor supervisor={group.supervisor ?? undefined} />
-                <TeamPageDecription value={group.description ?? undefined} />
+                <TeamPageDecription value={group.description ?? undefined} isEditable />
                 <div className={s.TeamPageLists}>
                     <TeamChildren items={childrenQuery.data ?? []} />
                     <TeamVacancies group={group} editable={group.meta.isEditable} />

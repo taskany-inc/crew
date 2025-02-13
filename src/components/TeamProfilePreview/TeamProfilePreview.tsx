@@ -16,6 +16,7 @@ import s from './TeamProfilePreview.module.css';
 
 interface UserProps {
     groupId: string;
+    readOnly?: boolean;
 }
 
 export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
@@ -53,8 +54,11 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                     <div className={s.TeamDrawerBody}>
                         <TeamSupervisor size="m" supervisor={group.supervisor ?? undefined} />
 
-                        <TeamPageDecription size="m" value={group.description ?? undefined} />
-
+                        <TeamPageDecription
+                            isEditable={group.meta.isEditable}
+                            size="m"
+                            value={group.description ?? undefined}
+                        />
                         <TeamChildren size="m" items={childrenQuery.data ?? []} />
 
                         <TeamMembers size="m" groupId={group.id} />
