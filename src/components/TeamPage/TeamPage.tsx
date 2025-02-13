@@ -7,7 +7,7 @@ import { trpc } from '../../trpc/trpcClient';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { TeamPageLayout } from '../TeamPageLayout/TeamPageLayout';
 import { TeamPageTitle } from '../TeamPageTitle/TeamPageTitle';
-import { TeamPageDecription } from '../TeamPageDecription/TeamPageDecription';
+import { TeamPageDescription } from '../TeamPageDescription/TeamPageDescription';
 import { TeamMembers } from '../TeamMembers/TeamMembers';
 import { TeamChildren } from '../TeamChildren/TeamChildren';
 import { TeamVacancies } from '../TeamVacanciesV2/TeamVacancies';
@@ -58,7 +58,7 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
                     {group.name}
                 </TeamPageTitle>
                 <TeamSupervisor supervisor={group.supervisor ?? undefined} />
-                <TeamPageDecription value={group.description ?? undefined} />
+                <TeamPageDescription value={group.description ?? undefined} isEditable={false} groupId={group.id} />
                 <div className={s.TeamPageLists}>
                     <TeamChildren items={childrenQuery.data ?? []} />
                     <TeamVacancies group={group} editable={group.meta.isEditable} />

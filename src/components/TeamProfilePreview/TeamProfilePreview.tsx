@@ -6,7 +6,7 @@ import { trpc } from '../../trpc/trpcClient';
 import { pages, useRouter } from '../../hooks/useRouter';
 import { usePreviewContext } from '../../contexts/previewContext';
 import { TeamPageTitle } from '../TeamPageTitle/TeamPageTitle';
-import { TeamPageDecription } from '../TeamPageDecription/TeamPageDecription';
+import { TeamPageDescription } from '../TeamPageDescription/TeamPageDescription';
 import { TeamChildren } from '../TeamChildren/TeamChildren';
 import { TeamMembers } from '../TeamMembers/TeamMembers';
 import { TeamVacancies } from '../TeamVacanciesV2/TeamVacancies';
@@ -59,8 +59,12 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                     <div className={s.TeamDrawerBody}>
                         <TeamSupervisor size="m" supervisor={group.supervisor ?? undefined} />
 
-                        <TeamPageDecription size="m" value={group.description ?? undefined} />
-
+                        <TeamPageDescription
+                            isEditable={group.meta.isEditable}
+                            size="m"
+                            value={group.description ?? undefined}
+                            groupId={group.id}
+                        />
                         <TeamChildren size="m" items={childrenQuery.data ?? []} />
 
                         <TeamMembers size="m" groupId={group.id} />
