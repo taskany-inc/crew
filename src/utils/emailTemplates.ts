@@ -7,11 +7,7 @@ import {
     SupplementalPosition,
 } from '@prisma/client';
 
-import {
-    AdditionalDevice,
-    ScheduledDeactivationNewOrganizationUnit,
-    ScheduledDeactivationUser,
-} from '../modules/scheduledDeactivationTypes';
+import { AdditionalDevice } from '../modules/scheduledDeactivationTypes';
 import { config } from '../config';
 import { UserCreationRequestWithRelations } from '../modules/userCreationRequestTypes';
 
@@ -81,7 +77,7 @@ ${
 `;
 
 export const scheduledDeactivationEmailHtml = (data: {
-    data: ScheduledDeactivation & ScheduledDeactivationUser & ScheduledDeactivationNewOrganizationUnit;
+    data: ScheduledDeactivation & { user: { name: string | null } | null };
     unitId: string;
     teamlead: string;
     role: string;
@@ -89,12 +85,48 @@ export const scheduledDeactivationEmailHtml = (data: {
 }) =>
     tableTemplate([
         { title: tr('Date'), content: formatDate(data.data.deactivateDate, defaultLocale) },
-        { title: tr('Full name'), content: data.data.user.name || '' },
+        { title: tr('Full name'), content: data.data.user?.name || '' },
         { title: tr('Location'), content: data.data.location },
         { title: tr('Unit'), content: data.unitId },
         { title: tr('Role'), content: data.role },
         { title: tr('Work email'), content: data.workEmail || '' },
         { title: tr('Email'), content: data.data.email },
+        { title: tr('Teamlead'), content: data.teamlead },
+        {
+            title: tr('Work mode and workplace'),
+            content: `${data.data.workMode} ${data.data.workPlace ? `, ${data.data.workPlace}` : ''} `,
+        },
+        { title: tr('Devices'), content: devicesToTable(data.data.devices as Record<'name' | 'id', string>[]) },
+        {
+            title: tr('Testing devices'),
+            content: devicesToTable(
+                data.data.testingDevices as Record<'name' | 'id', string>[],
+                tr('Did not take any'),
+            ),
+        },
+        { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
+    ]);
+
+export const scheduledTransferEmailHtml = (data: {
+    data: ScheduledDeactivation & { user: { name: string | null } | null };
+    unitId: string;
+    teamlead: string;
+    role: string;
+    transferFrom: string;
+    transferTo: string;
+    coordinator?: string;
+    workEmail?: string;
+}) =>
+    tableTemplate([
+        { title: tr('Date'), content: formatDate(data.data.deactivateDate, defaultLocale) },
+        { title: tr('Full name'), content: data.data.user?.name || '' },
+        { title: tr('Transfer from'), content: data.transferFrom },
+        { title: tr('Transfer to'), content: data.transferTo },
+        { title: tr('Location'), content: data.data.location },
+        { title: tr('Unit'), content: data.unitId },
+        { title: tr('Role'), content: data.role },
+        { title: tr('Work email'), content: data.workEmail || '' },
+        { title: tr('Coordinator'), content: data.coordinator || '' },
         { title: tr('Teamlead'), content: data.teamlead },
         {
             title: tr('Work mode and workplace'),

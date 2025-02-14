@@ -24,6 +24,7 @@ import { percentageMultiply } from '../../utils/suplementPosition';
 import { UserFormDevicesBlock } from '../UserFormDevicesBlock/UserFormDevicesBlock';
 import { UserFormWorkSpaceDismissalFormBlock } from '../UserFormWorkSpaceDismissalFormBlock/UserFormWorkSpaceDismissalFormBlock';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
+import { UserFormNewOrganizationTransfer } from '../UserFormNewOrganizationTransfer/UserFormNewOrganizationTransfer';
 
 import { tr } from './ScheduledDismissalPage.i18n';
 import s from './ScheduledDismissalPage.module.css';
@@ -36,6 +37,7 @@ interface ScheduledDismissalPageProps {
     phone?: string;
     type?: 'new' | 'edit' | 'readOnly';
     scheduledDeactivation?: ScheduledDeactivation;
+    transfer?: boolean;
 }
 
 export const ScheduledDismissalPage = ({
@@ -46,6 +48,7 @@ export const ScheduledDismissalPage = ({
     personalEmail,
     workEmail,
     scheduledDeactivation,
+    transfer,
 }: ScheduledDismissalPageProps) => {
     const { createScheduledDeactivation, editScheduledDeactivation } = useScheduledDeactivation();
 
@@ -113,7 +116,7 @@ export const ScheduledDismissalPage = ({
 
     const defaultValues: Partial<CreateScheduledDeactivation> = useMemo(
         () => ({
-            type: 'retirement',
+            type: transfer ? 'transfer' : 'retirement',
             userId: user.id,
             email: user.email,
             login: user.login,
@@ -129,10 +132,7 @@ export const ScheduledDismissalPage = ({
             deactivateDate: scheduledDeactivation?.deactivateDate || undefined,
             corporateEmail: scheduledDeactivation?.email || user?.email,
             supervisorId: scheduledDeactivation?.teamLeadId || user?.supervisor?.id || undefined,
-            organizationUnitId:
-                scheduledDeactivation?.organizationUnitId || mainSupplementalPosition?.organizationUnitId,
-            organizationalGroup: scheduledDeactivation?.organizationalGroup || orgMembership?.group.name,
-            organizationRole: scheduledDeactivation?.organizationRole || mainSupplementalPosition?.role || undefined,
+            coordinatorId: scheduledDeactivation?.coordinatorId || undefined,
             phone,
             workMode: scheduledDeactivation?.workMode || undefined,
             workSpace: scheduledDeactivation?.workPlace || undefined,
@@ -146,6 +146,10 @@ export const ScheduledDismissalPage = ({
             workEmail,
             lineManagerIds: scheduledDeactivation?.lineManagerIds || [],
             applicationForReturnOfEquipment: scheduledDeactivation?.applicationForReturnOfEquipment || undefined,
+            newOrganizationUnitId: scheduledDeactivation?.newOrganizationUnitId || undefined,
+            newOrganizationRole: scheduledDeactivation?.newOrganizationRole || undefined,
+            newTeamLead: scheduledDeactivation?.newTeamLead || undefined,
+            newOrganizationalGroup: scheduledDeactivation?.newOrganizationalGroup || undefined,
         }),
         [
             mainSupplementalPosition?.organizationUnitId,
@@ -215,20 +219,54 @@ export const ScheduledDismissalPage = ({
 
     const readOnly = type !== 'edit' && !!scheduledDeactivation;
 
+    const title = transfer ? tr('Create a planned transfer of employee') : tr('Create a planned dismissal of employee');
+
+    const navMenu = useMemo(() => {
+        const navMenuInit = [
+            {
+                title: tr('Personal data'),
+                id: 'personal-data',
+            },
+            {
+                title: tr('Registration'),
+                id: 'registration',
+            },
+            {
+                title: tr('Team'),
+                id: 'team',
+            },
+            {
+                title: tr('Work space'),
+                id: 'work-space',
+            },
+            {
+                title: tr('Comments'),
+                id: 'comments',
+            },
+        ];
+
+        if (!transfer) return navMenuInit;
+
+        navMenuInit.splice(navMenuInit.length - 1, 0, { id: 'new-organization', title: tr('Transfer') });
+        return navMenuInit;
+    }, [transfer]);
+
     return (
         <LayoutMain pageTitle={tr('Request')}>
             <div className={s.Wrapper}>
                 <FormProvider {...methods}>
                     <form onSubmit={onSubmit}>
                         <div className={s.Header}>
-                            <Text as="h2">{tr('Create a planned dismissal of employee')}</Text>
+                            <Text as="h2">{title}</Text>
                             {nullable(
                                 type !== 'edit' && scheduledDeactivation,
                                 (s) => (
                                     <RequestFormActions
                                         requestType="deactivation"
                                         requestId={s.id}
-                                        onEdit={() => router.userDismissEdit(s.id)}
+                                        onEdit={() =>
+                                            transfer ? router.userTransferEdit(s.id) : router.userDismissEdit(s.id)
+                                        }
                                         onCancel={router.scheduledDeactivations}
                                     />
                                 ),
@@ -263,7 +301,7 @@ export const ScheduledDismissalPage = ({
                                     readOnly={readOnly}
                                     className={s.FormBlock}
                                     id="team"
-                                    type="dismissal"
+                                    type={transfer ? 'transfer' : 'dismissal'}
                                     defaultGroupId={defaultValues.groupId}
                                 />
 
@@ -276,35 +314,18 @@ export const ScheduledDismissalPage = ({
 
                                 <UserFormDevicesBlock className={s.FormBlock} readOnly={readOnly} />
 
+                                {nullable(transfer, () => (
+                                    <UserFormNewOrganizationTransfer
+                                        readOnly={type === 'readOnly'}
+                                        className={s.FormBlock}
+                                        id="new-organization"
+                                    />
+                                ))}
+
                                 <UserFormCommentsBlock readOnly={readOnly} id="comments" className={s.FormBlock} />
                             </div>
 
-                            <NavMenu
-                                active={activeId}
-                                onClick={onClick}
-                                navMenu={[
-                                    {
-                                        title: tr('Personal data'),
-                                        id: 'personal-data',
-                                    },
-                                    {
-                                        title: tr('Registration'),
-                                        id: 'registration',
-                                    },
-                                    {
-                                        title: tr('Team'),
-                                        id: 'team',
-                                    },
-                                    {
-                                        title: tr('Work space'),
-                                        id: 'work-space',
-                                    },
-                                    {
-                                        title: tr('Comments'),
-                                        id: 'comments',
-                                    },
-                                ]}
-                            />
+                            <NavMenu active={activeId} onClick={onClick} navMenu={navMenu} />
                         </div>
                     </form>
                 </FormProvider>

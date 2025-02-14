@@ -1,15 +1,20 @@
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
 import { Prisma, UserDevice } from 'prisma/prisma-client';
+import { InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser';
+import { jsonObjectFrom } from 'kysely/helpers/postgres';
 
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
-import { scheduledDeactivationEmailHtml } from '../utils/emailTemplates';
+import { scheduledDeactivationEmailHtml, scheduledTransferEmailHtml } from '../utils/emailTemplates';
 import { getActiveScheduledDeactivation } from '../utils/getActiveScheduledDeactivation';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { ExternalServiceName, findService } from '../utils/externalServices';
+import { db } from '../utils/db';
+import { DB } from '../generated/kyselyTypes';
+import { JsonValue } from '../utils/jsonValue';
 
 import {
     CreateScheduledDeactivation,
@@ -83,13 +88,11 @@ export const scheduledDeactivationMethods = {
             });
         }
 
-        const deactivateDate = data.supplementalPositions
-            ? data.supplementalPositions.reduce((acc: Date | undefined | null, rec) => {
-                  if (!acc) return rec.workEndDate;
-                  if (!rec.workEndDate) return acc;
-                  return acc > rec.workEndDate ? acc : rec.workEndDate;
-              }, undefined)
-            : restData.deactivateDate;
+        const deactivateDate = data.supplementalPositions.reduce((acc: Date | undefined | null, rec) => {
+            if (!acc) return rec.workEndDate;
+            if (!rec.workEndDate) return acc;
+            return acc > rec.workEndDate ? acc : rec.workEndDate;
+        }, undefined);
 
         if (!deactivateDate) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date specified' });
 
@@ -97,57 +100,67 @@ export const scheduledDeactivationMethods = {
         deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
         deactivateDate.setUTCHours(config.deactivateUtcHour);
 
-        const supplementalPositionConnect: { id: string }[] = [];
+        const supplementalPositionConnect: string[] = [];
 
-        data.supplementalPositions &&
-            (await Promise.all(
-                data.supplementalPositions.map(async (s) => {
-                    if (!s.workEndDate) return;
+        if (type === 'transfer') {
+            data.supplementalPositions.map((s) => {
+                if (s.workEndDate) return s;
+                return { ...s, workEndDate: deactivateDate };
+            });
+        }
 
-                    const deactivateJobDate = new Date(s.workEndDate);
-                    deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
+        await Promise.all(
+            data.supplementalPositions.map(async (s) => {
+                if (!s.workEndDate) return;
 
-                    if (s.id) {
-                        const job = await createJob('scheduledFiringFromSupplementalPosition', {
+                const deactivateJobDate = new Date(s.workEndDate);
+                deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
+
+                if (s.id) {
+                    const job =
+                        data.disableAccount &&
+                        (await createJob('scheduledFiringFromSupplementalPosition', {
                             date: deactivateJobDate,
                             data: { supplementalPositionId: s.id, userId },
-                        });
-                        await prisma.supplementalPosition.update({
-                            where: { id: s.id },
-                            data: {
-                                workEndDate: deactivateJobDate,
-                                organizationUnitId: s.organizationUnitId,
-                                percentage: s.percentage * percentageMultiply,
-                                unitId: s.unitId,
-                                ...(job && job.id && { jobId: job.id }),
-                            },
-                        });
+                        }));
+                    await prisma.supplementalPosition.update({
+                        where: { id: s.id },
+                        data: {
+                            workEndDate: deactivateJobDate,
+                            organizationUnitId: s.organizationUnitId,
+                            percentage: s.percentage * percentageMultiply,
+                            unitId: s.unitId,
+                            ...(job && job.id && { jobId: job.id }),
+                        },
+                    });
 
-                        supplementalPositionConnect.push({ id: s.id });
-                    } else {
-                        const newPosition = await prisma.supplementalPosition.create({
-                            data: {
-                                workEndDate: deactivateJobDate,
-                                organizationUnitId: s.organizationUnitId,
-                                percentage: s.percentage * percentageMultiply,
-                                unitId: s.unitId,
-                                userId: data.userId,
-                            },
-                        });
+                    supplementalPositionConnect.push(s.id);
+                } else {
+                    const newPosition = await prisma.supplementalPosition.create({
+                        data: {
+                            workEndDate: deactivateJobDate,
+                            organizationUnitId: s.organizationUnitId,
+                            percentage: s.percentage * percentageMultiply,
+                            unitId: s.unitId,
+                            userId: data.userId,
+                        },
+                    });
 
-                        const job = await createJob('scheduledFiringFromSupplementalPosition', {
+                    const job =
+                        data.disableAccount &&
+                        (await createJob('scheduledFiringFromSupplementalPosition', {
                             date: deactivateJobDate,
                             data: { supplementalPositionId: s.id, userId },
-                        });
+                        }));
 
-                        await prisma.supplementalPosition.update({
-                            where: { id: newPosition.id },
-                            data: { jobId: job.id },
-                        });
-                        supplementalPositionConnect.push({ id: newPosition.id });
-                    }
-                }),
-            ));
+                    await prisma.supplementalPosition.update({
+                        where: { id: newPosition.id },
+                        data: { ...(job && job.id && { jobId: job.id }) },
+                    });
+                    supplementalPositionConnect.push(newPosition.id);
+                }
+            }),
+        );
 
         if (!findService(ExternalServiceName.Phone, user.services) && data.phone) {
             await serviceMethods.addToUser({ userId, serviceId: data.phone, serviceName: ExternalServiceName.Phone });
@@ -181,13 +194,6 @@ export const scheduledDeactivationMethods = {
             await userMethods.edit({ id: userId, supervisorId: restData.supervisorId });
         }
 
-        if (getActiveScheduledDeactivation(user)) {
-            throw new TRPCError({
-                code: 'BAD_REQUEST',
-                message: 'Not allowed to schedule deactivation for inactive or already scheduled for deactivation user',
-            });
-        }
-
         const job =
             data.disableAccount &&
             (await createJob('scheduledDeactivation', {
@@ -195,52 +201,134 @@ export const scheduledDeactivationMethods = {
                 data: { userId },
             }));
 
-        const scheduledDeactivation = await prisma.scheduledDeactivation.create({
-            data: {
-                userId,
-                creatorId: sessionUserId,
-                type,
-                deactivateDate,
-                ...(attachIds && { attaches: { connect: attachIds.map((id) => ({ id })) } }),
-                ...(devices && devices.length && { devices: { toJSON: () => devices } }),
-                ...(testingDevices && { testingDevices: { toJSON: () => testingDevices } }),
-                ...(job && job.id && { jobId: job.id }),
-                ...(supplementalPositionConnect.length && {
-                    supplementalPositions: { connect: supplementalPositionConnect },
-                }),
-                phone: restData.phone,
-                email: user.email,
-                disableAccount: restData.disableAccount,
-                location: restData.location,
-                applicationForReturnOfEquipment: restData.applicationForReturnOfEquipment,
-                workPlace: restData.workSpace,
-                workMode: restData.workMode,
-                organizationRole: user.title,
-                comments: restData.comment,
-                lineManagerIds: restData.lineManagerIds,
-                teamLead: restData.teamLead,
-                organizationUnitId: restData.organizationUnitId,
-                unitIdString: restData.unitIdString,
-                transferPercentage: restData.transferPercentage,
-                newTeamLead: restData.newTeamLead,
-                newOrganizationUnitId: restData.newOrganizationUnitId,
-                newOrganizationalGroup: restData.newOrganizationalGroup,
-                newOrganizationRole: restData.newOrganizationRole,
-                organizationalGroup: restData.organizationalGroup,
-            },
-            include: {
-                user: {
-                    include: {
-                        supplementalPositions: { include: { organizationUnit: true } },
-                        supervisor: true,
-                    },
-                },
-                creator: true,
-                organizationUnit: true,
-                newOrganizationUnit: true,
-                attaches: true,
-            },
-        });
+        const createScheduledDeactivationData: InsertExpression<DB, 'ScheduledDeactivation'> = {
+            userId,
+            creatorId: sessionUserId,
+            type,
+            deactivateDate,
+            ...(devices && devices.length && { devices: { toJSON: () => devices } }),
+            ...(testingDevices && { testingDevices: { toJSON: () => testingDevices } }),
+            ...(job && job.id && { jobId: job.id }),
+            phone: restData.phone,
+            email: user.email,
+            disableAccount: restData.disableAccount,
+            location: restData.location,
+            applicationForReturnOfEquipment: restData.applicationForReturnOfEquipment,
+            workPlace: restData.workSpace,
+            workMode: restData.workMode,
+            organizationRole: user.title,
+            comments: restData.comment,
+            lineManagerIds: restData.lineManagerIds,
+            organizationalGroup: restData.groupId,
+            newOrganizationUnitId: restData.newOrganizationUnitId,
+            newOrganizationalGroup: restData.newOrganizationalGroup,
+            newOrganizationRole: restData.newOrganizationRole,
+            newTeamLead: restData.newTeamLead,
+            coordinatorId: restData.coordinatorId,
+        };
+
+        const scheduledDeactivation = await db
+            .insertInto('ScheduledDeactivation')
+            .values(createScheduledDeactivationData)
+            .returningAll()
+            .returning((eb) => [
+                'ScheduledDeactivation.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('User')
+                        .select(['User.email as email', 'User.id as id', 'User.name as name'])
+                        .whereRef('User.id', '=', 'ScheduledDeactivation.creatorId'),
+                ).as('creator'),
+            ])
+            .returning((eb) => [
+                'ScheduledDeactivation.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('User')
+                        .select(['User.email as email', 'User.id as id', 'User.name as name'])
+                        .whereRef('User.id', '=', 'ScheduledDeactivation.coordinatorId'),
+                ).as('coordinator'),
+            ])
+            .returning((eb) => [
+                'ScheduledDeactivation.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('User')
+                        .select(['User.id as id', 'User.name as name', 'User.email as email', 'supervisorId', 'title'])
+                        .select((eb) => [
+                            'User.id',
+                            jsonObjectFrom(
+                                eb
+                                    .selectFrom('User as supervisor')
+                                    .select([
+                                        'supervisor.id as id',
+                                        'supervisor.email as email',
+                                        'supervisor.name as name',
+                                    ])
+                                    .whereRef('supervisor.id', '=', 'User.supervisorId'),
+                            ).as('supervisor'),
+                        ])
+                        .whereRef('User.id', '=', 'ScheduledDeactivation.userId'),
+                ).as('user'),
+            ])
+            .returning((eb) => [
+                'ScheduledDeactivation.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('OrganizationUnit')
+                        .select([
+                            'OrganizationUnit.country as country',
+                            'OrganizationUnit.description as description',
+                            'OrganizationUnit.external as external',
+                            'OrganizationUnit.id as id',
+                            'OrganizationUnit.name as name',
+                        ])
+                        .whereRef('ScheduledDeactivation.newOrganizationUnitId', '=', 'OrganizationUnit.id'),
+                ).as('newOrganizationUnit'),
+            ])
+            .$narrowType<{
+                testingDevices: JsonValue;
+                devices: JsonValue;
+            }>()
+            .executeTakeFirstOrThrow();
+
+        if (!scheduledDeactivation.user) {
+            throw new TRPCError({
+                message: `User ${userId} did not connect to scheduled deactivation ${scheduledDeactivation.id}`,
+                code: 'INTERNAL_SERVER_ERROR',
+            });
+        }
+
+        const attaches = attachIds?.length
+            ? await db
+                  .updateTable('Attach')
+                  .where('id', 'in', attachIds)
+                  .set({ scheduledDeactivationId: scheduledDeactivation.id })
+                  .returningAll()
+                  .execute()
+            : [];
+
+        const supplementalPositions = await db
+            .updateTable('SupplementalPosition')
+            .where('id', 'in', supplementalPositionConnect)
+            .set({ scheduledDeactivationId: scheduledDeactivation.id })
+            .returningAll()
+            .returning((eb) => [
+                'SupplementalPosition.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('OrganizationUnit')
+                        .select([
+                            'OrganizationUnit.country as country',
+                            'OrganizationUnit.description as description',
+                            'OrganizationUnit.external as external',
+                            'OrganizationUnit.id as id',
+                            'OrganizationUnit.name as name',
+                        ])
+                        .whereRef('OrganizationUnit.id', '=', 'SupplementalPosition.organizationUnitId'),
+                ).as('organizationUnit'),
+            ])
+            .execute();
 
         user.devices.length &&
             (await deleteUserDevices({
@@ -250,66 +338,84 @@ export const scheduledDeactivationMethods = {
                 sessionUserId,
             }));
 
-        const additionalEmails = [sessionUserId, ...restData.lineManagerIds];
+        const attachments = await nodemailerAttachments(attaches);
 
-        if (restData.supervisorId) additionalEmails.push(restData.supervisorId);
-
-        const { to, users } = await userMethods.getMailingList(
-            'scheduledDeactivation',
-            data.supplementalPositions
-                ? data.supplementalPositions
-                      .filter(({ workEndDate }) => workEndDate)
-                      .map(({ organizationUnitId }) => organizationUnitId)
-                : [],
-            additionalEmails,
-            !!data.workSpace,
-        );
-
-        const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
+        const orgUnit = supplementalPositions.find(({ main }) => main)?.organizationUnit;
 
         const subject =
             type === 'retirement'
-                ? `${tr('Retirement')} ${user.name} ${scheduledDeactivation.user.supplementalPositions
+                ? `${tr('Retirement')} ${user.name} ${supplementalPositions
                       .filter((s) => s.workEndDate && s.status !== 'FIRED')
-                      .map(({ organizationUnit }) => getOrgUnitTitle(organizationUnit))
+                      .map(({ organizationUnit }) => organizationUnit && getOrgUnitTitle(organizationUnit))
                       .join(', ')} (${restData.phone})`
-                : `${tr('Transfer from')} ${
-                      scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
-                  } ${tr('to')} ${
+                : `${tr('Transfer from')} ${orgUnit && getOrgUnitTitle(orgUnit)} ${tr('to')} ${
                       scheduledDeactivation?.newOrganizationUnit &&
                       getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
                   } ${user.name} (${restData.phone})`;
 
-        const icalEvent = createIcalEventData({
-            id: scheduledDeactivation.id + config.nodemailer.authUser,
-            start: deactivateDate,
-            duration: 30,
-            users,
-            summary: subject,
-            description: subject,
-        });
+        const html =
+            type === 'retirement'
+                ? scheduledDeactivationEmailHtml({
+                      data: scheduledDeactivation,
+                      teamlead: scheduledDeactivation.user.supervisor?.name || '',
+                      unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
+                      role: restData.title || '',
+                      workEmail: restData.workEmail || '',
+                  })
+                : scheduledTransferEmailHtml({
+                      data: scheduledDeactivation,
+                      transferFrom: (orgUnit && getOrgUnitTitle(orgUnit)) || '',
+                      transferTo:
+                          (scheduledDeactivation?.newOrganizationUnit &&
+                              getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)) ||
+                          '',
+                      unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
+                      teamlead: scheduledDeactivation.user.supervisor?.name || '',
+                      coordinator: scheduledDeactivation.coordinator?.name || '',
+                      role: restData.title || '',
+                      workEmail: restData.workEmail || '',
+                  });
 
-        await sendMail({
-            to,
-            html: scheduledDeactivationEmailHtml({
-                data: scheduledDeactivation,
-                teamlead: scheduledDeactivation.user.supervisor?.name || '',
-                unitId: data.supplementalPositions
+        supplementalPositions.map(async (s) => {
+            const additionalEmails = [sessionUserId];
+
+            if (restData.supervisorId) additionalEmails.push(restData.supervisorId);
+
+            if (s.main) additionalEmails.push(...restData.lineManagerIds);
+
+            if (s.main && restData.coordinatorId) additionalEmails.push(restData.coordinatorId);
+
+            const { to, users } = await userMethods.getMailingList(
+                'scheduledDeactivation',
+                data.supplementalPositions
                     ? data.supplementalPositions
                           .filter(({ workEndDate }) => workEndDate)
-                          .map(({ unitId }) => unitId)
-                          .join(', ')
-                    : restData.unitIdString || '',
-                role: restData.title || '',
-                workEmail: restData.workEmail || '',
-            }),
-            subject,
-            attachments,
-            icalEvent: calendarEvents({
-                method: ICalCalendarMethod.REQUEST,
-                events: [icalEvent],
-            }),
+                          .map(({ organizationUnitId }) => organizationUnitId)
+                    : [],
+                additionalEmails,
+                !!data.workSpace,
+            );
+            const icalEvent = createIcalEventData({
+                id: scheduledDeactivation.id + config.nodemailer.authUser,
+                start: deactivateDate,
+                duration: 30,
+                users,
+                summary: subject,
+                description: subject,
+            });
+
+            await sendMail({
+                to,
+                html,
+                subject,
+                attachments,
+                icalEvent: calendarEvents({
+                    method: ICalCalendarMethod.REQUEST,
+                    events: [icalEvent],
+                }),
+            });
         });
+
         return scheduledDeactivation;
     },
 
@@ -461,13 +567,11 @@ export const scheduledDeactivationMethods = {
     edit: async (data: EditScheduledDeactivation, sessionUserId: string) => {
         const { userId, type, devices, testingDevices, id, ...restData } = data;
 
-        const deactivateDate = data.supplementalPositions
-            ? data.supplementalPositions.reduce((acc: Date | undefined | null, rec) => {
-                  if (!acc) return rec.workEndDate;
-                  if (!rec.workEndDate) return acc;
-                  return acc > rec.workEndDate ? acc : rec.workEndDate;
-              }, undefined)
-            : restData.deactivateDate;
+        const deactivateDate = data.supplementalPositions.reduce((acc: Date | undefined | null, rec) => {
+            if (!acc) return rec.workEndDate;
+            if (!rec.workEndDate) return acc;
+            return acc > rec.workEndDate ? acc : rec.workEndDate;
+        }, undefined);
 
         if (!deactivateDate) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date specified' });
 
@@ -484,65 +588,64 @@ export const scheduledDeactivationMethods = {
         await userMethods.getByIdOrThrow(userId);
 
         const supplementalPositionConnect: { id: string }[] = [];
-        data.supplementalPositions &&
-            data.supplementalPositions.map(async (s) => {
-                if (data.disableAccount && s.workEndDate) {
-                    const deactivateJobDate = new Date(s.workEndDate);
-                    deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
+        data.supplementalPositions.map(async (s) => {
+            if (data.disableAccount && s.workEndDate) {
+                const deactivateJobDate = new Date(s.workEndDate);
+                deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
 
-                    if (!s.id) {
-                        const newPosition = await prisma.supplementalPosition.create({
-                            data: {
-                                workEndDate: deactivateJobDate,
-                                organizationUnitId: s.organizationUnitId,
-                                percentage: s.percentage * percentageMultiply,
-                                unitId: s.unitId,
-                                userId: data.userId,
-                            },
-                        });
-
-                        const job = await createJob('scheduledFiringFromSupplementalPosition', {
-                            date: deactivateJobDate,
-                            data: { supplementalPositionId: s.id, userId },
-                        });
-
-                        await prisma.supplementalPosition.update({
-                            where: { id: newPosition.id },
-                            data: { jobId: job.id },
-                        });
-                        supplementalPositionConnect.push({ id: newPosition.id });
-                    }
-                    const updatedPosition = await prisma.supplementalPosition.update({
-                        where: { id: s.id },
+                if (!s.id) {
+                    const newPosition = await prisma.supplementalPosition.create({
                         data: {
                             workEndDate: deactivateJobDate,
                             organizationUnitId: s.organizationUnitId,
                             percentage: s.percentage * percentageMultiply,
                             unitId: s.unitId,
+                            userId: data.userId,
                         },
                     });
 
-                    supplementalPositionConnect.push({ id: updatedPosition.id });
+                    const job = await createJob('scheduledFiringFromSupplementalPosition', {
+                        date: deactivateJobDate,
+                        data: { supplementalPositionId: s.id, userId },
+                    });
 
-                    if (updatedPosition.jobId) {
-                        await prisma.job.update({
-                            where: { id: updatedPosition.jobId },
-                            data: { date: deactivateJobDate },
-                        });
-                    } else {
-                        const newJob = await createJob('scheduledFiringFromSupplementalPosition', {
-                            date: deactivateJobDate,
-                            data: { supplementalPositionId: s.id, userId },
-                        });
-                        await prisma.supplementalPosition.update({
-                            where: { id: s.id },
-                            data: {
-                                job: { connect: { id: newJob.id } },
-                            },
-                        });
-                    }
+                    await prisma.supplementalPosition.update({
+                        where: { id: newPosition.id },
+                        data: { jobId: job.id },
+                    });
+                    supplementalPositionConnect.push({ id: newPosition.id });
                 }
-            });
+                const updatedPosition = await prisma.supplementalPosition.update({
+                    where: { id: s.id },
+                    data: {
+                        workEndDate: deactivateJobDate,
+                        organizationUnitId: s.organizationUnitId,
+                        percentage: s.percentage * percentageMultiply,
+                        unitId: s.unitId,
+                    },
+                });
+
+                supplementalPositionConnect.push({ id: updatedPosition.id });
+
+                if (updatedPosition.jobId) {
+                    await prisma.job.update({
+                        where: { id: updatedPosition.jobId },
+                        data: { date: deactivateJobDate },
+                    });
+                } else {
+                    const newJob = await createJob('scheduledFiringFromSupplementalPosition', {
+                        date: deactivateJobDate,
+                        data: { supplementalPositionId: s.id, userId },
+                    });
+                    await prisma.supplementalPosition.update({
+                        where: { id: s.id },
+                        data: {
+                            job: { connect: { id: newJob.id } },
+                        },
+                    });
+                }
+            }
+        });
 
         const scheduledDeactivation = await prisma.scheduledDeactivation.update({
             where: { id },
@@ -559,15 +662,11 @@ export const scheduledDeactivationMethods = {
                 workMode: restData.workMode,
                 comments: restData.comment,
                 lineManagerIds: restData.lineManagerIds,
-                teamLead: restData.teamLead,
-                organizationUnitId: restData.organizationUnitId,
-                unitIdString: restData.unitIdString,
-                transferPercentage: restData.transferPercentage,
                 newTeamLead: restData.newTeamLead,
                 newOrganizationUnitId: restData.newOrganizationUnitId,
                 newOrganizationalGroup: restData.newOrganizationalGroup,
                 newOrganizationRole: restData.newOrganizationRole,
-                organizationalGroup: restData.organizationalGroup,
+                organizationalGroup: restData.groupId,
                 ...(supplementalPositionConnect.length && {
                     supplementalPositions: { connect: supplementalPositionConnect },
                 }),
@@ -682,11 +781,9 @@ export const scheduledDeactivationMethods = {
                     workEmail: data.workEmail || '',
                     teamlead: scheduledDeactivation.user.supervisor?.name || '',
                     unitId: restData.supplementalPositions
-                        ? restData.supplementalPositions
-                              .filter(({ workEndDate }) => workEndDate)
-                              .map(({ unitId }) => unitId)
-                              .join(', ')
-                        : restData.unitIdString || '',
+                        .filter(({ workEndDate }) => workEndDate)
+                        .map(({ unitId }) => unitId)
+                        .join(', '),
                     role: restData.title || '',
                 }),
                 subject,

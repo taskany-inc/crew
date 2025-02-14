@@ -24,7 +24,6 @@ import { NarrowSection } from '../NarrowSection';
 import { GroupListItem } from '../GroupListItem';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { Restricted } from '../Restricted';
-import { ScheduleDeactivationForm } from '../ScheduleDeactivationForm/ScheduleDeactivationForm';
 import { useBoolean } from '../../hooks/useBoolean';
 import { useUserMutations } from '../../modules/userHooks';
 import { UserRoleComboBox } from '../UserRoleComboBox/UserRoleComboBox';
@@ -120,7 +119,6 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const { showGroupPreview } = usePreviewContext();
     const updateUserFormVisibility = useBoolean(false);
     const deactivateUserFormVisibility = useBoolean(false);
-    const scheduleDeactivationFormVisibility = useBoolean(false);
     const sessionUser = useSessionUser();
     const router = useRouter();
 
@@ -129,7 +127,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const orgMembership = user.memberships.find((m) => m.group.organizational);
     const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
 
-    const { orgUnitAndRole, supplemental, main } = useMemo(() => {
+    const { orgUnitAndRole, supplemental } = useMemo(() => {
         const { main, supplemental } = user.supplementalPositions.reduce<{
             main: UserSupplementalPositions['supplementalPositions'][number] | null;
             supplemental: UserSupplementalPositions['supplementalPositions'][number][];
@@ -249,18 +247,10 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                 <FireOrTransferUserModal
                     visible={dismissOrTransferModalVisibility.value}
                     onClose={dismissOrTransferModalVisibility.setFalse}
-                    onTransfer={scheduleDeactivationFormVisibility.setTrue}
+                    onTransfer={() => router.userTransferNew(user.id)}
                     onDismiss={() => router.userDismissNew(user.id)}
                 />
 
-                <ScheduleDeactivationForm
-                    visible={scheduleDeactivationFormVisibility.value}
-                    onClose={scheduleDeactivationFormVisibility.setFalse}
-                    userId={user.id}
-                    orgRoles={orgRoles}
-                    organization={main?.organizationUnit}
-                    orgGroupName={orgMembership?.group.name}
-                />
                 <EditButtonsWrapper>
                     <Restricted visible={!!sessionUser.role?.editUser}>
                         <Button onClick={updateUserFormVisibility.setTrue} text={tr('Edit')} size="s" />

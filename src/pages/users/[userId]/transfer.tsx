@@ -34,7 +34,7 @@ export const getServerSideProps = createGetServerSideProps({
     },
 });
 
-export default function NewDismissUserRequest({ userId }: { userId: string }) {
+export default function NewTransferUserRequest({ userId }: { userId: string }) {
     const { data: user } = trpc.user.getById.useQuery(userId);
     const userDeviceQuery = trpc.device.getUserDevices.useQuery(userId);
 
@@ -56,6 +56,7 @@ export default function NewDismissUserRequest({ userId }: { userId: string }) {
             userDevices={userDevices}
             workEmail={workEmail}
             personalEmail={personalEmail}
+            transfer
         />
     );
 }

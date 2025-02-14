@@ -27,10 +27,10 @@ export const getServerSideProps = createGetServerSideProps({
             return notFound();
         }
 
-        if (scheduledDeactivation.type === 'transfer') {
+        if (scheduledDeactivation.type === 'retirement') {
             return {
                 redirect: {
-                    destination: pages.userTransfer(stringIds.requestId),
+                    destination: pages.userDismiss(stringIds.requestId),
                     permanent: false,
                 },
             };
@@ -40,7 +40,7 @@ export const getServerSideProps = createGetServerSideProps({
     },
 });
 
-export default function ExternalUserCreationRequest({
+export default function UserTransferRequest({
     userId,
     scheduledDeactivationId,
 }: {
@@ -71,6 +71,7 @@ export default function ExternalUserCreationRequest({
             workEmail={workEmail}
             personalEmail={personalEmail}
             scheduledDeactivation={scheduledDeactivation}
+            transfer
         />
     );
 }

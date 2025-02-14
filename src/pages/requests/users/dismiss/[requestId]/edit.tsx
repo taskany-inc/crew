@@ -24,6 +24,15 @@ export const getServerSideProps = createGetServerSideProps({
             return notFound();
         }
 
+        if (scheduledDeactivation.type === 'transfer') {
+            return {
+                redirect: {
+                    destination: pages.userTransfer(stringIds.requestId),
+                    permanent: false,
+                },
+            };
+        }
+
         const { user } = scheduledDeactivation;
 
         return { userId: user.id, scheduledDeactivationId: scheduledDeactivation.id };

@@ -18,29 +18,28 @@ export const getServerSideProps = createGetServerSideProps({
                 },
             };
         }
-
         const scheduledDeactivation = await ssg.scheduledDeactivation.getById.fetch(stringIds.requestId);
-
-        const { user } = scheduledDeactivation;
 
         if (!scheduledDeactivation) {
             return notFound();
         }
 
-        if (scheduledDeactivation.type === 'transfer') {
+        if (scheduledDeactivation.type === 'retirement') {
             return {
                 redirect: {
-                    destination: pages.userTransfer(stringIds.requestId),
+                    destination: pages.userDismiss(stringIds.requestId),
                     permanent: false,
                 },
             };
         }
 
+        const { user } = scheduledDeactivation;
+
         return { userId: user.id, scheduledDeactivationId: scheduledDeactivation.id };
     },
 });
 
-export default function ExternalUserCreationRequest({
+export default function EditUserTransferRequest({
     userId,
     scheduledDeactivationId,
 }: {
@@ -49,6 +48,7 @@ export default function ExternalUserCreationRequest({
 }) {
     const { data: user } = trpc.user.getById.useQuery(userId);
     const userDeviceQuery = trpc.device.getUserDevices.useQuery(userId);
+
     const userDevices = userDeviceQuery.data || [];
 
     const { data: scheduledDeactivation } = trpc.scheduledDeactivation.getById.useQuery(scheduledDeactivationId);
@@ -64,13 +64,14 @@ export default function ExternalUserCreationRequest({
 
     return (
         <ScheduledDismissalPage
-            type="readOnly"
+            type="edit"
             user={user}
             phone={phone}
             userDevices={userDevices}
             workEmail={workEmail}
             personalEmail={personalEmail}
             scheduledDeactivation={scheduledDeactivation}
+            transfer
         />
     );
 }

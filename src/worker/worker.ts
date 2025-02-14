@@ -1,16 +1,12 @@
 import parser from 'cron-parser';
 
+import { JsonValue } from '../utils/jsonValue';
+
 export enum jobState {
     scheduled = 'scheduled',
     pending = 'pending',
     completed = 'completed',
 }
-
-declare type JsonObject = {
-    [Key in string]?: JsonValue;
-};
-declare interface JsonArray extends Array<JsonValue> {}
-declare type JsonValue = string | number | boolean | JsonObject | JsonArray | null;
 
 export interface Job {
     id: string;
