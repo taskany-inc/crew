@@ -9,5 +9,7 @@
     "Not specified": "",
     "cancel confirmation": "Are you sure you want to cancel filling out the form? The entered data will be deleted and you will be returned to the profile page.",
     "Create a planned transfer of employee": "",
-    "Transfer": ""
+    "Transfer": "",
+    "Transfer date": "",
+    "Dismsissal date": ""
 }

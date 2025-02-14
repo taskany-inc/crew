@@ -104,6 +104,7 @@ export const scheduledDeactivationEmailHtml = (data: {
                 tr('Did not take any'),
             ),
         },
+        { title: tr('Screenshot'), content: tr('In attachment') },
         { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
     ]);
 
@@ -114,8 +115,10 @@ export const scheduledTransferEmailHtml = (data: {
     role: string;
     transferFrom: string;
     transferTo: string;
-    coordinator?: string;
+    lineManagers?: string;
+    coordinators?: string;
     workEmail?: string;
+    applicationForReturnOfEquipment?: string;
 }) =>
     tableTemplate([
         { title: tr('Date'), content: formatDate(data.data.deactivateDate, defaultLocale) },
@@ -123,16 +126,16 @@ export const scheduledTransferEmailHtml = (data: {
         { title: tr('Transfer from'), content: data.transferFrom },
         { title: tr('Transfer to'), content: data.transferTo },
         { title: tr('Location'), content: data.data.location },
-        { title: tr('Unit'), content: data.unitId },
+        { title: tr('Unit Id'), content: data.unitId },
         { title: tr('Role'), content: data.role },
         { title: tr('Work email'), content: data.workEmail || '' },
-        { title: tr('Coordinator'), content: data.coordinator || '' },
         { title: tr('Teamlead'), content: data.teamlead },
+        { title: tr('Line managers'), content: data.lineManagers || '' },
+        { title: tr('Coordinator'), content: data.coordinators || '' },
         {
             title: tr('Work mode and workplace'),
             content: `${data.data.workMode} ${data.data.workPlace ? `, ${data.data.workPlace}` : ''} `,
         },
-        { title: tr('Devices'), content: devicesToTable(data.data.devices as Record<'name' | 'id', string>[]) },
         {
             title: tr('Testing devices'),
             content: devicesToTable(
@@ -140,6 +143,9 @@ export const scheduledTransferEmailHtml = (data: {
                 tr('Did not take any'),
             ),
         },
+        { title: tr('Devices'), content: devicesToTable(data.data.devices as Record<'name' | 'id', string>[]) },
+        { title: tr('Application for return of equipment'), content: data.applicationForReturnOfEquipment || '' },
+        { title: tr('Screenshot'), content: tr('In attachment') },
         { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
     ]);
 

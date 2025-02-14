@@ -23,6 +23,7 @@ interface SupplementalPositionsType {
 interface UserFormSupplementalPositionsBlockProps {
     id: string;
     className: string;
+    workEndDateTitle: string;
     readOnly?: boolean;
     edit?: boolean;
 }
@@ -32,6 +33,7 @@ export const UserFormSupplementalPositionsBlock = ({
     className,
     readOnly,
     edit,
+    workEndDateTitle,
 }: UserFormSupplementalPositionsBlockProps) => {
     const {
         register,
@@ -94,7 +96,7 @@ export const UserFormSupplementalPositionsBlock = ({
                             </FormControl>
                             <FormControl
                                 required={fields.length > 1 && index === 0}
-                                label={tr('Dismsissal date')}
+                                label={workEndDateTitle}
                                 error={
                                     errorPicker<Position>(errors.supplementalPositions, index, 'workEndDate') ||
                                     errors?.supplementalPositions?.root

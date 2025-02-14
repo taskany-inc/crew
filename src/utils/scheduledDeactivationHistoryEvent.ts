@@ -1,31 +1,24 @@
 import { ScheduledDeactivation } from '@prisma/client';
 
-import {
-    ScheduledDeactivationNewOrganizationUnit,
-    ScheduledDeactivationOrganizationUnit,
-    ScheduledDeactivationUser,
-} from '../modules/scheduledDeactivationTypes';
+import { ScheduledDeactivationNewOrganizationUnit } from '../modules/scheduledDeactivationTypes';
 
 import { getOrgUnitTitle } from './organizationUnit';
 
 export const scheduledDeactivationHistoryEvent = (
-    scheduleDeactivation: ScheduledDeactivation &
-        ScheduledDeactivationUser &
-        ScheduledDeactivationOrganizationUnit &
-        ScheduledDeactivationNewOrganizationUnit,
+    scheduleDeactivation: ScheduledDeactivation & {
+        user: { name: string | null; supervisorId: string | null } | null;
+    } & ScheduledDeactivationNewOrganizationUnit,
 ) => ({
     type: scheduleDeactivation.type,
     id: scheduleDeactivation.id,
     phone: scheduleDeactivation.phone,
     deactivateDate: scheduleDeactivation.deactivateDate,
     email: scheduleDeactivation.email,
-    unitId: scheduleDeactivation.unitId || undefined,
-    unitIdString: scheduleDeactivation.unitIdString || undefined,
-    // teamLeadId: scheduleDeactivation.user.supervisorId || undefined,
+    teamLeadId: scheduleDeactivation.user?.supervisorId || undefined,
     newTeamLead: scheduleDeactivation.newTeamLead || undefined,
     organizationalGroup: scheduleDeactivation.organizationalGroup || undefined,
     newOrganizationalGroup: scheduleDeactivation.newOrganizationalGroup || undefined,
-    // organizationRole: scheduleDeactivation.user.title || undefined,
+    organizationRole: scheduleDeactivation.organizationRole || undefined,
     transferPercentage: scheduleDeactivation.transferPercentage || undefined,
     workMode: scheduleDeactivation.workMode || undefined,
     workPlace: scheduleDeactivation.workPlace || undefined,
@@ -39,6 +32,7 @@ export const scheduledDeactivationHistoryEvent = (
     disableAccount: String(scheduleDeactivation.disableAccount),
     devices: scheduleDeactivation.devices as Record<'name' | 'id', string>[],
     testingDevices: scheduleDeactivation.testingDevices as Record<'name' | 'id', string>[],
+    coordinatorIds: scheduleDeactivation.coordinatorIds.join(', ') || undefined,
 });
 
 export const devicesToString = (devices?: Record<'name' | 'id', string>[] | null) =>
