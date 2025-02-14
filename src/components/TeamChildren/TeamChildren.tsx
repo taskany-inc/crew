@@ -32,7 +32,11 @@ export const TeamChildren: FC<TeamChildrenProps> = ({ className, children, items
                     <List>
                         {items.map((g, index) => (
                             <ListItem key={index}>
-                                <Link onClick={() => showGroupPreview(g.id)} href={pages.team(g.id)}>
+                                <Link
+                                    className={s.TeamChildrenLink}
+                                    onClick={() => showGroupPreview(g.id)}
+                                    href={pages.team(g.id)}
+                                >
                                     <TeamItem size={size} item={g} />
                                 </Link>
                             </ListItem>

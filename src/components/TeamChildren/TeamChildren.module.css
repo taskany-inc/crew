@@ -7,3 +7,7 @@
 .Empty {
     margin-top: var(--gap-xs);
 }
+
+.TeamChildrenLink.TeamChildrenLink:hover {
+    color: var(--blue-400);
+}
