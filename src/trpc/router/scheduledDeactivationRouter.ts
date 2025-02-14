@@ -14,17 +14,19 @@ import { scheduledDeactivationHistoryEvent } from '../../utils/scheduledDeactiva
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 
 export const scheduledDeactivationRouter = router({
-    create: protectedProcedure.input(createScheduledDeactivationSchema()).mutation(async ({ input, ctx }) => {
+    create: protectedProcedure.input(createScheduledDeactivationSchema()).mutation(async ({ ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'));
 
-        const result = await scheduledDeactivationMethods.create({ ...input }, ctx.session.user.id);
-        await historyEventMethods.create({ user: ctx.session.user.id }, 'createScheduledDeactivation', {
-            groupId: undefined,
-            userId: result.userId,
-            before: undefined,
-            after: scheduledDeactivationHistoryEvent(result),
-        });
-        return result;
+        // will fix history record in next pr
+
+        // const result = await scheduledDeactivationMethods.create({ ...input }, ctx.session.user.id);
+        // await historyEventMethods.create({ user: ctx.session.user.id }, 'createScheduledDeactivation', {
+        //     groupId: undefined,
+        //     userId: result.userId,
+        //     before: undefined,
+        //     after: scheduledDeactivationHistoryEvent(result),
+        // });
+        // return result;
     }),
     getList: protectedProcedure.input(getScheduledDeactivationListSchema).query(({ ctx, input }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'viewScheduledDeactivation'));

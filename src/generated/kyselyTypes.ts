@@ -229,9 +229,10 @@ export type Role = {
     updatedAt: Generated<Timestamp>;
 };
 export type ScheduledDeactivation = {
-    id: string;
+    id: Generated<string>;
     userId: string;
     creatorId: string;
+    coordinatorId: string | null;
     phone: string;
     email: string;
     lineManagerIds: string[];

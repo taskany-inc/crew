@@ -1414,41 +1414,11 @@ export const userCreationRequestsMethods = {
 
         if (canceledRequest.buddyId) additionalEmails.push(canceledRequest.buddyId);
 
-        if (canceledRequest.date) {
-            const { users, to } = await userMethods.getMailingList(
-                'createScheduledUserRequest',
-                [canceledRequest.organizationUnitId],
-                [sessionUserId],
-            );
-
-            const html = htmlUserCreationRequestWithDate({
-                userCreationRequest: canceledRequest,
-                date: canceledRequest.date,
-            });
-
-            const subject = newcomerSubject({
-                userCreationRequest: canceledRequest,
-                phone: userCreationRequestPhone(canceledRequest),
-                name: canceledRequest.name,
-            });
-
-            const icalEvent = createIcalEventData({
-                id: canceledRequest.id + config.nodemailer.authUser,
-                start: canceledRequest.date,
-                duration: 30,
-                users,
-                summary: subject,
-                description: subject,
-            });
-
-            sendMail({
-                to,
-                subject,
-                html,
-                icalEvent: calendarEvents({
-                    method: ICalCalendarMethod.CANCEL,
-                    events: [icalEvent],
-                }),
+        if (canceledRequest.type === 'internalEmployee') {
+            await sendNewCommerEmails({
+                request: canceledRequest,
+                sessionUserId,
+                method: ICalCalendarMethod.REQUEST,
             });
         }
 

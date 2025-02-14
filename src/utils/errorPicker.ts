@@ -5,7 +5,7 @@ export const errorPicker = <T extends FieldValues>(
     index: number,
     key: keyof T,
 ) => {
-    if (!errors) return;
+    if (!errors || !errors[index]) return;
     const { [key]: error } = errors[index];
     return error as { message?: string };
 };

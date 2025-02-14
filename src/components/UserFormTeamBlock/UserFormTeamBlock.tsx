@@ -16,7 +16,7 @@ import { tr } from './UserFormTeamBlock.i18n';
 interface UserFormTeamBlockProps {
     className: string;
     id: string;
-    type: 'internal' | 'existing' | 'dismissal';
+    type: 'internal' | 'existing' | 'dismissal' | 'transfer';
     readOnly?: boolean;
     userId?: string;
     defaultGroupId?: string;
@@ -28,6 +28,7 @@ interface UserFormTeamBlockType {
     lineManagerIds: string[];
     buddyId?: string;
     coordinatorIds: string[];
+    coordinatorId?: string;
 }
 
 export const UserFormTeamBlock = ({
@@ -58,6 +59,8 @@ export const UserFormTeamBlock = ({
     const selectedBuddyId = watch('buddyId');
 
     const supervisorId = watch('supervisorId');
+
+    const selectedCoordinatorId = watch('coordinatorId');
 
     const { data: supervisorGroups = [] } = trpc.group.getListByUserId.useQuery(
         {
@@ -160,6 +163,18 @@ export const UserFormTeamBlock = ({
                             onReset={() => setValue('groupId', undefined)}
                         />
                     </FormControl>
+                    {nullable(type === 'transfer', () => (
+                        <FormControl label="Coordinator">
+                            <UserSelect
+                                excludedUsers={excludedUsers}
+                                readOnly={readOnly}
+                                mode="single"
+                                selectedUsers={selectedCoordinatorId ? [selectedCoordinatorId] : undefined}
+                                onChange={(users) => onUserChange(users[0], 'coordinatorId')}
+                                onReset={() => setValue('coordinatorId', undefined)}
+                            />
+                        </FormControl>
+                    ))}
                 </div>,
             )}
         </div>
