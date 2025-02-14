@@ -13,6 +13,9 @@ export const pages = {
     userDismiss: (requestId: string) => `/requests/users/dismiss/${requestId}`,
     userDismissNew: (userId: string) => `/users/${userId}/dismiss`,
     userDismissEdit: (requestId: string) => `/requests/users/dismiss/${requestId}/edit`,
+    userTransfer: (requestId: string) => `/requests/users/transfer/${requestId}`,
+    userTransferNew: (userId: string) => `/users/${userId}/transfer`,
+    userTransferEdit: (requestId: string) => `/requests/users/transfer/${requestId}/edit`,
     userSettings: '/users/settings',
     userRequests: '/requests/users/newcomers',
     accessCoordination: '/requests/users/access',
@@ -67,6 +70,10 @@ export const useRouter = () => {
         userDismiss: (requestId: string) => router.push(pages.userDismiss(requestId)),
         userDismissEdit: (requestId: string) => router.push(pages.userDismissEdit(requestId)),
         userDismissNew: (userId: string) => router.push(pages.userDismissNew(userId)),
+
+        userTransfer: (requestId: string) => router.push(pages.userTransfer(requestId)),
+        userTransferEdit: (requestId: string) => router.push(pages.userTransferEdit(requestId)),
+        userTransferNew: (userId: string) => router.push(pages.userTransferNew(userId)),
 
         toDecree: (userId: string) => router.push(pages.toDecree(userId)),
         fromDecree: (userId: string) => router.push(pages.fromDecree(userId)),

@@ -8,7 +8,7 @@ export interface AdditionalDevice {
 }
 
 export interface ScheduledDeactivationUser {
-    user: User;
+    user: Nullish<User>;
 }
 
 export interface ScheduledDeactivationCreator {

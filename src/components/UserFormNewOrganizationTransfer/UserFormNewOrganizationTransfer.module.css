@@ -1,0 +1,13 @@
+.TwoInputsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-m);
+    margin-top: var(--gap-s);
+    margin-bottom: var(--gap-m);
+}
+
+.SectionHeader {
+    display: inline-block;
+    margin-top: var(--gap-s);
+    margin-bottom: var(--gap-m);
+}
