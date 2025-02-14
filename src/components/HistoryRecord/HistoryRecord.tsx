@@ -1060,7 +1060,7 @@ const componentMap: {
                         {event.after.type === 'retirement'
                             ? tr('retirement of')
                             : tr('transfer to {newOrganization} of', {
-                                  newOrganization: String(event.before.newOrganization),
+                                  newOrganization: String(event.after.newOrganization),
                               })}
                     </BoldText>
                     <UserListItem user={event.user} />

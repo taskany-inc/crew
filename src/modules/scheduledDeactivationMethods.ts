@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
-import { Prisma, UserDevice } from 'prisma/prisma-client';
+import { Attach, OrganizationUnit, Prisma, ScheduledDeactivation, UserDevice } from 'prisma/prisma-client';
 import { InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser';
 import { jsonObjectFrom } from 'kysely/helpers/postgres';
 
@@ -28,6 +28,131 @@ import { userMethods } from './userMethods';
 import { deviceMethods } from './deviceMethods';
 import { historyEventMethods } from './historyEventMethods';
 import { serviceMethods } from './serviceMethods';
+import { SupplementalPositionWithUnit } from './userCreationRequestTypes';
+
+interface UserDissmissMailing {
+    method: ICalCalendarMethod.REQUEST | ICalCalendarMethod.CANCEL;
+    supplementalPositions: SupplementalPositionWithUnit[];
+    request:
+        | ScheduledDeactivation & { user: { name: string | null; supervisor: { id: string } | null } | null } & {
+              newOrganizationUnit: OrganizationUnit | null;
+          };
+    teamlead: string;
+    role: string;
+    sessionUserId: string;
+    attaches?: Attach[];
+    phone: string;
+    workEmail?: string;
+    newOrganizationIds?: string[];
+}
+
+const sendDismissalEmails = async ({
+    method,
+    supplementalPositions,
+    request,
+    teamlead,
+    role,
+    attaches,
+    sessionUserId,
+    phone,
+    workEmail,
+    newOrganizationIds,
+}: UserDissmissMailing) => {
+    const attachments = attaches && (await nodemailerAttachments(attaches));
+
+    const lineManagers = request.lineManagerIds.length
+        ? await db.selectFrom('User').select(['name', 'email']).where('id', 'in', request.lineManagerIds).execute()
+        : [];
+
+    const coordinators = request.coordinatorIds.length
+        ? await db.selectFrom('User').select(['name', 'email']).where('id', 'in', request.coordinatorIds).execute()
+        : [];
+
+    const orgUnit = supplementalPositions
+        .sort((a, b) => Number(b.main) - Number(a.main))
+        .filter((s) => s.workEndDate && s.status !== 'FIRED')
+        .map(({ organizationUnit }) => organizationUnit && getOrgUnitTitle(organizationUnit))
+        .join(', ');
+
+    const subject =
+        request.type === 'retirement'
+            ? `${tr('Retirement')} ${request.user?.name} ${orgUnit} (${phone})`
+            : `${tr('Transfer from')} ${orgUnit} ${
+                  request?.newOrganizationUnit && getOrgUnitTitle(request.newOrganizationUnit)
+              } ${request.user?.name} (${phone})`;
+
+    const html =
+        request.type === 'retirement'
+            ? scheduledDeactivationEmailHtml({
+                  data: request,
+                  teamlead,
+                  unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
+                  role,
+                  workEmail,
+              })
+            : scheduledTransferEmailHtml({
+                  data: request,
+                  transferFrom: orgUnit,
+                  transferTo: (request?.newOrganizationUnit && getOrgUnitTitle(request.newOrganizationUnit)) || '',
+                  unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
+                  teamlead,
+                  coordinators: coordinators.map(({ name, email }) => name || email).join(', '),
+                  lineManagers: lineManagers.map(({ name, email }) => name || email).join(', '),
+                  applicationForReturnOfEquipment: request.applicationForReturnOfEquipment || '',
+                  role,
+                  workEmail,
+              });
+
+    return Promise.all(
+        supplementalPositions.map(async ({ workEndDate, organizationUnitId, main }) => {
+            if (!workEndDate) return;
+
+            if (
+                method === ICalCalendarMethod.CANCEL &&
+                newOrganizationIds &&
+                newOrganizationIds.includes(organizationUnitId)
+            ) {
+                return;
+            }
+
+            const additionalEmails = [sessionUserId];
+
+            if (request.creatorId) additionalEmails.push(request.creatorId);
+
+            if (request.user?.supervisor?.id) additionalEmails.push(request.user?.supervisor?.id);
+
+            if (main) additionalEmails.push(...request.lineManagerIds);
+
+            if (main && request.coordinatorIds) additionalEmails.push(request.coordinatorIds.join(', '));
+
+            const { to, users } = await userMethods.getMailingList(
+                'scheduledDeactivation',
+                [organizationUnitId],
+                additionalEmails,
+                !!request.workPlace,
+            );
+            const icalEvent = createIcalEventData({
+                id: request.id + config.nodemailer.authUser + organizationUnitId,
+                start: workEndDate,
+                duration: 30,
+                users,
+                summary: subject,
+                description: subject,
+            });
+
+            await sendMail({
+                to,
+                html,
+                subject,
+                attachments,
+                icalEvent: calendarEvents({
+                    method,
+                    events: [icalEvent],
+                }),
+            });
+        }),
+    );
+};
 
 const deleteUserDevices = async ({
     userDevices,
@@ -102,18 +227,12 @@ export const scheduledDeactivationMethods = {
 
         const supplementalPositionConnect: string[] = [];
 
-        if (type === 'transfer') {
-            data.supplementalPositions.map((s) => {
-                if (s.workEndDate) return s;
-                return { ...s, workEndDate: deactivateDate };
-            });
-        }
-
         await Promise.all(
             data.supplementalPositions.map(async (s) => {
-                if (!s.workEndDate) return;
+                if (!s.workEndDate && type === 'retirement') return;
+                const date = s.workEndDate || deactivateDate;
 
-                const deactivateJobDate = new Date(s.workEndDate);
+                const deactivateJobDate = new Date(date);
                 deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
 
                 if (s.id) {
@@ -219,12 +338,12 @@ export const scheduledDeactivationMethods = {
             organizationRole: user.title,
             comments: restData.comment,
             lineManagerIds: restData.lineManagerIds,
+            coordinatorIds: restData.coordinatorIds,
             organizationalGroup: restData.groupId,
             newOrganizationUnitId: restData.newOrganizationUnitId,
             newOrganizationalGroup: restData.newOrganizationalGroup,
             newOrganizationRole: restData.newOrganizationRole,
             newTeamLead: restData.newTeamLead,
-            coordinatorId: restData.coordinatorId,
         };
 
         const scheduledDeactivation = await db
@@ -239,15 +358,6 @@ export const scheduledDeactivationMethods = {
                         .select(['User.email as email', 'User.id as id', 'User.name as name'])
                         .whereRef('User.id', '=', 'ScheduledDeactivation.creatorId'),
                 ).as('creator'),
-            ])
-            .returning((eb) => [
-                'ScheduledDeactivation.id',
-                jsonObjectFrom(
-                    eb
-                        .selectFrom('User')
-                        .select(['User.email as email', 'User.id as id', 'User.name as name'])
-                        .whereRef('User.id', '=', 'ScheduledDeactivation.coordinatorId'),
-                ).as('coordinator'),
             ])
             .returning((eb) => [
                 'ScheduledDeactivation.id',
@@ -311,6 +421,7 @@ export const scheduledDeactivationMethods = {
         const supplementalPositions = await db
             .updateTable('SupplementalPosition')
             .where('id', 'in', supplementalPositionConnect)
+            .where('organizationUnitId', 'is not', null)
             .set({ scheduledDeactivationId: scheduledDeactivation.id })
             .returningAll()
             .returning((eb) => [
@@ -328,6 +439,7 @@ export const scheduledDeactivationMethods = {
                         .whereRef('OrganizationUnit.id', '=', 'SupplementalPosition.organizationUnitId'),
                 ).as('organizationUnit'),
             ])
+            .$castTo<SupplementalPositionWithUnit>()
             .execute();
 
         user.devices.length &&
@@ -338,82 +450,16 @@ export const scheduledDeactivationMethods = {
                 sessionUserId,
             }));
 
-        const attachments = await nodemailerAttachments(attaches);
-
-        const orgUnit = supplementalPositions.find(({ main }) => main)?.organizationUnit;
-
-        const subject =
-            type === 'retirement'
-                ? `${tr('Retirement')} ${user.name} ${supplementalPositions
-                      .filter((s) => s.workEndDate && s.status !== 'FIRED')
-                      .map(({ organizationUnit }) => organizationUnit && getOrgUnitTitle(organizationUnit))
-                      .join(', ')} (${restData.phone})`
-                : `${tr('Transfer from')} ${orgUnit && getOrgUnitTitle(orgUnit)} ${tr('to')} ${
-                      scheduledDeactivation?.newOrganizationUnit &&
-                      getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
-                  } ${user.name} (${restData.phone})`;
-
-        const html =
-            type === 'retirement'
-                ? scheduledDeactivationEmailHtml({
-                      data: scheduledDeactivation,
-                      teamlead: scheduledDeactivation.user.supervisor?.name || '',
-                      unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
-                      role: restData.title || '',
-                      workEmail: restData.workEmail || '',
-                  })
-                : scheduledTransferEmailHtml({
-                      data: scheduledDeactivation,
-                      transferFrom: (orgUnit && getOrgUnitTitle(orgUnit)) || '',
-                      transferTo:
-                          (scheduledDeactivation?.newOrganizationUnit &&
-                              getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)) ||
-                          '',
-                      unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
-                      teamlead: scheduledDeactivation.user.supervisor?.name || '',
-                      coordinator: scheduledDeactivation.coordinator?.name || '',
-                      role: restData.title || '',
-                      workEmail: restData.workEmail || '',
-                  });
-
-        supplementalPositions.map(async (s) => {
-            const additionalEmails = [sessionUserId];
-
-            if (restData.supervisorId) additionalEmails.push(restData.supervisorId);
-
-            if (s.main) additionalEmails.push(...restData.lineManagerIds);
-
-            if (s.main && restData.coordinatorId) additionalEmails.push(restData.coordinatorId);
-
-            const { to, users } = await userMethods.getMailingList(
-                'scheduledDeactivation',
-                data.supplementalPositions
-                    ? data.supplementalPositions
-                          .filter(({ workEndDate }) => workEndDate)
-                          .map(({ organizationUnitId }) => organizationUnitId)
-                    : [],
-                additionalEmails,
-                !!data.workSpace,
-            );
-            const icalEvent = createIcalEventData({
-                id: scheduledDeactivation.id + config.nodemailer.authUser,
-                start: deactivateDate,
-                duration: 30,
-                users,
-                summary: subject,
-                description: subject,
-            });
-
-            await sendMail({
-                to,
-                html,
-                subject,
-                attachments,
-                icalEvent: calendarEvents({
-                    method: ICalCalendarMethod.REQUEST,
-                    events: [icalEvent],
-                }),
-            });
+        await sendDismissalEmails({
+            request: scheduledDeactivation,
+            method: ICalCalendarMethod.REQUEST,
+            teamlead: scheduledDeactivation.user.supervisor?.name || '',
+            supplementalPositions,
+            role: restData.title,
+            attaches,
+            sessionUserId,
+            phone: restData.phone,
+            workEmail: restData.workEmail,
         });
 
         return scheduledDeactivation;
@@ -457,7 +503,7 @@ export const scheduledDeactivationMethods = {
         });
     },
 
-    cancel: async (data: CancelScheduledDeactivation) => {
+    cancel: async (data: CancelScheduledDeactivation, sessionUserId: string) => {
         const { id, comment } = data;
         const scheduledDeactivation = await prisma.scheduledDeactivation.findUnique({
             where: { id },
@@ -469,7 +515,6 @@ export const scheduledDeactivationMethods = {
                         supervisor: true,
                     },
                 },
-                organizationUnit: true,
                 newOrganizationUnit: true,
                 creator: true,
             },
@@ -481,25 +526,6 @@ export const scheduledDeactivationMethods = {
                 message: `No scheduled deactivation with id ${id}`,
             });
         }
-
-        const additionalEmails = [scheduledDeactivation.creatorId, ...scheduledDeactivation.lineManagerIds];
-
-        if (scheduledDeactivation.teamLeadId) additionalEmails.push(scheduledDeactivation.teamLeadId);
-
-        const subject =
-            scheduledDeactivation.type === 'retirement'
-                ? `${tr('Retirement')} ${
-                      scheduledDeactivation.user.name
-                  } ${scheduledDeactivation.user.supplementalPositions
-                      .filter((s) => s.workEndDate && s.status !== 'FIRED')
-                      .map(({ organizationUnit }) => getOrgUnitTitle(organizationUnit))
-                      .join(', ')} (${scheduledDeactivation.phone})`
-                : `${tr('Transfer from')} ${
-                      scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
-                  } ${tr('to')} ${
-                      scheduledDeactivation?.newOrganizationUnit &&
-                      getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
-                  } ${scheduledDeactivation.user.name} (${scheduledDeactivation.phone})`;
 
         const supplementalPositions = scheduledDeactivation.user.supplementalPositions.filter(
             ({ workEndDate, status }) => workEndDate && status === 'ACTIVE',
@@ -514,46 +540,23 @@ export const scheduledDeactivationMethods = {
 
         await prisma.job.deleteMany({ where: { id: { in: jobIds } } });
 
-        const { to, users } = await userMethods.getMailingList(
-            'scheduledDeactivation',
-            supplementalPositions.map(({ organizationUnitId }) => organizationUnitId),
-            additionalEmails,
-        );
-
-        const icalEvent = createIcalEventData({
-            id: scheduledDeactivation.id + config.nodemailer.authUser,
-            start: scheduledDeactivation.deactivateDate,
-            duration: 30,
-            users,
-            summary: subject,
-            description: subject,
-        });
-
         const workEmail = scheduledDeactivation.user.services.find((s) => s.serviceName === 'WorkEmail')?.serviceId;
 
-        await sendMail({
-            to,
-            subject,
-            html: scheduledDeactivationEmailHtml({
-                data: scheduledDeactivation,
-                workEmail: workEmail || '',
-                teamlead: scheduledDeactivation.user.supervisor?.name || '',
-                unitId: scheduledDeactivation.user.supplementalPositions
-                    .filter(({ workEndDate }) => workEndDate)
-                    .map(({ unitId }) => unitId)
-                    .join(', '),
-                role:
-                    scheduledDeactivation.user.supplementalPositions
-                        .filter(({ workEndDate }) => workEndDate)
-                        .map(({ role }) => role)
-                        .join(', ') ||
-                    scheduledDeactivation.user.title ||
-                    '',
-            }),
-            icalEvent: calendarEvents({
-                method: ICalCalendarMethod.CANCEL,
-                events: [icalEvent],
-            }),
+        const phone =
+            findService(
+                ExternalServiceName.Phone,
+                scheduledDeactivation.user.services as Record<'serviceName' | 'serviceId', string>[],
+            ) || '';
+
+        await sendDismissalEmails({
+            request: scheduledDeactivation,
+            method: ICalCalendarMethod.CANCEL,
+            teamlead: scheduledDeactivation.user.supervisor?.name || '',
+            supplementalPositions,
+            role: scheduledDeactivation.organizationRole || '',
+            sessionUserId,
+            workEmail,
+            phone,
         });
 
         scheduledDeactivation.jobId && (await prisma.job.delete({ where: { id: scheduledDeactivation.jobId } }));
@@ -577,7 +580,7 @@ export const scheduledDeactivationMethods = {
 
         deactivateDate.setUTCHours(config.deactivateUtcHour);
 
-        const scheduledDeactivationBeforeUpdate = await prisma.scheduledDeactivation.findUnique({ where: { id } });
+        const scheduledDeactivationBeforeUpdate = await scheduledDeactivationMethods.getById(id);
 
         if (!scheduledDeactivationBeforeUpdate) {
             throw new TRPCError({
@@ -667,6 +670,7 @@ export const scheduledDeactivationMethods = {
                 newOrganizationalGroup: restData.newOrganizationalGroup,
                 newOrganizationRole: restData.newOrganizationRole,
                 organizationalGroup: restData.groupId,
+                coordinatorIds: restData.coordinatorIds,
                 ...(supplementalPositionConnect.length && {
                     supplementalPositions: { connect: supplementalPositionConnect },
                 }),
@@ -674,10 +678,11 @@ export const scheduledDeactivationMethods = {
             include: {
                 user: {
                     include: {
-                        supplementalPositions: true,
+                        supplementalPositions: { include: { organizationUnit: true } },
                         supervisor: true,
                         memberships: { include: { group: true } },
                         devices: true,
+                        services: true,
                     },
                 },
                 creator: true,
@@ -686,6 +691,25 @@ export const scheduledDeactivationMethods = {
                 attaches: { where: { deletedAt: null } },
             },
         });
+
+        if (!findService(ExternalServiceName.WorkEmail, scheduledDeactivation.user.services) && data.workEmail) {
+            await serviceMethods.addToUser({
+                userId,
+                serviceId: data.workEmail,
+                serviceName: ExternalServiceName.WorkEmail,
+            });
+        }
+
+        if (
+            !findService(ExternalServiceName.PersonalEmail, scheduledDeactivation.user.services) &&
+            data.personalEmail
+        ) {
+            await serviceMethods.addToUser({
+                userId,
+                serviceId: data.personalEmail,
+                serviceName: ExternalServiceName.PersonalEmail,
+            });
+        }
 
         scheduledDeactivation.user.devices.length &&
             (await deleteUserDevices({
@@ -733,75 +757,39 @@ export const scheduledDeactivationMethods = {
             await userMethods.edit({ id: userId, supervisorId: restData.supervisorId });
         }
 
-        const subject =
-            scheduledDeactivation.type === 'retirement'
-                ? `${tr('Retirement')} ${
-                      scheduledDeactivation.organizationUnit
-                          ? getOrgUnitTitle(scheduledDeactivation.organizationUnit)
-                          : ''
-                  } ${scheduledDeactivation.user.name} (${scheduledDeactivation.phone}) `
-                : `${tr('Transfer from')} ${
-                      scheduledDeactivation.organizationUnit && getOrgUnitTitle(scheduledDeactivation.organizationUnit)
-                  } ${tr('to')} ${
-                      scheduledDeactivation?.newOrganizationUnit &&
-                      getOrgUnitTitle(scheduledDeactivation.newOrganizationUnit)
-                  } ${scheduledDeactivation.user.name} (${scheduledDeactivation.phone})`;
+        await sendDismissalEmails({
+            request: scheduledDeactivation,
+            method: ICalCalendarMethod.REQUEST,
+            teamlead: scheduledDeactivation.user.supervisor?.name || '',
+            supplementalPositions,
+            role: restData.title,
+            attaches: scheduledDeactivation.attaches,
+            sessionUserId,
+            phone: restData.phone,
+            workEmail: data.workEmail,
+        });
 
-        const additionalEmails = [scheduledDeactivation.creatorId, ...scheduledDeactivation.lineManagerIds];
-
-        if (scheduledDeactivation.teamLeadId) additionalEmails.push(scheduledDeactivation.teamLeadId);
-
-        if (scheduledDeactivation.organizationUnitId) {
-            const { to, users } = await userMethods.getMailingList(
-                'scheduledDeactivation',
-                restData.supplementalPositions
-                    ? restData.supplementalPositions
-                          .filter(({ workEndDate }) => workEndDate)
-                          .map(({ organizationUnitId }) => organizationUnitId)
-                    : [],
-                additionalEmails,
-                !!restData.workSpace,
-            );
-
-            const icalEvent = createIcalEventData({
-                id: scheduledDeactivation.id + config.nodemailer.authUser,
-                start: deactivateDate,
-                duration: 30,
-                users,
-                summary: subject,
-                description: subject,
-            });
-
-            const attachments = await nodemailerAttachments(scheduledDeactivation.attaches);
-
-            await sendMail({
-                to,
-                html: scheduledDeactivationEmailHtml({
-                    data: scheduledDeactivation,
-                    workEmail: data.workEmail || '',
-                    teamlead: scheduledDeactivation.user.supervisor?.name || '',
-                    unitId: restData.supplementalPositions
-                        .filter(({ workEndDate }) => workEndDate)
-                        .map(({ unitId }) => unitId)
-                        .join(', '),
-                    role: restData.title || '',
-                }),
-                subject,
-                attachments,
-                icalEvent: calendarEvents({
-                    method: ICalCalendarMethod.REQUEST,
-                    events: [icalEvent],
-                }),
-            });
-        }
+        await sendDismissalEmails({
+            request: scheduledDeactivationBeforeUpdate,
+            method: ICalCalendarMethod.CANCEL,
+            teamlead: scheduledDeactivationBeforeUpdate.user.supervisor?.name || '',
+            supplementalPositions: scheduledDeactivationBeforeUpdate.supplementalPositions,
+            role: restData.title,
+            attaches: scheduledDeactivationBeforeUpdate.attaches,
+            sessionUserId,
+            phone: restData.phone,
+            newOrganizationIds: supplementalPositions.map(({ organizationUnitId }) => organizationUnitId),
+            workEmail: data.workEmail,
+        });
 
         return scheduledDeactivation;
     },
+
     getById: async (id: string) => {
         const result = await prisma.scheduledDeactivation.findUnique({
             where: { id },
             include: {
-                user: true,
+                user: { include: { supervisor: true } },
                 creator: true,
                 organizationUnit: true,
                 newOrganizationUnit: true,

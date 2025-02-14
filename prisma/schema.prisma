@@ -120,9 +120,8 @@ model User {
   historyEvents  HistoryEvent[] @relation("historyEvents")
   historyChanges HistoryEvent[] @relation("historyChanges")
 
-  scheduledDeactivations            ScheduledDeactivation[] @relation("scheduledDeactivation")
-  scheduledDeactivationsCreated     ScheduledDeactivation[] @relation("scheduledDeactivationCreated")
-  scheduledDeactivationsCoordinator ScheduledDeactivation[] @relation("scheduledDeactivationCoordinator")
+  scheduledDeactivations        ScheduledDeactivation[] @relation("scheduledDeactivation")
+  scheduledDeactivationsCreated ScheduledDeactivation[] @relation("scheduledDeactivationCreated")
 
   groupAdmins          GroupAdmin[]
   userCreationRequests UserCreationRequest[]
@@ -314,13 +313,11 @@ model ScheduledDeactivation {
   creatorId String
   creator   User   @relation("scheduledDeactivationCreated", fields: [creatorId], references: [id])
 
-  coordinatorId String?
-  coordinator   User?   @relation("scheduledDeactivationCoordinator", fields: [coordinatorId], references: [id])
-
   phone String
   email String
 
   lineManagerIds String[]
+  coordinatorIds String[]
 
   deactivateDate DateTime
   type           String

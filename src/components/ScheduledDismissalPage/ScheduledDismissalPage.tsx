@@ -132,7 +132,7 @@ export const ScheduledDismissalPage = ({
             deactivateDate: scheduledDeactivation?.deactivateDate || undefined,
             corporateEmail: scheduledDeactivation?.email || user?.email,
             supervisorId: scheduledDeactivation?.teamLeadId || user?.supervisor?.id || undefined,
-            coordinatorId: scheduledDeactivation?.coordinatorId || undefined,
+            coordinatorIds: scheduledDeactivation?.coordinatorIds || [],
             phone,
             workMode: scheduledDeactivation?.workMode || undefined,
             workSpace: scheduledDeactivation?.workPlace || undefined,
@@ -193,6 +193,8 @@ export const ScheduledDismissalPage = ({
         setValue,
         formState: { isSubmitting, isSubmitSuccessful },
     } = methods;
+
+    useEffect(() => reset(defaultValues), []);
 
     useEffect(() => {
         setValue(
@@ -294,6 +296,7 @@ export const ScheduledDismissalPage = ({
                                     className={s.FormBlock}
                                     readOnly={readOnly}
                                     edit={!!scheduledDeactivation}
+                                    workEndDateTitle={transfer ? tr('Transfer date') : tr('Dismsissal date')}
                                 />
 
                                 <UserFormTeamBlock

@@ -9,5 +9,7 @@
     "Not specified": "Не указано",
     "cancel confirmation": "Вы действительно хотите отменить заполнение формы? Внесенные данные будут удалены и вы вернетесь на страницу профиля.",
     "Create a planned transfer of employee": "Создать плановый перевод сотрудника",
-    "Transfer": "Перевод"
+    "Transfer": "Перевод",
+    "Transfer date": "Дата перевода",
+    "Dismsissal date": "Дата увольнения"
 }

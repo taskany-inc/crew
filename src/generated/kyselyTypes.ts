@@ -232,10 +232,10 @@ export type ScheduledDeactivation = {
     id: Generated<string>;
     userId: string;
     creatorId: string;
-    coordinatorId: string | null;
     phone: string;
     email: string;
     lineManagerIds: string[];
+    coordinatorIds: string[];
     deactivateDate: Timestamp;
     type: string;
     disableAccount: boolean;

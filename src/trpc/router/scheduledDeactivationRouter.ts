@@ -12,6 +12,7 @@ import { scheduledDeactivationMethods } from '../../modules/scheduledDeactivatio
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { scheduledDeactivationHistoryEvent } from '../../utils/scheduledDeactivationHistoryEvent';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
+import { getOrgUnitTitle } from '../../utils/organizationUnit';
 
 export const scheduledDeactivationRouter = router({
     create: protectedProcedure.input(createScheduledDeactivationSchema()).mutation(async ({ input, ctx }) => {
@@ -19,13 +20,12 @@ export const scheduledDeactivationRouter = router({
 
         const result = await scheduledDeactivationMethods.create({ ...input }, ctx.session.user.id);
 
-        // will fix history record in next pr
-        // await historyEventMethods.create({ user: ctx.session.user.id }, 'createScheduledDeactivation', {
-        //     groupId: undefined,
-        //     userId: result.userId,
-        //     before: undefined,
-        //     after: scheduledDeactivationHistoryEvent(result),
-        // });
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'createScheduledDeactivation', {
+            groupId: undefined,
+            userId: result.userId,
+            before: undefined,
+            after: scheduledDeactivationHistoryEvent(result),
+        });
 
         return result;
     }),
@@ -59,14 +59,18 @@ export const scheduledDeactivationRouter = router({
             groupId: undefined,
             userId: result.userId,
             before,
-            after: { ...after, type: result.type },
+            after: {
+                ...after,
+                type: result.type,
+                newOrganization: result.newOrganizationUnit ? getOrgUnitTitle(result.newOrganizationUnit) : undefined,
+            },
         });
         return result;
     }),
     cancel: protectedProcedure.input(cancelScheduledDeactivationSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'));
 
-        const result = await scheduledDeactivationMethods.cancel({ ...input });
+        const result = await scheduledDeactivationMethods.cancel({ ...input }, ctx.session.user.id);
         await historyEventMethods.create({ user: ctx.session.user.id }, 'cancelScheduledDeactivation', {
             groupId: undefined,
             userId: result.userId,

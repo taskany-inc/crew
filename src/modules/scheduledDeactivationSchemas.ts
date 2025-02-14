@@ -25,7 +25,7 @@ export const createScheduledDeactivationSchema = () =>
                 .min(1, { message: tr('Obligatory field', { min: 1 }) }),
             groupId: z.string().optional(),
             lineManagerIds: z.array(z.string()),
-            coordinatorId: z.string().optional(),
+            coordinatorIds: z.array(z.string()),
 
             workMode: z
                 .string({ required_error: tr('Obligatory field') })
