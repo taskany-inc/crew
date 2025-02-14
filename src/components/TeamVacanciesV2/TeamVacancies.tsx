@@ -37,6 +37,7 @@ export const TeamVacancies: FC<TeamChildrenProps> = ({
         <>
             <div className={cn(s.TeamVacancies, className)} {...props}>
                 <TeamPageSubtitle
+                    size={size}
                     counter={vacancies.length}
                     action={
                         <Restricted visible={editable}>

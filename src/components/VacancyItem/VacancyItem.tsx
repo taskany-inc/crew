@@ -67,7 +67,11 @@ export const VacancyItem: FC<VacancyItemProps> = ({ className, editable, item, s
         <>
             <div className={cn(s.TeamItem, className)} {...props}>
                 <div className={s.TeamItemContent}>
-                    <Link href={`${config.hireIntegration.url}/candidates?vacancyIds=${item.id}`} target="_blank">
+                    <Link
+                        className={s.TeamItemLink}
+                        href={`${config.hireIntegration.url}/candidates?vacancyIds=${item.id}`}
+                        target="_blank"
+                    >
                         <Text size={textSizesMap[size]}>{item.name}</Text>
                     </Link>
                     <Text size={textSizesMap[size]} className={s.TeamName}>
