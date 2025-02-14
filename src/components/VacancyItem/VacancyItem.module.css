@@ -19,3 +19,7 @@
 .IconArchive {
     color: var(--button-danger);
 }
+
+.TeamItemLink.TeamItemLink:hover {
+    color: var(--blue-400);
+}

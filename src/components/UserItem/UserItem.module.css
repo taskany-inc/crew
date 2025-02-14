@@ -1,7 +1,7 @@
 .UserItem {
     display: flex;
     gap: var(--gap-s);
-    align-items: center;
+    align-items: start;
 }
 
 .UserItem_L {
@@ -19,6 +19,7 @@
     display: flex;
     flex-direction: row;
     gap: var(--gap-s);
+    overflow: hidden;
 }
 
 .UserInfoText {
@@ -33,12 +34,22 @@
     display: flex;
     gap: var(--avatar-gap);
     flex: 1;
+    overflow: hidden;
+}
+
+.UserInfoContent {
+    display: flex;
+    gap: var(--gap-s);
+    flex: 1;
+    overflow: hidden;
+    flex-wrap: wrap;
 }
 
 .UserPersonalInfo {
     display: flex;
     flex-direction: column;
     gap: var(--row-gap);
+    flex: 1;
 }
 
 .Contacts {

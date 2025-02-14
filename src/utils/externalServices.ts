@@ -10,6 +10,7 @@ export enum ExternalServiceName {
     Telegram = 'Telegram',
     AccountingSystem = 'Accounting system',
     ServiceNumber = 'ServiceNumber',
+    Mattermost = 'Mattermost',
 }
 
 export const findService = (
