@@ -18,12 +18,15 @@ export const scheduledDeactivationRouter = router({
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editScheduledDeactivation'));
 
         const result = await scheduledDeactivationMethods.create({ ...input }, ctx.session.user.id);
-        await historyEventMethods.create({ user: ctx.session.user.id }, 'createScheduledDeactivation', {
-            groupId: undefined,
-            userId: result.userId,
-            before: undefined,
-            after: scheduledDeactivationHistoryEvent(result),
-        });
+
+        // will fix history record in next pr
+        // await historyEventMethods.create({ user: ctx.session.user.id }, 'createScheduledDeactivation', {
+        //     groupId: undefined,
+        //     userId: result.userId,
+        //     before: undefined,
+        //     after: scheduledDeactivationHistoryEvent(result),
+        // });
+
         return result;
     }),
     getList: protectedProcedure.input(getScheduledDeactivationListSchema).query(({ ctx, input }) => {

@@ -1,163 +1,98 @@
 import { z } from 'zod';
 
-import { tr } from './modules.i18n';
+import { getPhoneSchema } from '../utils/phoneSchema';
 
-const baseSchema = () =>
-    z.object({
-        userId: z.string(),
-        supervisorId: z.string().optional(),
-        workMode: z
-            .string({ required_error: tr('Obligatory field') })
-            .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-        workSpace: z.string().optional(),
-        lineManagerIds: z.array(z.string()),
-        devices: z
-            .array(
-                z.object({
-                    name: z
-                        .string({ required_error: tr('Obligatory field') })
-                        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                    id: z
-                        .string({ required_error: tr('Obligatory field') })
-                        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                }),
-            )
-            .optional(),
-        testingDevices: z
-            .array(
-                z.object({
-                    name: z
-                        .string({ required_error: tr('Obligatory field') })
-                        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                    id: z
-                        .string({ required_error: tr('Obligatory field') })
-                        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                }),
-            )
-            .optional(),
-        phone: z
-            .string({ required_error: tr('Obligatory field') })
-            .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-        email: z
-            .string({ required_error: tr('Obligatory field') })
-            .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-        location: z
-            .string({ required_error: tr('Obligatory field') })
-            .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-        comment: z.string().optional(),
-        attachIds: z.array(z.string()).optional(),
-        supplementalPositions: z
-            .array(
-                z.object({
-                    id: z.string(),
-                    organizationUnitId: z.string().min(1, { message: tr('Required field') }),
-                    percentage: z
-                        .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
-                        .multipleOf(0.01)
-                        .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
-                        .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
-                    unitId: z.string().optional(),
-                    workEndDate: z.date().nullish(),
-                }),
-            )
-            .refine((supplementalPositions) => supplementalPositions.find((s) => !!s.workEndDate), {
-                message: tr('Enter date for at least one organization'),
-            })
-            .optional(),
-        applicationForReturnOfEquipment: z.string().optional(),
-        workEmail: z.string().optional(),
-        personalEmail: z.string().optional(),
-        groupId: z.string().optional(),
-        teamLead: z.string().optional(),
-        organizationUnitId: z.string().optional(),
-        unitIdString: z.string().optional(),
-        deactivateDate: z.date().optional(),
-        title: z.string().optional(),
-    });
+import { tr } from './modules.i18n';
 
 export const createScheduledDeactivationSchema = () =>
     z
-        .discriminatedUnion('type', [
-            z.object({
-                type: z.literal('transfer'),
+        .object({
+            type: z.union([z.literal('transfer'), z.literal('retirement')]),
+            userId: z.string(),
+            disableAccount: z.boolean(),
+            phone: getPhoneSchema(),
+            title: z
+                .string({ required_error: tr('Obligatory field') })
+                .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+            email: z
+                .string({ required_error: tr('Obligatory field') })
+                .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+            workEmail: z.string().optional(),
+            personalEmail: z.string().optional(),
 
-                deactivateDate: z.date(),
-                disableAccount: z.boolean(),
-                newOrganizationUnitId: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                newOrganizationRole: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                newTeamLead: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                newTeamLeadId: z.string().optional(),
-                organizationRole: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                organizationalGroup: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+            supervisorId: z
+                .string({ required_error: tr('Obligatory field') })
+                .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+            groupId: z.string().optional(),
+            lineManagerIds: z.array(z.string()),
+            coordinatorId: z.string().optional(),
 
-                newOrganizationalGroup: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                transferPercentage: z.number().optional(),
-                organizationUnitId: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                teamLead: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-            }),
-            z.object({
-                type: z.literal('retirement'),
-                disableAccount: z.boolean(),
-                newOrganizationUnitId: z.string().optional(),
-                newOrganizationRole: z.string().optional(),
-                newTeamLead: z.string().optional(),
-                organizationRole: z.string().optional(),
-                organizationalGroup: z.string().optional(),
-
-                newOrganizationalGroup: z.string().optional(),
-                transferPercentage: z.number().optional(),
-                supervisorId: z
-                    .string({ required_error: tr('Obligatory field') })
-                    .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                supplementalPositions: z
-                    .array(
-                        z.object({
-                            id: z.string(),
-                            organizationUnitId: z.string().min(1, { message: tr('Required field') }),
-                            percentage: z
-                                .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
-                                .multipleOf(0.01)
-                                .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
-                                .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
-                            unitId: z.string().optional(),
-                            workEndDate: z.date().nullish(),
-                        }),
-                    )
-                    .refine((supplementalPositions) => supplementalPositions.find((s) => !!s.workEndDate), {
-                        message: tr('Enter date for at least one organization'),
+            workMode: z
+                .string({ required_error: tr('Obligatory field') })
+                .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+            workSpace: z.string().optional(),
+            devices: z
+                .array(
+                    z.object({
+                        name: z
+                            .string({ required_error: tr('Obligatory field') })
+                            .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+                        id: z
+                            .string({ required_error: tr('Obligatory field') })
+                            .min(1, { message: tr('Obligatory field', { min: 1 }) }),
                     }),
-                lineManagerIds: z.array(z.string()),
-                devices: z
-                    .array(
-                        z.object({
-                            name: z
-                                .string({ required_error: tr('Obligatory field') })
-                                .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                            id: z
-                                .string({ required_error: tr('Obligatory field') })
-                                .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                        }),
-                    )
-                    .min(1),
-            }),
-        ])
-        .and(baseSchema());
+                )
+                .min(1),
+            testingDevices: z
+                .array(
+                    z.object({
+                        name: z
+                            .string({ required_error: tr('Obligatory field') })
+                            .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+                        id: z
+                            .string({ required_error: tr('Obligatory field') })
+                            .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+                    }),
+                )
+                .optional(),
+            location: z
+                .string({ required_error: tr('Obligatory field') })
+                .min(1, { message: tr('Obligatory field', { min: 1 }) }),
+            comment: z.string().optional(),
+            attachIds: z.array(z.string()).optional(),
+            supplementalPositions: z
+                .array(
+                    z.object({
+                        id: z.string(),
+                        organizationUnitId: z.string().min(1, { message: tr('Required field') }),
+                        percentage: z
+                            .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
+                            .multipleOf(0.01)
+                            .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
+                            .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
+                        unitId: z.string().optional(),
+                        workEndDate: z.date().nullish(),
+                    }),
+                )
+                .min(1)
+                .refine((supplementalPositions) => supplementalPositions.find((s) => !!s.workEndDate), {
+                    message: tr('Enter date for at least one organization'),
+                }),
+            applicationForReturnOfEquipment: z.string().optional(),
+            newOrganizationUnitId: z.string().optional(),
+            newOrganizationRole: z.string().optional(),
+            newTeamLead: z.string().optional(),
+            newOrganizationalGroup: z.string().optional(),
+        })
+        .superRefine(({ type, newOrganizationUnitId }, ctx) => {
+            if (type === 'transfer' && !newOrganizationUnitId) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: tr('Required field'),
+                    path: ['newOrganizationUnitId'],
+                });
+            }
+        });
 
 export type CreateScheduledDeactivation = z.infer<ReturnType<typeof createScheduledDeactivationSchema>>;
 

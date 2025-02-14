@@ -7,7 +7,6 @@ import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesMa
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { ScheduledDeactivationEditMenu } from '../ScheduledDeactivationEditMenu/ScheduledDeactivationEditMenu';
 import { useSessionUser } from '../../hooks/useSessionUser';
-import { ScheduleDeactivationForm } from '../ScheduleDeactivationForm/ScheduleDeactivationForm';
 import { CancelScheduleDeactivation } from '../CancelScheduleDeactivation/CancelScheduleDeactivation';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
 import { pages, useRouter } from '../../hooks/useRouter';
@@ -32,20 +31,6 @@ interface EditOrCancelFormProps {
     onClose: () => void;
 }
 
-const EditForm = ({ id, onClose }: EditOrCancelFormProps) => {
-    const { data: scheduledDeactivation } = trpc.scheduledDeactivation.getById.useQuery(id);
-    if (!scheduledDeactivation) return null;
-
-    return (
-        <ScheduleDeactivationForm
-            userId={scheduledDeactivation.userId}
-            scheduledDeactivation={scheduledDeactivation}
-            visible={true}
-            onClose={onClose}
-        />
-    );
-};
-
 const CancelForm = ({ id, onClose }: EditOrCancelFormProps) => {
     const { data: scheduledDeactivation } = trpc.scheduledDeactivation.getById.useQuery(id);
     if (!scheduledDeactivation) return null;
@@ -55,19 +40,14 @@ const CancelForm = ({ id, onClose }: EditOrCancelFormProps) => {
     );
 };
 
-const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => {
-    return nullable(
-        props.item.type === 'retirement',
-        () => (
-            <a href={pages.userDismiss(props.item.id)} className={s.TableRowLink}>
-                <TableRow {...props} ref={ref} />
-            </a>
-        ),
-        <div className={s.TableRowLink}>
-            <TableRow {...props} ref={ref} />
-        </div>,
-    );
-});
+const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => (
+    <a
+        href={props.item.type === 'transfer' ? pages.userTransfer(props.item.id) : pages.userDismiss(props.item.id)}
+        className={s.TableRowLink}
+    >
+        <TableRow {...props} ref={ref} />
+    </a>
+));
 
 export const ScheduledDeactivationList = () => {
     const { DataTable, DataTableColumn } = getTableComponents<tableData[]>();
@@ -110,7 +90,6 @@ export const ScheduledDeactivationList = () => {
 
     const dateTitleRef = useRef(null);
 
-    const [editRequestId, setEditRequestId] = useState<undefined | string>();
     const [cancelRequestId, setCancelRequestId] = useState<undefined | string>();
 
     return (
@@ -172,7 +151,7 @@ export const ScheduledDeactivationList = () => {
                             <div onClick={(e) => e.preventDefault()}>
                                 <ScheduledDeactivationEditMenu
                                     onEditClick={() =>
-                                        type === 'retirement' ? router.userDismissEdit(id) : setEditRequestId(id)
+                                        type === 'retirement' ? router.userDismissEdit(id) : router.userTransferEdit(id)
                                     }
                                     onCancelClick={() => setCancelRequestId(id)}
                                 />
@@ -182,9 +161,6 @@ export const ScheduledDeactivationList = () => {
                 ))}
             </DataTable>
 
-            {nullable(editRequestId, (id) => (
-                <EditForm id={id} onClose={() => setEditRequestId(undefined)} />
-            ))}
             {nullable(cancelRequestId, (id) => (
                 <CancelForm id={id} onClose={() => setCancelRequestId(undefined)} />
             ))}

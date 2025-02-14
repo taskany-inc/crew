@@ -1,14 +1,9 @@
 import { z } from 'zod';
-import parsePhoneNumber from 'libphonenumber-js';
 import { UserCreationRequestStatus } from 'prisma/prisma-client';
 
-import { tr } from './modules.i18n';
+import { getPhoneSchema } from '../utils/phoneSchema';
 
-export const getPhoneSchema = () =>
-    z
-        .string({ required_error: tr('Enter phone number in format +7(900)123-45-67') })
-        .refine((e) => parsePhoneNumber(e, 'RU')?.isValid(), tr('Enter phone number in format +7(900)123-45-67'))
-        .transform((e) => String(parsePhoneNumber(e, 'RU')?.number));
+import { tr } from './modules.i18n';
 
 const dateSchema = z
     .date({
