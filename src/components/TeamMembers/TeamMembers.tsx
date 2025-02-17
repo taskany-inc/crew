@@ -42,7 +42,7 @@ export const TeamMembers: FC<TeamMembersProps> = ({
     showAvatar,
     ...props
 }) => {
-    const { data: memberships = [] } = trpc.group.getMemberships.useQuery(groupId);
+    const { data: memberships = [] } = trpc.group.getMemberships.useQuery({ groupId });
     const [editMembership, setEditMembership] = useState<MembershipInfo | null>(null);
     const [removeMembership, setRemoveMembership] = useState<MembershipInfo | null>(null);
     const [dropdownId, setDropdownId] = useState<string | null>(null);

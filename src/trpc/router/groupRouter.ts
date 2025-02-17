@@ -9,16 +9,19 @@ import {
     getGroupSuggestionsSchema,
     addOrRemoveUserFromGroupAdminsSchema,
     getGroupListByUserId,
+    getMemberships,
+    getMetaByGroupIdsWithFilterByOrgIdSchema,
 } from '../../modules/groupSchemas';
 import { groupMethods } from '../../modules/groupMethods';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { groupAccess } from '../../modules/groupAccess';
-import { accessCheck, checkRoleForAccess } from '../../utils/access';
+import { accessCheck, checkRoleForAccess, userIsAdminByRole } from '../../utils/access';
 import { processEvent } from '../../utils/analyticsEvent';
 import { addCalculatedUserFields } from '../../modules/userMethods';
 import { Nullish } from '../../utils/types';
 import { vacancyMethods } from '../../modules/vacancyMethods';
+import { mergeBranches } from '../../utils/mergeBranches';
 
 type SupervisorUserWithMeta = ReturnType<typeof addCalculatedUserFields>;
 
@@ -27,8 +30,8 @@ export interface GroupTree {
         group: {
             id: string;
             name: string;
-            supervisorId: string | null;
-            supervisor: Nullish<SupervisorUserWithMeta>;
+            supervisorId?: string | null;
+            supervisor?: Nullish<SupervisorUserWithMeta>;
             counts: {
                 memberships?: number;
                 vacancies?: number;
@@ -179,8 +182,8 @@ export const groupRouter = router({
         return groupMethods.getBreadcrumbs(input);
     }),
 
-    getMemberships: protectedProcedure.input(z.string()).query(async ({ input, ctx }) => {
-        return groupMethods.getMemberships(input, ctx.session.user);
+    getMemberships: protectedProcedure.input(getMemberships).query(async ({ input, ctx }) => {
+        return groupMethods.getMemberships(input.groupId, input.filterByOrgId ?? undefined, ctx.session.user);
     }),
 
     getTreeMembershipsCount: protectedProcedure.input(z.string()).query(({ input }) => {
@@ -237,84 +240,27 @@ export const groupRouter = router({
             return result;
         }),
 
-    getGroupTree: protectedProcedure.input(z.string()).query(async ({ input, ctx }) => {
-        const arrayToMap = <T extends { groupId: string }>(array: T[]): Map<string, T> => {
-            return new Map<string, T>(array.map((value) => [value.groupId, value]));
-        };
+    getGroupTree: protectedProcedure.query(async () => {
+        const groups = await groupMethods.getGroupTree();
+        const res = mergeBranches(...groups.map(({ childs }) => childs));
 
-        const map: GroupTree = {};
-
-        const groups = await groupMethods.getGroupTree(input);
-        const groupIds = Array.from(new Set(groups.map(({ id }) => id)));
-
-        if (groupIds.length === 0) {
-            return map;
+        if (res.length === 0) {
+            return null;
         }
 
-        const meta = await Promise.all([
-            groupMethods.getMembershipCountsByGroupIds(groupIds).then(arrayToMap),
-            groupMethods.getVacancyCountsByGroupIds(groupIds).then(arrayToMap),
-            groupMethods.getSupervisorByGroupIds(groupIds).then(arrayToMap),
-        ]).then(([mc, vc, sv]) => {
-            const target = new Map<
-                string,
-                { vacancies?: number; memberships?: number; supervisor?: Nullish<SupervisorUserWithMeta> }
-            >();
+        return res[0];
+    }),
 
-            for (const id of groupIds) {
-                const supervisor = sv.get(id);
-                target.set(id, {
-                    vacancies: vc.get(id)?.count,
-                    memberships: mc.get(id)?.count,
-                    supervisor: supervisor != null ? addCalculatedUserFields(supervisor, ctx.session.user) : null,
-                });
-            }
+    getGroupTreeByOrgId: protectedProcedure.input(z.string()).query(async ({ input }) => {
+        const groups = await groupMethods.getGroupTree(input);
 
-            return target;
-        });
-        const sourceMap = new Map(
-            groups.map((group) => {
-                const { vacancies, memberships, supervisor } = meta.get(group.id) || {};
-                return [
-                    group.id,
-                    {
-                        ...group,
-                        supervisor,
-                        counts: { vacancies, memberships },
-                    },
-                ];
-            }),
-        );
+        const res = mergeBranches(...groups.map(({ childs }) => childs));
 
-        groups.forEach(({ id, chain, level }) => {
-            const path = chain.filter(Boolean);
+        if (res.length === 0) {
+            return null;
+        }
 
-            path.reduce((acc, key, i) => {
-                if (!acc[key]) {
-                    acc[key] = {
-                        group: sourceMap.get(key) ?? null,
-                        childs: {
-                            [id]: {
-                                group: sourceMap.get(id) ?? null,
-                                childs: {},
-                            },
-                        },
-                    };
-                } else if (i === level) {
-                    acc[key].childs = {
-                        ...acc[key].childs,
-                        [id]: {
-                            group: sourceMap.get(id) ?? null,
-                            childs: null,
-                        },
-                    };
-                }
-
-                return acc[key].childs as GroupTree;
-            }, map);
-        });
-
-        return map;
+        return res[0];
     }),
 
     getFunctionalGroupCounts: protectedProcedure.input(z.string().optional()).query(async ({ input }) => {
@@ -331,4 +277,54 @@ export const groupRouter = router({
     getGroupChidrenVacancies: protectedProcedure.input(z.string()).query(async ({ input }) => {
         return groupMethods.getGroupChidrenVacancies(input);
     }),
+
+    getGroupMetaByIds: protectedProcedure
+        .input(getMetaByGroupIdsWithFilterByOrgIdSchema)
+        .query(async ({ input, ctx }) => {
+            if (input.ids.length === 0) {
+                return {};
+            }
+
+            const currentUserIsAdmin = userIsAdminByRole(ctx.session.user.role).allowed;
+
+            const arrayToMap = <T extends { groupId: string }>(array: T[]): Map<string, T> => {
+                return new Map<string, T>(array.map((value) => [value.groupId, value]));
+            };
+
+            const [mc, vc, sv] = await Promise.all([
+                groupMethods.getMembershipCountByIds(input.ids, input.filterByOrgId).then(arrayToMap),
+                groupMethods.getVacancyCountsByGroupIds(input.ids).then(arrayToMap),
+                groupMethods.getSupervisorByGroupIds(input.ids).then(arrayToMap),
+            ]);
+
+            const meta = new Map<
+                string,
+                { counts: { vacancies?: number; memberships?: number }; supervisor?: Nullish<SupervisorUserWithMeta> }
+            >(
+                input.ids.map((id) => [
+                    id,
+                    {
+                        counts: {},
+                        supervisor: null,
+                    },
+                ]),
+            );
+
+            for (const id of input.ids) {
+                const supervisor = sv.get(id);
+                meta.set(id, {
+                    counts: {
+                        /**
+                            just don't adding the vacancy count into response
+                            if current user haven't admin's role
+                        */
+                        vacancies: currentUserIsAdmin ? vc.get(id)?.count : undefined,
+                        memberships: mc.get(id)?.count,
+                    },
+                    supervisor: supervisor != null ? addCalculatedUserFields(supervisor, ctx.session.user) : null,
+                });
+            }
+
+            return Object.fromEntries(meta);
+        }),
 });

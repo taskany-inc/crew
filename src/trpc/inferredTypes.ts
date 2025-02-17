@@ -19,3 +19,5 @@ export type GroupTree = RouterOutputs['group']['getGroupTree'];
 export type MothershipGroup = RouterOutputs['group']['getMothrshipGroup'];
 
 export type GroupVacancies = RouterOutputs['group']['getGroupChidrenVacancies'];
+
+export type OrganizationUnit = RouterOutputs['organizationUnit']['getAll'][number];

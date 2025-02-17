@@ -72,3 +72,24 @@ export const addOrRemoveUserFromGroupAdminsSchema = z.object({
     groupId: z.string(),
 });
 export type AddOrRemoveUserFromGroupAdmins = z.infer<typeof addOrRemoveUserFromGroupAdminsSchema>;
+
+export const getGroupTreeSchema = z.object({
+    groupId: z.string(),
+    filterByOrgId: z.string().optional(),
+});
+
+export type GetGroupTree = z.infer<typeof getGroupTreeSchema>;
+
+export const getMemberships = z.object({
+    groupId: z.string(),
+    filterByOrgId: z.string().optional(),
+});
+
+export type GetMemberships = z.infer<typeof getMemberships>;
+
+export const getMetaByGroupIdsWithFilterByOrgIdSchema = z.object({
+    ids: z.array(z.string()),
+    filterByOrgId: z.string().optional(),
+});
+
+export type GetMetaByGroupIdsWithFilterByOrgIdSchema = z.infer<typeof getMetaByGroupIdsWithFilterByOrgIdSchema>;

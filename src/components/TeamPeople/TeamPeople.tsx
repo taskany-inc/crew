@@ -22,7 +22,7 @@ interface TeamPeopleProps {
 }
 
 export const TeamPeople = ({ groupId, isEditable }: TeamPeopleProps) => {
-    const { data: memberships } = trpc.group.getMemberships.useQuery(groupId);
+    const { data: memberships } = trpc.group.getMemberships.useQuery({ groupId });
     const { data: treeMembershipsCount = 0 } = trpc.group.getTreeMembershipsCount.useQuery(groupId);
 
     const membershipsCount = memberships?.length ?? 0;

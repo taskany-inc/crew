@@ -4,7 +4,8 @@ export const pages = {
     home: '/',
 
     teams: '/teams',
-    team: (teamId: string) => `/team/${teamId}`,
+    corp: '/teams/corporate',
+    team: (teamId: string) => `/teams/${teamId}`,
     teamSettings: (teamId: string) => `/teams/${teamId}/settings`,
 
     users: '/users',
@@ -57,9 +58,11 @@ export const useRouter = () => {
     const router = useRouterNext();
 
     return {
+        router,
         home: () => router.push(pages.home),
 
         teams: () => router.push(pages.teams),
+        corp: () => router.push(pages.corp),
         team: (teamId: string) => router.push(pages.team(teamId)),
         teamSettings: (teamId: string) => router.push(pages.teamSettings(teamId)),
 

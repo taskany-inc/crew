@@ -46,7 +46,7 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
     const count = countsQuery.data;
 
     const tabsMenuOptions = useMemo<Options>(() => {
-        const options: Options = [[tr('Team'), pages.team(group.id)]];
+        const options: Options = [[tr('Team'), pages.teams]];
         if (group.meta.isEditable) {
             options.push([tr('Settings'), pages.teamSettings(group.id)]);
         }
@@ -96,16 +96,18 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
                     text={String(count?.membership ?? 0)}
                     weight="regular"
                 />
-                <Badge
-                    className={s.GroupNameBadgeData}
-                    iconLeft={
-                        <TooltipIcon text={tr('Total open vacancy count')} placement="top">
-                            <IconSearchOutline size="s" />
-                        </TooltipIcon>
-                    }
-                    text={String(count?.vacancy ?? 0)}
-                    weight="regular"
-                />
+                {nullable(count?.vacancy, () => (
+                    <Badge
+                        className={s.GroupNameBadgeData}
+                        iconLeft={
+                            <TooltipIcon text={tr('Total open vacancy count')} placement="top">
+                                <IconSearchOutline size="s" />
+                            </TooltipIcon>
+                        }
+                        text={String(count?.vacancy ?? 0)}
+                        weight="regular"
+                    />
+                ))}
                 {nullable(isOrgGroup && appConfig?.orgGroupUpdatedAt, (d) => (
                     <Text className={s.TeamPageHeaderUpdatedAt} size="m">
                         {tr
@@ -120,7 +122,7 @@ export const TeamPageHeader = ({ group }: TeamPageHeaderProps) => {
                 {nullable(
                     isOrgGroup,
                     () => (
-                        <OrganizationUserGroupSwitch value="org" noGap />
+                        <OrganizationUserGroupSwitch noGap />
                     ),
                     <Switch value={router.asPath}>
                         {tabsMenuOptions.map(([title, href]) => (

@@ -6,9 +6,9 @@ export const getServerSideProps = createGetServerSideProps({
     stringIds: { teamId: true },
     action: async ({ ssg, stringIds }) => {
         await Promise.all([
-            ssg.group.getGroupTree.fetch(stringIds.teamId),
+            ssg.group.getGroupTree.fetch(),
             ssg.group.getById.fetch(stringIds.teamId),
-            ssg.group.getMemberships.fetch(stringIds.teamId),
+            ssg.group.getMemberships.fetch({ groupId: stringIds.teamId }),
         ]);
 
         return { teamId: stringIds.teamId };

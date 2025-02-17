@@ -4,7 +4,7 @@ import { FormControl, FormControlInput, Text, Button } from '@taskany/bricks/har
 import { IconFilterOutline, IconSearchOutline, IconSortDownOutline } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
-import { MothershipGroup } from '../../trpc/inferredTypes';
+import { MothershipGroup, OrganizationUnit } from '../../trpc/inferredTypes';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { NewGroupTreeViewNode } from '../GroupTreeViewNode/GroupTreeViewNode';
 import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
@@ -13,33 +13,41 @@ import { PageWrapper } from '../PageWrapper/PageWrapper';
 import { GroupMemberList } from '../GroupMemberList/GroupMemberList';
 import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
 
-import s from './TeamsPage.module.css';
+import s from './CorporateTeamsPage.module.css';
 import { tr } from './TeamsPage.i18n';
 
-interface TeamsPage {
+interface CorporateTeamsPage {
     mothership: MothershipGroup;
 }
 
-export const TeamsPage: React.FC<TeamsPage> = (props) => {
-    const { mothership } = props;
+const CorporateTreeNodeWrapper: React.FC<
+    OrganizationUnit & { mothershipId: string; counts: Record<string, number> | null }
+> = ({ id, name, counts }) => {
+    const groupTreeQuery = trpc.group.getGroupTreeByOrgId.useQuery(id);
+
+    return (
+        <NewGroupTreeViewNode
+            loading={groupTreeQuery.status === 'loading'}
+            key={id}
+            name={name}
+            id={id}
+            orgId={id}
+            firstLevel
+            counts={counts}
+            childs={groupTreeQuery.data?.children}
+            supervisorId={null}
+            hideDescription
+        />
+    );
+};
+
+export const CorporateTeamsPage: React.FC<CorporateTeamsPage> = ({ mothership }) => {
     const currentGroup = trpc.group.getById.useQuery(mothership.id);
-    const groupTree = trpc.group.getGroupTree.useQuery();
     const groupMembersQuery = trpc.group.getMemberships.useQuery({ groupId: mothership.id });
-
-    const childrenData = useMemo(() => {
-        if (groupTree.data == null) {
-            return [];
-        }
-        return groupTree.data?.children;
-    }, [groupTree.data]);
-
-    const metaDataByGroupIds = trpc.group.getGroupMetaByIds.useQuery(
-        {
-            ids: (childrenData || []).map(({ id }) => id),
-        },
-        {
-            enabled: (childrenData?.length ?? 0) > 0,
-        },
+    const organizationUnits = trpc.organizationUnit.getAll.useQuery();
+    const countsByOrgIds = trpc.organizationUnit.getCountsByOrgUnitIds.useQuery(
+        (organizationUnits.data || []).map(({ id }) => id),
+        { enabled: (organizationUnits.data?.length ?? 0) > 0 },
     );
 
     const group = currentGroup.data ?? null;
@@ -91,11 +99,11 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
     return (
         <LayoutMain pageTitle={group.name}>
             <PageWrapper header={<TeamPageHeader group={group} />}>
-                <div className={s.TeamPageHeadingRow}>
-                    <Text className={s.TeamPageHeading} size="lg" weight="bold">
+                <div className={s.CorporateTeamPageHeadingRow}>
+                    <Text className={s.CorporateTeamPageHeading} size="lg" weight="bold">
                         {tr('Structure')}
                     </Text>
-                    <div className={s.TeamPageHeadingControls}>
+                    <div className={s.CorporateTeamPageHeadingControls}>
                         <Button view="default" iconLeft={<IconFilterOutline size="s" />} text={tr('Filters')} />
                         <Button iconLeft={<IconSortDownOutline size="s" />} text={tr('Sorting')} />
                         <FormControl>
@@ -112,29 +120,15 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
                         <GroupMemberList members={list} />
                     ))}
 
-                    {nullable(childrenData, (children) =>
-                        children.map(({ group, children }) =>
-                            nullable(group, (gr) => {
-                                const groupMeta = metaDataByGroupIds.data?.[gr.id];
-                                const counts = {
-                                    vacancies: groupMeta?.counts.vacancies ?? undefined,
-                                    memberships: groupMeta?.counts.memberships ?? undefined,
-                                };
-
-                                return (
-                                    <NewGroupTreeViewNode
-                                        key={gr.id}
-                                        name={gr.name}
-                                        id={gr.id}
-                                        supervisorId={gr.supervisorId}
-                                        supervisor={groupMeta?.supervisor}
-                                        counts={counts}
-                                        childs={children}
-                                        firstLevel
-                                    />
-                                );
-                            }),
-                        ),
+                    {nullable(organizationUnits.data, (units) =>
+                        units.map((unit) => (
+                            <CorporateTreeNodeWrapper
+                                key={unit.id}
+                                {...unit}
+                                mothershipId={mothership.id}
+                                counts={countsByOrgIds.data?.[unit.id] ?? null}
+                            />
+                        )),
                     )}
                 </StructTreeView>
             </PageWrapper>
