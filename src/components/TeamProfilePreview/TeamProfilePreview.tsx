@@ -12,6 +12,7 @@ import { TeamMembers } from '../TeamMembers/TeamMembers';
 import { TeamVacancies } from '../TeamVacanciesV2/TeamVacancies';
 import { TeamSupervisor } from '../TeamSupervisor/TeamSupervisor';
 import { Link } from '../Link';
+import { TeamBreadcrumbs } from '../TeamBreadcrumbs/TeamBreadcrumbs';
 
 import s from './TeamProfilePreview.module.css';
 import { tr } from './TeamProfilePreview.i18n';
@@ -30,7 +31,9 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
 
     return (
         <Drawer animated visible onClose={hidePreview}>
-            <DrawerHeader>
+            <DrawerHeader
+                topBarContent={<TeamBreadcrumbs groupId={groupId} orgGroup="hide" className={s.TeamBreadcrumbs} />}
+            >
                 {nullable(groupQuery.data, (group) => (
                     <TeamPageTitle
                         counter={counter}
