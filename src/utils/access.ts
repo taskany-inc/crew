@@ -57,6 +57,22 @@ export const checkRoleForAccess = (userRole: UserRole | null, operation: AccessO
     return notAllowed(`${tr('Operation')} '${operation}' ${tr('is forbidden')}`);
 };
 
+export const userIsAdminByRole = (userRole: UserRole | null): AccessCheckResult => {
+    if (userRole == null) {
+        return notAllowed(tr('Not allowed'));
+    }
+
+    const { code, name, ...rules } = userRole;
+
+    const flagSet = new Set(Object.values(rules));
+
+    if (flagSet.has(false)) {
+        return notAllowed(tr('Not allowed'));
+    }
+
+    return allowed;
+};
+
 const scopesObj: Record<AccessOperation, true> = {
     editUserCreationRequests: true,
     editRoleScopes: true,

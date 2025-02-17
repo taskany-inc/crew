@@ -1,6 +1,7 @@
 import { Prisma } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
+import { db } from '../utils/db';
 
 import { GetOrganizationUnitList } from './organizationUnitSchemas';
 
@@ -39,5 +40,23 @@ export const organizationUnitMethods = {
             organizations.push(...includes);
         }
         return organizations;
+    },
+
+    getAll: () => db.selectFrom('OrganizationUnit').selectAll('OrganizationUnit').execute(),
+
+    membershipCountByOrgIds: (ids: string[]) => {
+        return db
+            .selectFrom('User')
+            .innerJoin('Membership', (join) =>
+                join.onRef('Membership.userId', '=', 'User.id').on('Membership.archived', 'is not', true),
+            )
+            .select(({ fn, cast }) => [
+                'User.organizationUnitId as id',
+                cast(fn.count('User.id').distinct(), 'integer').as('count'),
+            ])
+            .where('User.organizationUnitId', 'in', ids)
+            .groupBy('User.organizationUnitId')
+            .$castTo<{ id: string; count: number }>()
+            .execute();
     },
 };

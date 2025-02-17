@@ -1,0 +1,18 @@
+.CorporateTeamPageHeadingRow {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    margin-bottom: 20px;
+}
+
+.CorporateTeamPageHeading {
+    flex: 1;
+}
+
+.CorporateTeamPageHeadingControls {
+    margin-right: auto;
+    display: flex;
+    flex-direction: row;
+    gap: var(--gap-s);
+}

@@ -125,7 +125,11 @@ export const PageHeader: React.FC<{ logo?: string; userSettings?: UserSettings }
                     {entityListMenuItems.map((item) => (
                         <Restricted visible={item.visible} key={item.path}>
                             <NextLink href={item.path} passHref legacyBehavior>
-                                <HeaderNavLink active={item.path === router.asPath}>{item.text}</HeaderNavLink>
+                                <HeaderNavLink
+                                    active={item.path === router.asPath || router.asPath.includes(item.path)}
+                                >
+                                    {item.text}
+                                </HeaderNavLink>
                             </NextLink>
                         </Restricted>
                     ))}

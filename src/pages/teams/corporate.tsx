@@ -1,4 +1,4 @@
-import { TeamsPage } from '../../components/TeamsPage/TeamsPage';
+import { CorporateTeamsPage } from '../../components/CorporateTeamsPage/CorporateTeamsPage';
 import { createGetServerSideProps } from '../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({
@@ -6,10 +6,10 @@ export const getServerSideProps = createGetServerSideProps({
     action: async ({ ssg }) => {
         // `superjson` cannot parse date those getting from `kysely`
         const { createdAt: _1, updatedAt: _2, ...mothership } = await ssg.group.getMothrshipGroup.fetch();
-        await ssg.group.getGroupTree.fetch();
+        await ssg.organizationUnit.getAll.fetch();
 
         return { mothership };
     },
 });
 
-export default TeamsPage;
+export default CorporateTeamsPage;
