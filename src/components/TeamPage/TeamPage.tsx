@@ -13,6 +13,7 @@ import { TeamChildren } from '../TeamChildren/TeamChildren';
 import { TeamVacancies } from '../TeamVacanciesV2/TeamVacancies';
 import { TeamSupervisor } from '../TeamSupervisor/TeamSupervisor';
 import { useRouter } from '../../hooks/useRouter';
+import { TeamBreadcrumbs } from '../TeamBreadcrumbs/TeamBreadcrumbs';
 
 import s from './TeamPage.module.css';
 import { tr } from './TeamPage.i18n';
@@ -43,6 +44,7 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
                     />
                 }
             >
+                <TeamBreadcrumbs groupId={group.id} orgGroup="link" />
                 <TeamPageTitle
                     counter={counter}
                     action={nullable(group.meta.isEditable, () => (

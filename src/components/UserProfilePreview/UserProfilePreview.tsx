@@ -1,5 +1,5 @@
 import { nullable } from '@taskany/bricks';
-import { Drawer, DrawerHeader, TextSkeleton } from '@taskany/bricks/harmony';
+import { Breadcrumb, Drawer, DrawerHeader, TextSkeleton } from '@taskany/bricks/harmony';
 
 import { trpc } from '../../trpc/trpcClient';
 import { usePreviewContext } from '../../contexts/previewContext';
@@ -7,6 +7,7 @@ import { UserMembershipsList } from '../UserMembershipsListV2/UserMembershipsLis
 import { UserProfilePreviewAvatar } from '../UserProfilePreviewAvatar/UserProfilePreviewAvatar';
 import { UserEmploymentInfo } from '../UserEmploymentInfo/UserEmploymentInfo';
 import { UserSupervisorSimple } from '../UserSupervisorSimple/UserSupervisorSimple';
+import { TeamBreadcrumbs } from '../TeamBreadcrumbs/TeamBreadcrumbs';
 
 import s from './UserProfilePreview.module.css';
 
@@ -17,10 +18,17 @@ interface UserProps {
 export const UserProfilePreview = ({ userId }: UserProps): JSX.Element => {
     const { hidePreview } = usePreviewContext();
     const userQuery = trpc.user.getById.useQuery(userId);
+    const userOrgGroup = userQuery.data?.memberships.find((m) => m.group.organizational)?.group;
 
     return (
         <Drawer animated visible onClose={hidePreview}>
-            <DrawerHeader>
+            <DrawerHeader
+                topBarContent={nullable(userOrgGroup, (g) => (
+                    <TeamBreadcrumbs groupId={g.id} orgGroup="hide" className={s.UserProfileBreadcrumbs}>
+                        <Breadcrumb>{userQuery.data?.name}</Breadcrumb>
+                    </TeamBreadcrumbs>
+                ))}
+            >
                 {nullable(userQuery.data, (user) => (
                     <UserProfilePreviewAvatar user={user} />
                 ))}
