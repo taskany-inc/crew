@@ -7,11 +7,13 @@ import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
+import { UserCreationRequestStatus } from '../../generated/kyselyTypes';
 
 import { tr } from './UserDecreeRequestsPage.i18n';
 import s from './UserDecreeRequestsPage.module.css';
 
 interface tableData {
+    status: UserCreationRequestStatus | null;
     name: string;
     email?: string;
     organization?: string;
@@ -47,7 +49,6 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
         type: [type],
-        status: null,
         orderBy: {
             name: sorting.find(({ key }) => key === 'name')?.dir,
             date: sorting.find(({ key }) => key === 'date')?.dir,
@@ -65,6 +66,7 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
         coordinators: request.coordinators.map(({ name }) => name).join(', '),
         date: request.date?.toLocaleDateString(),
         id: request.id,
+        status: request.status,
     }));
 
     return (
@@ -116,10 +118,11 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
                     width={
                         sessionUser.role?.createUser && sessionUser.role.editUserCreationRequests ? '110px' : '110px'
                     }
-                    renderCell={({ id }) => (
+                    renderCell={({ id, status }) => (
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions
                                 requestId={id}
+                                requestStatus={status ?? undefined}
                                 onEdit={() => router.decreeRequestEdit(id)}
                                 small
                                 requestType="decree"

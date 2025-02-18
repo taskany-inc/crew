@@ -47,7 +47,6 @@ export const UserCreateRequestsPage = () => {
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
         type: ['internalEmployee'],
-        status: null,
         orderBy: {
             name: sorting.find(({ key }) => key === 'name')?.dir,
             date: sorting.find(({ key }) => key === 'date')?.dir,
@@ -162,10 +161,11 @@ export const UserCreateRequestsPage = () => {
                     name="actions"
                     title={tr('Actions')}
                     width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
-                    renderCell={({ id }) => (
+                    renderCell={({ id, status }) => (
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions
                                 requestId={id}
+                                requestStatus={status ?? undefined}
                                 small
                                 onEdit={() => router.internalUserRequestEdit(id)}
                             />
