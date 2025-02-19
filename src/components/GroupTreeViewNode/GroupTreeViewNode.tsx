@@ -12,7 +12,7 @@ import { Branch, Heading } from '../StructTreeView/StructTreeView';
 import { GroupTree } from '../../trpc/inferredTypes';
 import { GroupMemberList } from '../GroupMemberList/GroupMemberList';
 import { TooltipIcon } from '../TooltipIcon';
-import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
+import { getMainPositionFromLasts } from '../../utils/supplementalPositions';
 import { UserSupervisor } from '../../modules/userTypes';
 
 import s from './GroupTreeViewNode.module.css';
@@ -151,8 +151,26 @@ const NewGroupRow: React.FC<GroupTreeTitle & { firstLevel?: boolean; hideDescrip
 };
 
 export const NewGroupTreeViewNode: React.FC<
-    GroupTreeNode & { firstLevel?: boolean; orgId?: string; loading?: boolean; hideDescription?: boolean }
-> = ({ id, supervisorId, supervisor, name, counts, childs, firstLevel, loading, orgId, hideDescription }) => {
+    GroupTreeNode & {
+        firstLevel?: boolean;
+        orgId?: string;
+        loading?: boolean;
+        hideDescription?: boolean;
+        organizational?: boolean;
+    }
+> = ({
+    id,
+    supervisorId,
+    supervisor,
+    name,
+    counts,
+    childs,
+    firstLevel,
+    loading,
+    orgId,
+    hideDescription,
+    organizational,
+}) => {
     const groupMembersQuery = trpc.group.getMemberships.useQuery(
         { groupId: id, filterByOrgId: orgId },
         { enabled: false },
@@ -162,6 +180,7 @@ export const NewGroupTreeViewNode: React.FC<
         {
             ids: (childs || []).map(({ id }) => id),
             filterByOrgId: orgId,
+            organizational,
         },
         { enabled: false },
     );
@@ -176,9 +195,8 @@ export const NewGroupTreeViewNode: React.FC<
         const membersWithoutSupervisor = groupMembersQuery.data
             .filter(({ user }) => user.id !== supervisorId)
             .map(({ user, roles: [role] }) => {
-                const {
-                    positions: [position],
-                } = getLastSupplementalPositions(user.supplementalPositions);
+                const position = getMainPositionFromLasts(user.supplementalPositions);
+
                 return {
                     id: user.id,
                     name: user.name,
@@ -187,18 +205,17 @@ export const NewGroupTreeViewNode: React.FC<
                     isSupervisor: false,
                 };
             });
+
         const supervisorMember = groupMembersQuery.data.find(({ user }) => user.id === supervisorId);
 
         if (supervisorMember) {
-            const {
-                positions: [position],
-            } = getLastSupplementalPositions(supervisorMember.user.supplementalPositions);
+            const position = getMainPositionFromLasts(supervisorMember.user.supplementalPositions);
             return [
                 {
                     id: supervisorMember.user.id,
                     name: supervisorMember.user.name,
                     employment: position?.organizationUnit.name,
-                    role: supervisorMember.roles[0].name,
+                    role: supervisorMember.roles[0]?.name,
                     isSupervisor: true,
                 },
             ].concat(membersWithoutSupervisor);
@@ -306,6 +323,7 @@ export const NewGroupTreeViewNode: React.FC<
                             childs={children}
                             counts={metaDataByGroupIds.data?.[gr.id]?.counts ?? null}
                             supervisor={metaDataByGroupIds.data?.[gr.id]?.supervisor ?? null}
+                            organizational={organizational}
                         />
                     )),
                 ),

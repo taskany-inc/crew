@@ -2,6 +2,7 @@ import { Prisma } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
 import { db } from '../utils/db';
+import { PositionStatus } from '../generated/kyselyTypes';
 
 import { GetOrganizationUnitList } from './organizationUnitSchemas';
 
@@ -46,16 +47,30 @@ export const organizationUnitMethods = {
 
     membershipCountByOrgIds: (ids: string[]) => {
         return db
+            .selectFrom('SupplementalPosition')
+            .select(({ fn, cast }) => [
+                'SupplementalPosition.organizationUnitId as id',
+                cast<number>(fn.count('SupplementalPosition.userId').distinct(), 'integer').as('count'),
+            ])
+            .where('SupplementalPosition.organizationUnitId', 'in', ids)
+            .where('SupplementalPosition.main', 'is', true)
+            .where('SupplementalPosition.status', '=', PositionStatus.ACTIVE)
+            .groupBy('SupplementalPosition.organizationUnitId')
+            .execute();
+        return db
             .selectFrom('User')
-            .innerJoin('Membership', (join) =>
-                join.onRef('Membership.userId', '=', 'User.id').on('Membership.archived', 'is not', true),
+            .innerJoin('SupplementalPosition', (join) =>
+                join
+                    .onRef('SupplementalPosition.userId', '=', 'User.id')
+                    .on('SupplementalPosition.main', 'is', true)
+                    .on('SupplementalPosition.status', '=', PositionStatus.ACTIVE),
             )
             .select(({ fn, cast }) => [
-                'User.organizationUnitId as id',
+                'SupplementalPosition.organizationUnitId as id',
                 cast(fn.count('User.id').distinct(), 'integer').as('count'),
             ])
             .where('User.organizationUnitId', 'in', ids)
-            .groupBy('User.organizationUnitId')
+            .groupBy('SupplementalPosition.organizationUnitId')
             .$castTo<{ id: string; count: number }>()
             .execute();
     },

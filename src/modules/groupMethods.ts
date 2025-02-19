@@ -318,34 +318,20 @@ export const groupMethods = {
             .groupBy('Vacancy.groupId')
             .execute(),
 
-    getMembershipCountsByGroupIds: (ids: string[]) =>
-        db
-            .selectFrom('Membership')
-            .select(({ fn, cast }) => [
-                'Membership.groupId',
-                cast<number>(fn.count('Membership.id').distinct(), 'integer').as('count'),
-            ])
-            .where('Membership.groupId', 'in', ids)
-            .where('Membership.archived', 'is not', true)
-            .where('Membership.userId', 'in', ({ selectFrom }) =>
-                selectFrom('User')
-                    .select('User.id')
-                    .whereRef('User.id', '=', 'Membership.userId')
-                    .where('User.active', 'is', true),
-            )
-            .groupBy('Membership.groupId')
-            .execute(),
-
     getSupervisorByGroupIds: (ids: string[]) =>
         db
-            .with('group_ids', (qb) =>
-                qb.selectFrom('Group').select(['Group.id', 'Group.supervisorId']).where('Group.id', 'in', ids),
+            .with('groups', (qb) => qb.selectFrom('Group').selectAll('Group').where('Group.id', 'in', ids))
+            .with('supervisor', (qb) =>
+                qb
+                    .selectFrom('User')
+                    .innerJoin('groups', 'groups.supervisorId', 'User.id')
+                    .selectAll('User')
+                    .select('User.role as roleDeprecated'),
             )
-            .selectFrom('User')
-            .innerJoin('group_ids', 'group_ids.supervisorId', 'User.id')
-            .select('group_ids.id as groupId')
-            .selectAll('User')
-            .select('User.role as roleDeprecated')
+            .selectFrom('supervisor')
+            .innerJoin('groups', 'groups.supervisorId', 'supervisor.id')
+            .selectAll('supervisor')
+            .select(({ fn }) => ['groups.id as groupId', fn.toJson('groups').as('group')])
             .execute(),
 
     getList: async ({ search, filter, take = 10, skip = 0, hasVacancies, organizational }: GetGroupList) => {
@@ -443,7 +429,7 @@ export const groupMethods = {
                             supplementalPositions:
                                 filterByOrgId != null
                                     ? {
-                                          every: {
+                                          some: {
                                               organizationUnitId: filterByOrgId,
                                           },
                                       }
@@ -499,7 +485,7 @@ export const groupMethods = {
         return Number(userCount.count);
     },
 
-    getMembershipCountByIds: (ids: string[], orgId?: string) =>
+    getMembershipCountByIds: (params: { ids: string[]; orgId?: string; organizational?: boolean }) =>
         db
             .withRecursive('linked_groups', (qb) =>
                 qb
@@ -509,21 +495,23 @@ export const groupMethods = {
                         'Group.id as parentId',
                         fn.agg<string[]>('array_agg', ['Group.id']).as('childs'),
                     ])
-                    .where('Group.id', 'in', ids)
+                    .where('Group.id', 'in', params.ids)
                     .groupBy('targetGroupId')
                     .union(
                         qb
                             .selectFrom('linked_groups')
                             .innerJoin('Group as child_group', (join) =>
-                                join
-                                    .onRef('child_group.parentId', '=', 'linked_groups.parentId')
-                                    .on(({ and, eb }) =>
-                                        and([
-                                            eb('child_group.organizational', 'is', true),
-                                            eb('child_group.virtual', 'is not', true),
-                                            eb('child_group.archived', 'is not', true),
-                                        ]),
-                                    ),
+                                join.onRef('child_group.parentId', '=', 'linked_groups.parentId').on(({ and, eb }) => {
+                                    const baseAnd = [eb('child_group.archived', 'is not', true)];
+
+                                    if (params.organizational) {
+                                        baseAnd.push(eb('child_group.organizational', 'is', true));
+                                    } else {
+                                        baseAnd.push(eb('child_group.organizational', 'is not', true));
+                                    }
+
+                                    return and(baseAnd);
+                                }),
                             )
                             .select(({ fn, ref }) => [
                                 ref('linked_groups.targetGroupId').as('targetGroupId'),
@@ -548,7 +536,8 @@ export const groupMethods = {
             .innerJoin('SupplementalPosition', (join) =>
                 join
                     .onRef('Membership.userId', '=', 'SupplementalPosition.userId')
-                    .on('SupplementalPosition.main', 'is', true),
+                    .on('SupplementalPosition.main', 'is', true)
+                    .on('SupplementalPosition.status', '=', PositionStatus.ACTIVE),
             )
             .select(({ fn }) => [
                 'groupped_by_target.targetGroupId as groupId',
@@ -557,7 +546,7 @@ export const groupMethods = {
             .where('Membership.archived', 'is not', true)
             .where('User.active', 'is', true)
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            .$if(orgId != null, (qb) => qb.where('SupplementalPosition.organizationUnitId', '=', orgId!))
+            .$if(params.orgId != null, (qb) => qb.where('SupplementalPosition.organizationUnitId', '=', params.orgId!))
             .groupBy('groupped_by_target.targetGroupId')
             .execute(),
 
@@ -786,7 +775,81 @@ export const groupMethods = {
             ])
             .execute(),
 
-    getGroupTreeCounts: (_currentLevelIds: string[]) => {
-        // return db.withRecursive('groups', (qb) => {});
+    getVirtualTeamsTree: () => {
+        return db
+            .withRecursive('tree', (qb) =>
+                qb
+                    .with('groups', () =>
+                        qb
+                            .selectFrom('SupplementalPosition')
+                            .innerJoin('Membership', (join) =>
+                                join
+                                    .on('Membership.archived', 'is not', true)
+                                    .onRef('Membership.userId', '=', 'SupplementalPosition.userId'),
+                            )
+                            .innerJoin('Group', (join) =>
+                                join.on(({ and, eb, ref }) =>
+                                    and([
+                                        eb('Group.organizational', 'is not', true),
+                                        eb('Group.archived', 'is not', true),
+                                        eb('Group.id', '=', ref('Membership.groupId')),
+                                    ]),
+                                ),
+                            )
+                            .select('Group.id')
+                            .where('SupplementalPosition.main', 'is', true)
+                            .where('SupplementalPosition.status', '=', PositionStatus.ACTIVE)
+                            .groupBy('Group.id'),
+                    )
+                    .selectFrom('Group')
+                    .select(({ cast, val, ref, fn }) => [
+                        'Group.id',
+                        'Group.parentId',
+                        cast<number>(val(0), 'integer').as('level'),
+                        cast<GroupTreeQueryResult>(
+                            jsonBuildObject({
+                                id: ref('Group.id'),
+                                group: fn.toJson('Group'),
+                            }),
+                            'jsonb',
+                        ).as('chain'),
+                    ])
+                    .where('Group.id', 'in', ({ selectFrom }) => selectFrom('groups').select('groups.id'))
+                    .where('Group.archived', 'is not', true)
+                    .where('Group.organizational', 'is not', true)
+                    .groupBy('Group.id')
+                    .union((qb) =>
+                        qb
+                            .selectFrom('Group as gr')
+                            .innerJoin('tree', 'tree.parentId', 'gr.id')
+                            .select(({ ref, fn, cast }) => [
+                                ref('gr.id').as('id'),
+                                ref('gr.parentId').as('parentId'),
+                                sql<number>`"tree".level - 1`.as('level'),
+                                cast<GroupTreeQueryResult>(
+                                    jsonBuildObject({
+                                        id: ref('gr.id'),
+                                        group: fn.toJson('gr'),
+                                        children: sql`json_build_array("tree".chain)`,
+                                    }),
+                                    'jsonb',
+                                ).as('chain'),
+                            ])
+                            .where('gr.archived', 'is not', true)
+                            .where('gr.organizational', 'is not', true),
+                    ),
+            )
+            .selectFrom('Group')
+            .innerJoin('tree as groups', 'groups.id', 'Group.id')
+            .where('Group.archived', 'is', false)
+            .where('Group.organizational', 'is not', true)
+            .select([
+                sql`distinct "groups".id`.as('id'),
+                sql<number>`"groups".level * -1`.as('level'),
+                'groups.chain as childs',
+            ])
+            .where('groups.parentId', 'is', null)
+            .orderBy('level desc')
+            .execute();
     },
 };

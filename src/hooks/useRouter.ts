@@ -5,6 +5,7 @@ export const pages = {
 
     teams: '/teams',
     corp: '/teams/corporate',
+    virtual: '/teams/virtual',
     team: (teamId: string) => `/teams/${teamId}`,
     teamSettings: (teamId: string) => `/teams/${teamId}/settings`,
 
@@ -63,6 +64,7 @@ export const useRouter = () => {
 
         teams: () => router.push(pages.teams),
         corp: () => router.push(pages.corp),
+        virtual: () => router.push(pages.virtual),
         team: (teamId: string) => router.push(pages.team(teamId)),
         teamSettings: (teamId: string) => router.push(pages.teamSettings(teamId)),
 

@@ -1,5 +1,5 @@
 import { nullable } from '@taskany/bricks';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FormControl, FormControlInput, Text, Button } from '@taskany/bricks/harmony';
 import { IconFilterOutline, IconSearchOutline, IconSortDownOutline } from '@taskany/icons';
 
@@ -10,11 +10,9 @@ import { NewGroupTreeViewNode } from '../GroupTreeViewNode/GroupTreeViewNode';
 import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { StructTreeView } from '../StructTreeView/StructTreeView';
 import { PageWrapper } from '../PageWrapper/PageWrapper';
-import { GroupMemberList } from '../GroupMemberList/GroupMemberList';
-import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
 
 import s from './CorporateTeamsPage.module.css';
-import { tr } from './TeamsPage.i18n';
+import { tr } from './CorporateTeamsPage.i18n';
 
 interface CorporateTeamsPage {
     mothership: MothershipGroup;
@@ -36,6 +34,7 @@ const CorporateTreeNodeWrapper: React.FC<
             counts={counts}
             childs={groupTreeQuery.data?.children}
             supervisorId={null}
+            organizational
             hideDescription
         />
     );
@@ -43,7 +42,6 @@ const CorporateTreeNodeWrapper: React.FC<
 
 export const CorporateTeamsPage: React.FC<CorporateTeamsPage> = ({ mothership }) => {
     const currentGroup = trpc.group.getById.useQuery(mothership.id);
-    const groupMembersQuery = trpc.group.getMemberships.useQuery({ groupId: mothership.id });
     const organizationUnits = trpc.organizationUnit.getAll.useQuery();
     const countsByOrgIds = trpc.organizationUnit.getCountsByOrgUnitIds.useQuery(
         (organizationUnits.data || []).map(({ id }) => id),
@@ -51,46 +49,6 @@ export const CorporateTeamsPage: React.FC<CorporateTeamsPage> = ({ mothership })
     );
 
     const group = currentGroup.data ?? null;
-
-    const memberToRender = useMemo(() => {
-        if (groupMembersQuery.data == null || group == null) {
-            return null;
-        }
-
-        const membersWithoutSupervisor = groupMembersQuery.data
-            .filter(({ user }) => user.id !== group.supervisorId)
-            .map(({ user, roles: [role] }) => {
-                const {
-                    positions: [position],
-                } = getLastSupplementalPositions(user.supplementalPositions);
-                return {
-                    id: user.id,
-                    name: user.name,
-                    employment: position.organizationUnit.name,
-                    role: role?.name,
-                    isSupervisor: false,
-                };
-            });
-        const supervisorMember = groupMembersQuery.data.find(({ user }) => user.id === group.supervisorId);
-
-        if (supervisorMember) {
-            const {
-                positions: [position],
-            } = getLastSupplementalPositions(supervisorMember.user.supplementalPositions);
-
-            return [
-                {
-                    id: supervisorMember.user.id,
-                    name: supervisorMember.user.name,
-                    employment: position.organizationUnit.name,
-                    role: supervisorMember.roles[0].name,
-                    isSupervisor: true,
-                },
-            ].concat(membersWithoutSupervisor);
-        }
-
-        return membersWithoutSupervisor;
-    }, [group, groupMembersQuery.data]);
 
     if (group == null) {
         return null;
@@ -116,10 +74,6 @@ export const CorporateTeamsPage: React.FC<CorporateTeamsPage> = ({ mothership })
                     </div>
                 </div>
                 <StructTreeView>
-                    {nullable(memberToRender, (list) => (
-                        <GroupMemberList members={list} />
-                    ))}
-
                     {nullable(organizationUnits.data, (units) =>
                         units.map((unit) => (
                             <CorporateTreeNodeWrapper

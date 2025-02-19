@@ -263,6 +263,18 @@ export const groupRouter = router({
         return res[0];
     }),
 
+    getVirtualGroupTree: protectedProcedure.query(async () => {
+        const groups = await groupMethods.getVirtualTeamsTree();
+
+        const res = mergeBranches(...groups.map(({ childs }) => childs));
+
+        if (res.length === 0) {
+            return null;
+        }
+
+        return res[0];
+    }),
+
     getFunctionalGroupCounts: protectedProcedure.input(z.string().optional()).query(async ({ input }) => {
         return Promise.all([groupMethods.count(input), vacancyMethods.count(input)]).then(([mc, vc]) => ({
             ...mc,
@@ -292,7 +304,13 @@ export const groupRouter = router({
             };
 
             const [mc, vc, sv] = await Promise.all([
-                groupMethods.getMembershipCountByIds(input.ids, input.filterByOrgId).then(arrayToMap),
+                groupMethods
+                    .getMembershipCountByIds({
+                        ids: input.ids,
+                        orgId: input.filterByOrgId,
+                        organizational: input.organizational,
+                    })
+                    .then(arrayToMap),
                 groupMethods.getVacancyCountsByGroupIds(input.ids).then(arrayToMap),
                 groupMethods.getSupervisorByGroupIds(input.ids).then(arrayToMap),
             ]);
