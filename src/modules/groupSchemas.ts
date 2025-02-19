@@ -90,6 +90,7 @@ export type GetMemberships = z.infer<typeof getMemberships>;
 export const getMetaByGroupIdsWithFilterByOrgIdSchema = z.object({
     ids: z.array(z.string()),
     filterByOrgId: z.string().optional(),
+    organizational: z.boolean().optional(),
 });
 
 export type GetMetaByGroupIdsWithFilterByOrgIdSchema = z.infer<typeof getMetaByGroupIdsWithFilterByOrgIdSchema>;

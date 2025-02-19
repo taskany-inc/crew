@@ -11,17 +11,17 @@ import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { StructTreeView } from '../StructTreeView/StructTreeView';
 import { PageWrapper } from '../PageWrapper/PageWrapper';
 
-import s from './TeamsPage.module.css';
-import { tr } from './TeamsPage.i18n';
+import s from './VirtualTeamsPage.module.css';
+import { tr } from './VirtualTeamsPage.i18n';
 
-interface TeamsPage {
+interface VirtualTeamsPage {
     mothership: MothershipGroup;
 }
 
-export const TeamsPage: React.FC<TeamsPage> = (props) => {
+export const VirtualTeamsPage: React.FC<VirtualTeamsPage> = (props) => {
     const { mothership } = props;
     const currentGroup = trpc.group.getById.useQuery(mothership.id);
-    const groupTree = trpc.group.getGroupTree.useQuery();
+    const groupTree = trpc.group.getVirtualGroupTree.useQuery();
 
     const childrenData = useMemo(() => {
         if (groupTree.data == null) {
@@ -33,7 +33,7 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
     const metaDataByGroupIds = trpc.group.getGroupMetaByIds.useQuery(
         {
             ids: (childrenData || []).map(({ id }) => id),
-            organizational: true,
+            organizational: false,
         },
         {
             enabled: (childrenData?.length ?? 0) > 0,
@@ -84,7 +84,6 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
                                         supervisor={groupMeta?.supervisor}
                                         counts={counts}
                                         childs={children}
-                                        organizational
                                         firstLevel
                                     />
                                 );

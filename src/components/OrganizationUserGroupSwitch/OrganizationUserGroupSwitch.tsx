@@ -21,6 +21,8 @@ export const OrganizationUserGroupSwitch = ({ noGap }: OrganizationUserGroupSwit
                 return 'org';
             case pages.corp:
                 return 'corp';
+            case pages.virtual:
+                return 'virtual';
             default:
                 break;
         }
@@ -36,9 +38,13 @@ export const OrganizationUserGroupSwitch = ({ noGap }: OrganizationUserGroupSwit
             <SwitchControl
                 text={tr('Corporate groups')}
                 value="corp"
-                onClick={() => value === 'corp' && router.corp()}
+                onClick={() => value !== 'corp' && router.corp()}
             />
-            <SwitchControl text={tr('V-teams')} value="users" onClick={() => value === 'org' && router.teams()} />
+            <SwitchControl
+                text={tr('V-teams')}
+                value="virtual"
+                onClick={() => value !== 'virtual' && router.virtual()}
+            />
         </Switch>
     );
 };
