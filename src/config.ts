@@ -57,5 +57,5 @@ export const config = {
         ? Number(process.env.EMPLOYMENT_UTC_HOUR)
         : 4,
     mainOrganizationId: process.env.NEXT_PUBLIC_MAIN_ORG_ID || '1',
-    mainOrganizationName: process.env.NEXT_PUBLIC_MAIN_ORG_NAME,
+    mainOrganizationName: process.env.NEXT_PUBLIC_MAIN_ORG_NAME || 'Main',
 };

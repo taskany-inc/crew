@@ -8,5 +8,9 @@
     "Manager": "Руководитель",
     "Author": "Автор заявки",
     "Creation date": "Дата создания",
-    "Actions": "Действия"
+    "Actions": "Действия",
+    "Account for external employee not from {main}": "Cloud УЗ для внешнего сотрудника не из {main}",
+    "Account for external employee from {main}": "Cloud УЗ для внешнего сотрудника из {main}",
+    "Exit of a new employee": "Выход нового сотрудника SD",
+    "Request type": "Тип заявки"
 }

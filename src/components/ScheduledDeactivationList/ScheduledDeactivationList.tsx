@@ -23,6 +23,7 @@ interface tableData {
     id: string;
     team: string;
     type: string;
+    requestType: string;
     userId: string;
 }
 
@@ -68,6 +69,14 @@ export const ScheduledDeactivationList = () => {
         search: userListFilter.values.search,
     });
 
+    const requestType = (type: string | null) => {
+        if (type === 'transfer') {
+            return tr('Transfer from SD');
+        }
+
+        return tr('Dismissal');
+    };
+
     const data: tableData[] = scheduledDeactivations.map((deactivation) => {
         const organization = deactivation.organizationUnit
             ? getOrgUnitTitle(deactivation.organizationUnit)
@@ -84,6 +93,7 @@ export const ScheduledDeactivationList = () => {
             team: deactivation.user.memberships.map(({ group }) => group.name).join(', '),
             id: deactivation.id,
             type: deactivation.type,
+            requestType: requestType(deactivation.type),
             userId: deactivation.userId,
         };
     });
@@ -106,23 +116,30 @@ export const ScheduledDeactivationList = () => {
                     sortable={false}
                     name="email"
                     value="email"
-                    width="15vw"
+                    width="12vw"
                     title={tr('Email')}
                     lines={1}
                 />
                 <DataTableColumn
                     name="organization"
-                    width="15vw"
+                    width="12vw"
                     value="organization"
                     title={tr('Organization')}
                     sortable={false}
                 />
-                <DataTableColumn name="team" width="15vw" value="team" title={tr('Team')} sortable={false} />
+                <DataTableColumn name="team" width="12vw" value="team" title={tr('Team')} sortable={false} />
                 <DataTableColumn
                     name="supervisor"
-                    width="15vw"
+                    width="12vw"
                     value="supervisor"
                     title={tr('Supervisor')}
+                    sortable={false}
+                />
+                <DataTableColumn
+                    name="requestType"
+                    width="10vw"
+                    value="requestType"
+                    title={tr('Request type')}
                     sortable={false}
                 />
                 <DataTableColumn

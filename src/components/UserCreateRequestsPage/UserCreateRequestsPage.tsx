@@ -23,6 +23,7 @@ interface tableData {
     coordinators: string;
     recruiter?: string;
     date?: string;
+    requestType: string;
     id: string;
 }
 
@@ -54,6 +55,14 @@ export const UserCreateRequestsPage = () => {
         search: userListFilter.values.search,
     });
 
+    const requestType = (creationCause: string | null) => {
+        if (creationCause === 'transfer') {
+            return tr('Transfer to SD');
+        }
+
+        return tr('Exit of a new employee');
+    };
+
     const data: tableData[] = userRequests.map((request) => ({
         status: request.status,
         name: request.name,
@@ -64,6 +73,7 @@ export const UserCreateRequestsPage = () => {
         coordinators: request.coordinators.map(({ name }) => name).join(', '),
         recruiter: request.recruiter?.name || '',
         date: request.date?.toLocaleDateString(),
+        requestType: requestType(request.creationCause),
         id: request.id,
     }));
 
@@ -115,29 +125,36 @@ export const UserCreateRequestsPage = () => {
                     width="180px"
                     fixed
                 />
-                <DataTableColumn name="name" value="name" title={tr('Name')} width="9vw" fixed />
-                <DataTableColumn sortable={false} name="title" value="title" width="9vw" title={tr('Role')} />
-                <DataTableColumn name="team" width="9vw" value="team" title={tr('Team')} sortable={false} />
+                <DataTableColumn name="name" value="name" title={tr('Name')} width="8vw" fixed />
+                <DataTableColumn sortable={false} name="title" value="title" width="8vw" title={tr('Role')} />
+                <DataTableColumn name="team" width="8vw" value="team" title={tr('Team')} sortable={false} />
                 <DataTableColumn
                     name="supervisor"
-                    width="9vw"
+                    width="8vw"
                     value="supervisor"
                     title={tr('Supervisor')}
                     sortable={false}
                 />
-                <DataTableColumn name="author" width="9vw" value="author" title={tr('Author')} sortable={false} />
+                <DataTableColumn name="author" width="8vw" value="author" title={tr('Author')} sortable={false} />
                 <DataTableColumn
                     name="coordinators"
-                    width="9vw"
+                    width="7vw"
                     value="coordinators"
                     title={tr('Coordinator')}
                     sortable={false}
                 />
                 <DataTableColumn
                     name="recruiter"
-                    width="9vw"
+                    width="7vw"
                     value="recruiter"
                     title={tr('Recruiter')}
+                    sortable={false}
+                />
+                <DataTableColumn
+                    name="requestType"
+                    width="6vw"
+                    value="requestType"
+                    title={tr('Request type')}
                     sortable={false}
                 />
                 <DataTableColumn
