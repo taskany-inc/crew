@@ -6,5 +6,8 @@
     "Date": "Дата события",
     "Actions": "Действия",
     "Firing or transfer date": "Дата увольнения или перевода",
-    "Team": "Подразделение"
+    "Team": "Подразделение",
+    "Transfer from SD": "Перевод из SD",
+    "Dismissal": "Увольнение",
+    "Request type": "Тип заявки"
 }

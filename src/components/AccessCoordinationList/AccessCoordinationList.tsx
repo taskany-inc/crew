@@ -9,6 +9,7 @@ import { getOrgUnitTitle } from '../../utils/organizationUnit';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
 import { ExternalServiceName, findService } from '../../utils/externalServices';
+import { config } from '../../config';
 
 import s from './AccessCoordinationList.module.css';
 import { tr } from './AccessCoordinationList.i18n';
@@ -25,6 +26,7 @@ interface tableData {
     createdAt?: string;
     id: string;
     type: string;
+    requestType?: string;
 }
 
 const requestLink = (id: string, type: string) => {
@@ -69,6 +71,18 @@ export const AccessCoordinationList = () => {
         if (type === 'internalEmployee') return router.internalUserRequestEdit(id);
     };
 
+    const requestType = (type: string | null) => {
+        if (type === 'externalEmployee') {
+            return tr('Account for external employee not from {main}', { main: config.mainOrganizationName });
+        }
+
+        if (type === 'externalFromMainOrgEmployee') {
+            return tr('Account for external employee from {main}', { main: config.mainOrganizationName });
+        }
+
+        return tr('Exit of a new employee');
+    };
+
     const data: tableData[] = userRequests.map((request) => ({
         name: request.name,
         email: request.email,
@@ -81,6 +95,7 @@ export const AccessCoordinationList = () => {
         createdAt: request.createdAt.toLocaleDateString(),
         id: request.id,
         type: request.type || '',
+        requestType: requestType(request.type),
     }));
 
     const canEditRequest =
@@ -97,19 +112,19 @@ export const AccessCoordinationList = () => {
                 className={s.Table}
                 rowComponent={ClickableRow}
             >
-                <DataTableColumn name="name" value="name" title={tr('Name')} width="9vw" fixed />
+                <DataTableColumn name="name" value="name" title={tr('Name')} width="8vw" fixed />
                 <DataTableColumn
                     name="email"
                     value="email"
                     title={tr('Email')}
-                    width="9vw"
+                    width="8vw"
                     lines={1}
                     sortable={false}
                 />
 
                 <DataTableColumn
                     name="login"
-                    width="9vw"
+                    width="8vw"
                     value="login"
                     title={tr('Login')}
                     lines={1}
@@ -117,7 +132,7 @@ export const AccessCoordinationList = () => {
                 />
                 <DataTableColumn
                     name="phone"
-                    width="9vw"
+                    width="8vw"
                     value="phone"
                     title={tr('Phone')}
                     lines={1}
@@ -125,20 +140,27 @@ export const AccessCoordinationList = () => {
                 />
                 <DataTableColumn
                     name="organization"
-                    width="9vw"
+                    width="8vw"
                     value="organization"
                     title={tr('Organization')}
                     sortable={false}
                 />
-                <DataTableColumn name="title" width="9vw" value="title" lines={1} title={tr('Role')} sortable={false} />
+                <DataTableColumn name="title" width="8vw" value="title" lines={1} title={tr('Role')} sortable={false} />
                 <DataTableColumn
                     name="lineManagers"
-                    width="9vw"
+                    width="8vw"
                     value="lineManagers"
                     title={tr('Manager')}
                     sortable={false}
                 />
-                <DataTableColumn name="author" width="9vw" value="author" title={tr('Author')} sortable={false} />
+                <DataTableColumn name="author" width="8vw" value="author" title={tr('Author')} sortable={false} />
+                <DataTableColumn
+                    name="requestType"
+                    width="8vw"
+                    value="requestType"
+                    title={tr('Request type')}
+                    sortable={false}
+                />
                 <DataTableColumn
                     fixed="right"
                     name="createdAt"
