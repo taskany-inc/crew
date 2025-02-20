@@ -1,4 +1,4 @@
-.CorporateTeamPageHeadingRow {
+.TeamTreeLayoutWrapperHeader {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -6,11 +6,11 @@
     margin-bottom: 20px;
 }
 
-.CorporateTeamPageHeading {
+.TeamTreeLayoutWrapperHeading {
     flex: 1;
 }
 
-.CorporateTeamPageHeadingControls {
+.TeamTreeLayoutWrapperHeaderControls {
     margin-right: auto;
     display: flex;
     flex-direction: row;
