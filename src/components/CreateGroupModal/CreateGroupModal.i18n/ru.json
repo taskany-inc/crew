@@ -8,6 +8,6 @@
     "Group without a parent will show up as the top-level group": "Если не указать родителя, группа будет показана на верхнем уровне",
     "Regular": "Обычная",
     "Organizational": "Организационная",
-    "Virtual": "Виртуальная",
-    "Group type": "Тип группы"
+    "Group type": "Тип группы",
+    "V-team": "V-team"
 }
