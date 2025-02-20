@@ -1,4 +1,4 @@
-import { TeamPage } from '../../../components/TeamPage';
+import { TeamPage } from '../../../components/TeamPage/TeamPage';
 import { createGetServerSideProps } from '../../../utils/createGetSSRProps';
 
 export const getServerSideProps = createGetServerSideProps({
@@ -6,9 +6,10 @@ export const getServerSideProps = createGetServerSideProps({
     stringIds: { teamId: true },
     action: async ({ ssg, stringIds }) => {
         await Promise.all([
-            ssg.group.getGroupTree.fetch(),
             ssg.group.getById.fetch(stringIds.teamId),
+            ssg.group.getChildren.fetch(stringIds.teamId),
             ssg.group.getMemberships.fetch({ groupId: stringIds.teamId }),
+            ssg.group.getBreadcrumbs.fetch(stringIds.teamId),
         ]);
 
         return { teamId: stringIds.teamId };

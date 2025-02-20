@@ -6,7 +6,7 @@ export const pages = {
     teams: '/teams',
     corp: '/teams/corporate',
     virtual: '/teams/virtual',
-    team: (teamId: string) => `/team/${teamId}`,
+    team: (teamId: string) => `/teams/${teamId}`,
     teamSettings: (teamId: string) => `/teams/${teamId}/settings`,
 
     users: '/users',

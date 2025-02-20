@@ -39,7 +39,7 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                         counter={counter}
                         size="m"
                         action={
-                            <Link onClick={() => team(group.id)} href={pages.user(group.id)}>
+                            <Link onClick={() => team(group.id)} href={pages.team(group.id)}>
                                 <Button
                                     view="ghost"
                                     text={tr('Show team')}
