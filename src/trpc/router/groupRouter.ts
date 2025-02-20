@@ -264,7 +264,7 @@ export const groupRouter = router({
     }),
 
     getVirtualGroupTree: protectedProcedure.query(async () => {
-        const groups = await groupMethods.getVirtualTeamsTree();
+        const groups = await groupMethods.getVirtualTeamsTreeV2();
 
         const res = mergeBranches(...groups.map(({ childs }) => childs));
 
@@ -272,7 +272,7 @@ export const groupRouter = router({
             return null;
         }
 
-        return res[0];
+        return { children: res };
     }),
 
     getFunctionalGroupCounts: protectedProcedure.input(z.string().optional()).query(async ({ input }) => {
