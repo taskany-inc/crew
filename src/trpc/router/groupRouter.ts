@@ -241,7 +241,7 @@ export const groupRouter = router({
         }),
 
     getGroupTree: protectedProcedure.query(async () => {
-        const groups = await groupMethods.getGroupTree();
+        const groups = await groupMethods.getTeamsTree(true);
         const res = mergeBranches(...groups.map(({ childs }) => childs));
 
         if (res.length === 0) {
@@ -252,7 +252,7 @@ export const groupRouter = router({
     }),
 
     getGroupTreeByOrgId: protectedProcedure.input(z.string()).query(async ({ input }) => {
-        const groups = await groupMethods.getGroupTree(input);
+        const groups = await groupMethods.getGroupTreeByOrgId(input);
 
         const res = mergeBranches(...groups.map(({ childs }) => childs));
 
@@ -264,7 +264,7 @@ export const groupRouter = router({
     }),
 
     getVirtualGroupTree: protectedProcedure.query(async () => {
-        const groups = await groupMethods.getVirtualTeamsTreeV2();
+        const groups = await groupMethods.getTeamsTree(false);
 
         const res = mergeBranches(...groups.map(({ childs }) => childs));
 
