@@ -1,4 +1,4 @@
-import { ComponentProps, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
@@ -33,7 +33,6 @@ import { tr } from './CreateGroupModal.i18n';
 interface CreateGroupModalProps {
     visible: boolean;
     onClose: VoidFunction;
-    parentId?: ComponentProps<typeof GroupComboBox>['defaultGroupId'];
 }
 
 const StyledInputContainer = styled.div`
@@ -48,9 +47,9 @@ const StyledTip = styled(Tip)`
     margin-left: ${gapM};
 `;
 
-type GroupType = 'regular' | 'virtual' | 'organizational';
+type GroupType = 'regular' | 'organizational';
 
-export const CreateGroupModal = ({ visible, onClose, parentId }: CreateGroupModalProps) => {
+export const CreateGroupModal = ({ visible, onClose }: CreateGroupModalProps) => {
     const sessionUser = useSessionUser();
     const { createGroup } = useGroupMutations();
     const router = useRouter();
@@ -58,36 +57,40 @@ export const CreateGroupModal = ({ visible, onClose, parentId }: CreateGroupModa
 
     const groupTypes = useMemo<{ type: GroupType; text: string }[]>(
         () => [
-            { type: 'regular', text: tr('Regular') },
+            { type: 'regular', text: tr('V-team') },
             { type: 'organizational', text: tr('Organizational') },
-            { type: 'virtual', text: tr('Virtual') },
         ],
         [],
     );
-    const [type, setType] = useState<GroupType>(canCreateGroup ? 'regular' : 'virtual');
+    const [type, setType] = useState<GroupType>(canCreateGroup ? 'organizational' : 'regular');
 
     const {
         register,
         handleSubmit,
         reset,
         setValue,
+        watch,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<CreateGroup>({
         resolver: zodResolver(createGroupSchema),
-        defaultValues: { name: '', parentId: type !== 'virtual' && parentId ? parentId : undefined },
+        defaultValues: { name: '', parentId: undefined },
     });
 
     const onSubmit = handleSubmit(async (value) => {
         const newGroup = await createGroup({
             ...value,
-            parentId: type !== 'virtual' ? value.parentId : undefined,
-            virtual: type === 'virtual',
+            parentId: value.parentId,
+            virtual: false,
             organizational: type === 'organizational',
         });
         router.team(newGroup.id);
 
         onClose();
     });
+
+    useEffect(() => {
+        setValue('parentId', undefined);
+    }, [type, setValue]);
 
     const closeAndReset = () => {
         reset();
@@ -122,15 +125,16 @@ export const CreateGroupModal = ({ visible, onClose, parentId }: CreateGroupModa
                             ))}
                         </FormRadio>
                     ))}
-                    {nullable(type !== 'virtual' && canCreateGroup, () => (
+                    {nullable(canCreateGroup, () => (
                         <>
                             <StyledInputContainer>
                                 <Text weight="bold" color={gray8}>
                                     {tr('Parent team:')}
                                 </Text>
                                 <GroupComboBox
-                                    defaultGroupId={parentId}
+                                    defaultGroupId={watch('parentId')}
                                     onChange={(group) => setValue('parentId', group?.id)}
+                                    organizational={type === 'organizational'}
                                 />
                             </StyledInputContainer>
                             <StyledTip icon={<IconInfoCircleOutline size="s" />}>

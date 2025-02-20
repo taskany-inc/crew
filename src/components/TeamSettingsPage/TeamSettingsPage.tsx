@@ -1,7 +1,17 @@
 import { ChangeEvent } from 'react';
 import { Group } from 'prisma/prisma-client';
 import styled from 'styled-components';
-import { Button, CheckboxInput, Fieldset, Form, FormAction, FormActions, FormInput, Text } from '@taskany/bricks';
+import {
+    Button,
+    CheckboxInput,
+    Fieldset,
+    Form,
+    FormAction,
+    FormActions,
+    FormInput,
+    nullable,
+    Text,
+} from '@taskany/bricks';
 import { gapM, gapS, gapXs, gray3, gray8, textColor } from '@taskany/colors';
 import { IconPlusCircleOutline, IconXCircleSolid } from '@taskany/icons';
 import { useForm } from 'react-hook-form';
@@ -15,7 +25,8 @@ import { EditGroup, editGroupSchema } from '../../modules/groupSchemas';
 import { GroupMeta, GroupParent, GroupSupervisor } from '../../modules/groupTypes';
 import { useGroupMutations } from '../../modules/groupHooks';
 import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
-import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
+import { TeamSettingsPageHeader } from '../TeamSettingsPageHeader/TeamSettingsPageHeader';
+import { useSessionUser } from '../../hooks/useSessionUser';
 import { GroupListItem } from '../GroupListItem';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
 import { GroupAdmins } from '../GroupAdmins/GroupAdmins';
@@ -82,6 +93,9 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
         moveGroup({ id, newParentId: null });
     };
 
+    const sessionUser = useSessionUser();
+    const canCreateOrgGroups = sessionUser.role?.editFullGroupTree;
+
     const childrenQuery = trpc.group.getChildren.useQuery(group.id);
     const children = childrenQuery.data ?? [];
 
@@ -122,7 +136,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
 
     return (
         <LayoutMain pageTitle={group.name}>
-            <TeamPageHeader group={group} />
+            <TeamSettingsPageHeader group={group} />
 
             <PageSep />
 
@@ -144,16 +158,18 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                                 flat="top"
                             />
 
-                            <StyledInputContainer>
-                                <Text weight="bold" color={gray8}>
-                                    {tr('Organizational group:')}
-                                </Text>
-                                <CheckboxInput
-                                    value="organizational"
-                                    checked={organizational}
-                                    onChange={onOrganizationalClick}
-                                />
-                            </StyledInputContainer>
+                            {nullable(canCreateOrgGroups, () => (
+                                <StyledInputContainer>
+                                    <Text weight="bold" color={gray8}>
+                                        {tr('Organizational group:')}
+                                    </Text>
+                                    <CheckboxInput
+                                        value="organizational"
+                                        checked={organizational}
+                                        onChange={onOrganizationalClick}
+                                    />
+                                </StyledInputContainer>
+                            ))}
 
                             <StyledInputContainer>
                                 <Text weight="bold" color={gray8}>
