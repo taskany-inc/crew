@@ -113,14 +113,20 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
             name: group.name,
             description: group.description ?? '',
             organizational: group.organizational,
+            businessUnit: group.businessUnit,
             supervisorId: group.supervisorId,
         },
     });
 
     const organizational = watch('organizational');
+    const businessUnit = watch('businessUnit');
 
     const onOrganizationalClick = (e: ChangeEvent<HTMLInputElement>) => {
         setValue('organizational', e.target.checked, { shouldDirty: true });
+    };
+
+    const onBusenessUnitClick = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue('businessUnit', e.target.checked, { shouldDirty: true });
     };
 
     const onSubmit = handleSubmit(async (data) => {
@@ -130,6 +136,7 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
             name: editedGroup.name,
             description: editedGroup.description ?? '',
             organizational: editedGroup.organizational,
+            businessUnit: editedGroup.businessUnit,
             supervisorId: editedGroup.supervisorId,
         });
     });
@@ -170,6 +177,17 @@ const TeamSettingsPageBase = ({ group }: TeamSettingsPageBaseProps) => {
                                     />
                                 </StyledInputContainer>
                             ))}
+
+                            <StyledInputContainer>
+                                <Text weight="bold" color={gray8}>
+                                    {tr('Business unit:')}
+                                </Text>
+                                <CheckboxInput
+                                    value="businessUnit"
+                                    checked={businessUnit}
+                                    onChange={onBusenessUnitClick}
+                                />
+                            </StyledInputContainer>
 
                             <StyledInputContainer>
                                 <Text weight="bold" color={gray8}>

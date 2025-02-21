@@ -62,6 +62,7 @@ export const VirtualTeamsPage: React.FC<VirtualTeamsPage> = (props) => {
                                 counts={counts}
                                 childs={children}
                                 firstLevel
+                                businessUnit={gr.businessUnit}
                             />
                         );
                     }),

@@ -71,6 +71,7 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
                                     organizational
                                     loading={metaLoading}
                                     firstLevel
+                                    businessUnit={group.businessUnit}
                                 />
                             );
                         }),

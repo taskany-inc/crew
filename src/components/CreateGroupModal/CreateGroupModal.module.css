@@ -1,0 +1,13 @@
+.CheckBoxContainer {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+}
+
+.FormBlock {
+    margin-bottom: var(--gap-m);
+}
+
+.RadioLabel {
+    margin-bottom: var(--gap-xs);
+}

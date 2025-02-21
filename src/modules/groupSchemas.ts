@@ -7,6 +7,7 @@ export const createGroupSchema = z.object({
     parentId: z.string().optional(),
     virtual: z.boolean().optional(),
     organizational: z.boolean().optional(),
+    businessUnit: z.boolean().optional(),
 });
 export type CreateGroup = z.infer<typeof createGroupSchema>;
 
@@ -18,6 +19,7 @@ export const editGroupSchema = z.object({
         .optional(),
     description: z.string().optional(),
     organizational: z.boolean().optional(),
+    businessUnit: z.boolean().optional(),
     supervisorId: z.string().nullish(),
 });
 export type EditGroup = z.infer<typeof editGroupSchema>;
@@ -33,6 +35,7 @@ export const getGroupListSchema = z.object({
     filter: z.array(z.string()).optional(),
     hasVacancies: z.boolean().optional(),
     organizational: z.boolean().optional(),
+    businessUnit: z.boolean().optional(),
     take: z
         .number()
         .max(100, { message: tr('Max {max} items in a single request', { max: 100 }) })
