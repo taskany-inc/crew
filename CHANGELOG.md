@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.109.2](https://github.com/taskany-inc/crew/compare/v0.109.1...v0.109.2) (2025-02-21)
+
+
+### Bug Fixes
+
+* **INTERNAL-1651:** remove tree blinking ([4b0b98b](https://github.com/taskany-inc/crew/commit/4b0b98b36365e8c834fa16054cb3f97d4d1483e5))
+* **package-lock:** fix json ([16dd113](https://github.com/taskany-inc/crew/commit/16dd113b3297a6594b8d24eafe24bd382da4e03c))
+
 ## [0.109.1](https://github.com/taskany-inc/crew/compare/v0.109.0...v0.109.1) (2025-02-21)
 
 
