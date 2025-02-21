@@ -33,6 +33,8 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
         },
         {
             enabled: (childrenData?.length ?? 0) > 0,
+            keepPreviousData: true,
+            refetchOnWindowFocus: false,
         },
     );
 

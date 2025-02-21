@@ -173,7 +173,7 @@ export const NewGroupTreeViewNode: React.FC<
 }) => {
     const groupMembersQuery = trpc.group.getMemberships.useQuery(
         { groupId: id, filterByOrgId: orgId },
-        { enabled: false },
+        { enabled: false, keepPreviousData: true, refetchOnWindowFocus: false },
     );
 
     const metaDataByGroupIds = trpc.group.getGroupMetaByIds.useQuery(
@@ -182,7 +182,7 @@ export const NewGroupTreeViewNode: React.FC<
             filterByOrgId: orgId,
             organizational,
         },
-        { enabled: false },
+        { enabled: false, keepPreviousData: true, refetchOnWindowFocus: false },
     );
 
     const [isOpen, setIsOpen] = useState(false);
