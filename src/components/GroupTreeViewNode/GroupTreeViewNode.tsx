@@ -10,6 +10,7 @@ import { pages } from '../../hooks/useRouter';
 import { Link } from '../Link';
 import { Branch, Heading } from '../StructTreeView/StructTreeView';
 import { GroupTree } from '../../trpc/inferredTypes';
+import { sortByStringKey } from '../../utils/sortByStringKey';
 import { GroupMemberList } from '../GroupMemberList/GroupMemberList';
 import { TooltipIcon } from '../TooltipIcon';
 import { getMainPositionFromLasts } from '../../utils/supplementalPositions';
@@ -176,6 +177,8 @@ export const NewGroupTreeViewNode: React.FC<
         { enabled: false, keepPreviousData: true, refetchOnWindowFocus: false },
     );
 
+    const sortedChilds = useMemo(() => sortByStringKey(childs ?? [], ['group', 'name']), [childs]);
+
     const metaDataByGroupIds = trpc.group.getGroupMetaByIds.useQuery(
         {
             ids: (childs || []).map(({ id }) => id),
@@ -192,19 +195,22 @@ export const NewGroupTreeViewNode: React.FC<
             return null;
         }
 
-        const membersWithoutSupervisor = groupMembersQuery.data
-            .filter(({ user }) => user.id !== supervisorId)
-            .map(({ user, roles: [role] }) => {
-                const position = getMainPositionFromLasts(user.supplementalPositions);
+        const membersWithoutSupervisor = sortByStringKey(
+            groupMembersQuery.data
+                .filter(({ user }) => user.id !== supervisorId)
+                .map(({ user, roles: [role] }) => {
+                    const position = getMainPositionFromLasts(user.supplementalPositions);
 
-                return {
-                    id: user.id,
-                    name: user.name,
-                    employment: position?.organizationUnit.name,
-                    role: role?.name,
-                    isSupervisor: false,
-                };
-            });
+                    return {
+                        id: user.id,
+                        name: user.name,
+                        employment: position?.organizationUnit.name,
+                        role: role?.name,
+                        isSupervisor: false,
+                    };
+                }),
+            ['name'],
+        );
 
         const supervisorMember = groupMembersQuery.data.find(({ user }) => user.id === supervisorId);
 
@@ -313,7 +319,7 @@ export const NewGroupTreeViewNode: React.FC<
                 <GroupMemberList members={list} />
             ))}
 
-            {nullable(childs, (data) =>
+            {nullable(sortedChilds, (data) =>
                 data.map(({ group, children }) =>
                     nullable(group, (gr) => (
                         <NewGroupTreeViewNode

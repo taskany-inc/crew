@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
 import { MothershipGroup } from '../../trpc/inferredTypes';
+import { sortByStringKey } from '../../utils/sortByStringKey';
 import { NewGroupTreeViewNode } from '../GroupTreeViewNode/GroupTreeViewNode';
 import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { StructTreeView } from '../StructTreeView/StructTreeView';
@@ -23,7 +24,7 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
         if (groupTree.data == null) {
             return [];
         }
-        return groupTree.data?.children;
+        return sortByStringKey(groupTree.data.children ?? [], ['group', 'name']);
     }, [groupTree.data]);
 
     const metaDataByGroupIds = trpc.group.getGroupMetaByIds.useQuery(
