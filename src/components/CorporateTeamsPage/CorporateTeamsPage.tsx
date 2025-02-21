@@ -1,8 +1,9 @@
 import { nullable } from '@taskany/bricks';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
 import { MothershipGroup, OrganizationUnit } from '../../trpc/inferredTypes';
+import { sortByStringKey } from '../../utils/sortByStringKey';
 import { NewGroupTreeViewNode } from '../GroupTreeViewNode/GroupTreeViewNode';
 import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { TeamTreeLayoutWrapper } from '../TeamTreeLayoutWrapper/TeamTreeLayoutWrapper';
@@ -45,13 +46,18 @@ export const CorporateTeamsPage: React.FC<CorporateTeamsPage> = ({ mothership })
 
     const group = currentGroup.data ?? null;
 
+    const sortedOrganizationUnits = useMemo(
+        () => sortByStringKey(organizationUnits.data ?? [], ['name']),
+        [organizationUnits],
+    );
+
     if (group == null) {
         return null;
     }
 
     return (
         <TeamTreeLayoutWrapper title={tr('Structure')} pageTitle={group.name} header={<TeamPageHeader group={group} />}>
-            {nullable(organizationUnits.data, (units) =>
+            {nullable(sortedOrganizationUnits, (units) =>
                 units.map((unit) => (
                     <CorporateTreeNodeWrapper
                         key={unit.id}
