@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.109.3](https://github.com/taskany-inc/crew/compare/v0.109.2...v0.109.3) (2025-02-21)
+
+
+### Bug Fixes
+
+* **INTERNAL-1654:** add client tree sorting ([c41f90c](https://github.com/taskany-inc/crew/commit/c41f90c7a7b083a443d80f1ced42dd7b1bc1075e))
+
 ## [0.109.2](https://github.com/taskany-inc/crew/compare/v0.109.1...v0.109.2) (2025-02-21)
 
 
