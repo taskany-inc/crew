@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.109.1](https://github.com/taskany-inc/crew/compare/v0.109.0...v0.109.1) (2025-02-21)
+
+
+### Bug Fixes
+
+* **INTERNAL-1536:** correct querying tree by groups ([12e9995](https://github.com/taskany-inc/crew/commit/12e9995dc16df32a5c85a9bfb5fa009aaf66426f))
+* **INTERNAL-1645:** fix wrong link ([f9e6045](https://github.com/taskany-inc/crew/commit/f9e60453d3d902a2cc83209b1f7977bb408a2d76))
+* **INTERNAL-1647:** remove ability to add v-teams to orgstructure ([8bf6b05](https://github.com/taskany-inc/crew/commit/8bf6b0541a0fadc1f13a0371064270403c03ff86))
+
 ## [0.109.0](https://github.com/taskany-inc/crew/compare/v0.108.0...v0.109.0) (2025-02-20)
 
 

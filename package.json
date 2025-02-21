@@ -1,6 +1,6 @@
 {
   "name": "@taskany/crew",
-  "version": "0.109.0",
+  "version": "0.109.1",
   "private": true,
   "scripts": {
     "dev": "npm run build:css && concurrently -k \"npm run dev:worker\" \"next dev\"",
