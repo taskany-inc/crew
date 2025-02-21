@@ -8,6 +8,8 @@
     "Group without a parent will show up as the top-level group": "Если не указать родителя, группа будет показана на верхнем уровне",
     "Regular": "Обычная",
     "Organizational": "Организационная",
+    "V-team": "V-team",
     "Group type": "Тип группы",
-    "V-team": "V-team"
+    "Write group name": "Введите название группы",
+    "Buseness unit": "Бизнес юнит"
 }

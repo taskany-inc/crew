@@ -135,6 +135,7 @@ export type Group = {
     archived: Generated<boolean>;
     virtual: Generated<boolean>;
     organizational: Generated<boolean>;
+    businessUnit: Generated<boolean>;
     parentId: string | null;
     supervisorId: string | null;
     createdAt: Generated<Timestamp>;

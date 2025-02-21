@@ -32,6 +32,7 @@ const CorporateTreeNodeWrapper: React.FC<
             supervisorId={null}
             organizational
             hideDescription
+            businessUnit={false}
         />
     );
 };
