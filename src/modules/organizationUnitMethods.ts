@@ -43,7 +43,26 @@ export const organizationUnitMethods = {
         return organizations;
     },
 
-    getAll: () => db.selectFrom('OrganizationUnit').selectAll('OrganizationUnit').execute(),
+    getAll: (hideEmpty?: boolean) =>
+        db
+            .selectFrom('OrganizationUnit')
+            .selectAll('OrganizationUnit')
+            .where((eb) =>
+                hideEmpty
+                    ? eb(
+                          'OrganizationUnit.id',
+                          'in',
+                          db
+                              .selectFrom('SupplementalPosition')
+                              .select('SupplementalPosition.organizationUnitId')
+                              .where('SupplementalPosition.main', 'is', true)
+                              .where('SupplementalPosition.status', '=', PositionStatus.ACTIVE)
+                              .where('SupplementalPosition.userId', 'is not', null)
+                              .groupBy('SupplementalPosition.organizationUnitId'),
+                      )
+                    : eb.val(true),
+            )
+            .execute(),
 
     membershipCountByOrgIds: (ids: string[]) => {
         return db
@@ -56,22 +75,6 @@ export const organizationUnitMethods = {
             .where('SupplementalPosition.main', 'is', true)
             .where('SupplementalPosition.status', '=', PositionStatus.ACTIVE)
             .groupBy('SupplementalPosition.organizationUnitId')
-            .execute();
-        return db
-            .selectFrom('User')
-            .innerJoin('SupplementalPosition', (join) =>
-                join
-                    .onRef('SupplementalPosition.userId', '=', 'User.id')
-                    .on('SupplementalPosition.main', 'is', true)
-                    .on('SupplementalPosition.status', '=', PositionStatus.ACTIVE),
-            )
-            .select(({ fn, cast }) => [
-                'SupplementalPosition.organizationUnitId as id',
-                cast(fn.count('User.id').distinct(), 'integer').as('count'),
-            ])
-            .where('User.organizationUnitId', 'in', ids)
-            .groupBy('SupplementalPosition.organizationUnitId')
-            .$castTo<{ id: string; count: number }>()
             .execute();
     },
 };
