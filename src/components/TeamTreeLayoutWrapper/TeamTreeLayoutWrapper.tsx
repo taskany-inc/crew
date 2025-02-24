@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormControl, FormControlInput, Text, Button } from '@taskany/bricks/harmony';
 import { IconFilterOutline, IconSearchOutline, IconSortDownOutline } from '@taskany/icons';
+import { nullable } from '@taskany/bricks';
 
 import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { StructTreeView } from '../StructTreeView/StructTreeView';
@@ -15,6 +16,8 @@ interface TeamTreeLayoutWrapperProps {
     title: string;
 }
 
+const enableControls = false;
+
 export const TeamTreeLayoutWrapper: React.FC<React.PropsWithChildren<TeamTreeLayoutWrapperProps>> = ({
     children,
     header,
@@ -28,17 +31,19 @@ export const TeamTreeLayoutWrapper: React.FC<React.PropsWithChildren<TeamTreeLay
                     <Text className={s.TeamTreeLayoutWrapperHeading} size="lg" weight="bold">
                         {title}
                     </Text>
-                    <div className={s.TeamTreeLayoutWrapperHeaderControls}>
-                        <Button view="default" iconLeft={<IconFilterOutline size="s" />} text={tr('Filters')} />
-                        <Button iconLeft={<IconSortDownOutline size="s" />} text={tr('Sorting')} />
-                        <FormControl>
-                            <FormControlInput
-                                iconLeft={<IconSearchOutline size="s" />}
-                                outline
-                                placeholder={tr('Search in structure')}
-                            />
-                        </FormControl>
-                    </div>
+                    {nullable(enableControls, () => (
+                        <div className={s.TeamTreeLayoutWrapperHeaderControls}>
+                            <Button view="default" iconLeft={<IconFilterOutline size="s" />} text={tr('Filters')} />
+                            <Button iconLeft={<IconSortDownOutline size="s" />} text={tr('Sorting')} />
+                            <FormControl>
+                                <FormControlInput
+                                    iconLeft={<IconSearchOutline size="s" />}
+                                    outline
+                                    placeholder={tr('Search in structure')}
+                                />
+                            </FormControl>
+                        </div>
+                    ))}
                 </div>
                 <StructTreeView>{children}</StructTreeView>
             </PageWrapper>
