@@ -88,6 +88,7 @@ export const AccessCoordinationList = () => {
         email: request.email,
         login: request.login,
         phone: findService(ExternalServiceName.Phone, request.services || undefined) || '',
+        // get from request.supplementalPositions (?)
         organization: getOrgUnitTitle(request.organization),
         title: request.title || '',
         lineManagers: request.lineManagers.map(({ name }) => name).join(', '),
