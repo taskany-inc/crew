@@ -97,6 +97,7 @@ export const InternalUserCreationRequestPage = ({
             date: request?.date || null,
             groupId: request?.groupId || '',
             supplementalPositions: request?.supplementalPositions || [],
+            intern: !!request?.intern,
         }),
         [request],
     );

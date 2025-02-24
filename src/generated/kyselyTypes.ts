@@ -291,6 +291,7 @@ export type SupplementalPosition = {
     status: Generated<PositionStatus>;
     role: string | null;
     main: Generated<boolean>;
+    intern: Generated<boolean>;
     jobId: string | null;
     userCreationRequestId: string | null;
     scheduledDeactivationId: string | null;

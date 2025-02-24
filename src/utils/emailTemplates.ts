@@ -270,11 +270,12 @@ export const newcomerSubject = (data: {
     };
     name: string;
     phone: string;
+    intern?: boolean;
 }) => {
     if (data.userCreationRequest.supplementalPositions.length === 1) {
-        return `${
-            data.userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')
-        } ${data.userCreationRequest.supplementalPositions
+        return `${data.userCreationRequest.creationCause === 'transfer' ? tr('Transfer') : tr('Employment')} ${
+            data.intern ? tr('intern ') : ''
+        }${data.userCreationRequest.supplementalPositions
             .map((o) => `${getOrgUnitTitle(o.organizationUnit)}`)
             .join(', ')} ${data.name}  (${data.phone})`;
     }
