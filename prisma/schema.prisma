@@ -805,6 +805,8 @@ model SupplementalPosition {
   role          String?
   main          Boolean        @default(false)
 
+  intern Boolean @default(false)
+
   job   Job?    @relation(fields: [jobId], references: [id])
   jobId String? @unique
 

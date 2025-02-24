@@ -29,6 +29,7 @@ interface UserFormPersonalDataBlockType {
     createExternalAccount?: boolean;
     disableAccount?: boolean;
     accountingId?: string;
+    intern: boolean;
 }
 
 type ReadOnlyMap = Partial<Record<keyof UserFormPersonalDataBlockType, boolean>>;
@@ -63,6 +64,12 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
 
     const onCreateExternalAccountClick = (e: ChangeEvent<HTMLInputElement>) => {
         setValue('createExternalAccount', e.target.checked);
+    };
+
+    const intern = watch('intern');
+
+    const onInternClick = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue('intern', e.target.checked);
     };
 
     const disableAccount = watch('disableAccount');
@@ -129,6 +136,23 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                     />
                 </div>
             ))}
+            {nullable(
+                type === 'internal' ||
+                    type === 'existing' ||
+                    type === 'externalEmployee' ||
+                    type === 'externalFromMainOrgEmployee',
+                () => (
+                    <div className={s.Checkbox}>
+                        <Checkbox
+                            readOnly={getReadOnly('intern')}
+                            label={tr('Intern')}
+                            checked={intern}
+                            onChange={onInternClick}
+                            className={s.CheckboxInput}
+                        />
+                    </div>
+                ),
+            )}
             {nullable(type === 'toDecree' || type === 'dismissal', () => (
                 <div className={s.Checkbox}>
                     <Checkbox

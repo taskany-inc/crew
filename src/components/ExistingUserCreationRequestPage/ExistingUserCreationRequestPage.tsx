@@ -42,6 +42,7 @@ const defaultValues: Partial<CreateUserCreationRequestBase> = {
     accountingId: '',
     osPreference: '',
     date: null,
+    intern: false,
 };
 
 const existingUserRequestSchema = (isloginUnique: (login: string) => Promise<boolean>) =>
