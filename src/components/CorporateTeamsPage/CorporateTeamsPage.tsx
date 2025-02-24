@@ -39,7 +39,9 @@ const CorporateTreeNodeWrapper: React.FC<
 
 export const CorporateTeamsPage: React.FC<CorporateTeamsPage> = ({ mothership }) => {
     const currentGroup = trpc.group.getById.useQuery(mothership.id);
-    const organizationUnits = trpc.organizationUnit.getAll.useQuery();
+    const organizationUnits = trpc.organizationUnit.getAll.useQuery({
+        hideEmpty: true,
+    });
     const countsByOrgIds = trpc.organizationUnit.getCountsByOrgUnitIds.useQuery(
         (organizationUnits.data || []).map(({ id }) => id),
         { enabled: (organizationUnits.data?.length ?? 0) > 0 },

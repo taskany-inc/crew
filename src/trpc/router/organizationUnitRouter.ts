@@ -8,9 +8,17 @@ export const organizationUnitRouter = router({
     getList: protectedProcedure.input(getOrganizationUnitListSchema).query(({ input }) => {
         return organizationUnitMethods.getList(input);
     }),
-    getAll: protectedProcedure.query(async () => {
-        return organizationUnitMethods.getAll();
-    }),
+    getAll: protectedProcedure
+        .input(
+            z
+                .object({
+                    hideEmpty: z.boolean(),
+                })
+                .optional(),
+        )
+        .query(async ({ input }) => {
+            return organizationUnitMethods.getAll(input?.hideEmpty);
+        }),
     getCountsByOrgUnitIds: protectedProcedure.input(z.array(z.string())).query(async ({ input }) => {
         const counts = await organizationUnitMethods.membershipCountByOrgIds(input);
 
