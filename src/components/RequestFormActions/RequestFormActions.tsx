@@ -109,23 +109,19 @@ export const RequestFormActions = ({
                                 text={small ? undefined : tr('Edit Form')}
                                 view={small ? 'default' : 'ghost'}
                                 onClick={onEdit}
-                                disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
                             />
                         </div>
                     ))}
 
-                    <div ref={tooltipRef}>
-                        <Button
-                            ref={cancelRef}
-                            iconLeft={small && <IconDeniedOutline size="s" />}
-                            size={small ? 's' : 'm'}
-                            view={small ? 'default' : 'danger'}
-                            type="button"
-                            text={small ? undefined : tr('Cancel request')}
-                            onClick={cancelWarningVisible.setTrue}
-                            disabled={requestStatus === 'Approved' || requestStatus === 'Denied'}
-                        />
-                    </div>
+                    <Button
+                        ref={cancelRef}
+                        iconLeft={small && <IconDeniedOutline size="s" />}
+                        size={small ? 's' : 'm'}
+                        view={small ? 'default' : 'danger'}
+                        type="button"
+                        text={small ? undefined : tr('Cancel request')}
+                        onClick={cancelWarningVisible.setTrue}
+                    />
                     {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
                         <Tooltip reference={tooltipRef} placement="bottom">
                             {tooltipText}
