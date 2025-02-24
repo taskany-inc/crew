@@ -29,6 +29,7 @@ import { deviceMethods } from './deviceMethods';
 import { historyEventMethods } from './historyEventMethods';
 import { serviceMethods } from './serviceMethods';
 import { SupplementalPositionWithUnit } from './userCreationRequestTypes';
+import { groupMethods } from './groupMethods';
 
 interface UserDissmissMailing {
     method: ICalCalendarMethod.REQUEST | ICalCalendarMethod.CANCEL;
@@ -44,6 +45,7 @@ interface UserDissmissMailing {
     phone: string;
     workEmail?: string;
     newOrganizationIds?: string[];
+    groupId?: string;
 }
 
 const sendDismissalEmails = async ({
@@ -81,6 +83,14 @@ const sendDismissalEmails = async ({
                   request?.newOrganizationUnit && getOrgUnitTitle(request.newOrganizationUnit)
               } ${request.user?.name} (${phone})`;
 
+    const group = request.organizationalGroup ? await groupMethods.getById(request.organizationalGroup) : null;
+
+    const transferFrom = `${orgUnit} > ${group?.name || ''}`;
+
+    const transferTo = `${(request?.newOrganizationUnit && getOrgUnitTitle(request.newOrganizationUnit)) || ''} > ${
+        request.newOrganizationalGroup || ''
+    }`;
+
     const html =
         request.type === 'retirement'
             ? scheduledDeactivationEmailHtml({
@@ -92,8 +102,8 @@ const sendDismissalEmails = async ({
               })
             : scheduledTransferEmailHtml({
                   data: request,
-                  transferFrom: orgUnit,
-                  transferTo: (request?.newOrganizationUnit && getOrgUnitTitle(request.newOrganizationUnit)) || '',
+                  transferFrom,
+                  transferTo,
                   unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
                   teamlead,
                   coordinators: coordinators.map(({ name, email }) => name || email).join(', '),
@@ -131,6 +141,11 @@ const sendDismissalEmails = async ({
                 additionalEmails,
                 !!request.workPlace,
             );
+
+            request.type === 'retirement'
+                ? workEndDate.setUTCHours(config.deactivateUtcHour)
+                : workEndDate.setUTCHours(config.deactivateUtcHour - 1, 30);
+
             const icalEvent = createIcalEventData({
                 id: request.id + config.nodemailer.authUser + organizationUnitId,
                 start: workEndDate,
@@ -732,9 +747,7 @@ export const scheduledDeactivationMethods = {
                     .filter((jobId) => jobId !== null) as string[];
 
                 await prisma.job.deleteMany({ where: { id: { in: jobIds } } });
-            }
-
-            if (
+            } else if (
                 scheduledDeactivationBeforeUpdate.deactivateDate.getTime() !==
                 scheduledDeactivation.deactivateDate.getTime()
             ) {
