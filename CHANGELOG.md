@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.110.0](https://github.com/taskany-inc/crew/compare/v0.109.3...v0.110.0) (2025-02-24)
+
+
+### Features
+
+* **INTERNAL-1537:** business unit groups ([15b65a6](https://github.com/taskany-inc/crew/commit/15b65a6190a605381cc166663a85a45e39e808c7))
+
 ## [0.109.3](https://github.com/taskany-inc/crew/compare/v0.109.2...v0.109.3) (2025-02-21)
 
 
