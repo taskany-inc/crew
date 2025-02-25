@@ -82,6 +82,7 @@ export const ExternalUserCreationRequestPage = ({
             date: request?.date || null,
             osPreference: request?.osPreference || '',
             attachIds: request?.attachIds,
+            intern: !!request?.intern,
         }),
         [request],
     );

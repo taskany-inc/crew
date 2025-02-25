@@ -82,6 +82,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = ({
             permissionToServices: request?.permissionToServices || [],
             reason: request?.reason || '',
             date: request?.date || null,
+            intern: !!request?.intern,
         }),
         [request],
     );

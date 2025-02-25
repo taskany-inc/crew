@@ -17,6 +17,7 @@ const dateSchema = z
 export const getCreateUserCreationRequestBaseSchema = () =>
     z.object({
         type: z.literal('existing'),
+        intern: z.boolean(),
         surname: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         firstName: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         middleName: z.string().optional(),

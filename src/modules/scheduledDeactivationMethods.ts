@@ -79,7 +79,7 @@ const sendDismissalEmails = async ({
     const subject =
         request.type === 'retirement'
             ? `${tr('Retirement')} ${request.user?.name} ${orgUnit} (${phone})`
-            : `${tr('Transfer from')} ${orgUnit} ${
+            : `${tr('Transfer from')} ${orgUnit} ${tr('to')} ${
                   request?.newOrganizationUnit && getOrgUnitTitle(request.newOrganizationUnit)
               } ${request.user?.name} (${phone})`;
 

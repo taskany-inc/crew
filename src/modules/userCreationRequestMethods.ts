@@ -80,6 +80,7 @@ const sendNewCommerEmails = ({ request, sessionUserId, method, newOrganizationId
                 userCreationRequest: request,
                 phone: userCreationRequestPhone(request),
                 name: request.name,
+                intern: !!request.supplementalPositions.find(({ intern }) => intern),
             });
 
             const icalEvent = createIcalEventData({
@@ -168,6 +169,7 @@ export const userCreationRequestsMethods = {
             status: PositionStatus.ACTIVE,
             workStartDate: data.date,
             unitId: data.unitId,
+            intern: data.intern,
         };
 
         const createData: Prisma.UserCreationRequestUncheckedCreateInput = {
@@ -212,6 +214,7 @@ export const userCreationRequestsMethods = {
                         status: PositionStatus.ACTIVE,
                         workStartDate,
                         unitId,
+                        intern: data.intern,
                     })),
                 ],
             };
@@ -671,6 +674,7 @@ export const userCreationRequestsMethods = {
             accessToInternalSystems,
             personalEmail,
             osPreference,
+            intern: !!supplementalPositions.find(({ intern }) => intern),
         };
     },
 
@@ -768,6 +772,7 @@ export const userCreationRequestsMethods = {
             personalEmail: personalEmail || undefined,
             osPreference: osPreference || undefined,
             date: date || undefined,
+            intern: !!supplementalPositions.find(({ intern }) => intern),
         };
     },
 
@@ -864,6 +869,7 @@ export const userCreationRequestsMethods = {
                 mainPosition.organizationUnitId !== editData.organizationUnitId ||
                 editData.date !== mainPosition.workStartDate ||
                 editData.unitId !== mainPosition.unitId ||
+                editData.intern !== mainPosition.intern ||
                 (editData.percentage && editData.percentage * percentageMultiply !== mainPosition.percentage))
         ) {
             await prisma.supplementalPosition.update({
@@ -872,6 +878,7 @@ export const userCreationRequestsMethods = {
                     role: editData.title,
                     workStartDate: editData.date,
                     unitId: editData.unitId || null,
+                    intern: editData.intern,
                     percentage: (editData.percentage || 1) * percentageMultiply,
                     organizationUnitId: editData.organizationUnitId,
                 },
@@ -891,6 +898,7 @@ export const userCreationRequestsMethods = {
                 status: PositionStatus.ACTIVE,
                 workStartDate: newSupplemental.workStartDate,
                 unitId: newSupplemental.unitId,
+                intern: editData.intern,
             };
             createNewSupplementalPositions.push(newSupplementalPosition);
         }
@@ -912,6 +920,7 @@ export const userCreationRequestsMethods = {
                     role: editData.title,
                     percentage: newSupplemental.percentage * percentageMultiply,
                     unitId: newSupplemental.unitId,
+                    intern: editData.intern,
                 },
             });
         }
@@ -1526,6 +1535,7 @@ export const userCreationRequestsMethods = {
             surname: fullNameArray[0],
             firstName: fullNameArray[1],
             middleName: fullNameArray[2],
+            intern: !!supplementalPositions.find(({ intern }) => intern),
         };
     },
 
