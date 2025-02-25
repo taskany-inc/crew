@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.110.1](https://github.com/taskany-inc/crew/compare/v0.110.0...v0.110.1) (2025-02-25)
+
+
+### Bug Fixes
+
+* **INTERNAL-1655:** hide empty orgunits ([e5abd1e](https://github.com/taskany-inc/crew/commit/e5abd1e66c3094512bb0c62d70cbeaee77275486))
+* **INTERNAL-1656:** hide structure controls ([c0b1b78](https://github.com/taskany-inc/crew/commit/c0b1b78e67ecf4a4f9e81b053feafd4fffb9c1c1))
+* **INTERNAL-1660:** fixes on transfer/dismissal mailing ([5cf19e5](https://github.com/taskany-inc/crew/commit/5cf19e528bf9b1c1a5a636eeafbb91281bc2ca26))
+
 ## [0.110.0](https://github.com/taskany-inc/crew/compare/v0.109.3...v0.110.0) (2025-02-24)
 
 
