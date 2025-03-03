@@ -44,7 +44,8 @@ interface UserFormPersonalDataBlockProps {
         | 'externalFromMainOrgEmployee'
         | 'toDecree'
         | 'fromDecree'
-        | 'dismissal';
+        | 'dismissal'
+        | 'transferInternToStaff';
     readOnly?: boolean | ReadOnlyMap;
     defaultValue?: UserFormPersonalDataBlockType;
 }

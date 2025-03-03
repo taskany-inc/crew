@@ -155,6 +155,10 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
             headerNodes.push(orgRoles);
         }
 
+        if (main?.intern) {
+            headerNodes.push(tr('Intern'));
+        }
+
         return {
             orgUnitAndRole: headerNodes.join(': '),
             supplemental: positions,
@@ -247,8 +251,8 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                 <FireOrTransferUserModal
                     visible={dismissOrTransferModalVisibility.value}
                     onClose={dismissOrTransferModalVisibility.setFalse}
-                    onTransfer={() => router.userTransferNew(user.id)}
-                    onDismiss={() => router.userDismissNew(user.id)}
+                    userId={user.id}
+                    intern={!!user.supplementalPositions.find((s) => s.intern && s.status === 'ACTIVE')}
                 />
 
                 <EditButtonsWrapper>

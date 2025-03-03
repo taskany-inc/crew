@@ -40,3 +40,13 @@ export interface UserCreationRequestWithRelations extends UserCreationRequest {
     lineManagers: User[] | null;
     supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
 }
+
+export enum UserCreationRequestType {
+    existing = 'existing',
+    internalEmployee = 'internalEmployee',
+    externalEmployee = 'externalEmployee',
+    externalFromMainOrgEmployee = 'externalFromMainOrgEmployee',
+    toDecree = 'toDecree',
+    fromDecree = 'fromDecree',
+    transferInternToStaff = 'transferInternToStaff',
+}
