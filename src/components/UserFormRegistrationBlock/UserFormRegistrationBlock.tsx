@@ -16,7 +16,7 @@ import { tr } from './UserFormRegistrationBlock.i18n';
 interface UserFormRegistrationBlockProps {
     className: string;
     id: string;
-    type: 'internal' | 'existing' | 'toDecree' | 'fromDecree';
+    type: 'internal' | 'existing' | 'toDecree' | 'fromDecree' | 'transferInternToStaff';
     organizationUnits?: OrganizationUnit[];
     onOrganistaionUnitChange?: (orgId: string) => void;
     onSupplementalOrganistaionUnitChange?: (orgId: string) => void;
@@ -198,7 +198,7 @@ export const UserFormRegistrationBlock = ({
             </div>
 
             <div className={s.AddSupplementalPosition}></div>
-            <AddSupplementalPosition readOnly={readOnly} />
+            <AddSupplementalPosition readOnly={readOnly} hasStartDate={type !== 'transferInternToStaff'} />
         </div>
     );
 };

@@ -13,5 +13,8 @@
     "Loaded": "Загружено",
     "File doesn't load": "Файл не загружен",
     "In *.png or *.jpeg format": "В формате PNG и JPG",
-    "Photo report": "Фотоотчет"
+    "Photo report": "Фотоотчет",
+    "Devices return/moving application {corpAppName}": "Заявка на перемещение рм/сдачу техники {corpAppName}",
+    "Devices return/moving application": "",
+    "Add screenshot or photo from personal account {corpAppName}": ""
 }
