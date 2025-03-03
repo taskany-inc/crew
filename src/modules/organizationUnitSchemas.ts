@@ -22,4 +22,5 @@ export interface AddSupplementalPositionType {
     percentage: number;
     unitId?: string | null;
     organizationUnit: OrganizationUnit;
+    intern?: boolean;
 }

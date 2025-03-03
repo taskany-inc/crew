@@ -4,37 +4,54 @@ import { ModalHeader, Modal, ModalContent, Text, Button } from '@taskany/bricks/
 import cn from 'classnames';
 import { IconTickCircleOutline } from '@taskany/icons';
 
+import { useRouter } from '../../hooks/useRouter';
+import { trpc } from '../../trpc/trpcClient';
+
 import s from './FireOrTransferUserModal.module.css';
 import { tr } from './FireOrTransferUserModal.i18n';
 
 interface FireOrTransferUserModalProps {
     visible: boolean;
-    onDismiss: () => void;
-    onTransfer: () => void;
+    userId: string;
     onClose: VoidFunction;
+    intern?: boolean;
 }
+
+type RequestPage = 'userTransferNew' | 'userDismissNew' | 'transferInternToStaffNew';
 
 interface RequestTypeListType {
     name: string;
     description: string;
-    type: 'transfer' | 'dismiss';
+    type: RequestPage;
 }
 
-export const FireOrTransferUserModal = ({ visible, onClose, onDismiss, onTransfer }: FireOrTransferUserModalProps) => {
-    const [active, setActive] = useState<RequestTypeListType['type'] | undefined>();
+export const FireOrTransferUserModal = ({ visible, onClose, userId, intern }: FireOrTransferUserModalProps) => {
+    const [active, setActive] = useState<RequestPage | undefined>();
+
+    const { data: userSettings } = trpc.user.getSettings.useQuery();
 
     const requestTypeList: RequestTypeListType[] = [
         {
             name: tr('Create a planned dismiss'),
             description: tr('Informing about the dismiss of an employee'),
-            type: 'dismiss',
+            type: 'userDismissNew',
         },
         {
             name: tr('Transfer employee'),
             description: tr('Informing about the transfer of an employee'),
-            type: 'transfer',
+            type: 'userTransferNew',
         },
     ];
+
+    if (intern && userSettings?.beta) {
+        requestTypeList.push({
+            name: tr('Transfer intern to staff'),
+            description: tr('Informing about the transfer of an intern to the staff'),
+            type: 'transferInternToStaffNew',
+        });
+    }
+
+    const router = useRouter();
 
     return (
         <Modal visible={visible} onClose={onClose} width={530}>
@@ -71,10 +88,7 @@ export const FireOrTransferUserModal = ({ visible, onClose, onDismiss, onTransfe
                         type="button"
                         view="primary"
                         text={tr('Create')}
-                        onClick={() => {
-                            active === 'dismiss' ? onDismiss() : onTransfer();
-                            onClose();
-                        }}
+                        onClick={() => active && router[active](userId)}
                         disabled={!active}
                     />
                 </div>

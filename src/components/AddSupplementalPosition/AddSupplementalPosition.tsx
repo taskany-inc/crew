@@ -24,9 +24,10 @@ interface SupplementalPositionsType {
 
 interface AddSupplementalPositionProps {
     readOnly?: boolean;
+    hasStartDate?: boolean;
 }
 
-export const AddSupplementalPosition = ({ readOnly }: AddSupplementalPositionProps) => {
+export const AddSupplementalPosition = ({ readOnly, hasStartDate = true }: AddSupplementalPositionProps) => {
     const {
         register,
         setValue,
@@ -104,28 +105,30 @@ export const AddSupplementalPosition = ({ readOnly }: AddSupplementalPositionPro
                                     {...register(`supplementalPositions.${index}.unitId`)}
                                 />
                             </FormControl>
-                            <FormControl
-                                required
-                                label={tr('Start date')}
-                                error={errorPicker<Position>(errors.supplementalPositions, index, 'workStartDate')}
-                            >
-                                <FormControlInput
-                                    readOnly={readOnly}
-                                    outline
-                                    autoComplete="off"
-                                    size="m"
-                                    type="date"
-                                    value={
-                                        workStartDate && JSON.stringify(workStartDate) !== 'null'
-                                            ? workStartDate.toISOString().substring(0, 10)
-                                            : undefined
-                                    }
-                                    {...register(`supplementalPositions.${index}.workStartDate`, {
-                                        valueAsDate: true,
-                                        onChange: () => trigger('supplementalPositions'),
-                                    })}
-                                />
-                            </FormControl>
+                            {nullable(hasStartDate, () => (
+                                <FormControl
+                                    required
+                                    label={tr('Start date')}
+                                    error={errorPicker<Position>(errors.supplementalPositions, index, 'workStartDate')}
+                                >
+                                    <FormControlInput
+                                        readOnly={readOnly}
+                                        outline
+                                        autoComplete="off"
+                                        size="m"
+                                        type="date"
+                                        value={
+                                            workStartDate && JSON.stringify(workStartDate) !== 'null'
+                                                ? workStartDate.toISOString().substring(0, 10)
+                                                : undefined
+                                        }
+                                        {...register(`supplementalPositions.${index}.workStartDate`, {
+                                            valueAsDate: true,
+                                            onChange: () => trigger('supplementalPositions'),
+                                        })}
+                                    />
+                                </FormControl>
+                            ))}
                         </div>
                     </div>
                 );
