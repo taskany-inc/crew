@@ -1,0 +1,19 @@
+{
+    "Request": "Заявка",
+    "Create a planned transfer of employee": "Создать плановый перевод сотрудника",
+    "Request for a planned transfer of employee": "Заявка на плановый перевод сотрудника",
+    "Personal data": "Персональные данные",
+    "Registration": "Оформление",
+    "Team": "Команда",
+    "Work space": "Рабочее место",
+    "Comments": "Комментарий",
+    "Not specified": "Не указано",
+    "Transfer": "Перевод",
+    "Organization": "Организация",
+    "Old role": "Предыдущая роль",
+    "Write old role": "Введите название роли/должности",
+    "Old organizational group": "Подразделение откуда переводится ",
+    "Write old organizational group name": "Введите название подразделения",
+    "Old supervisor": "Прошлый руководитель",
+    "Write old supervisor full name": "Введите ФИО руководителя"
+}
