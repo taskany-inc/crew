@@ -1,6 +1,7 @@
 import { UserCreationRequest, Prisma, User, PermissionService, SupplementalPosition } from 'prisma/prisma-client';
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
+import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 
 import { prisma } from '../utils/prisma';
 import { trimAndJoin } from '../utils/trimAndJoin';
@@ -20,6 +21,7 @@ import { PositionStatus } from '../generated/kyselyTypes';
 import { userCreationRequestPhone } from '../utils/createUserCreationRequest';
 import { pages } from '../hooks/useRouter';
 import { ExternalServiceName, findService } from '../utils/externalServices';
+import { db } from '../utils/db';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
@@ -32,6 +34,7 @@ import {
     EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
+    TransferInternToStaff,
     UserDecreeEditSchema,
     UserDecreeSchema,
 } from './userCreationRequestSchemas';
@@ -40,7 +43,9 @@ import {
     BaseUserCreationRequest,
     UserDecreeRequest,
     UserCreationRequestWithRelations,
+    UserCreationRequestType,
 } from './userCreationRequestTypes';
+import { serviceMethods } from './serviceMethods';
 
 interface SendNewcomerEmails {
     request: UserCreationRequestWithRelations;
@@ -1654,6 +1659,263 @@ export const userCreationRequestsMethods = {
             surname: fullNameArray[0],
             firstName: fullNameArray[1],
             middleName: fullNameArray[2],
+        };
+    },
+
+    transferInternToStaff: async (data: TransferInternToStaff, sessionUserId: string) => {
+        const user = await userMethods.getById(data.userId);
+
+        if (!user) {
+            throw new TRPCError({ message: `No user with id ${data.userId}`, code: 'NOT_FOUND' });
+        }
+
+        const oldPositions = user.supplementalPositions.filter((s) => s.status === 'ACTIVE' && s.intern);
+
+        if (!oldPositions.length) {
+            throw new TRPCError({
+                message: `User with id ${data.userId} have no intern positions`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        const request = await db
+            .insertInto('UserCreationRequest')
+            .values({
+                type: UserCreationRequestType.transferInternToStaff,
+                userTargetId: data.userId,
+                email: data.email,
+                login: data.login,
+                name: user.name ?? trimAndJoin([data.surname, data.firstName, data.middleName]),
+                creatorId: sessionUserId,
+                organizationUnitId: data.organizationUnitId,
+                percentage: (data.percentage ?? 1) * percentageMultiply,
+                unitId: data.unitId,
+                groupId: data.groupId || undefined,
+                supervisorId: data.supervisorId,
+                title: data.title || undefined,
+                corporateEmail: data.corporateEmail || undefined,
+                createExternalAccount: false,
+                workMode: data.workMode,
+                workModeComment: data.workModeComment,
+                workSpace: data.workSpace,
+                location: data.location,
+                date: data.date,
+                comment: data.comment || undefined,
+                workEmail: data.workEmail || undefined,
+                personalEmail: data.personalEmail || undefined,
+                internshipOrganizationId: data.internshipOrganizationId,
+                internshipOrganizationGroup: data.internshipOrganizationGroup,
+                internshipRole: data.internshipRole,
+                internshipSupervisor: data.internshipSupervisor,
+                applicationForReturnOfEquipment: data.applicationForReturnOfEquipment,
+                ...(data.devices && data.devices.length && { devices: { toJSON: () => data.devices } }),
+                ...(data.testingDevices && { testingDevices: { toJSON: () => data.testingDevices } }),
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow();
+
+        const newPositionValues = [
+            {
+                organizationUnitId: data.organizationUnitId,
+                workStartDate: data.date,
+                percentage: data.percentage ? data.percentage * percentageMultiply : 100,
+                unitId: data.unitId,
+                main: true,
+                userCreationRequestId: request.id,
+            },
+        ];
+
+        if (data.supplementalPositions?.length) {
+            newPositionValues.push(
+                ...data.supplementalPositions.map((s) => ({
+                    organizationUnitId: s.organizationUnitId,
+                    workStartDate: data.date,
+                    percentage: s.percentage * percentageMultiply,
+                    unitId: s.unitId,
+                    main: false,
+                    userCreationRequestId: request.id,
+                })),
+            );
+        }
+
+        await db
+            .insertInto('SupplementalPosition')
+            .values(newPositionValues)
+            .returningAll()
+            .returning((eb) => [
+                'SupplementalPosition.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('OrganizationUnit')
+                        .select([
+                            'OrganizationUnit.country as country',
+                            'OrganizationUnit.description as description',
+                            'OrganizationUnit.external as external',
+                            'OrganizationUnit.id as id',
+                            'OrganizationUnit.name as name',
+                        ])
+                        .whereRef('OrganizationUnit.id', '=', 'SupplementalPosition.organizationUnitId'),
+                ).as('organizationUnit'),
+            ])
+            .execute();
+
+        if (data.attachIds?.length) {
+            await db
+                .updateTable('Attach')
+                .where('id', 'in', data.attachIds)
+                .set({ userCreationRequestId: request.id })
+                .execute();
+        }
+
+        if (data.lineManagerIds?.length) {
+            await db
+                .insertInto('_userLineManagers')
+                .values(data.lineManagerIds.map((id) => ({ A: id, B: request.id })))
+                .execute();
+        }
+
+        await db
+            .updateTable('SupplementalPosition')
+            .where(
+                'id',
+                'in',
+                oldPositions.map(({ id }) => id),
+            )
+            .set({ workEndDate: data.date })
+            .execute();
+
+        Promise.all(
+            oldPositions.map(async (s) => {
+                await createJob('scheduledFiringFromSupplementalPosition', {
+                    date: data.date || undefined,
+                    data: { supplementalPositionId: s.id, userId: data.userId },
+                });
+            }),
+        );
+
+        if (request.date) {
+            await createJob('activateSupplementalPositions', {
+                data: { userCreationRequestId: request.id },
+                date: request.date,
+            });
+        }
+    },
+
+    getTransferInternToStaffById: async (id: string): Promise<TransferInternToStaff> => {
+        const request = await db
+            .selectFrom('UserCreationRequest')
+            .where('id', '=', id)
+            .selectAll()
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('SupplementalPosition as s')
+                        .select([
+                            's.id',
+                            's.workStartDate',
+                            's.main',
+                            's.organizationUnitId',
+                            's.unitId',
+                            's.percentage',
+                        ])
+                        .select((eb) => [
+                            's.id',
+                            jsonObjectFrom(
+                                eb
+                                    .selectFrom('OrganizationUnit')
+                                    .select([
+                                        'OrganizationUnit.country as country',
+                                        'OrganizationUnit.description as description',
+                                        'OrganizationUnit.external as external',
+                                        'OrganizationUnit.id as id',
+                                        'OrganizationUnit.name as name',
+                                    ])
+                                    .whereRef('OrganizationUnit.id', '=', 's.organizationUnitId'),
+                            ).as('organizationUnit'),
+                        ])
+                        .whereRef('s.userCreationRequestId', '=', 'UserCreationRequest.id'),
+                ).as('supplementalPositions'),
+            ])
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonArrayFrom(
+                    eb.selectFrom('_userLineManagers').select(['A']).whereRef('B', 'in', 'UserCreationRequest.id'),
+                ).as('lineManagerIds'),
+            ])
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('Group as g')
+                        .select(['g.id', 'g.name'])
+                        .whereRef('g.id', '=', 'UserCreationRequest.groupId'),
+                ).as('group'),
+            ])
+            .executeTakeFirst();
+
+        if (!request) {
+            throw new TRPCError({ message: `No transfer intern to staff request with id ${id}`, code: 'NOT_FOUND' });
+        }
+
+        if (!request.userTargetId) {
+            throw new TRPCError({
+                message: `No user in transfer intern to staff request with id ${id}`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        if (request.type !== UserCreationRequestType.transferInternToStaff) {
+            throw new TRPCError({
+                message: `Request with id ${id} is not transfer intern to staff type`,
+                code: 'BAD_REQUEST',
+            });
+        }
+
+        const fullNameArray = request.name.split(' ');
+
+        const mainOrganization = request.supplementalPositions.find((s) => s.main);
+
+        const services = await serviceMethods.getUserServices(request.userTargetId);
+
+        const phone = findService(ExternalServiceName.Phone, services);
+
+        return {
+            type: request.type,
+            surname: fullNameArray[0],
+            firstName: fullNameArray[1],
+            middleName: fullNameArray[2],
+            email: request.email,
+            supervisorId: request.supervisorId || '',
+            organizationUnitId: mainOrganization?.id || '',
+            percentage: (mainOrganization?.percentage || 100) / percentageMultiply,
+            unitId: mainOrganization?.unitId || undefined,
+            login: request.login,
+            applicationForReturnOfEquipment: request.applicationForReturnOfEquipment || undefined,
+            date: request.date,
+            title: request.title || '',
+            workMode: request.workMode || '',
+            phone: phone || '',
+            workEmail: request.workEmail || '',
+            personalEmail: request.personalEmail || '',
+            location: request.location || '',
+            internshipOrganizationId: request.internshipOrganizationId || '',
+            userId: request.userTargetId,
+            supplementalPositions:
+                request.supplementalPositions
+                    .filter(({ main }) => !main)
+                    .map(({ organizationUnitId, percentage, unitId }) => ({
+                        organizationUnitId,
+                        percentage: percentage / percentageMultiply,
+                        unitId: unitId || undefined,
+                    })) || [],
+            workSpace: request.workSpace || '',
+            lineManagerIds: request.lineManagerIds.map(({ A }) => A),
+            internshipOrganizationGroup: request.internshipOrganizationGroup || undefined,
+            internshipRole: request.internshipRole || undefined,
+            internshipSupervisor: request.internshipSupervisor || undefined,
+            devices: request.devices as Record<'name' | 'id', string>[],
+            testingDevices: request.testingDevices as Record<'name' | 'id', string>[],
         };
     },
 };

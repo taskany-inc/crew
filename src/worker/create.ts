@@ -21,6 +21,9 @@ export interface JobDataMap {
         supplementalPositionId: string;
         userId: string;
     };
+    activateSupplementalPositions: {
+        userCreationRequestId: string;
+    };
 }
 
 export type JobKind = keyof JobDataMap;

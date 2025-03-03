@@ -239,6 +239,15 @@ model UserCreationRequest {
 
   reasonToGrantPermissionToServices String?
 
+  internshipOrganizationId        String?
+  internshipOrganizationGroup     String?
+  internshipRole                  String?
+  internshipSupervisor            String?
+  applicationForReturnOfEquipment String?
+
+  testingDevices Json?
+  devices        Json?
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
@@ -789,7 +798,7 @@ enum PositionStatus {
 }
 
 model SupplementalPosition {
-  id String @id @default(cuid())
+  id String @id @default(dbgenerated("gen_random_uuid()"))
 
   organizationUnit   OrganizationUnit @relation(fields: [organizationUnitId], references: [id])
   organizationUnitId String
