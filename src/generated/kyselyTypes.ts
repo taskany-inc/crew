@@ -292,7 +292,7 @@ export type Session = {
     updatedAt: Generated<Timestamp>;
 };
 export type SupplementalPosition = {
-    id: string;
+    id: Generated<string>;
     organizationUnitId: string;
     unitId: string | null;
     personnelNumber: string | null;
@@ -385,6 +385,13 @@ export type UserCreationRequest = {
     jobId: string | null;
     reasonToGrantPermissionToServices: string | null;
     transferFromGroup: string | null;
+    internshipOrganizationId: string | null;
+    internshipOrganizationGroup: string | null;
+    internshipRole: string | null;
+    internshipSupervisor: string | null;
+    applicationForReturnOfEquipment: string | null;
+    testingDevices: unknown | null;
+    devices: unknown | null;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };

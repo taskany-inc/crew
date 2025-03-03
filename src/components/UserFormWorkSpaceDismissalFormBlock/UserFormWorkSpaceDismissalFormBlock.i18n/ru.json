@@ -7,11 +7,13 @@
     "Required field": "Нужно обязательно заполнить",
     "Devices return application": "Заявка на сдачу техники",
     "Application №": "№ заявки",
-    "Add screenshot or photo from personal account": "Прикрепите скриншот или фото из личного кабинета СберДруг",
     "Drop file here": "Перетащите файл сюда",
     "Loading": "Загружаем...",
     "Loaded": "Загружено",
     "File doesn't load": "Файл не загружен",
     "In *.png or *.jpeg format": "В формате PNG и JPG",
-    "Photo report": "Фотоотчет"
+    "Photo report": "Фотоотчет",
+    "Devices return/moving application {corpAppName}": "Заявка на перемещение рм/сдачу техники {corpAppName}",
+    "Devices return/moving application": "Заявка на перемещение рм/сдачу техники",
+    "Add screenshot or photo from personal account {corpAppName}": "Прикрепите скриншот или фото из личного кабинета {corpAppName}"
 }
