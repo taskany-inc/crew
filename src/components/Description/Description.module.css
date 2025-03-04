@@ -1,0 +1,17 @@
+.Description {
+    display: flex;
+}
+
+.DescriptionText {
+    transition: height 300ms ease-in-out;
+    overflow: hidden;
+    white-space: pre;
+}
+
+.DescriptionExpanded {
+    -webkit-line-clamp: unset;
+}
+
+.Button {
+    margin-left: auto;
+}
