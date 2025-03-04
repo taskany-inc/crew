@@ -313,7 +313,6 @@ export const ScheduledDismissalPage = ({
                                     id="work-space"
                                     className={s.FormBlock}
                                     requestId={scheduledDeactivation?.id}
-                                    requestType={transfer ? 'transfer' : 'dismiss'}
                                 />
 
                                 <UserFormDevicesBlock className={s.FormBlock} readOnly={readOnly} />

@@ -9,7 +9,6 @@ import { getFileIdFromPath } from '../../utils/attachFormatter';
 import { pages } from '../../hooks/useRouter';
 import { AttachList } from '../AttachList/AttachList';
 import { trpc } from '../../trpc/trpcClient';
-import { config } from '../../config';
 
 import s from './UserFormWorkSpaceDismissalFormBlock.module.css';
 import { tr } from './UserFormWorkSpaceDismissalFormBlock.i18n';
@@ -19,7 +18,6 @@ interface UserFormWorkSpaceDismissalFormBlockProps {
     id: string;
     type?: 'new' | 'readOnly' | 'edit';
     requestId?: string;
-    requestType: 'dismiss' | 'transfer' | 'transferInternToStaff';
 }
 
 interface UserFormWorkSpaceDismissalFormBlockType {
@@ -40,7 +38,6 @@ export const UserFormWorkSpaceDismissalFormBlock = ({
     id,
     type,
     requestId,
-    requestType,
 }: UserFormWorkSpaceDismissalFormBlockProps) => {
     const {
         register,
@@ -66,11 +63,6 @@ export const UserFormWorkSpaceDismissalFormBlock = ({
         },
         [errors.attachIds, setValue, trigger],
     );
-
-    const devicesReturnAppLabel =
-        requestType === 'transferInternToStaff'
-            ? tr('Devices return/moving application')
-            : tr('Devices return application');
 
     return (
         <div className={className} id={id}>
@@ -107,7 +99,7 @@ export const UserFormWorkSpaceDismissalFormBlock = ({
                         {...register('workSpace')}
                     />
                 </FormControl>
-                <FormControl label={devicesReturnAppLabel} error={errors.applicationForReturnOfEquipment}>
+                <FormControl label={tr('Devices return application')} error={errors.applicationForReturnOfEquipment}>
                     <FormControlInput
                         readOnly={type === 'readOnly'}
                         autoComplete="off"
@@ -125,9 +117,7 @@ export const UserFormWorkSpaceDismissalFormBlock = ({
                             'image/*': ['.jpeg', '.png'],
                         }}
                         translates={{
-                            idle: tr('Add screenshot or photo from personal account {corpAppName}', {
-                                corpAppName: config.corpAppName,
-                            }),
+                            idle: tr('Add screenshot or photo from personal account'),
                             active: tr('Drop file here'),
                             loading: tr('Loading'),
                             accepted: tr('Loaded'),
