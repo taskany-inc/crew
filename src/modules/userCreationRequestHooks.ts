@@ -4,7 +4,6 @@ import { notifyPromise } from '../utils/notifications/notifyPromise';
 import {
     CreateUserCreationRequest,
     EditUserCreationRequest,
-    TransferInternToStaff,
     UserDecreeEditSchema,
     UserDecreeSchema,
 } from './userCreationRequestSchemas';
@@ -61,13 +60,6 @@ export const useUserCreationRequestMutations = () => {
         },
     });
 
-    const createTransferInternToStaffRequest = trpc.userCreationRequest.createTransferInternToStaffRequest.useMutation({
-        onSuccess: () => {
-            utils.user.invalidate();
-            utils.userCreationRequest.invalidate();
-        },
-    });
-
     return {
         createUserCreationRequest: (data: CreateUserCreationRequest) =>
             notifyPromise(createUserCreationRequest.mutateAsync(data), 'userCreationRequestCreate'),
@@ -98,8 +90,5 @@ export const useUserCreationRequestMutations = () => {
 
         editDecreeRequest: (data: UserDecreeEditSchema) =>
             notifyPromise(editDecreeRequest.mutateAsync(data), 'userDecreeRequestEdit'),
-
-        createTransferInternToStaffRequest: (data: TransferInternToStaff) =>
-            notifyPromise(createTransferInternToStaffRequest.mutateAsync(data), 'transferInternToStaffRequestCreate'),
     };
 };

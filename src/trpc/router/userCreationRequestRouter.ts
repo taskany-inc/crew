@@ -8,7 +8,6 @@ import {
     editUserCreationRequestSchema,
     getUserCreationRequestListSchema,
     handleUserCreationRequest,
-    transferInternToStaffSchema,
     userDecreeEditSchema,
     userDecreeSchema,
 } from '../../modules/userCreationRequestSchemas';
@@ -698,20 +697,5 @@ export const userCreationRequestRouter = router({
             checkRoleForAccess(ctx.session.user.role, 'createUser'),
         );
         return userCreationRequestsMethods.getDecreeRequestById(input);
-    }),
-
-    createTransferInternToStaffRequest: protectedProcedure
-        .input(transferInternToStaffSchema())
-        .mutation(async ({ input, ctx }) => {
-            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
-
-            return userCreationRequestsMethods.transferInternToStaff(input, ctx.session.user.id);
-        }),
-    getTransferInternToStaffById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
-        accessCheckAnyOf(
-            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
-            checkRoleForAccess(ctx.session.user.role, 'createUser'),
-        );
-        return userCreationRequestsMethods.getTransferInternToStaffById(input);
     }),
 });

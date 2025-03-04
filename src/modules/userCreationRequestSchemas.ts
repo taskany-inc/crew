@@ -4,7 +4,6 @@ import { UserCreationRequestStatus } from 'prisma/prisma-client';
 import { getPhoneSchema } from '../utils/phoneSchema';
 
 import { tr } from './modules.i18n';
-import { UserCreationRequestType } from './userCreationRequestTypes';
 
 const dateSchema = z
     .date({
@@ -14,12 +13,6 @@ const dateSchema = z
     })
     .nullable()
     .refine((date) => date, tr('Required field'));
-
-const percentageSchema = z
-    .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
-    .multipleOf(0.01)
-    .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
-    .max(1, { message: tr('Please enter percentage from 0.01 to 1') });
 
 export const getCreateUserCreationRequestBaseSchema = () =>
     z.object({
@@ -56,13 +49,22 @@ export const getCreateUserCreationRequestBaseSchema = () =>
         attachIds: z.string().array().optional(),
         workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
         personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
-        percentage: percentageSchema.optional(),
+        percentage: z
+            .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
+            .multipleOf(0.01)
+            .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
+            .max(1, { message: tr('Please enter percentage from 0.01 to 1') })
+            .optional(),
         unitId: z.string().optional(),
         supplementalPositions: z
             .array(
                 z.object({
                     organizationUnitId: z.string().min(1, { message: tr('Required field') }),
-                    percentage: percentageSchema,
+                    percentage: z
+                        .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
+                        .multipleOf(0.01)
+                        .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
+                        .max(1, { message: tr('Please enter percentage from 0.01 to 1') }),
                     unitId: z.string().optional(),
                     workStartDate: dateSchema,
                 }),
@@ -94,7 +96,14 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
         location: z.string().min(1, { message: tr('Required field') }),
         creationCause: z.string(),
         unitId: z.string().optional(),
-        date: dateSchema,
+        date: z
+            .date({
+                errorMap: () => ({
+                    message: tr('Required field'),
+                }),
+            })
+            .nullish()
+            .refine((date) => date, tr('Required field')),
         osPreference: z.string().optional(),
     });
 export type CreateUserCreationRequestInternalEmployee = z.infer<
@@ -249,85 +258,3 @@ export const editUserCreationRequestSchema = z.object({
     data: createUserCreationRequestSchema,
 });
 export type EditUserCreationRequest = z.infer<typeof editUserCreationRequestSchema>;
-
-export const transferInternToStaffSchema = () =>
-    z.object({
-        type: z.literal(UserCreationRequestType.transferInternToStaff),
-        surname: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
-        firstName: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
-        middleName: z.string().optional(),
-        userId: z.string(),
-        email: z
-            .string({ required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') })
-            .min(5, { message: tr('Minimum {min} symbols', { min: 5 }) })
-            .email(tr('Not a valid email')),
-        phone: getPhoneSchema(),
-        login: z
-            .string({ required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') })
-            .regex(/^[a-z0-9]+$/, { message: tr('Login should contain only lowercase letters and digits') }),
-        organizationUnitId: z.string({
-            required_error: tr('Required field'),
-            invalid_type_error: tr('Required field'),
-        }),
-        groupId: z.string().optional(),
-        supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
-        title: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
-        corporateEmail: z.string().optional(),
-        date: dateSchema,
-        comment: z.string().optional(),
-        attachIds: z.string().array().optional(),
-        workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
-        personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
-        percentage: percentageSchema.optional(),
-        unitId: z.string().optional(),
-        supplementalPositions: z
-            .array(
-                z.object({
-                    organizationUnitId: z.string().min(1, { message: tr('Required field') }),
-                    percentage: percentageSchema,
-                    unitId: z.string().optional(),
-                }),
-            )
-            .optional(),
-        lineManagerIds: z.array(z.string()).optional(),
-        workMode: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
-        workModeComment: z.string().optional(),
-        workSpace: z.string().optional(),
-        location: z.string().min(1, { message: tr('Required field') }),
-        internshipOrganizationId: z.string(),
-        internshipOrganizationGroup: z.string().optional(),
-        internshipRole: z.string().optional(),
-        internshipSupervisor: z.string().optional(),
-        applicationForReturnOfEquipment: z.string().optional(),
-        devices: z
-            .array(
-                z.object({
-                    name: z
-                        .string({ required_error: tr('Obligatory field') })
-                        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                    id: z
-                        .string({ required_error: tr('Obligatory field') })
-                        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                }),
-            )
-            .min(1),
-        testingDevices: z
-            .array(
-                z.object({
-                    name: z
-                        .string({ required_error: tr('Obligatory field') })
-                        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                    id: z
-                        .string({ required_error: tr('Obligatory field') })
-                        .min(1, { message: tr('Obligatory field', { min: 1 }) }),
-                }),
-            )
-            .optional(),
-    });
-export type TransferInternToStaff = z.infer<ReturnType<typeof transferInternToStaffSchema>>;

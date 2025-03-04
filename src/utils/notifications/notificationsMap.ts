@@ -31,7 +31,6 @@ export type NotificationNamespaces =
     | NamespacedAction<'userRole', 'ChangeScope'>
     | NamespacedAction<'attach', 'Delete'>
     | NamespacedAction<'supplementalPosition', 'Add' | 'Remove'>
-    | NamespacedAction<'transferInternToStaffRequest', 'Create'>
     | 'sendFeedback'
     | 'copy';
 
@@ -223,10 +222,6 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         supplementalPositionRemove: {
             success: tr('Supplemental position removed from user'),
             loading: tr('Removing the supplemental position...'),
-        },
-        transferInternToStaffRequestCreate: {
-            success: tr('Voila! Transfer intern to staff request is created 🎉'),
-            loading: tr('Creating transfer intern to staff request...'),
         },
     };
 
