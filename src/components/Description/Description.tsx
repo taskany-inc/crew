@@ -21,45 +21,52 @@ const textSizesMap: Record<Size, ComponentProps<typeof Text>['size']> = {
     l: 'sm',
 };
 
-const useOverflow = <T extends HTMLElement>(ref: React.MutableRefObject<T | null>) => {
-    const [overflow, setOverflow] = useState(false);
-    useEffect(() => {
-        if (ref.current) {
-            setOverflow(ref.current.clientHeight < ref.current.scrollHeight);
-        }
-    }, [ref]);
-
-    return overflow;
-};
-
-const useCollapse = () => {
-    const nodeRef = useRef<HTMLDivElement>(null);
-    const heightRef = useRef(0);
-    const initialOverllow = useOverflow(nodeRef);
-    const [collapse, toggleCollapse] = useReducer((state) => !state, !initialOverllow);
-
+const useOverflowRef = <T extends HTMLElement>(): [React.RefObject<T>, boolean] => {
+    const nodeRef = useRef<T>(null);
+    const [overflow, setOverflow] = useState(() => false);
     useEffect(() => {
         if (nodeRef.current) {
-            heightRef.current = nodeRef.current.clientHeight;
+            const node = nodeRef.current;
+            queueMicrotask(() => {
+                const { height } = node.getBoundingClientRect();
+                setOverflow(height < node.scrollHeight);
+            });
         }
     }, []);
 
+    return [nodeRef, overflow];
+};
+
+const useCollapse = () => {
+    const heightRef = useRef(0);
+    const [ref, initialOverllow] = useOverflowRef();
+    const [collapse, toggleCollapse] = useReducer((state) => !state, !initialOverllow);
+
     useEffect(() => {
-        if (nodeRef.current == null) {
+        if (ref.current) {
+            const node = ref.current;
+            queueMicrotask(() => {
+                heightRef.current = node.clientHeight;
+            });
+        }
+    }, [ref]);
+
+    useEffect(() => {
+        if (ref.current == null || !initialOverllow) {
             return;
         }
 
-        const node = nodeRef.current;
+        const node = ref.current;
 
         if (collapse) {
             node.style.setProperty('height', `${heightRef.current}px`);
         } else {
             node.style.setProperty('height', `${node.scrollHeight}px`);
         }
-    }, [collapse]);
+    }, [collapse, ref, initialOverllow]);
 
     return {
-        ref: nodeRef,
+        ref,
         onClick: toggleCollapse,
         collapse,
         overflow: initialOverllow,
@@ -79,7 +86,7 @@ export const Description = ({ size, description }: DecriptionProps) => {
                     <Text
                         ref={ref}
                         lines={4}
-                        ellipsis
+                        ellipsis={overflow && collapse}
                         size={textSizesMap[size]}
                         className={cn(s.DescriptionText, { [s.DescriptionExpanded]: overflow && !collapse })}
                     >

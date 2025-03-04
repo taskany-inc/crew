@@ -4,12 +4,12 @@
 
 .DescriptionText {
     transition: height 300ms ease-in-out;
+    overflow: hidden;
+    white-space: pre;
 }
 
 .DescriptionExpanded {
-    display: block;
-    text-overflow: unset;
-    height: auto;
+    -webkit-line-clamp: unset;
 }
 
 .Button {
