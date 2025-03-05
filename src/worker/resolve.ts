@@ -3,6 +3,7 @@ import { userMethods } from '../modules/userMethods';
 import { userCreationRequestsMethods } from '../modules/userCreationRequestMethods';
 import { prisma } from '../utils/prisma';
 import { ExternalServiceName, findService } from '../utils/externalServices';
+import { db } from '../utils/db';
 
 import { JobDataMap } from './create';
 
@@ -83,4 +84,22 @@ export const scheduledFiringFromSupplementalPosition = async ({
             },
         },
     );
+};
+
+export const activateSupplementalPositions = async ({
+    userCreationRequestId,
+}: JobDataMap['activateSupplementalPositions']) => {
+    const userCreationRequest = await userCreationRequestsMethods.getById(userCreationRequestId);
+
+    await db
+        .updateTable('SupplementalPosition')
+        .where(
+            'id',
+            'in',
+            userCreationRequest.supplementalPositions.map(({ id }) => id),
+        )
+        .set({ userId: userCreationRequest.userTargetId, status: 'ACTIVE' })
+        .execute();
+
+    // TODO history record
 };

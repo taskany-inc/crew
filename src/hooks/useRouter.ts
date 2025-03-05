@@ -53,6 +53,8 @@ export const pages = {
 
     externalUserFromMainOrgRequest: (requestId: string) => `/requests/users/external-from-main/${requestId}`,
     externalUserFromMainOrgRequestEdit: (requestId: string) => `/requests/users/external-from-main/${requestId}/edit`,
+
+    transferInternToStaffNew: (userId: string) => `/users/${userId}/transfer-intern-to-staff`,
 };
 
 export const useRouter = () => {
@@ -113,5 +115,7 @@ export const useRouter = () => {
             router.push(pages.externalUserFromMainOrgRequest(requestId)),
         externalUserFromMainOrgRequestEdit: (requestId: string) =>
             router.push(pages.externalUserFromMainOrgRequestEdit(requestId)),
+
+        transferInternToStaffNew: (userId: string) => router.push(pages.transferInternToStaffNew(userId)),
     };
 };
