@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.111.0](https://github.com/taskany-inc/crew/compare/v0.110.1...v0.111.0) (2025-03-06)
+
+
+### Features
+
+* **INTERNAL-1621:** intern flag in usre creation request ([d8cb0dc](https://github.com/taskany-inc/crew/commit/d8cb0dc519d4baa0509b81cfaa65809268d2da35))
+
 ## [0.110.1](https://github.com/taskany-inc/crew/compare/v0.110.0...v0.110.1) (2025-02-25)
 
 
