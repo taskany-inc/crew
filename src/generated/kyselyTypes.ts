@@ -78,6 +78,7 @@ export type AppConfig = {
     orgGroupUpdatedAt: Timestamp | null;
     supportLink: string | null;
     documentLink: string | null;
+    corporateAppName: string | null;
 };
 export type Attach = {
     id: string;
@@ -175,6 +176,11 @@ export type Job = {
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
+export type Link = {
+    id: Generated<string>;
+    url: string;
+    name: string;
+};
 export type Location = {
     id: Generated<string>;
     name: string;
@@ -205,8 +211,13 @@ export type MembershipToRole = {
     B: string;
 };
 export type OrganizationDomain = {
-    id: string;
+    id: Generated<string>;
     domain: string;
+    type: string | null;
+};
+export type OrganizationDomainToOrganizationUnit = {
+    A: string;
+    B: string;
 };
 export type OrganizationUnit = {
     id: Generated<string>;
@@ -214,6 +225,7 @@ export type OrganizationUnit = {
     country: string;
     description: string | null;
     external: Generated<boolean>;
+    main: boolean | null;
 };
 export type PermissionService = {
     id: Generated<string>;
@@ -372,6 +384,7 @@ export type UserCreationRequest = {
     userTargetId: string | null;
     jobId: string | null;
     reasonToGrantPermissionToServices: string | null;
+    transferFromGroup: string | null;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
@@ -478,6 +491,7 @@ export type VerificationToken = {
 };
 export type DB = {
     _MembershipToRole: MembershipToRole;
+    _OrganizationDomainToOrganizationUnit: OrganizationDomainToOrganizationUnit;
     _PermissionServiceToUserCreationRequest: PermissionServiceToUserCreationRequest;
     _userCoordinators: userCoordinators;
     _userCurator: userCurator;
@@ -497,6 +511,7 @@ export type DB = {
     GroupAdmin: GroupAdmin;
     HistoryEvent: HistoryEvent;
     Job: Job;
+    Link: Link;
     Location: Location;
     MailingSettings: MailingSettings;
     Membership: Membership;
