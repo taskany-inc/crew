@@ -57,7 +57,7 @@ export const ScheduledDismissalPage = ({
 
     const mainSupplementalPosition =
         type === 'new'
-            ? user.supplementalPositions.find((s) => s.main && s.status !== 'FIRED')
+            ? user.supplementalPositions.find((s) => s.main && s.status === 'ACTIVE')
             : scheduledDeactivation?.supplementalPositions.find((s) => s.main);
 
     const supplementalPositions: Array<{
@@ -93,7 +93,7 @@ export const ScheduledDismissalPage = ({
           )
         : supplementalPositions.push(
               ...user.supplementalPositions
-                  .filter((s) => s.status === 'FIRED' || !s.main)
+                  .filter((s) => s.status === 'ACTIVE' && !s.main)
                   .map(({ percentage, organizationUnitId, unitId, workEndDate, id }) => ({
                       id,
                       organizationUnitId,

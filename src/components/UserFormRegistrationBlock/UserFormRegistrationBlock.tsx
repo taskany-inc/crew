@@ -35,6 +35,7 @@ interface UserFormRegistrationBlockType {
     creationCause: string;
     recruiterId?: string;
     osPreference?: string;
+    transferFromGroup?: string;
 }
 
 export const UserFormRegistrationBlock = ({
@@ -89,6 +90,8 @@ export const UserFormRegistrationBlock = ({
 
     const unitId = watch('unitId');
     const selectedReqruiterId = watch('recruiterId');
+
+    const creationCause = watch('creationCause');
 
     return (
         <div className={className} id={id}>
@@ -165,12 +168,23 @@ export const UserFormRegistrationBlock = ({
                     <FormControl label={tr('Cause')} required error={errors.creationCause}>
                         <Switch
                             className={s.Switch}
-                            value={watch('creationCause')}
+                            value={creationCause}
                             onChange={(_e, a) => setValue('creationCause', a)}
                         >
                             <SwitchControl disabled={readOnly} size="m" text={tr('Start')} value="start" />
                             <SwitchControl disabled={readOnly} size="m" text={tr('Transfer')} value="transfer" />
                         </Switch>
+                    </FormControl>
+                ))}
+                {nullable(creationCause === 'transfer' && type === 'internal', () => (
+                    <FormControl label={tr('Transfer from subdivision')} error={errors.transferFromGroup} required>
+                        <FormControlInput
+                            autoComplete="off"
+                            size="m"
+                            placeholder={tr('Enter subdivision name')}
+                            outline
+                            {...register('transferFromGroup')}
+                        />
                     </FormControl>
                 ))}
                 {nullable(type === 'existing', () => (

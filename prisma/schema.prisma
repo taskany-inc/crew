@@ -239,6 +239,8 @@ model UserCreationRequest {
 
   reasonToGrantPermissionToServices String?
 
+  transferFromGroup String?
+
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
 }
@@ -417,6 +419,9 @@ model OrganizationUnit {
   description String?
   apiToken    ApiToken[]
   external    Boolean    @default(false)
+  main        Boolean?   @unique
+
+  organizationDomains OrganizationDomain[]
 
   userCreationRequests  UserCreationRequest[]
   users                 User[]
@@ -642,6 +647,8 @@ model AppConfig {
 
   supportLink  String?
   documentLink String?
+
+  corporateAppName String?
 }
 
 model Achievement {
@@ -778,8 +785,10 @@ model Job {
 }
 
 model OrganizationDomain {
-  id     String @id @default(uuid())
-  domain String
+  id                String             @id @default(dbgenerated("gen_random_uuid()"))
+  domain            String
+  organizationUnits OrganizationUnit[]
+  type              String?
 }
 
 enum PositionStatus {
@@ -822,4 +831,11 @@ model PermissionService {
 
   name                String
   userCreationRequest UserCreationRequest[]
+}
+
+model Link {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  url  String
+  name String
 }

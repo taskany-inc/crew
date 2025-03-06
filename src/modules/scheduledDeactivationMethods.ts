@@ -6,15 +6,19 @@ import { jsonObjectFrom } from 'kysely/helpers/postgres';
 
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
-import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
-import { scheduledDeactivationEmailHtml, scheduledTransferEmailHtml } from '../utils/emailTemplates';
+import {
+    scheduledDeactivationFromMainEmailHtml,
+    scheduledDeactivationFromNotMainEmailHtml,
+    scheduledTransferEmailHtml,
+} from '../utils/emailTemplates';
 import { getActiveScheduledDeactivation } from '../utils/getActiveScheduledDeactivation';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { ExternalServiceName, findService } from '../utils/externalServices';
 import { db } from '../utils/db';
 import { DB } from '../generated/kyselyTypes';
 import { JsonValue } from '../utils/jsonValue';
+import { findCorporateMail, findSigmaMail } from '../utils/organizationalDomains';
 
 import {
     CreateScheduledDeactivation,
@@ -43,7 +47,8 @@ interface UserDissmissMailing {
     sessionUserId: string;
     attaches?: Attach[];
     phone: string;
-    workEmail?: string;
+    sigmaMail?: string;
+    corporateMail?: string;
     newOrganizationIds?: string[];
     groupId?: string;
 }
@@ -57,7 +62,8 @@ const sendDismissalEmails = async ({
     attaches,
     sessionUserId,
     phone,
-    workEmail,
+    sigmaMail,
+    corporateMail,
     newOrganizationIds,
 }: UserDissmissMailing) => {
     const attachments = attaches && (await nodemailerAttachments(attaches));
@@ -70,48 +76,68 @@ const sendDismissalEmails = async ({
         ? await db.selectFrom('User').select(['name', 'email']).where('id', 'in', request.coordinatorIds).execute()
         : [];
 
-    const orgUnit = supplementalPositions
-        .sort((a, b) => Number(b.main) - Number(a.main))
-        .filter((s) => s.workEndDate && s.status !== 'FIRED')
-        .map(({ organizationUnit }) => organizationUnit && getOrgUnitTitle(organizationUnit))
-        .join(', ');
+    const mainOrgUnit = supplementalPositions.find((s) => s.main)?.organizationUnit;
+
+    if (!mainOrgUnit) {
+        throw new TRPCError({
+            message: `No main position in dismiss id ${request.id} for user ${request.userId}`,
+            code: 'BAD_REQUEST',
+        });
+    }
+    const groups = request.organizationalGroup
+        ? (await groupMethods.getBreadcrumbs(request.organizationalGroup)).map(({ name }) => name).join('>')
+        : '';
 
     const subject =
         request.type === 'retirement'
-            ? `${tr('Retirement')} ${request.user?.name} ${orgUnit} (${phone})`
-            : `${tr('Transfer from')} ${orgUnit} ${tr('to')} ${
-                  request?.newOrganizationUnit && getOrgUnitTitle(request.newOrganizationUnit)
-              } ${request.user?.name} (${phone})`;
+            ? `${tr('Retirement')} ${mainOrgUnit.name} ${request.user?.name} (${phone})`
+            : `${tr('Transfer from')} ${mainOrgUnit.name} ${tr('to')} ${
+                  request?.newOrganizationUnit && request.newOrganizationUnit.name
+              }(${request?.newOrganizationalGroup || ''}) ${request.user?.name} (${phone})`;
 
-    const group = request.organizationalGroup ? await groupMethods.getById(request.organizationalGroup) : null;
+    const transferFrom = `${mainOrgUnit.name} > ${groups}`;
 
-    const transferFrom = `${orgUnit} > ${group?.name || ''}`;
+    const appConfig = await db.selectFrom('AppConfig').select('corporateAppName').executeTakeFirstOrThrow();
 
-    const transferTo = `${(request?.newOrganizationUnit && getOrgUnitTitle(request.newOrganizationUnit)) || ''} > ${
-        request.newOrganizationalGroup || ''
-    }`;
+    const { corporateAppName } = appConfig;
 
-    const html =
-        request.type === 'retirement'
-            ? scheduledDeactivationEmailHtml({
-                  data: request,
-                  teamlead,
-                  unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
-                  role,
-                  workEmail,
-              })
-            : scheduledTransferEmailHtml({
-                  data: request,
-                  transferFrom,
-                  transferTo,
-                  unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
-                  teamlead,
-                  coordinators: coordinators.map(({ name, email }) => name || email).join(', '),
-                  lineManagers: lineManagers.map(({ name, email }) => name || email).join(', '),
-                  applicationForReturnOfEquipment: request.applicationForReturnOfEquipment || '',
-                  role,
-                  workEmail,
-              });
+    const transferTo = `${request.newOrganizationUnit?.name || ''} > ${request.newOrganizationalGroup || ''}`;
+    let html = scheduledDeactivationFromMainEmailHtml({
+        data: request,
+        teamlead,
+        unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
+        role,
+        sigmaMail,
+        corporateAppName: corporateAppName || '',
+    });
+
+    if (!mainOrgUnit.main) {
+        html = await scheduledDeactivationFromNotMainEmailHtml({
+            data: request,
+            teamlead,
+            unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
+            role,
+            sigmaMail,
+            corporateMail,
+            corporateAppName: corporateAppName || '',
+        });
+    }
+
+    if (request.type === 'transfer') {
+        html = scheduledTransferEmailHtml({
+            data: request,
+            transferFrom,
+            transferTo,
+            unitId: supplementalPositions.map(({ unitId }) => unitId).join(', '),
+            teamlead,
+            coordinators: coordinators.map(({ name, email }) => name || email).join(', '),
+            lineManagers: lineManagers.map(({ name, email }) => name || email).join(', '),
+            applicationForReturnOfEquipment: request.applicationForReturnOfEquipment || '',
+            role,
+            sigmaMail,
+            corporateAppName: corporateAppName || '',
+        });
+    }
 
     return Promise.all(
         supplementalPositions.map(async ({ workEndDate, organizationUnitId, main }) => {
@@ -243,7 +269,7 @@ export const scheduledDeactivationMethods = {
         const supplementalPositionConnect: string[] = [];
 
         await Promise.all(
-            data.supplementalPositions.map(async (s) => {
+            data.supplementalPositions.map(async (s, index) => {
                 if (!s.workEndDate && type === 'retirement') return;
                 const date = s.workEndDate || deactivateDate;
 
@@ -277,6 +303,7 @@ export const scheduledDeactivationMethods = {
                             percentage: s.percentage * percentageMultiply,
                             unitId: s.unitId,
                             userId: data.userId,
+                            main: index === 0,
                         },
                     });
 
@@ -407,6 +434,7 @@ export const scheduledDeactivationMethods = {
                             'OrganizationUnit.external as external',
                             'OrganizationUnit.id as id',
                             'OrganizationUnit.name as name',
+                            'OrganizationUnit.main as main',
                         ])
                         .whereRef('ScheduledDeactivation.newOrganizationUnitId', '=', 'OrganizationUnit.id'),
                 ).as('newOrganizationUnit'),
@@ -450,6 +478,7 @@ export const scheduledDeactivationMethods = {
                             'OrganizationUnit.external as external',
                             'OrganizationUnit.id as id',
                             'OrganizationUnit.name as name',
+                            'OrganizationUnit.main as main',
                         ])
                         .whereRef('OrganizationUnit.id', '=', 'SupplementalPosition.organizationUnitId'),
                 ).as('organizationUnit'),
@@ -465,6 +494,12 @@ export const scheduledDeactivationMethods = {
                 sessionUserId,
             }));
 
+        const mails = [restData.workEmail, scheduledDeactivation.email, restData.personalEmail];
+
+        const sigmaMail = await findSigmaMail(mails);
+
+        const corporateMail = await findCorporateMail(mails);
+
         await sendDismissalEmails({
             request: scheduledDeactivation,
             method: ICalCalendarMethod.REQUEST,
@@ -474,7 +509,8 @@ export const scheduledDeactivationMethods = {
             attaches,
             sessionUserId,
             phone: restData.phone,
-            workEmail: restData.workEmail,
+            sigmaMail,
+            corporateMail,
         });
 
         return scheduledDeactivation;
@@ -555,7 +591,20 @@ export const scheduledDeactivationMethods = {
 
         await prisma.job.deleteMany({ where: { id: { in: jobIds } } });
 
-        const workEmail = scheduledDeactivation.user.services.find((s) => s.serviceName === 'WorkEmail')?.serviceId;
+        const emails = [
+            scheduledDeactivation.email,
+            ...scheduledDeactivation.user.services.reduce((acc: string[], rec) => {
+                return rec.serviceName === ExternalServiceName.Email ||
+                    ExternalServiceName.WorkEmail ||
+                    ExternalServiceName.PersonalEmail
+                    ? [...acc, rec.serviceId]
+                    : acc;
+            }, []),
+        ];
+
+        const sigmaMail = await findSigmaMail(emails);
+
+        const corporateMail = await findCorporateMail(emails);
 
         const phone =
             findService(
@@ -570,7 +619,8 @@ export const scheduledDeactivationMethods = {
             supplementalPositions,
             role: scheduledDeactivation.organizationRole || '',
             sessionUserId,
-            workEmail,
+            sigmaMail,
+            corporateMail,
             phone,
         });
 
@@ -606,7 +656,7 @@ export const scheduledDeactivationMethods = {
         await userMethods.getByIdOrThrow(userId);
 
         const supplementalPositionConnect: { id: string }[] = [];
-        data.supplementalPositions.map(async (s) => {
+        data.supplementalPositions.map(async (s, index) => {
             if (data.disableAccount && s.workEndDate) {
                 const deactivateJobDate = new Date(s.workEndDate);
                 deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
@@ -619,6 +669,7 @@ export const scheduledDeactivationMethods = {
                             percentage: s.percentage * percentageMultiply,
                             unitId: s.unitId,
                             userId: data.userId,
+                            main: index === 0,
                         },
                     });
 
@@ -769,6 +820,10 @@ export const scheduledDeactivationMethods = {
         if (scheduledDeactivation.user.supervisorId !== restData.supervisorId && restData.supervisorId) {
             await userMethods.edit({ id: userId, supervisorId: restData.supervisorId });
         }
+        const emails = [restData.workEmail, scheduledDeactivation.email, restData.personalEmail];
+        const sigmaMail = await findSigmaMail(emails);
+
+        const corporateMail = await findCorporateMail(emails);
 
         await sendDismissalEmails({
             request: scheduledDeactivation,
@@ -779,7 +834,8 @@ export const scheduledDeactivationMethods = {
             attaches: scheduledDeactivation.attaches,
             sessionUserId,
             phone: restData.phone,
-            workEmail: data.workEmail,
+            sigmaMail,
+            corporateMail,
         });
 
         await sendDismissalEmails({
@@ -792,7 +848,8 @@ export const scheduledDeactivationMethods = {
             sessionUserId,
             phone: restData.phone,
             newOrganizationIds: supplementalPositions.map(({ organizationUnitId }) => organizationUnitId),
-            workEmail: data.workEmail,
+            sigmaMail,
+            corporateMail,
         });
 
         return scheduledDeactivation;
