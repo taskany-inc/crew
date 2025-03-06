@@ -14,5 +14,7 @@
     "OS preference": "ОС оборудования",
     "Enter OS name": "Введите название ОС",
     "Not specified": "Не указано",
-    "Dismissal from the organization": "Увольнение из организации"
+    "Dismissal from the organization": "Увольнение из организации",
+    "Transfer from subdivision": "Перевод из подразделения",
+    "Enter subdivision name": "Введите название подразделения"
 }

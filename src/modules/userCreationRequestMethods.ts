@@ -8,7 +8,9 @@ import { config } from '../config';
 import {
     htmlFromDecreeRequest,
     htmlToDecreeRequest,
-    htmlUserCreationRequestWithDate,
+    newComerNotInMainEmailHtml,
+    newComerInMainEmailHtml,
+    transferNewcomerFromMainEmailHtml,
     newcomerSubject,
     userCreationMailText,
 } from '../utils/emailTemplates';
@@ -20,6 +22,8 @@ import { PositionStatus } from '../generated/kyselyTypes';
 import { userCreationRequestPhone } from '../utils/createUserCreationRequest';
 import { pages } from '../hooks/useRouter';
 import { ExternalServiceName, findService } from '../utils/externalServices';
+import { findSigmaMail } from '../utils/organizationalDomains';
+import { db } from '../utils/db';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
@@ -41,6 +45,7 @@ import {
     UserDecreeRequest,
     UserCreationRequestWithRelations,
 } from './userCreationRequestTypes';
+import { groupMethods } from './groupMethods';
 
 interface SendNewcomerEmails {
     request: UserCreationRequestWithRelations;
@@ -76,12 +81,24 @@ const sendNewCommerEmails = ({ request, sessionUserId, method, newOrganizationId
                 additionalEmails,
                 !!request.workSpace,
             );
+
+            const mainOrganization = await db
+                .selectFrom('OrganizationUnit')
+                .select('name')
+                .where('main', '=', true)
+                .executeTakeFirstOrThrow();
+
+            const transferFrom = `${mainOrganization.name} (${request.transferFromGroup || ''})`;
+
             const subject = newcomerSubject({
                 userCreationRequest: request,
                 phone: userCreationRequestPhone(request),
                 name: request.name,
                 intern: !!request.supplementalPositions.find(({ intern }) => intern),
+                transferFrom,
             });
+
+            if (request.creationCause === 'transfer') workStartDate.setUTCHours(config.employmentUtcHour - 1);
 
             const icalEvent = createIcalEventData({
                 id: request.id + config.nodemailer.authUser + organizationUnitId,
@@ -92,10 +109,42 @@ const sendNewCommerEmails = ({ request, sessionUserId, method, newOrganizationId
                 description: subject,
             });
 
-            const html = htmlUserCreationRequestWithDate({
+            let html = await newComerInMainEmailHtml({
                 userCreationRequest: request,
                 date: workStartDate,
             });
+
+            if (!request.organization.main) {
+                html = await newComerNotInMainEmailHtml({
+                    userCreationRequest: request,
+                    date: workStartDate,
+                });
+            }
+
+            if (request.creationCause === 'transfer') {
+                const mainOrgName = await db
+                    .selectFrom('OrganizationUnit')
+                    .select('name')
+                    .where('main', '=', true)
+                    .executeTakeFirstOrThrow();
+                const transferFrom = `${mainOrgName.name} ${request.transferFromGroup || ''}`;
+
+                const groups = request.groupId
+                    ? (await groupMethods.getBreadcrumbs(request.groupId)).map(({ name }) => name).join('>')
+                    : '';
+
+                const transferTo = `${request.organization.name} ${groups}`;
+                const sigmaMail = findSigmaMail([request.workEmail, request.email, request.personalEmail]);
+
+                html = await transferNewcomerFromMainEmailHtml({
+                    userCreationRequest: request,
+                    date: workStartDate,
+                    transferFrom,
+                    transferTo,
+                    sigmaMail,
+                });
+            }
+
             sendMail({
                 to,
                 subject,
@@ -279,6 +328,7 @@ export const userCreationRequestsMethods = {
             createData.unitId = data.unitId || undefined;
             createData.personalEmail = data.personalEmail || undefined;
             createData.percentage = data.percentage ? data.percentage * percentageMultiply : undefined;
+            createData.transferFromGroup = data.transferFromGroup;
         }
 
         if (data.type === 'externalFromMainOrgEmployee' || data.type === 'externalEmployee') {
@@ -957,6 +1007,7 @@ export const userCreationRequestsMethods = {
             updateData.creationCause = editData.creationCause;
             updateData.unitId = editData.unitId;
             updateData.personalEmail = editData.personalEmail;
+            updateData.transferFromGroup = editData.transferFromGroup;
             updateData.percentage = editData.percentage ? editData.percentage * percentageMultiply : undefined;
         }
 
@@ -1480,6 +1531,7 @@ export const userCreationRequestsMethods = {
             supplementalPositions,
             coordinators,
             lineManagers,
+            transferFromGroup,
             ...restRequest
         } = request;
 
@@ -1536,6 +1588,7 @@ export const userCreationRequestsMethods = {
             firstName: fullNameArray[1],
             middleName: fullNameArray[2],
             intern: !!supplementalPositions.find(({ intern }) => intern),
+            transferFromGroup: transferFromGroup || undefined,
         };
     },
 
