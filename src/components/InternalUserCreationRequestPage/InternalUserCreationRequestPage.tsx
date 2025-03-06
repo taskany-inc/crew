@@ -98,6 +98,7 @@ export const InternalUserCreationRequestPage = ({
             groupId: request?.groupId || '',
             supplementalPositions: request?.supplementalPositions || [],
             intern: !!request?.intern,
+            transferFromGroup: request?.transferFromGroup,
         }),
         [request],
     );
