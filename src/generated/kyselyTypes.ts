@@ -78,6 +78,7 @@ export type AppConfig = {
     orgGroupUpdatedAt: Timestamp | null;
     supportLink: string | null;
     documentLink: string | null;
+    corporateAppName: string | null;
 };
 export type Attach = {
     id: string;
@@ -113,6 +114,11 @@ export type BonusRule = {
     bonusAmountForAchievement: number;
     categoryId: string;
     externalAchievmentIds: string[];
+};
+export type CorporateLink = {
+    id: Generated<string>;
+    url: string;
+    name: string;
 };
 export type Device = {
     name: string;
@@ -207,6 +213,11 @@ export type MembershipToRole = {
 export type OrganizationDomain = {
     id: string;
     domain: string;
+    type: string | null;
+};
+export type OrganizationDomainToOrganizationUnit = {
+    A: string;
+    B: string;
 };
 export type OrganizationUnit = {
     id: Generated<string>;
@@ -214,6 +225,7 @@ export type OrganizationUnit = {
     country: string;
     description: string | null;
     external: Generated<boolean>;
+    main: boolean | null;
 };
 export type PermissionService = {
     id: Generated<string>;
@@ -372,6 +384,7 @@ export type UserCreationRequest = {
     userTargetId: string | null;
     jobId: string | null;
     reasonToGrantPermissionToServices: string | null;
+    transferFromGroup: string | null;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
@@ -478,6 +491,7 @@ export type VerificationToken = {
 };
 export type DB = {
     _MembershipToRole: MembershipToRole;
+    _OrganizationDomainToOrganizationUnit: OrganizationDomainToOrganizationUnit;
     _PermissionServiceToUserCreationRequest: PermissionServiceToUserCreationRequest;
     _userCoordinators: userCoordinators;
     _userCurator: userCurator;
@@ -491,6 +505,7 @@ export type DB = {
     BonusForAchievementRule: BonusForAchievementRule;
     BonusHistory: BonusHistory;
     BonusRule: BonusRule;
+    CorporateLink: CorporateLink;
     Device: Device;
     ExternalService: ExternalService;
     Group: Group;

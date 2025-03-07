@@ -96,6 +96,7 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
         location: z.string().min(1, { message: tr('Required field') }),
         creationCause: z.string(),
         unitId: z.string().optional(),
+        transferFromGroup: z.string().optional(),
         date: z
             .date({
                 errorMap: () => ({
