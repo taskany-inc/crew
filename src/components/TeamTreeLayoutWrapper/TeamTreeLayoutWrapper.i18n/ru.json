@@ -1,5 +1,7 @@
 {
     "Filters": "Фильтры",
     "Sorting": "Сортировка",
-    "Search in structure": "Искать в структуре"
+    "Search in structure": "Искать в структуре",
+    "Reset filters": "Сбросить фильтры",
+    "Supervisor": "Руководитель"
 }
