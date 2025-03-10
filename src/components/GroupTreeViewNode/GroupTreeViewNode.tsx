@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Group, User } from 'prisma/prisma-client';
 import { nullable, TreeViewNode } from '@taskany/bricks';
 import { User as HarmonyUser, Text, Tag, Badge, Button, LineSkeleton } from '@taskany/bricks/harmony';
@@ -7,6 +7,7 @@ import { IconCostEstimateOutline, IconSearchOutline, IconUsersOutline } from '@t
 import { trpc } from '../../trpc/trpcClient';
 import { usePreviewContext } from '../../contexts/previewContext';
 import { pages } from '../../hooks/useRouter';
+import { useGroupTreeFilter } from '../../hooks/useGroupTreeFilter';
 import { Link } from '../Link';
 import { Branch, Heading } from '../StructTreeView/StructTreeView';
 import { GroupTree } from '../../trpc/inferredTypes';
@@ -188,7 +189,22 @@ export const NewGroupTreeViewNode: React.FC<
         { enabled: false, keepPreviousData: true, refetchOnWindowFocus: false },
     );
 
-    const [isOpen, setIsOpen] = useState(false);
+    const { values } = useGroupTreeFilter();
+
+    const isDefaultOpen = useMemo(() => {
+        if (values.supervisor && values.supervisor.length) {
+            return !supervisorId || !values.supervisor?.includes(supervisorId);
+        }
+        return false;
+    }, [values, supervisorId]);
+
+    const [isOpen, setIsOpen] = useState(isDefaultOpen);
+
+    useEffect(() => {
+        if (isDefaultOpen) {
+            setIsOpen(true);
+        }
+    }, [isDefaultOpen]);
 
     const memberToRender = useMemo(() => {
         if (groupMembersQuery.data == null) {

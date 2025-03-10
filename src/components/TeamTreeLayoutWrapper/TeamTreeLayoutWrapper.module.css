@@ -2,8 +2,8 @@
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    align-items: baseline;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-bottom: 20px
 }
 
 .TeamTreeLayoutWrapperHeading {
@@ -15,4 +15,12 @@
     display: flex;
     flex-direction: row;
     gap: var(--gap-s);
+}
+
+.TeamTreeLayoutWrapperFilters {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--gap-s);
+    margin-bottom: 20px;
 }

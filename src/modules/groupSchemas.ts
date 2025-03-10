@@ -76,13 +76,6 @@ export const addOrRemoveUserFromGroupAdminsSchema = z.object({
 });
 export type AddOrRemoveUserFromGroupAdmins = z.infer<typeof addOrRemoveUserFromGroupAdminsSchema>;
 
-export const getGroupTreeSchema = z.object({
-    groupId: z.string(),
-    filterByOrgId: z.string().optional(),
-});
-
-export type GetGroupTree = z.infer<typeof getGroupTreeSchema>;
-
 export const getMemberships = z.object({
     groupId: z.string(),
     filterByOrgId: z.string().optional(),

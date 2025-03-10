@@ -7,6 +7,11 @@ import { sortByStringKey } from '../../utils/sortByStringKey';
 import { NewGroupTreeViewNode } from '../GroupTreeViewNode/GroupTreeViewNode';
 import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { TeamTreeLayoutWrapper } from '../TeamTreeLayoutWrapper/TeamTreeLayoutWrapper';
+import {
+    useGroupTreeFilter,
+    groupTreeFilterValuesToRequestData,
+    filterGroupTree,
+} from '../../hooks/useGroupTreeFilter';
 
 import { tr } from './CorporateTeamsPage.i18n';
 
@@ -17,9 +22,16 @@ interface CorporateTeamsPage {
 const CorporateTreeNodeWrapper: React.FC<
     OrganizationUnit & { mothershipId: string; counts: Record<string, number> | null }
 > = ({ id, name, counts }) => {
+    const { values } = useGroupTreeFilter();
+
     const groupTreeQuery = trpc.group.getGroupTreeByOrgId.useQuery(id);
 
-    return (
+    const filteredTree = useMemo(
+        () => filterGroupTree(groupTreeQuery.data, groupTreeFilterValuesToRequestData(values)),
+        [groupTreeQuery.data, values],
+    );
+
+    return nullable(filteredTree, (data) => (
         <NewGroupTreeViewNode
             loading={groupTreeQuery.status === 'loading'}
             key={id}
@@ -28,13 +40,13 @@ const CorporateTreeNodeWrapper: React.FC<
             orgId={id}
             firstLevel
             counts={counts}
-            childs={groupTreeQuery.data?.children}
+            childs={data?.children}
             supervisorId={null}
             organizational
             hideDescription
             businessUnit={false}
         />
-    );
+    ));
 };
 
 export const CorporateTeamsPage: React.FC<CorporateTeamsPage> = ({ mothership }) => {

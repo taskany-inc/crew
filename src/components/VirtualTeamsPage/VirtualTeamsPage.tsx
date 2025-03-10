@@ -1,4 +1,3 @@
-import { nullable } from '@taskany/bricks';
 import React, { useMemo } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
@@ -7,6 +6,11 @@ import { sortByStringKey } from '../../utils/sortByStringKey';
 import { NewGroupTreeViewNode } from '../GroupTreeViewNode/GroupTreeViewNode';
 import { TeamPageHeader } from '../TeamPageHeader/TeamPageHeader';
 import { TeamTreeLayoutWrapper } from '../TeamTreeLayoutWrapper/TeamTreeLayoutWrapper';
+import {
+    useGroupTreeFilter,
+    filterGroupTree,
+    groupTreeFilterValuesToRequestData,
+} from '../../hooks/useGroupTreeFilter';
 
 import { tr } from './VirtualTeamsPage.i18n';
 
@@ -16,15 +20,33 @@ interface VirtualTeamsPage {
 
 export const VirtualTeamsPage: React.FC<VirtualTeamsPage> = (props) => {
     const { mothership } = props;
+    const { values } = useGroupTreeFilter();
+
     const currentGroup = trpc.group.getById.useQuery(mothership.id);
+
     const groupTree = trpc.group.getVirtualGroupTree.useQuery();
 
+    const filteredTree = useMemo(
+        () =>
+            currentGroup.data
+                ? filterGroupTree(
+                      {
+                          id: currentGroup.data.id,
+                          group: currentGroup.data,
+                          children: groupTree.data?.children,
+                      },
+                      groupTreeFilterValuesToRequestData(values),
+                  )
+                : null,
+        [currentGroup.data, groupTree.data, values],
+    );
+
     const childrenData = useMemo(() => {
-        if (groupTree.data == null) {
+        if (!filteredTree) {
             return [];
         }
-        return sortByStringKey(groupTree.data?.children ?? [], ['group', 'name']);
-    }, [groupTree.data]);
+        return sortByStringKey(filteredTree.children ?? [], ['group', 'name']);
+    }, [filteredTree]);
 
     const metaDataByGroupIds = trpc.group.getGroupMetaByIds.useQuery(
         {
@@ -44,31 +66,27 @@ export const VirtualTeamsPage: React.FC<VirtualTeamsPage> = (props) => {
 
     return (
         <TeamTreeLayoutWrapper title={tr('Structure')} pageTitle={group.name} header={<TeamPageHeader group={group} />}>
-            {nullable(childrenData, (children) =>
-                children.map(({ group, children }) =>
-                    nullable(group, (gr) => {
-                        const groupMeta = metaDataByGroupIds.data?.[gr.id];
-                        const counts = {
-                            vacancies: groupMeta?.counts.vacancies ?? undefined,
-                            memberships: groupMeta?.counts.memberships ?? undefined,
-                        };
+            {childrenData.map((item) => {
+                const groupMeta = metaDataByGroupIds.data?.[item.id];
+                const counts = {
+                    vacancies: groupMeta?.counts.vacancies ?? undefined,
+                    memberships: groupMeta?.counts.memberships ?? undefined,
+                };
 
-                        return (
-                            <NewGroupTreeViewNode
-                                key={gr.id}
-                                name={gr.name}
-                                id={gr.id}
-                                supervisorId={gr.supervisorId}
-                                supervisor={groupMeta?.supervisor}
-                                counts={counts}
-                                childs={children}
-                                firstLevel
-                                businessUnit={gr.businessUnit}
-                            />
-                        );
-                    }),
-                ),
-            )}
+                return (
+                    <NewGroupTreeViewNode
+                        key={item.id}
+                        id={item.id}
+                        name={item.group.name}
+                        supervisorId={item.group.supervisorId}
+                        supervisor={groupMeta?.supervisor}
+                        counts={counts}
+                        childs={item.children}
+                        firstLevel
+                        businessUnit={item.group.businessUnit}
+                    />
+                );
+            })}
         </TeamTreeLayoutWrapper>
     );
 };

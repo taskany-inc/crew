@@ -16,7 +16,7 @@ export const OrganizationUserGroupSwitch = ({ noGap }: OrganizationUserGroupSwit
 
     const value = useMemo(() => {
         const { router: nextRouter } = router;
-        switch (nextRouter.asPath) {
+        switch (nextRouter.asPath.split('?')[0]) {
             case pages.teams:
                 return 'org';
             case pages.corp:

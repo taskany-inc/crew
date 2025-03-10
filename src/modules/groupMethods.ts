@@ -693,7 +693,7 @@ export const groupMethods = {
             ])
             .execute(),
 
-    getGroupTreeByOrgId: (orgId?: string) => {
+    getGroupTreeByOrgId: (orgId: string) => {
         return db
             .withRecursive('tree', (qb) =>
                 qb
@@ -777,7 +777,6 @@ export const groupMethods = {
             .orderBy(['level asc', 'path asc'])
             .execute();
     },
-
     getTeamsTree: (isOrganizational = true) =>
         db
             .withRecursive('meta', (qb) =>
@@ -866,6 +865,5 @@ export const groupMethods = {
                         .where('group.parentId', 'is', null),
                 ),
             )
-
             .execute(),
 };
