@@ -141,6 +141,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                             <Text className={s.Text} weight="bold" color={gray8}>
                                 {tr('Organization')}:
                             </Text>
+                            {/** should update main supplementalPosition */}
                             <OrganizationUnitComboBox
                                 organizationUnitId={watch('organizationUnitId')}
                                 onChange={(organizationUnit) => {
