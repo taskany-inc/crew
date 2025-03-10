@@ -11,8 +11,9 @@
     "Drop file here": "",
     "Loading": "",
     "Loaded": "",
-    "Add screenshot or photo from personal account": "",
+    "Add screenshot or photo from personal account {corpAppName}": "",
     "In *.png or *.jpeg format": "",
     "File doesn't load": "",
-    "Photo report": ""
+    "Photo report": "",
+    "Devices return/moving application": ""
 }

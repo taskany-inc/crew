@@ -16,7 +16,7 @@ import { tr } from './UserFormTeamBlock.i18n';
 interface UserFormTeamBlockProps {
     className: string;
     id: string;
-    type: 'internal' | 'existing' | 'dismissal' | 'transfer';
+    type: 'internal' | 'existing' | 'dismissal' | 'transfer' | 'transferInternToStaff';
     readOnly?: boolean;
     userId?: string;
     defaultGroupId?: string;
