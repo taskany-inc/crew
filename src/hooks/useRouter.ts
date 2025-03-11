@@ -54,7 +54,9 @@ export const pages = {
     externalUserFromMainOrgRequest: (requestId: string) => `/requests/users/external-from-main/${requestId}`,
     externalUserFromMainOrgRequestEdit: (requestId: string) => `/requests/users/external-from-main/${requestId}/edit`,
 
-    transferInternToStaffNew: (userId: string) => `/users/${userId}/transfer-intern-to-staff`,
+    newTransferInternToStaff: (userId: string) => `/users/${userId}/transfer-intern-to-staff`,
+    transferInternToStaff: (requestId: string) => `/requests/users/transfer-intern-to-staff/${requestId}`,
+    editTransferInternToStaff: (requestId: string) => `/requests/users/transfer-intern-to-staff/${requestId}/edit`,
 };
 
 export const useRouter = () => {
@@ -116,6 +118,8 @@ export const useRouter = () => {
         externalUserFromMainOrgRequestEdit: (requestId: string) =>
             router.push(pages.externalUserFromMainOrgRequestEdit(requestId)),
 
-        transferInternToStaffNew: (userId: string) => router.push(pages.transferInternToStaffNew(userId)),
+        newTransferInternToStaff: (userId: string) => router.push(pages.newTransferInternToStaff(userId)),
+        transferInternToStaff: (requestId: string) => router.push(pages.transferInternToStaff(requestId)),
+        editTransferInternToStaff: (requestId: string) => router.push(pages.editTransferInternToStaff(requestId)),
     };
 };

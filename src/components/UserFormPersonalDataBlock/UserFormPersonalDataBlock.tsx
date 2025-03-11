@@ -260,7 +260,8 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                     type === 'existing' ||
                     type === 'fromDecree' ||
                     type === 'toDecree' ||
-                    type === 'dismissal',
+                    type === 'dismissal' ||
+                    type === 'transferInternToStaff',
                 () => (
                     <Text as="h3">
                         {tr('Email')}{' '}
@@ -270,14 +271,17 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                     </Text>
                 ),
             )}
-            <div className={type === 'dismissal' ? s.ThreeInputsRow : s.TwoInputsRow}>
+            <div
+                className={type === 'dismissal' || type === 'transferInternToStaff' ? s.ThreeInputsRow : s.TwoInputsRow}
+            >
                 {nullable(
                     type === 'internal' ||
                         type === 'externalEmployee' ||
                         type === 'existing' ||
                         type === 'fromDecree' ||
                         type === 'toDecree' ||
-                        type === 'dismissal',
+                        type === 'dismissal' ||
+                        type === 'transferInternToStaff',
                     () => (
                         <FormControl
                             label={type === 'externalEmployee' ? tr('Personal email') : tr('Personal')}
@@ -306,7 +310,8 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         type === 'existing' ||
                         type === 'fromDecree' ||
                         type === 'toDecree' ||
-                        type === 'dismissal',
+                        type === 'dismissal' ||
+                        type === 'transferInternToStaff',
                     () => (
                         <FormControl
                             label={type === 'externalFromMainOrgEmployee' ? tr('Work email') : tr('Work')}
@@ -327,7 +332,7 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         </FormControl>
                     ),
                 )}
-                {nullable(type === 'dismissal', () => (
+                {nullable(type === 'dismissal' || type === 'transferInternToStaff', () => (
                     <FormControl label={tr('Corporate email')} error={errors.corporateEmail}>
                         <FormControlInput
                             readOnly={getReadOnly('corporateEmail')}

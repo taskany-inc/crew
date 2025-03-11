@@ -332,3 +332,10 @@ export const transferInternToStaffSchema = () =>
             .optional(),
     });
 export type TransferInternToStaff = z.infer<ReturnType<typeof transferInternToStaffSchema>>;
+
+export const editTransferInternToStaffSchema = () =>
+    transferInternToStaffSchema().extend({
+        id: z.string(),
+    });
+
+export type EditTransferInternToStaff = z.infer<ReturnType<typeof editTransferInternToStaffSchema>>;

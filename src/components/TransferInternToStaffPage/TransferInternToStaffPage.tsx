@@ -3,6 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormControlInput, Text } from '@taskany/bricks/harmony';
 import { OrganizationUnit } from 'prisma/prisma-client';
+import { nullable } from '@taskany/bricks';
 
 import { TransferInternToStaff, transferInternToStaffSchema } from '../../modules/userCreationRequestSchemas';
 import { UserFormRegistrationBlock } from '../UserFormRegistrationBlock/UserFormRegistrationBlock';
@@ -24,6 +25,8 @@ import { UserFormWorkSpaceDismissalFormBlock } from '../UserFormWorkSpaceDismiss
 import { UserFormDevicesBlock } from '../UserFormDevicesBlock/UserFormDevicesBlock';
 import { AdditionalDevice } from '../../modules/scheduledDeactivationTypes';
 import { Nullish } from '../../utils/types';
+import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
+import { UserCreationRequestStatus } from '../../generated/kyselyTypes';
 
 import s from './TransferInternToStaffPage.module.css';
 import { tr } from './TransferInternToStaffPage.i18n';
@@ -37,6 +40,7 @@ interface TransferInternToStaffPageProps {
     userDevices: UserDevices;
     personalEmail?: string;
     workEmail?: string;
+    requestStatus?: UserCreationRequestStatus;
 }
 
 export const TransferInternToStaffPage = ({
@@ -46,8 +50,11 @@ export const TransferInternToStaffPage = ({
     userDevices,
     phone,
     request,
+    workEmail,
+    personalEmail,
+    requestStatus,
 }: TransferInternToStaffPageProps) => {
-    const { createTransferInternToStaffRequest } = useUserCreationRequestMutations();
+    const { createTransferInternToStaffRequest, editTransferInternToStaffRequest } = useUserCreationRequestMutations();
 
     const orgMembership = user?.memberships.find((m) => m.group.organizational);
 
@@ -78,9 +85,9 @@ export const TransferInternToStaffPage = ({
             comment: request?.comment || '',
             workSpace: request?.workSpace || '',
             phone: request?.phone || phone,
-            workEmail: request?.workEmail || '',
-            personalEmail: request?.personalEmail || '',
-            corporateEmail: request?.corporateEmail || '',
+            workEmail: request?.workEmail || workEmail,
+            personalEmail: request?.personalEmail || personalEmail,
+            corporateEmail: request?.corporateEmail || user.email,
             location: request?.location || user.location?.name,
             unitId: request?.unitId || mainPosition?.unitId || '',
             supervisorId: request?.supervisorId || user.supervisorId || undefined,
@@ -89,7 +96,7 @@ export const TransferInternToStaffPage = ({
             lineManagerIds: request?.lineManagerIds || [],
             date: request?.date || null,
             supplementalPositions:
-                request?.supplementalPositions ??
+                request?.supplementalPositions ||
                 user.supplementalPositions
                     .filter((s) => !s.main && s.status !== 'FIRED')
                     .map((s) => ({
@@ -130,6 +137,11 @@ export const TransferInternToStaffPage = ({
     useEffect(() => reset(defaultValues), []);
 
     const onFormSubmit = handleSubmit(async (data) => {
+        if (type === 'edit' && requestId) {
+            editTransferInternToStaffRequest({ id: requestId, ...data });
+            return router.userRequests();
+        }
+
         await createTransferInternToStaffRequest(data);
         reset(defaultValues);
         return router.userRequests();
@@ -172,11 +184,24 @@ export const TransferInternToStaffPage = ({
                                     ? tr('Create a planned transfer of employee')
                                     : tr('Request for a planned transfer of employee')}
                             </Text>
-                            <UserFormFormActions
-                                submitDisabled={isSubmitting || isSubmitSuccessful}
-                                onCancel={router.userRequests}
-                                onReset={type === 'new' ? () => reset(defaultValues) : undefined}
-                            />
+                            {nullable(
+                                type === 'readOnly' && requestId,
+                                (requestId) => {
+                                    return (
+                                        <RequestFormActions
+                                            requestStatus={requestStatus}
+                                            requestType={UserCreationRequestType.transferInternToStaff}
+                                            requestId={requestId}
+                                            onEdit={() => router.editTransferInternToStaff(requestId)}
+                                        />
+                                    );
+                                },
+                                <UserFormFormActions
+                                    submitDisabled={isSubmitting || isSubmitSuccessful}
+                                    onCancel={() => (type === 'new' ? router.user(user.id) : router.userRequests)}
+                                    onReset={type === 'new' ? () => reset(defaultValues) : undefined}
+                                />,
+                            )}
                         </div>
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>

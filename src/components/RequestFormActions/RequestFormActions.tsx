@@ -10,6 +10,7 @@ import { useBoolean } from '../../hooks/useBoolean';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { useScheduledDeactivation } from '../../modules/scheduledDeactivationHooks';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import s from './RequestFormActions.module.css';
 import { tr } from './RequestFormActions.i18n';
@@ -20,7 +21,7 @@ interface RequestFormActionsProps {
     onDecide?: () => void;
     onCancel?: () => void;
     requestStatus?: UserCreationRequestStatus;
-    requestType?: 'decree' | 'creation' | 'deactivation';
+    requestType?: 'decree' | 'creation' | 'deactivation' | UserCreationRequestType.transferInternToStaff;
     small?: boolean;
 }
 
@@ -42,21 +43,36 @@ export const RequestFormActions = ({
 
     const [comment, setComment] = useState<string | undefined>();
 
-    const { declineUserRequest, acceptUserRequest, cancelUserRequest } = useUserCreationRequestMutations();
+    const { declineUserRequest, acceptUserRequest, cancelUserRequest, cancelTransferInternToStaffRequest } =
+        useUserCreationRequestMutations();
     const { cancelScheduledDeactivation } = useScheduledDeactivation();
 
     const commentRef = useLatest(comment);
 
-    const handleSubmit = useCallback(
-        (callbackUserRequest: (data: { id: string; comment?: string }, type?: string) => void) =>
-            (id: string) =>
-            () => {
-                callbackUserRequest({ id, comment: commentRef.current }, requestType);
-                onDecide && onDecide();
-                onCancel && onCancel();
-            },
-        [commentRef, requestType, onDecide],
-    );
+    const handleCancelSubmit = useCallback(() => {
+        onCancel && onCancel();
+        if (requestType === 'deactivation') {
+            return cancelScheduledDeactivation({ id: requestId, comment: commentRef.current });
+        }
+
+        if (requestType === UserCreationRequestType.transferInternToStaff) {
+            return cancelTransferInternToStaffRequest({ id: requestId, comment: commentRef.current });
+        }
+
+        return cancelUserRequest({ id: requestId, comment: commentRef.current });
+    }, [commentRef, requestType, onDecide]);
+
+    const handleDeclineSubmit = useCallback(() => {
+        onDecide && onDecide();
+
+        return declineUserRequest({ id: requestId, comment: commentRef.current });
+    }, [commentRef, requestType, onDecide]);
+
+    const handleAcceptSubmit = useCallback(() => {
+        onDecide && onDecide();
+
+        return acceptUserRequest({ id: requestId, comment: commentRef.current });
+    }, [commentRef, requestType, onDecide]);
 
     const handleChangeComment = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setComment(event.target.value);
@@ -113,15 +129,17 @@ export const RequestFormActions = ({
                         </div>
                     ))}
 
-                    <Button
-                        ref={cancelRef}
-                        iconLeft={small && <IconDeniedOutline size="s" />}
-                        size={small ? 's' : 'm'}
-                        view={small ? 'default' : 'danger'}
-                        type="button"
-                        text={small ? undefined : tr('Cancel request')}
-                        onClick={cancelWarningVisible.setTrue}
-                    />
+                    {nullable(requestStatus !== 'Canceled', () => (
+                        <Button
+                            ref={cancelRef}
+                            iconLeft={small && <IconDeniedOutline size="s" />}
+                            size={small ? 's' : 'm'}
+                            view={small ? 'default' : 'danger'}
+                            type="button"
+                            text={small ? undefined : tr('Cancel request')}
+                            onClick={cancelWarningVisible.setTrue}
+                        />
+                    ))}
                     {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
                         <Tooltip reference={tooltipRef} placement="bottom">
                             {tooltipText}
@@ -142,17 +160,13 @@ export const RequestFormActions = ({
                         visible={cancelWarningVisible.value}
                         onCancel={onCancelCancel}
                         onInputChange={handleChangeComment}
-                        onConfirm={
-                            requestType === 'deactivation'
-                                ? handleSubmit(cancelScheduledDeactivation)(requestId)
-                                : handleSubmit(cancelUserRequest)(requestId)
-                        }
+                        onConfirm={handleCancelSubmit}
                         inputPlaceholder={tr('Enter comment if needed')}
                         warningText={tr('Are you sure you want to cancel this request?')}
                     />
                 </>
             ))}
-            {nullable(canDecideOnRequest && requestType !== 'decree' && requestType !== 'deactivation', () => (
+            {nullable(canDecideOnRequest && requestType === 'creation', () => (
                 <div className={small && canEditRequest && canDecideOnRequest ? s.Separator : undefined}>
                     <div ref={tooltipRef} className={s.FormActions}>
                         <Button
@@ -196,7 +210,7 @@ export const RequestFormActions = ({
                             visible={acceptWarningVisible.value}
                             onCancel={onAcceptCancel}
                             onInputChange={handleChangeComment}
-                            onConfirm={handleSubmit(acceptUserRequest)(requestId)}
+                            onConfirm={handleAcceptSubmit}
                             inputPlaceholder={tr('Enter comment if needed')}
                             warningText={tr('Are you sure you want to accept this request?')}
                         />
@@ -204,7 +218,7 @@ export const RequestFormActions = ({
                             view="danger"
                             visible={declineWarningVisible.value}
                             onCancel={onDeclineCancel}
-                            onConfirm={handleSubmit(declineUserRequest)(requestId)}
+                            onConfirm={handleDeclineSubmit}
                             onInputChange={handleChangeComment}
                             inputPlaceholder={tr('Enter comment if needed')}
                             warningText={tr('Are you sure you want to decline this request?')}
@@ -232,7 +246,7 @@ export const RequestFormActions = ({
                         visible={acceptWarningVisible.value}
                         onCancel={onAcceptCancel}
                         onInputChange={handleChangeComment}
-                        onConfirm={handleSubmit(acceptUserRequest)(requestId)}
+                        onConfirm={handleAcceptSubmit}
                         inputPlaceholder={tr('Enter comment if needed')}
                         warningText={tr('Are you sure you want to accept this request?')}
                     />
@@ -240,7 +254,7 @@ export const RequestFormActions = ({
                         view="danger"
                         visible={declineWarningVisible.value}
                         onCancel={onDeclineCancel}
-                        onConfirm={handleSubmit(declineUserRequest)(requestId)}
+                        onConfirm={handleDeclineSubmit}
                         onInputChange={handleChangeComment}
                         inputPlaceholder={tr('Enter comment if needed')}
                         warningText={tr('Are you sure you want to decline this request?')}

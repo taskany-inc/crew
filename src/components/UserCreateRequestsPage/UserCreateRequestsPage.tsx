@@ -9,6 +9,7 @@ import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import { tr } from './UserCreateRequestsPage.i18n';
 import s from './UserCreateRequestsPage.module.css';
@@ -25,11 +26,19 @@ interface tableData {
     date?: string;
     requestType: string;
     id: string;
+    type: string;
 }
 
 const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => {
     return (
-        <a href={pages.internalUserRequest(props.item.id)} className={s.TableRowLink}>
+        <a
+            href={
+                props.item.type === UserCreationRequestType.transferInternToStaff
+                    ? pages.transferInternToStaff(props.item.id)
+                    : pages.internalUserRequest(props.item.id)
+            }
+            className={s.TableRowLink}
+        >
             <TableRow {...props} ref={ref} />
         </a>
     );
@@ -47,7 +56,7 @@ export const UserCreateRequestsPage = () => {
     ]);
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
-        type: ['internalEmployee'],
+        type: [UserCreationRequestType.internalEmployee, UserCreationRequestType.transferInternToStaff],
         orderBy: {
             name: sorting.find(({ key }) => key === 'name')?.dir,
             date: sorting.find(({ key }) => key === 'date')?.dir,
@@ -55,7 +64,11 @@ export const UserCreateRequestsPage = () => {
         search: userListFilter.values.search,
     });
 
-    const requestType = (creationCause: string | null) => {
+    const requestType = (creationCause: string | null, type: string | null) => {
+        if (type === UserCreationRequestType.transferInternToStaff) {
+            return tr('Transfer intern to staff');
+        }
+
         if (creationCause === 'transfer') {
             return tr('Transfer to SD');
         }
@@ -73,15 +86,17 @@ export const UserCreateRequestsPage = () => {
         coordinators: request.coordinators.map(({ name }) => name).join(', '),
         recruiter: request.recruiter?.name || '',
         date: request.date?.toLocaleDateString(),
-        requestType: requestType(request.creationCause),
+        requestType: requestType(request.creationCause, request.type),
+        type: request.type || '',
         id: request.id,
     }));
 
     const router = useRouter();
 
-    const statusText = (status: 'Approved' | 'Denied' | null) => {
+    const statusText = (status: 'Approved' | 'Denied' | 'Canceled' | null) => {
         if (status === 'Approved') return tr('Approved');
         if (status === 'Denied') return tr('Denied');
+        if (status === 'Canceled') return tr('Canceled');
         return tr('Under concideration');
     };
 
@@ -180,13 +195,22 @@ export const UserCreateRequestsPage = () => {
                     name="actions"
                     title={tr('Actions')}
                     width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
-                    renderCell={({ id, status }) => (
+                    renderCell={({ id, status, type }) => (
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions
                                 requestId={id}
                                 requestStatus={status ?? undefined}
                                 small
-                                onEdit={() => router.internalUserRequestEdit(id)}
+                                requestType={
+                                    type === UserCreationRequestType.transferInternToStaff
+                                        ? UserCreationRequestType.transferInternToStaff
+                                        : 'creation'
+                                }
+                                onEdit={() =>
+                                    type === UserCreationRequestType.transferInternToStaff
+                                        ? router.editTransferInternToStaff(id)
+                                        : router.internalUserRequestEdit(id)
+                                }
                             />
                         </div>
                     )}

@@ -5,6 +5,7 @@ import { historyEventMethods } from '../../modules/historyEventMethods';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
 import {
     createUserCreationRequestSchema,
+    editTransferInternToStaffSchema,
     editUserCreationRequestSchema,
     getUserCreationRequestListSchema,
     handleUserCreationRequest,
@@ -16,6 +17,7 @@ import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/a
 import { processEvent } from '../../utils/analyticsEvent';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { protectedProcedure, router } from '../trpcBackend';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import { tr } from './router.i18n';
 
@@ -616,6 +618,10 @@ export const userCreationRequestRouter = router({
                 allowedTypes.push('internalEmployee');
             }
 
+            if (ctx.session.user.role?.editUserActiveState) {
+                allowedTypes.push(UserCreationRequestType.transferInternToStaff);
+            }
+
             const type = input.type ? input.type.filter((t) => allowedTypes.includes(t)) : allowedTypes;
 
             return userCreationRequestsMethods.getList({ ...input, type });
@@ -707,6 +713,7 @@ export const userCreationRequestRouter = router({
 
             return userCreationRequestsMethods.transferInternToStaff(input, ctx.session.user.id);
         }),
+
     getTransferInternToStaffById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
         accessCheckAnyOf(
             checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
@@ -714,4 +721,20 @@ export const userCreationRequestRouter = router({
         );
         return userCreationRequestsMethods.getTransferInternToStaffById(input);
     }),
+
+    editTransferInternToStaffRequest: protectedProcedure
+        .input(editTransferInternToStaffSchema())
+        .mutation(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
+
+            return userCreationRequestsMethods.editTransferInternToStaff(input, ctx.session.user.id);
+        }),
+
+    cancelTransferInternToStaffRequest: protectedProcedure
+        .input(handleUserCreationRequest)
+        .mutation(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
+
+            return userCreationRequestsMethods.cancelTransferInternToStaff(input);
+        }),
 });
