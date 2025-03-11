@@ -33,10 +33,12 @@ export const getServerSideProps = createGetServerSideProps({
     },
 });
 
-export default function TransferInternToStaffRequest({ userId, requestId }: { userId: string; requestId: string }) {
+export default function EditTransferInternToStaffRequest({ userId, requestId }: { userId: string; requestId: string }) {
     const { data: user } = trpc.user.getById.useQuery(userId);
     const userDeviceQuery = trpc.device.getUserDevices.useQuery(userId);
     const userDevices = userDeviceQuery.data || [];
+
+    const requestQuery = trpc.userCreationRequest.getById.useQuery(requestId);
 
     const { data: requestForm } = trpc.userCreationRequest.getTransferInternToStaffById.useQuery(requestId);
 
@@ -47,13 +49,11 @@ export default function TransferInternToStaffRequest({ userId, requestId }: { us
 
     const personalEmail = findService(ExternalServiceName.PersonalEmail, userServiceQuery.data);
 
-    const requestQuery = trpc.userCreationRequest.getById.useQuery(requestId);
-
     if (!user || !requestForm) return null;
 
     return (
         <TransferInternToStaffPage
-            type="readOnly"
+            type="edit"
             user={user}
             phone={phone}
             userDevices={userDevices}

@@ -3,6 +3,7 @@ import { notifyPromise } from '../utils/notifications/notifyPromise';
 
 import {
     CreateUserCreationRequest,
+    EditTransferInternToStaff,
     EditUserCreationRequest,
     TransferInternToStaff,
     UserDecreeEditSchema,
@@ -68,6 +69,20 @@ export const useUserCreationRequestMutations = () => {
         },
     });
 
+    const editTransferInternToStaffRequest = trpc.userCreationRequest.editTransferInternToStaffRequest.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
+
+    const cancelTransferInternToStaffRequest = trpc.userCreationRequest.cancelTransferInternToStaffRequest.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
+
     return {
         createUserCreationRequest: (data: CreateUserCreationRequest) =>
             notifyPromise(createUserCreationRequest.mutateAsync(data), 'userCreationRequestCreate'),
@@ -101,5 +116,11 @@ export const useUserCreationRequestMutations = () => {
 
         createTransferInternToStaffRequest: (data: TransferInternToStaff) =>
             notifyPromise(createTransferInternToStaffRequest.mutateAsync(data), 'transferInternToStaffRequestCreate'),
+
+        editTransferInternToStaffRequest: (data: EditTransferInternToStaff) =>
+            notifyPromise(editTransferInternToStaffRequest.mutateAsync(data), 'transferInternToStaffRequestEdit'),
+
+        cancelTransferInternToStaffRequest: (data: { id: string; comment?: string }) =>
+            notifyPromise(cancelTransferInternToStaffRequest.mutateAsync(data), 'transferInternToStaffRequestCancel'),
     };
 };

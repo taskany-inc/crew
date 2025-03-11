@@ -30,8 +30,20 @@ interface UserFormWorkSpaceDismissalFormBlockType {
     attachIds: string[];
 }
 
-const Attaches = ({ id, onDelete }: { id: string; onDelete?: (id: string) => void }) => {
-    const requestQuery = trpc.scheduledDeactivation.getById.useQuery(id, { enabled: !!id });
+const Attaches = ({
+    id,
+    onDelete,
+    requestType,
+}: {
+    id: string;
+    onDelete?: (id: string) => void;
+    requestType: string;
+}) => {
+    const requestQuery =
+        requestType === 'transferInternToStaff'
+            ? trpc.userCreationRequest.getById.useQuery(id, { enabled: !!id })
+            : trpc.scheduledDeactivation.getById.useQuery(id, { enabled: !!id });
+
     return <AttachList attaches={requestQuery.data?.attaches} onDelete={onDelete} />;
 };
 
@@ -140,6 +152,7 @@ export const UserFormWorkSpaceDismissalFormBlock = ({
                 ))}
                 {nullable(type !== 'new' && requestId, (id) => (
                     <Attaches
+                        requestType={requestType}
                         id={id}
                         onDelete={
                             type !== 'readOnly'

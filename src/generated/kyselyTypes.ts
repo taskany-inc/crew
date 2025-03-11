@@ -7,6 +7,7 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export const UserCreationRequestStatus = {
     Approved: 'Approved',
     Denied: 'Denied',
+    Canceled: 'Canceled',
 } as const;
 export type UserCreationRequestStatus = (typeof UserCreationRequestStatus)[keyof typeof UserCreationRequestStatus];
 export const UserRoleDeprecated = {
@@ -363,6 +364,7 @@ export type UserCreationRequest = {
     services: unknown;
     date: Timestamp | null;
     percentage: number | null;
+    cancelComment: string | null;
     externalOrganizationSupervisorLogin: string | null;
     accessToInternalSystems: boolean | null;
     disableAccount: boolean | null;

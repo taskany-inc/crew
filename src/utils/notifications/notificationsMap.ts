@@ -31,7 +31,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'userRole', 'ChangeScope'>
     | NamespacedAction<'attach', 'Delete'>
     | NamespacedAction<'supplementalPosition', 'Add' | 'Remove'>
-    | NamespacedAction<'transferInternToStaffRequest', 'Create'>
+    | NamespacedAction<'transferInternToStaffRequest', 'Create' | 'Edit' | 'Cancel'>
     | 'sendFeedback'
     | 'copy';
 
@@ -227,6 +227,14 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         transferInternToStaffRequestCreate: {
             success: tr('Voila! Transfer intern to staff request is created 🎉'),
             loading: tr('Creating transfer intern to staff request...'),
+        },
+        transferInternToStaffRequestEdit: {
+            success: tr('Voila! Transfer intern to staff request is edited 🎉'),
+            loading: tr('Editing transfer intern to staff request...'),
+        },
+        transferInternToStaffRequestCancel: {
+            success: tr('Voila! Transfer intern to staff request is canceled 🎉'),
+            loading: tr('Canceling transfer intern to staff request...'),
         },
     };
 

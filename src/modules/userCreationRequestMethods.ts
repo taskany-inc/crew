@@ -34,6 +34,7 @@ import {
     CreateUserCreationRequestExternalEmployee,
     CreateUserCreationRequestexternalFromMainOrgEmployee,
     CreateUserCreationRequestInternalEmployee,
+    EditTransferInternToStaff,
     EditUserCreationRequest,
     GetUserCreationRequestList,
     HandleUserCreationRequest,
@@ -1457,7 +1458,7 @@ export const userCreationRequestsMethods = {
     cancel: async ({ id, comment }: HandleUserCreationRequest, sessionUserId: string) => {
         const canceledRequest = await prisma.userCreationRequest.update({
             where: { id },
-            data: { status: 'Denied', comment },
+            data: { status: 'Canceled', cancelComment: comment },
             include: {
                 group: true,
                 organization: true,
@@ -1865,18 +1866,22 @@ export const userCreationRequestsMethods = {
 
         Promise.all(
             oldPositions.map(async (s) => {
-                await createJob('scheduledFiringFromSupplementalPosition', {
+                const job = await createJob('scheduledFiringFromSupplementalPosition', {
                     date: data.date || undefined,
                     data: { supplementalPositionId: s.id, userId: data.userId },
                 });
+
+                await db.updateTable('SupplementalPosition').where('id', '=', s.id).set({ jobId: job.id }).execute();
             }),
         );
 
         if (request.date) {
-            await createJob('activateSupplementalPositions', {
+            const job = await createJob('activateSupplementalPositions', {
                 data: { userCreationRequestId: request.id },
                 date: request.date,
             });
+
+            await db.updateTable('UserCreationRequest').where('id', '=', request.id).set({ jobId: job.id }).execute();
         }
     },
 
@@ -1966,7 +1971,7 @@ export const userCreationRequestsMethods = {
             middleName: fullNameArray[2],
             email: request.email,
             supervisorId: request.supervisorId || '',
-            organizationUnitId: mainOrganization?.id || '',
+            organizationUnitId: mainOrganization?.organizationUnitId || '',
             percentage: (mainOrganization?.percentage || 100) / percentageMultiply,
             unitId: mainOrganization?.unitId || undefined,
             login: request.login,
@@ -1980,6 +1985,8 @@ export const userCreationRequestsMethods = {
             location: request.location || '',
             internshipOrganizationId: request.internshipOrganizationId || '',
             userId: request.userTargetId,
+            groupId: request.groupId || undefined,
+            comment: request.comment || undefined,
             supplementalPositions:
                 request.supplementalPositions
                     .filter(({ main }) => !main)
@@ -1996,5 +2003,247 @@ export const userCreationRequestsMethods = {
             devices: request.devices as Record<'name' | 'id', string>[],
             testingDevices: request.testingDevices as Record<'name' | 'id', string>[],
         };
+    },
+
+    editTransferInternToStaff: async (data: EditTransferInternToStaff, _sessionUserId: string) => {
+        const { id, ...restData } = data;
+
+        const requestBefore = await db
+            .selectFrom('UserCreationRequest')
+            .selectAll()
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonArrayFrom(
+                    eb.selectFrom('_userLineManagers').select('A as id').whereRef('B', '=', 'UserCreationRequest.id'),
+                ).as('lineManagerIds'),
+            ])
+            .where('id', '=', id)
+            .executeTakeFirstOrThrow();
+
+        const supplementalPositionsBefore = await db
+            .selectFrom('SupplementalPosition')
+            .selectAll()
+            .where('userCreationRequestId', '=', id)
+            .execute();
+
+        const mainPositionBefore = supplementalPositionsBefore.find((s) => s.main);
+
+        const createPositionValues = [];
+
+        if (!mainPositionBefore) {
+            createPositionValues.push({
+                organizationUnitId: restData.organizationUnitId,
+                workStartDate: restData.date,
+                percentage: restData.percentage ? restData.percentage * percentageMultiply : 100,
+                unitId: restData.unitId,
+                main: true,
+                userCreationRequestId: id,
+            });
+        }
+
+        if (
+            mainPositionBefore &&
+            (mainPositionBefore.organizationUnitId !== restData.organizationUnitId ||
+                restData.date?.toDateString() !== mainPositionBefore.workStartDate?.toDateString() ||
+                restData.percentage !== mainPositionBefore.percentage / percentageMultiply ||
+                restData.unitId !== mainPositionBefore.unitId)
+        ) {
+            await db
+                .updateTable('SupplementalPosition')
+                .where('id', '=', mainPositionBefore.id)
+                .set({
+                    organizationUnitId: restData.organizationUnitId,
+                    workStartDate: restData.date,
+                    percentage: restData.percentage ? restData.percentage * percentageMultiply : 100,
+                    unitId: restData.unitId,
+                    main: true,
+                })
+                .execute();
+        }
+
+        const supplementalPositionBefore = supplementalPositionsBefore.find((s) => !s.main);
+
+        const supplementalPosition = restData.supplementalPositions ? restData.supplementalPositions[0] : undefined;
+
+        if (!supplementalPositionBefore && supplementalPosition) {
+            createPositionValues.push({
+                organizationUnitId: supplementalPosition.organizationUnitId,
+                workStartDate: restData.date,
+                percentage: supplementalPosition.percentage
+                    ? supplementalPosition.percentage * percentageMultiply
+                    : 100,
+                unitId: supplementalPosition.unitId,
+                userCreationRequestId: id,
+            });
+        }
+
+        if (supplementalPositionBefore && !supplementalPosition) {
+            await db.deleteFrom('SupplementalPosition').where('id', '=', supplementalPositionBefore.id).execute();
+        }
+
+        if (
+            supplementalPositionBefore &&
+            supplementalPosition &&
+            (supplementalPositionBefore.organizationUnitId !== supplementalPosition.organizationUnitId ||
+                restData.date?.toDateString() !== supplementalPositionBefore.workStartDate?.toDateString() ||
+                supplementalPosition.percentage !== supplementalPositionBefore.percentage / percentageMultiply ||
+                supplementalPosition.unitId !== supplementalPositionBefore.unitId)
+        ) {
+            await db
+                .updateTable('SupplementalPosition')
+                .where('id', '=', supplementalPositionBefore.id)
+                .set({
+                    organizationUnitId: supplementalPosition.organizationUnitId,
+                    workStartDate: restData.date,
+                    percentage: supplementalPosition.percentage
+                        ? supplementalPosition.percentage * percentageMultiply
+                        : 100,
+                    unitId: supplementalPosition.unitId,
+                })
+                .execute();
+        }
+
+        if (restData.attachIds?.length) {
+            await db
+                .updateTable('Attach')
+                .where('id', 'in', restData.attachIds)
+                .set({ userCreationRequestId: id })
+                .execute();
+        }
+
+        if (requestBefore.lineManagerIds.length) {
+            await db
+                .deleteFrom('_userLineManagers')
+                .where('B', '=', requestBefore.id)
+                .where(
+                    'A',
+                    'in',
+                    requestBefore.lineManagerIds.map(({ id }) => id),
+                )
+                .execute();
+        }
+
+        if (restData.lineManagerIds?.length) {
+            await db
+                .insertInto('_userLineManagers')
+                .values(restData.lineManagerIds.map((id) => ({ A: id, B: requestBefore.id })))
+                .execute();
+        }
+
+        if (requestBefore.date?.toDateString() !== restData.date?.toDateString()) {
+            const oldPositions = await db
+                .selectFrom('SupplementalPosition')
+                .selectAll()
+                .where('userId', '=', requestBefore.userTargetId)
+                .where('status', '=', 'ACTIVE')
+                .where('workEndDate', 'is not', null)
+                .execute();
+
+            oldPositions.length &&
+                (await Promise.all([
+                    db
+                        .updateTable('SupplementalPosition')
+                        .where(
+                            'id',
+                            'in',
+                            oldPositions.map(({ id }) => id),
+                        )
+                        .set({ workEndDate: restData.date })
+                        .execute(),
+
+                    db
+                        .updateTable('Job')
+                        .where('id', 'in', [...oldPositions.map(({ jobId }) => jobId), requestBefore.jobId])
+                        .set({ date: restData.date })
+                        .execute(),
+                ]));
+        }
+
+        await db
+            .updateTable('UserCreationRequest')
+            .where('id', '=', id)
+            .set({
+                type: UserCreationRequestType.transferInternToStaff,
+                userTargetId: restData.userId,
+                email: restData.email,
+                login: restData.login,
+                name: trimAndJoin([restData.surname, restData.firstName, restData.middleName]),
+                organizationUnitId: restData.organizationUnitId,
+                percentage: (restData.percentage ?? 1) * percentageMultiply,
+                unitId: restData.unitId,
+                groupId: restData.groupId || undefined,
+                supervisorId: restData.supervisorId,
+                title: restData.title || undefined,
+                corporateEmail: restData.corporateEmail || undefined,
+                createExternalAccount: false,
+                workMode: restData.workMode,
+                workModeComment: restData.workModeComment,
+                workSpace: restData.workSpace,
+                location: restData.location,
+                date: restData.date,
+                comment: restData.comment || undefined,
+                workEmail: restData.workEmail || undefined,
+                personalEmail: restData.personalEmail || undefined,
+                internshipOrganizationId: restData.internshipOrganizationId,
+                internshipOrganizationGroup: restData.internshipOrganizationGroup,
+                internshipRole: restData.internshipRole,
+                internshipSupervisor: restData.internshipSupervisor,
+                applicationForReturnOfEquipment: restData.applicationForReturnOfEquipment,
+                ...(restData.devices && restData.devices.length && { devices: { toJSON: () => restData.devices } }),
+                ...(restData.testingDevices && { testingDevices: { toJSON: () => restData.testingDevices } }),
+                services: [],
+            })
+            .execute();
+    },
+
+    cancelTransferInternToStaff: async (data: { id: string; comment?: string }) => {
+        const { id, comment } = data;
+
+        const request = await db
+            .selectFrom('UserCreationRequest')
+            .selectAll()
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('User as user')
+                        .select(['user.id', 'user.email'])
+                        .select((eb) => [
+                            'user.id',
+                            jsonArrayFrom(
+                                eb
+                                    .selectFrom('SupplementalPosition')
+                                    .select([
+                                        'SupplementalPosition.id',
+                                        'SupplementalPosition.jobId',
+                                        'SupplementalPosition.status',
+                                        'SupplementalPosition.workEndDate',
+                                    ])
+                                    .whereRef('SupplementalPosition.userId', '=', 'user.id'),
+                            ).as('supplementalPositions'),
+                        ])
+                        .whereRef('UserCreationRequest.userTargetId', '=', 'user.id'),
+                ).as('user'),
+            ])
+            .where('id', '=', id)
+            .executeTakeFirstOrThrow();
+
+        const oldPositions = request.user?.supplementalPositions.filter((s) => s.status === 'ACTIVE' && s.workEndDate);
+
+        oldPositions &&
+            oldPositions.length &&
+            (await Promise.all([
+                ...oldPositions.map((p) =>
+                    db.updateTable('SupplementalPosition').set({ workEndDate: null }).where('id', '=', p.id).execute(),
+                ),
+                ...oldPositions.map(({ jobId }) => jobId && jobDelete(jobId)),
+                request.jobId && jobDelete(request.jobId),
+            ]));
+
+        await db
+            .updateTable('UserCreationRequest')
+            .where('id', '=', id)
+            .set({ status: 'Canceled', cancelComment: comment })
+            .execute();
     },
 };
