@@ -225,6 +225,7 @@ export const TransferInternToStaffPage = ({
                                     className={s.FormBlock}
                                     id="team"
                                     type="transferInternToStaff"
+                                    userId={user.id}
                                 />
 
                                 <UserFormWorkSpaceDismissalFormBlock

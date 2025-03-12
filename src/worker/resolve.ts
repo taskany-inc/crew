@@ -1,9 +1,18 @@
+import { TRPCError } from '@trpc/server';
+import { UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser';
+
 import { historyEventMethods } from '../modules/historyEventMethods';
 import { userMethods } from '../modules/userMethods';
 import { userCreationRequestsMethods } from '../modules/userCreationRequestMethods';
 import { prisma } from '../utils/prisma';
 import { ExternalServiceName, findService } from '../utils/externalServices';
 import { db } from '../utils/db';
+import { locationMethods } from '../modules/locationMethods';
+import { Location } from '../modules/locationTypes';
+import { DB } from '../generated/kyselyTypes';
+import { groupRoleMethods } from '../modules/groupRoleMethods';
+import { dropUnchangedValuesFromEvent } from '../utils/dropUnchangedValuesFromEvents';
+import { percentageMultiply } from '../utils/suplementPosition';
 
 import { JobDataMap } from './create';
 
@@ -86,10 +95,66 @@ export const scheduledFiringFromSupplementalPosition = async ({
     );
 };
 
-export const activateSupplementalPositions = async ({
-    userCreationRequestId,
-}: JobDataMap['activateSupplementalPositions']) => {
+export const transferInternToStaff = async ({ userCreationRequestId }: JobDataMap['transferInternToStaff']) => {
     const userCreationRequest = await userCreationRequestsMethods.getById(userCreationRequestId);
+
+    if (!userCreationRequest.userTargetId) {
+        throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: `No user with id ${userCreationRequest.userTargetId} in transferInternToStaff with id ${userCreationRequest.id}`,
+        });
+    }
+
+    const user = await userMethods.getById(userCreationRequest.userTargetId);
+    if (!user) {
+        throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: `No user with id ${userCreationRequest.userTargetId}`,
+        });
+    }
+    const userUpdateValues: UpdateObjectExpression<DB, 'User'> = {};
+
+    let location: Location | undefined;
+
+    if (userCreationRequest.location && user.location?.name !== userCreationRequest.location) {
+        location = await locationMethods.findOrCreate(userCreationRequest.location);
+        userUpdateValues.locationId = location.id;
+    }
+
+    if (userCreationRequest.supervisorId && user.supervisorId !== userCreationRequest.supervisorId) {
+        userUpdateValues.supervisorId = userCreationRequest.supervisorId;
+    }
+
+    const memberships = await userMethods.getMemberships(user.id);
+    const orgMembership = memberships.find((m) => m.group.organizational);
+    if (userCreationRequest.groupId && userCreationRequest.groupId !== orgMembership?.groupId) {
+        orgMembership?.groupId &&
+            (await userMethods.removeFromGroup({ userId: user.id, groupId: orgMembership.groupId }));
+
+        const newMembership = await userMethods.addToGroup({
+            userId: user.id,
+            groupId: userCreationRequest.groupId,
+            percentage: orgMembership?.percentage || undefined,
+        });
+
+        if (userCreationRequest.title) {
+            const role = await groupRoleMethods.getByName(userCreationRequest.title);
+
+            role &&
+                (await groupRoleMethods.addToMembership({
+                    membershipId: newMembership.id,
+                    type: 'existing',
+                    id: role.id,
+                }));
+
+            !role &&
+                (await groupRoleMethods.addToMembership({
+                    membershipId: newMembership.id,
+                    type: 'new',
+                    name: userCreationRequest.title,
+                }));
+        }
+    }
 
     await db
         .updateTable('SupplementalPosition')
@@ -101,5 +166,45 @@ export const activateSupplementalPositions = async ({
         .set({ userId: userCreationRequest.userTargetId, status: 'ACTIVE' })
         .execute();
 
-    // TODO history record
+    const { before, after } = dropUnchangedValuesFromEvent(
+        {
+            groupId: orgMembership?.groupId,
+            role: orgMembership?.roles.map(({ name }) => name).join(', '),
+            location: location?.name,
+            supervisorId: user.supervisorId,
+            supplementalPositions: user.supplementalPositions.map(
+                ({ organizationUnitId, percentage, unitId, main }) => ({
+                    organizationUnitId,
+                    percentage: percentage / percentageMultiply,
+                    unitId: unitId || undefined,
+                    main,
+                }),
+            ),
+        },
+        {
+            groupId: userCreationRequest.groupId || undefined,
+            role: userCreationRequest.title || undefined,
+            location: userCreationRequest.location || undefined,
+            supervisorId: userCreationRequest.supervisorId || undefined,
+            supplementalPositions: userCreationRequest.supplementalPositions.map(
+                ({ organizationUnitId, percentage, unitId, main }) => ({
+                    organizationUnitId,
+                    percentage: percentage / percentageMultiply,
+                    unitId: unitId || undefined,
+                    main,
+                }),
+            ),
+        },
+    );
+
+    await historyEventMethods.create(
+        { subsystem: 'Scheduled transfer intern to staff' },
+        'scheduledTransferInternToStaff',
+        {
+            userId: user.id,
+            groupId: undefined,
+            before: { ...before, id: userCreationRequest.id },
+            after: { ...after, id: userCreationRequest.id },
+        },
+    );
 };

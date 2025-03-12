@@ -21,7 +21,7 @@ export interface JobDataMap {
         supplementalPositionId: string;
         userId: string;
     };
-    activateSupplementalPositions: {
+    transferInternToStaff: {
         userCreationRequestId: string;
     };
 }

@@ -1913,7 +1913,7 @@ export const userCreationRequestsMethods = {
             );
         }
 
-        await db
+        const supplementalPositions = await db
             .insertInto('SupplementalPosition')
             .values(newPositionValues)
             .returningAll()
@@ -1971,13 +1971,40 @@ export const userCreationRequestsMethods = {
         );
 
         if (request.date) {
-            const job = await createJob('activateSupplementalPositions', {
+            const job = await createJob('transferInternToStaff', {
                 data: { userCreationRequestId: request.id },
                 date: request.date,
             });
 
             await db.updateTable('UserCreationRequest').where('id', '=', request.id).set({ jobId: job.id }).execute();
         }
+
+        return {
+            id: request.id,
+            userId: request.userTargetId || undefined,
+            groupId: request.groupId || undefined,
+            date: request.date || undefined,
+            supervisorId: request.supervisorId || undefined,
+            comment: request.comment || undefined,
+            supplementalPositions: supplementalPositions.map((s) => ({
+                ...s,
+                unitId: s.unitId || undefined,
+                percentage: s.percentage / percentageMultiply,
+            })),
+            workMode: request.workMode || undefined,
+            workModeComment: request.workModeComment || undefined,
+            workSpace: request.workSpace || undefined,
+            location: request.location || undefined,
+            internshipOrganizationId: request.internshipOrganizationId || undefined,
+            internshipOrganizationGroup: request.internshipOrganizationGroup || undefined,
+            internshipRole: request.internshipRole || undefined,
+            internshipSupervisor: request.internshipSupervisor || undefined,
+            applicationForReturnOfEquipment: request.applicationForReturnOfEquipment || undefined,
+            testingDevices: request.testingDevices as Record<'name' | 'id', string>[],
+            devices: request.devices as Record<'name' | 'id', string>[],
+            lineManagerIds: data.lineManagerIds,
+            attachIds: data.attachIds,
+        };
     },
 
     getTransferInternToStaffById: async (id: string): Promise<TransferInternToStaff> => {
@@ -2021,6 +2048,15 @@ export const userCreationRequestsMethods = {
                 jsonArrayFrom(
                     eb.selectFrom('_userLineManagers').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
                 ).as('lineManagerIds'),
+            ])
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('Attach as a')
+                        .select('a.id')
+                        .whereRef('a.userCreationRequestId', '=', 'UserCreationRequest.id'),
+                ).as('attachIds'),
             ])
             .select((eb) => [
                 'UserCreationRequest.id',
@@ -2085,10 +2121,11 @@ export const userCreationRequestsMethods = {
             supplementalPositions:
                 request.supplementalPositions
                     .filter(({ main }) => !main)
-                    .map(({ organizationUnitId, percentage, unitId }) => ({
+                    .map(({ organizationUnitId, percentage, unitId, main }) => ({
                         organizationUnitId,
                         percentage: percentage / percentageMultiply,
                         unitId: unitId || undefined,
+                        main,
                     })) || [],
             workSpace: request.workSpace || '',
             lineManagerIds: request.lineManagerIds.map(({ A }) => A),
@@ -2097,6 +2134,7 @@ export const userCreationRequestsMethods = {
             internshipSupervisor: request.internshipSupervisor || undefined,
             devices: request.devices as Record<'name' | 'id', string>[],
             testingDevices: request.testingDevices as Record<'name' | 'id', string>[],
+            attachIds: request.attachIds.map(({ id }) => id),
         };
     },
 
@@ -2289,6 +2327,20 @@ export const userCreationRequestsMethods = {
                 services: [],
             })
             .returningAll()
+            .returning((eb) => [
+                'UserCreationRequest.id',
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('SupplementalPosition as position')
+                        .select([
+                            'position.organizationUnitId',
+                            'position.percentage',
+                            'position.unitId',
+                            'position.main',
+                        ])
+                        .whereRef('position.userCreationRequestId', '=', 'UserCreationRequest.id'),
+                ).as('supplementalPositions'),
+            ])
             .$narrowType<{
                 services: JsonValue;
                 testingDevices: JsonValue;
@@ -2297,6 +2349,33 @@ export const userCreationRequestsMethods = {
             .executeTakeFirstOrThrow();
 
         await sendTransferInternToStaffEmail(request, ICalCalendarMethod.REQUEST, sessionUserId);
+
+        return {
+            id: request.id,
+            userId: request.userTargetId || undefined,
+            groupId: request.groupId || undefined,
+            date: request.date || undefined,
+            supervisorId: request.supervisorId || undefined,
+            comment: request.comment || undefined,
+            supplementalPositions: request.supplementalPositions.map((s) => ({
+                ...s,
+                unitId: s.unitId || undefined,
+                percentage: s.percentage / percentageMultiply,
+            })),
+            workMode: request.workMode || undefined,
+            workModeComment: request.workModeComment || undefined,
+            workSpace: request.workSpace || undefined,
+            location: request.location || undefined,
+            internshipOrganizationId: request.internshipOrganizationId || undefined,
+            internshipOrganizationGroup: request.internshipOrganizationGroup || undefined,
+            internshipRole: request.internshipRole || undefined,
+            internshipSupervisor: request.internshipSupervisor || undefined,
+            applicationForReturnOfEquipment: request.applicationForReturnOfEquipment || undefined,
+            testingDevices: request.testingDevices as Record<'name' | 'id', string>[],
+            devices: request.devices as Record<'name' | 'id', string>[],
+            lineManagerIds: data.lineManagerIds,
+            attachIds: data.attachIds,
+        };
     },
 
     cancelTransferInternToStaff: async (data: { id: string; comment?: string }, sessionUserId: string) => {
@@ -2350,10 +2429,20 @@ export const userCreationRequestsMethods = {
                 request.jobId && jobDelete(request.jobId),
             ]));
 
-        await db
+        const canceledRequest = await db
             .updateTable('UserCreationRequest')
             .where('id', '=', id)
             .set({ status: 'Canceled', cancelComment: comment })
-            .execute();
+            .returningAll()
+            .executeTakeFirstOrThrow();
+
+        if (!canceledRequest.userTargetId) {
+            throw new TRPCError({
+                message: `No targetUserId for request ${canceledRequest.id}`,
+                code: 'INTERNAL_SERVER_ERROR',
+            });
+        }
+
+        return canceledRequest.userTargetId;
     },
 };

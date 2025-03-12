@@ -502,6 +502,92 @@ interface HistoryEventsData {
             organizationUnitId: string;
         };
     };
+    createTransferInternToStaff: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            id: string;
+            supervisorId?: string;
+            groupId?: string;
+            date?: string;
+            comment?: string;
+            location?: string;
+            workSpace?: string;
+            workMode?: string;
+            workModeComment?: string;
+            lineManagerIds?: string[];
+            supplementalPositions?: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId?: string;
+                main?: boolean;
+            }[];
+            attachIds?: string[];
+            internshipOrganizationId?: string;
+            internshipOrganizationGroup?: string;
+            internshipRole?: string;
+            internshipSupervisor?: string;
+            applicationForReturnOfEquipment?: string;
+            devices?: { name: string; id: string }[];
+            testingDevices?: { name: string; id: string }[];
+        };
+    };
+    editTransferInternToStaff: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: true;
+        data: {
+            id: string;
+            supervisorId?: string;
+            groupId?: string;
+            date?: string;
+            comment?: string;
+            location?: string;
+            workSpace?: string;
+            workMode?: string;
+            workModeComment?: string;
+            lineManagerIds?: string[];
+            supplementalPositions?: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId?: string;
+                main?: boolean;
+            }[];
+            attachIds?: string[];
+            internshipOrganizationId?: string;
+            internshipOrganizationGroup?: string;
+            internshipRole?: string;
+            internshipSupervisor?: string;
+            applicationForReturnOfEquipment?: string;
+            devices?: { name: string; id: string }[];
+            testingDevices?: { name: string; id: string }[];
+        };
+    };
+    cancelTransferInternToStaff: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: { id: string; comment?: string };
+    };
+    scheduledTransferInternToStaff: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: true;
+        data: {
+            id: string;
+            groupId?: string;
+            role?: string;
+            location?: string;
+            supervisorId?: string;
+            supplementalPositions?: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId?: string;
+                main?: boolean;
+            }[];
+        };
+    };
 }
 
 export type HistoryAction = keyof HistoryEventsData;

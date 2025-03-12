@@ -1211,6 +1211,265 @@ const componentMap: {
             </div>
         );
     },
+    CreateTransferInternToStaff: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        const devices = useMemo(() => devicesToString(event.after.devices), [event.after.devices]);
+
+        const testingDevices = useMemo(() => devicesToString(event.after.testingDevices), [event.after.testingDevices]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('created request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('to transfer intern to staff')} <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} />
+                        <ChangeListItem
+                            title={tr('Supplemental positions')}
+                            after={event.after.supplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main}`,
+                                )
+                                .join(', ')}
+                        />
+                        <ChangeListItem title={tr('Devices')} after={devices} />
+                        <ChangeListItem title={tr('Testing devices')} after={testingDevices} />
+                        <ChangeListItem title={tr('Supervisor id')} after={event.after.supervisorId} />
+                        <ChangeListItem title={tr('Date')} after={event.after.date} />
+                        <ChangeListItem title={tr('Comment')} after={event.after.comment} />
+                        <ChangeListItem title={tr('Location')} after={event.after.location} />
+                        <ChangeListItem title={tr('Work space application')} after={event.after.workSpace} />
+                        <ChangeListItem title={tr('Work mode')} after={event.after.workMode} />
+                        <ChangeListItem title={tr('Work mode comment')} after={event.after.workModeComment} />
+                        <ChangeListItem title={tr('Line manager ids')} after={event.after.lineManagerIds?.join()} />
+                        <ChangeListItem title={tr('Attach ids')} after={event.after.attachIds?.join(', ')} />
+                        <ChangeListItem
+                            title={tr('Internship organization id')}
+                            after={event.after.internshipOrganizationId}
+                        />
+                        <ChangeListItem
+                            title={tr('Internship organization group')}
+                            after={event.after.internshipOrganizationGroup}
+                        />
+                        <ChangeListItem title={tr('Internship role')} after={event.after.internshipRole} />
+                        <ChangeListItem title={tr('Internship supervisor')} after={event.after.internshipSupervisor} />
+                        <ChangeListItem
+                            title={tr('Application for return of equipment')}
+                            after={event.after.applicationForReturnOfEquipment}
+                        />
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    EditTransferInternToStaff: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        const devices = useMemo(() => devicesToString(event.after.devices), [event.after.devices]);
+
+        const testingDevices = useMemo(() => devicesToString(event.after.testingDevices), [event.after.testingDevices]);
+
+        const devicesBefore = useMemo(() => devicesToString(event.before.devices), [event.before.devices]);
+
+        const testingDevicesBefore = useMemo(
+            () => devicesToString(event.before.testingDevices),
+            [event.before.testingDevices],
+        );
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('edited request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('to transfer intern to staff')} <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} before={event.before.groupId} />
+                        <ChangeListItem
+                            title={tr('Supplemental positions')}
+                            after={event.after.supplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main}`,
+                                )
+                                .join(', ')}
+                            before={event.before.supplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main}`,
+                                )
+                                .join(', ')}
+                        />
+                        <ChangeListItem title={tr('Devices')} after={devices} before={devicesBefore} />
+                        <ChangeListItem
+                            title={tr('Testing devices')}
+                            after={testingDevices}
+                            before={testingDevicesBefore}
+                        />
+                        <ChangeListItem
+                            title={tr('Supervisor id')}
+                            after={event.after.supervisorId}
+                            before={event.before.supervisorId}
+                        />
+                        <ChangeListItem title={tr('Date')} after={event.after.date} before={event.before.date} />
+                        <ChangeListItem
+                            title={tr('Comment')}
+                            after={event.after.comment}
+                            before={event.before.comment}
+                        />
+                        <ChangeListItem
+                            title={tr('Location')}
+                            after={event.after.location}
+                            before={event.before.location}
+                        />
+                        <ChangeListItem
+                            title={tr('Work space application')}
+                            after={event.after.workSpace}
+                            before={event.before.workSpace}
+                        />
+                        <ChangeListItem
+                            title={tr('Work mode')}
+                            after={event.after.workMode}
+                            before={event.before.workMode}
+                        />
+                        <ChangeListItem
+                            title={tr('Work mode comment')}
+                            after={event.after.workModeComment}
+                            before={event.before.workModeComment}
+                        />
+                        <ChangeListItem
+                            title={tr('Line manager ids')}
+                            after={event.after.lineManagerIds?.join()}
+                            before={event.before.lineManagerIds?.join()}
+                        />
+                        <ChangeListItem
+                            title={tr('Attach ids')}
+                            after={event.after.attachIds?.join(', ')}
+                            before={event.before.attachIds?.join(', ')}
+                        />
+                        <ChangeListItem
+                            title={tr('Internship organization id')}
+                            after={event.after.internshipOrganizationId}
+                            before={event.before.internshipOrganizationId}
+                        />
+                        <ChangeListItem
+                            title={tr('Internship organization group')}
+                            after={event.after.internshipOrganizationGroup}
+                            before={event.before.internshipOrganizationGroup}
+                        />
+                        <ChangeListItem
+                            title={tr('Internship role')}
+                            after={event.after.internshipRole}
+                            before={event.before.internshipRole}
+                        />
+                        <ChangeListItem
+                            title={tr('Internship supervisor')}
+                            after={event.after.internshipSupervisor}
+                            before={event.before.internshipSupervisor}
+                        />
+                        <ChangeListItem
+                            title={tr('Application for return of equipment')}
+                            after={event.after.applicationForReturnOfEquipment}
+                            before={event.before.applicationForReturnOfEquipment}
+                        />
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    CancelTransferInternToStaff: ({ event }) => {
+        const visible = useBoolean(false);
+
+        return (
+            <div className={s.Row}>
+                {tr('canceled transfer intern to staff for')}
+                <UserListItem user={event.user} />
+                <Text>{tr('with comment: ')}</Text>
+                <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                {nullable(visible.value, () => (
+                    <Text>{event.after.comment}</Text>
+                ))}
+            </div>
+        );
+    },
+
+    ScheduledTransferInternToStaff: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('changed user data by the transfer intern to staff request')}
+                    <Tag onClick={handleCopyId}>{event.after.id}</Tag> <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} before={event.before.groupId} />
+                        <ChangeListItem
+                            title={tr('Supplemental positions')}
+                            after={event.after.supplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main}`,
+                                )
+                                .join(', ')}
+                            before={event.before.supplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main}`,
+                                )
+                                .join(', ')}
+                        />
+                        <ChangeListItem
+                            title={tr('Supervisor id')}
+                            after={event.after.supervisorId}
+                            before={event.before.supervisorId}
+                        />
+                        <ChangeListItem
+                            title={tr('Location')}
+                            after={event.after.location}
+                            before={event.before.location}
+                        />
+                        <ChangeListItem title={tr('Title')} after={event.after.role} before={event.before.role} />
+                    </>
+                ))}
+            </>
+        );
+    },
 };
 
 interface HistoryRecordProps {
