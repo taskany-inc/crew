@@ -14,6 +14,11 @@ export const groupRoleMethods = {
         return role;
     },
 
+    getByName: async (name: string) => {
+        const role = await prisma.role.findFirst({ where: { name } });
+        return role;
+    },
+
     addToMembership: async (data: AddRoleToMembership) => {
         const membership = await prisma.membership.findUnique({ where: { id: data.membershipId } });
         if (membership?.archived) {

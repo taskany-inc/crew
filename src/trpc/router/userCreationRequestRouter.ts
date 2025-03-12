@@ -18,6 +18,7 @@ import { processEvent } from '../../utils/analyticsEvent';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { protectedProcedure, router } from '../trpcBackend';
 import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
+import { transferInternToStaffHistoryEvent } from '../../utils/transferInterntoStaffHistoryEvent';
 
 import { tr } from './router.i18n';
 
@@ -711,7 +712,14 @@ export const userCreationRequestRouter = router({
         .mutation(async ({ input, ctx }) => {
             accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
 
-            return userCreationRequestsMethods.transferInternToStaff(input, ctx.session.user.id);
+            const request = await userCreationRequestsMethods.transferInternToStaff(input, ctx.session.user.id);
+            await historyEventMethods.create({ user: ctx.session.user.id }, 'createTransferInternToStaff', {
+                userId: input.userId,
+                groupId: undefined,
+                before: undefined,
+                after: transferInternToStaffHistoryEvent({ ...request, date: request.date?.toISOString() }),
+            });
+            return request;
         }),
 
     getTransferInternToStaffById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
@@ -727,7 +735,27 @@ export const userCreationRequestRouter = router({
         .mutation(async ({ input, ctx }) => {
             accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
 
-            return userCreationRequestsMethods.editTransferInternToStaff(input, ctx.session.user.id);
+            const requestBefore = await userCreationRequestsMethods.getTransferInternToStaffById(input.id);
+
+            const request = await userCreationRequestsMethods.editTransferInternToStaff(input, ctx.session.user.id);
+
+            const { before, after } = dropUnchangedValuesFromEvent(
+                transferInternToStaffHistoryEvent({
+                    ...requestBefore,
+                    date: requestBefore.date?.toISOString(),
+                    id: input.id,
+                }),
+                transferInternToStaffHistoryEvent({ ...request, date: request.date?.toISOString() }),
+            );
+
+            await historyEventMethods.create({ user: ctx.session.user.id }, 'editTransferInternToStaff', {
+                userId: input.userId,
+                groupId: undefined,
+                before: { ...before, id: input.id },
+                after: { ...after, id: input.id },
+            });
+
+            return request;
         }),
 
     cancelTransferInternToStaffRequest: protectedProcedure
@@ -735,6 +763,16 @@ export const userCreationRequestRouter = router({
         .mutation(async ({ input, ctx }) => {
             accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
 
-            return userCreationRequestsMethods.cancelTransferInternToStaff(input, ctx.session.user.id);
+            const canceledRequestTargetUserId = await userCreationRequestsMethods.cancelTransferInternToStaff(
+                input,
+                ctx.session.user.id,
+            );
+            await historyEventMethods.create({ user: ctx.session.user.id }, 'cancelTransferInternToStaff', {
+                userId: canceledRequestTargetUserId,
+                groupId: undefined,
+                before: undefined,
+                after: { id: input.id, comment: input.comment },
+            });
+            return canceledRequestTargetUserId;
         }),
 });

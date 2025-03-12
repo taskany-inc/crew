@@ -154,5 +154,13 @@
     "added additional email for {orgId} in mailing type {type}": "",
     "Additional email": "",
     "Notify work space": "",
-    "deleted additional email from {orgId} in mailing type {type}": ""
+    "deleted additional email from {orgId} in mailing type {type}": "",
+    "to transfer intern to staff": "",
+    "Attach ids": "",
+    "Internship organization id": "",
+    "Internship organization group": "",
+    "Internship role": "",
+    "Internship supervisor": "",
+    "canceled transfer intern to staff for": "",
+    "changed user data by the transfer intern to staff request": ""
 }

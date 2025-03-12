@@ -154,5 +154,13 @@
     "added additional email for {orgId} in mailing type {type}": "добавил(а) емейл для организации {orgId} в рассылке типа {type}",
     "Additional email": "Дополнительная почта",
     "Notify work space": "Уведомить о рабочем месте",
-    "deleted additional email from {orgId} in mailing type {type}": "удалил(а) емейл для организации {orgId} в рассылке типа {type}"
+    "deleted additional email from {orgId} in mailing type {type}": "удалил(а) емейл для организации {orgId} в рассылке типа {type}",
+    "to transfer intern to staff": "на перевод стажера в штат",
+    "Attach ids": "Id аттачей",
+    "Internship organization id": "Id организации на стажировке",
+    "Internship organization group": "Подразделение на стажировке",
+    "Internship role": "Роль на стажировке",
+    "Internship supervisor": "Руководитель на стажировке",
+    "canceled transfer intern to staff for": "отменил(а) перевод стажера в штат для",
+    "changed user data by the transfer intern to staff request": "изменил данные пользователя согласно заявке на перевод стажера в штат"
 }

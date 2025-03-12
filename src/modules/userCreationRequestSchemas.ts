@@ -291,6 +291,7 @@ export const transferInternToStaffSchema = () =>
                     organizationUnitId: z.string().min(1, { message: tr('Required field') }),
                     percentage: percentageSchema,
                     unitId: z.string().optional(),
+                    main: z.boolean().optional(),
                 }),
             )
             .optional(),
