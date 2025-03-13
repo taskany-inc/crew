@@ -34,3 +34,11 @@
 .StartDate {
     white-space: nowrap;
 }
+
+.StatusTextCanceled {
+    color: var(--status-at-risk);
+}
+
+.StatusDotCanceled {
+    background-color: var(--status-at-risk);
+}

@@ -5,7 +5,6 @@ import cn from 'classnames';
 import { IconTickCircleOutline } from '@taskany/icons';
 
 import { useRouter } from '../../hooks/useRouter';
-import { trpc } from '../../trpc/trpcClient';
 
 import s from './FireOrTransferUserModal.module.css';
 import { tr } from './FireOrTransferUserModal.i18n';
@@ -28,8 +27,6 @@ interface RequestTypeListType {
 export const FireOrTransferUserModal = ({ visible, onClose, userId, intern }: FireOrTransferUserModalProps) => {
     const [active, setActive] = useState<RequestPage | undefined>();
 
-    const { data: userSettings } = trpc.user.getSettings.useQuery();
-
     const requestTypeList: RequestTypeListType[] = [
         {
             name: tr('Create a planned dismiss'),
@@ -43,7 +40,7 @@ export const FireOrTransferUserModal = ({ visible, onClose, userId, intern }: Fi
         },
     ];
 
-    if (intern && userSettings?.beta) {
+    if (intern) {
         requestTypeList.push({
             name: tr('Transfer intern to staff'),
             description: tr('Informing about the transfer of an intern to the staff'),

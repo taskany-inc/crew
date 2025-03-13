@@ -735,6 +735,6 @@ export const userCreationRequestRouter = router({
         .mutation(async ({ input, ctx }) => {
             accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
 
-            return userCreationRequestsMethods.cancelTransferInternToStaff(input);
+            return userCreationRequestsMethods.cancelTransferInternToStaff(input, ctx.session.user.id);
         }),
 });

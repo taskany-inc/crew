@@ -10,9 +10,7 @@ export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
     stringIds: { requestId: true },
     action: async ({ stringIds, session, ssg }) => {
-        const userSettings = await ssg.user.getSettings.fetch();
-
-        if (!session.user.role?.editUserActiveState || !userSettings.beta) {
+        if (!session.user.role?.editUserActiveState) {
             return {
                 redirect: {
                     destination: pages.home,

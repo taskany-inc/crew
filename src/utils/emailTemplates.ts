@@ -532,8 +532,6 @@ export const newcomerSubject = (data: {
         })
         .every((val, _index, arr) => val === arr[0]);
 
-    console.log(sameDate);
-
     return `${
         data.userCreationRequest.creationCause === 'transfer'
             ? `${tr('Transfer')} ${tr('from')} ${data.transferFrom || ''}`
@@ -547,4 +545,69 @@ export const newcomerSubject = (data: {
                 }`,
         )
         .join(' + ')}) ${data.name} (${data.phone})`;
+};
+
+export const transferInternToStaffEmailHtml = (data: {
+    request: UserCreationRequest;
+    transferFrom: string;
+    transferTo: string;
+    sigmaMail?: string;
+    corporateAppName: string | null;
+    supervisorName: string;
+}) => {
+    const { request, transferFrom, transferTo, sigmaMail } = data;
+
+    return tableTemplate({
+        tableArray: [
+            {
+                title: tr('Transfer employee date'),
+                content: request.date ? formatDate(request.date, defaultLocale) : '',
+            },
+            { title: tr('Employee full name'), content: request.name },
+            {
+                title: tr('Transfer from'),
+                content: transferFrom,
+            },
+            {
+                title: tr('Transfer to'),
+                content: transferTo,
+            },
+            {
+                title: tr('Work mode'),
+                content: request.workMode || '',
+            },
+            { title: tr('Workplace'), content: request.workSpace || '' },
+            { title: tr('Location'), content: request.location || '' },
+            { title: tr('SIGMA email'), content: sigmaMail || '' },
+            { title: tr('Unit Id'), content: request.unitId || '' },
+            { title: tr('Teamlead'), content: data.supervisorName || '' },
+            {
+                title: tr('Testing devices'),
+                content: devicesToTable(
+                    data.request.testingDevices as Record<'name' | 'id', string>[],
+                    tr('Did not take any'),
+                ),
+            },
+            {
+                title: tr('Devices from personal account {corpAppName} in text format', {
+                    corpAppName: data.corporateAppName || '',
+                }),
+                content: devicesToTable(data.request.devices as Record<'name' | 'id', string>[]),
+            },
+            {
+                title: tr('Application for moving worskspace/return of equipment'),
+                content: data.request.applicationForReturnOfEquipment || '',
+            },
+            {
+                title: tr('Comments'),
+                content: request.comment ? request.comment.replace(/\n/g, '<br/>') : '',
+            },
+            {
+                title: tr('Screenshot or photo from personal account {corpAppName}', {
+                    corpAppName: data.corporateAppName || '',
+                }),
+                content: tr('In attachment'),
+            },
+        ],
+    });
 };

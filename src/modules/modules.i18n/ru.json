@@ -89,5 +89,6 @@
     "Supervisor ID is required": "ID функционального руководителя обязателен",
     "From decree": "Выход из декрета",
     "To decree": "Декрет",
-    "Enter date for at least one organization": "Укажите дату хотя бы для одной организации"
+    "Enter date for at least one organization": "Укажите дату хотя бы для одной организации",
+    "Transfer intern to staff": "Перевод стажера в штат"
 }
