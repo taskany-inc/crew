@@ -123,6 +123,7 @@ export const UserCreateRequestsPage = () => {
                                 s.StatusText,
                                 { [s.StatusTextApproved]: status === 'Approved' },
                                 { [s.StatusTextDenied]: status === 'Denied' },
+                                { [s.StatusTextCanceled]: status === 'Canceled' },
                             )}
                             text={statusText(status)}
                             iconLeft={
@@ -131,6 +132,7 @@ export const UserCreateRequestsPage = () => {
                                         s.StatusDot,
                                         { [s.StatusDotApproved]: status === 'Approved' },
                                         { [s.StatusDotDenied]: status === 'Denied' },
+                                        { [s.StatusDotCanceled]: status === 'Denied' },
                                     )}
                                 />
                             }

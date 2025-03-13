@@ -7,10 +7,8 @@ import { ExternalServiceName, findService } from '../../../utils/externalService
 export const getServerSideProps = createGetServerSideProps({
     requireSession: true,
     stringIds: { userId: true },
-    action: async ({ stringIds, session, ssg }) => {
-        const userSettings = await ssg.user.getSettings.fetch();
-
-        if (!session.user.role?.editUserActiveState || !userSettings.beta) {
+    action: async ({ stringIds, session }) => {
+        if (!session.user.role?.editUserActiveState) {
             return {
                 redirect: {
                     destination: pages.home,

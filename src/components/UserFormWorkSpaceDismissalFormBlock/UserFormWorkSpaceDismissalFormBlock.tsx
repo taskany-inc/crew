@@ -9,7 +9,7 @@ import { getFileIdFromPath } from '../../utils/attachFormatter';
 import { pages } from '../../hooks/useRouter';
 import { AttachList } from '../AttachList/AttachList';
 import { trpc } from '../../trpc/trpcClient';
-import { config } from '../../config';
+import { useAppConfig } from '../../contexts/appConfigContext';
 
 import s from './UserFormWorkSpaceDismissalFormBlock.module.css';
 import { tr } from './UserFormWorkSpaceDismissalFormBlock.i18n';
@@ -67,6 +67,8 @@ export const UserFormWorkSpaceDismissalFormBlock = ({
         setValue('workMode', mode);
         trigger('workMode');
     };
+
+    const appConfig = useAppConfig();
 
     const onFileChange = useCallback(
         (files: { type: string; filePath: string; name: string }[]) => {
@@ -138,7 +140,7 @@ export const UserFormWorkSpaceDismissalFormBlock = ({
                         }}
                         translates={{
                             idle: tr('Add screenshot or photo from personal account {corpAppName}', {
-                                corpAppName: config.corpAppName,
+                                corpAppName: appConfig?.corporateAppName || '',
                             }),
                             active: tr('Drop file here'),
                             loading: tr('Loading'),

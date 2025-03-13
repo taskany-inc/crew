@@ -14,6 +14,7 @@ import {
     transferNewcomerFromMainEmailHtml,
     newcomerSubject,
     userCreationMailText,
+    transferInternToStaffEmailHtml,
 } from '../utils/emailTemplates';
 import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
@@ -25,6 +26,7 @@ import { pages } from '../hooks/useRouter';
 import { ExternalServiceName, findService } from '../utils/externalServices';
 import { findSigmaMail } from '../utils/organizationalDomains';
 import { db } from '../utils/db';
+import { JsonValue } from '../utils/jsonValue';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
@@ -59,8 +61,19 @@ interface SendNewcomerEmails {
     newOrganizationIds?: string[];
 }
 
-const sendNewCommerEmails = ({ request, sessionUserId, method, newOrganizationIds }: SendNewcomerEmails) =>
-    Promise.all(
+const sendNewCommerEmails = async ({ request, sessionUserId, method, newOrganizationIds }: SendNewcomerEmails) => {
+    const mainOrganization = await db
+        .selectFrom('OrganizationUnit')
+        .select('name')
+        .where('main', '=', true)
+        .executeTakeFirstOrThrow();
+
+    const groups =
+        request.creationCause === 'transfer' && request.groupId
+            ? `> ${(await groupMethods.getBreadcrumbs(request.groupId)).map(({ name }) => name).join('>')}`
+            : '';
+
+    return Promise.all(
         request.supplementalPositions.map(async ({ organizationUnitId, workStartDate, main }) => {
             if (!workStartDate) return;
 
@@ -86,12 +99,6 @@ const sendNewCommerEmails = ({ request, sessionUserId, method, newOrganizationId
                 additionalEmails,
                 !!request.workSpace,
             );
-
-            const mainOrganization = await db
-                .selectFrom('OrganizationUnit')
-                .select('name')
-                .where('main', '=', true)
-                .executeTakeFirstOrThrow();
 
             const transferFrom = `${mainOrganization.name} (${request.transferFromGroup || ''})`;
 
@@ -127,18 +134,9 @@ const sendNewCommerEmails = ({ request, sessionUserId, method, newOrganizationId
             }
 
             if (request.creationCause === 'transfer') {
-                const mainOrgName = await db
-                    .selectFrom('OrganizationUnit')
-                    .select('name')
-                    .where('main', '=', true)
-                    .executeTakeFirstOrThrow();
-                const transferFrom = `${mainOrgName.name} ${
+                const transferFrom = `${mainOrganization.name} ${
                     request.transferFromGroup ? `> ${request.transferFromGroup}` : ''
                 }`;
-
-                const groups = request.groupId
-                    ? `> ${(await groupMethods.getBreadcrumbs(request.groupId)).map(({ name }) => name).join('>')}`
-                    : '';
 
                 const transferTo = `${request.organization.name} ${groups}`;
                 const sigmaMail = await findSigmaMail([request.workEmail, request.email, request.personalEmail]);
@@ -163,6 +161,96 @@ const sendNewCommerEmails = ({ request, sessionUserId, method, newOrganizationId
             });
         }),
     );
+};
+
+const sendTransferInternToStaffEmail = async (
+    request: UserCreationRequest,
+    method: ICalCalendarMethod.REQUEST | ICalCalendarMethod.CANCEL,
+    sessionUserId: string,
+) => {
+    if (!request.date) return;
+
+    const transferToOrganization = await db
+        .selectFrom('OrganizationUnit')
+        .select('name')
+        .where('id', '=', request.organizationUnitId)
+        .executeTakeFirstOrThrow();
+
+    const groups =
+        request.creationCause === 'transfer' && request.groupId
+            ? `> ${(await groupMethods.getBreadcrumbs(request.groupId)).map(({ name }) => name).join('>')}`
+            : '';
+
+    const transferTo = `${transferToOrganization.name} ${groups}`;
+
+    const transferFromOrganization = await db
+        .selectFrom('OrganizationUnit')
+        .select('name')
+        .where('id', '=', request.internshipOrganizationId)
+        .executeTakeFirstOrThrow();
+
+    const transferFrom = `${transferFromOrganization.name}${
+        request.internshipOrganizationGroup ? ` > ${request.internshipOrganizationGroup}` : ''
+    }`;
+
+    const supervisor = request.supervisorId ? await userMethods.getByIdOrThrow(request.supervisorId) : undefined;
+    const appConfig = await db.selectFrom('AppConfig').select('corporateAppName').executeTakeFirstOrThrow();
+
+    const { corporateAppName } = appConfig;
+
+    const sigmaMail = await findSigmaMail([request.email, request.workEmail, request.email]);
+
+    const userServices = request.userTargetId && (await serviceMethods.getUserServices(request.userTargetId));
+
+    const phone = userServices && findService(ExternalServiceName.Phone, userServices);
+
+    const subject = `${tr('Transfer intern to staff')} ${transferToOrganization.name} ${request.name}${
+        phone ? ` (${phone})` : ''
+    }`;
+
+    request.date?.setUTCHours(config.employmentUtcHour + 1);
+
+    const additionalEmails = [sessionUserId];
+
+    if (request.creatorId && request.creatorId !== sessionUserId) additionalEmails.push(request.creatorId);
+
+    if (request.supervisorId) additionalEmails.push(request.supervisorId);
+
+    const { users, to } = await userMethods.getMailingList(
+        'createScheduledUserRequest',
+        [request.organizationUnitId],
+        additionalEmails,
+        !!request.workSpace,
+    );
+
+    const icalEvent = createIcalEventData({
+        id: request.id + config.nodemailer.authUser + request.organizationUnitId,
+        start: request.date,
+        duration: 30,
+        users,
+        summary: subject,
+        description: subject,
+    });
+
+    const html = transferInternToStaffEmailHtml({
+        request,
+        transferFrom,
+        transferTo,
+        sigmaMail,
+        supervisorName: supervisor?.name || '',
+        corporateAppName,
+    });
+
+    await sendMail({
+        to,
+        subject,
+        html,
+        icalEvent: calendarEvents({
+            method,
+            events: [icalEvent],
+        }),
+    });
+};
 
 export const userCreationRequestsMethods = {
     create: async (
@@ -1792,7 +1880,14 @@ export const userCreationRequestsMethods = {
                 services: [],
             })
             .returningAll()
+            .$narrowType<{
+                services: JsonValue;
+                testingDevices: JsonValue;
+                devices: JsonValue;
+            }>()
             .executeTakeFirstOrThrow();
+
+        await sendTransferInternToStaffEmail(request, ICalCalendarMethod.REQUEST, sessionUserId);
 
         const newPositionValues = [
             {
@@ -2005,7 +2100,7 @@ export const userCreationRequestsMethods = {
         };
     },
 
-    editTransferInternToStaff: async (data: EditTransferInternToStaff, _sessionUserId: string) => {
+    editTransferInternToStaff: async (data: EditTransferInternToStaff, sessionUserId: string) => {
         const { id, ...restData } = data;
 
         const requestBefore = await db
@@ -2159,7 +2254,7 @@ export const userCreationRequestsMethods = {
                 ]));
         }
 
-        await db
+        const request = await db
             .updateTable('UserCreationRequest')
             .where('id', '=', id)
             .set({
@@ -2193,10 +2288,18 @@ export const userCreationRequestsMethods = {
                 ...(restData.testingDevices && { testingDevices: { toJSON: () => restData.testingDevices } }),
                 services: [],
             })
-            .execute();
+            .returningAll()
+            .$narrowType<{
+                services: JsonValue;
+                testingDevices: JsonValue;
+                devices: JsonValue;
+            }>()
+            .executeTakeFirstOrThrow();
+
+        await sendTransferInternToStaffEmail(request, ICalCalendarMethod.REQUEST, sessionUserId);
     },
 
-    cancelTransferInternToStaff: async (data: { id: string; comment?: string }) => {
+    cancelTransferInternToStaff: async (data: { id: string; comment?: string }, sessionUserId: string) => {
         const { id, comment } = data;
 
         const request = await db
@@ -2226,7 +2329,14 @@ export const userCreationRequestsMethods = {
                 ).as('user'),
             ])
             .where('id', '=', id)
+            .$narrowType<{
+                services: JsonValue;
+                testingDevices: JsonValue;
+                devices: JsonValue;
+            }>()
             .executeTakeFirstOrThrow();
+
+        await sendTransferInternToStaffEmail(request, ICalCalendarMethod.CANCEL, sessionUserId);
 
         const oldPositions = request.user?.supplementalPositions.filter((s) => s.status === 'ACTIVE' && s.workEndDate);
 
