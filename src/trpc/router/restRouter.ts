@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { VacancyStatus } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { jsonObjectFrom } from 'kysely/helpers/postgres';
 
 import { prisma } from '../../utils/prisma';
 import { restProcedure, router } from '../trpcBackend';
@@ -23,6 +24,7 @@ import { searchMethods } from '../../modules/searchMethods';
 import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { config } from '../../config';
 import { ExternalServiceName } from '../../utils/externalServices';
+import { db } from '../../utils/db';
 
 import { tr } from './router.i18n';
 
@@ -696,5 +698,75 @@ export const restRouter = router({
         )
         .query(({ input }) => {
             return organizationUnitMethods.getList(input);
+        }),
+
+    getUserEmploymentInfo: restProcedure
+        .meta({
+            openapi: {
+                method: 'GET',
+                path: '/users/employment-info',
+                protect: true,
+                summary: 'Get employment info for active users',
+            },
+        })
+        .input(z.void())
+        .output(
+            z.array(
+                z.object({
+                    id: z.string(),
+                    name: z.string().nullable(),
+                    login: z.string().nullable(),
+                    supervisor: z
+                        .object({
+                            id: z.string(),
+                            name: z.string().nullable(),
+                            login: z.string().nullable(),
+                        })
+                        .nullable(),
+                    employment: z
+                        .object({
+                            groupId: z.string(),
+                            groupName: z.string().nullable(),
+                            roles: z.array(z.string()).nullable(),
+                        })
+                        .nullable(),
+                }),
+            ),
+        )
+        .query(async () => {
+            const users = await db
+                .selectFrom('User')
+                .where('User.active', '=', true)
+                .select((eb) => [
+                    'User.id',
+                    'User.name',
+                    'User.login',
+                    jsonObjectFrom(
+                        eb
+                            .selectFrom('User as s')
+                            .whereRef('s.id', '=', 'User.supervisorId')
+                            .select(['s.id', 's.name', 's.login']),
+                    ).as('supervisor'),
+                    jsonObjectFrom(
+                        eb
+                            .selectFrom('Membership as m')
+                            .leftJoin('Group as g', 'm.groupId', 'g.id')
+                            .leftJoin('_MembershipToRole as mtr', 'm.id', 'A')
+                            .leftJoin('Role as r', 'mtr.B', 'r.id')
+                            .where('g.organizational', '=', true)
+                            .whereRef('m.userId', '=', 'User.id')
+                            .select((eb) => [
+                                'm.groupId',
+                                'g.name as groupName',
+                                eb.fn
+                                    .agg<string[]>('array_agg', ['r.name'])
+                                    .filterWhere('r.name', 'is not', null)
+                                    .as('roles'),
+                            ])
+                            .groupBy(['m.groupId', 'g.name']),
+                    ).as('employment'),
+                ])
+                .execute();
+            return users;
         }),
 });
