@@ -6,7 +6,6 @@
     "Supervisor of users": "",
     "Supervisor in teams": "",
     "History of activity": "",
-    "Schedule deactivation": "",
     "scheduled on {date}": "",
     "Retirement": "",
     "Transfer": "",
@@ -16,5 +15,6 @@
     "From decree": "",
     "Retirement scheduled on": "",
     "Transfer scheduled on": "",
-    "Intern": ""
+    "Intern": "",
+    "Dismiss/transfer": ""
 }

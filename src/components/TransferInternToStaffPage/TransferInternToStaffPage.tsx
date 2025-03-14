@@ -75,7 +75,7 @@ export const TransferInternToStaffPage = ({
             userId: user.id,
             email: user.email,
             login: user.login || '',
-            title: orgMembership?.roles.map(({ name }) => name).join(', ') || user.title || undefined,
+            title: request?.title || orgMembership?.roles.map(({ name }) => name).join(', ') || user.title || undefined,
             groupId: request?.groupId || orgMembership?.groupId,
             surname,
             firstName,
@@ -156,10 +156,9 @@ export const TransferInternToStaffPage = ({
         login: true,
         corporateEmail: true,
         email: true,
-        workEmail: !!defaultValues.workEmail,
-        personalEmail: !!defaultValues.personalEmail,
+        workEmail: !!defaultValues.workEmail || type === 'readOnly',
+        personalEmail: !!defaultValues.personalEmail || type === 'readOnly',
         phone: !!phone,
-        title: true,
     };
 
     const onInternshipOrganizationChange = (o: Nullish<OrganizationUnit>) => {

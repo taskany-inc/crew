@@ -52,26 +52,31 @@ export const RequestFormActions = ({
     const handleCancelSubmit = useCallback(() => {
         onCancel && onCancel();
         if (requestType === 'deactivation') {
-            return cancelScheduledDeactivation({ id: requestId, comment: commentRef.current });
+            cancelScheduledDeactivation({ id: requestId, comment: commentRef.current });
+            return cancelWarningVisible.setFalse();
         }
 
         if (requestType === UserCreationRequestType.transferInternToStaff) {
-            return cancelTransferInternToStaffRequest({ id: requestId, comment: commentRef.current });
+            cancelTransferInternToStaffRequest({ id: requestId, comment: commentRef.current });
+            return cancelWarningVisible.setFalse();
         }
 
-        return cancelUserRequest({ id: requestId, comment: commentRef.current });
+        cancelUserRequest({ id: requestId, comment: commentRef.current });
+        return cancelWarningVisible.setFalse();
     }, [commentRef, requestType, onDecide]);
 
     const handleDeclineSubmit = useCallback(() => {
         onDecide && onDecide();
 
-        return declineUserRequest({ id: requestId, comment: commentRef.current });
+        declineUserRequest({ id: requestId, comment: commentRef.current });
+        return declineWarningVisible.setFalse();
     }, [commentRef, requestType, onDecide]);
 
     const handleAcceptSubmit = useCallback(() => {
         onDecide && onDecide();
 
-        return acceptUserRequest({ id: requestId, comment: commentRef.current });
+        acceptUserRequest({ id: requestId, comment: commentRef.current });
+        return acceptWarningVisible.setFalse();
     }, [commentRef, requestType, onDecide]);
 
     const handleChangeComment = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {

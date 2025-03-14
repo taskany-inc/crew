@@ -176,10 +176,9 @@ const sendTransferInternToStaffEmail = async (
         .where('id', '=', request.organizationUnitId)
         .executeTakeFirstOrThrow();
 
-    const groups =
-        request.creationCause === 'transfer' && request.groupId
-            ? `> ${(await groupMethods.getBreadcrumbs(request.groupId)).map(({ name }) => name).join('>')}`
-            : '';
+    const groups = request.groupId
+        ? `> ${(await groupMethods.getBreadcrumbs(request.groupId)).map(({ name }) => name).join('>')}`
+        : '';
 
     const transferTo = `${transferToOrganization.name} ${groups}`;
 
@@ -2151,6 +2150,11 @@ export const userCreationRequestsMethods = {
                 ).as('lineManagerIds'),
             ])
             .where('id', '=', id)
+            .$narrowType<{
+                services: JsonValue;
+                testingDevices: JsonValue;
+                devices: JsonValue;
+            }>()
             .executeTakeFirstOrThrow();
 
         const supplementalPositionsBefore = await db
@@ -2208,6 +2212,10 @@ export const userCreationRequestsMethods = {
                 unitId: supplementalPosition.unitId,
                 userCreationRequestId: id,
             });
+        }
+
+        if (createPositionValues.length) {
+            await db.insertInto('SupplementalPosition').values(createPositionValues).execute();
         }
 
         if (supplementalPositionBefore && !supplementalPosition) {
@@ -2347,6 +2355,10 @@ export const userCreationRequestsMethods = {
                 devices: JsonValue;
             }>()
             .executeTakeFirstOrThrow();
+
+        if (mainPositionBefore?.organizationUnitId !== data.organizationUnitId) {
+            await sendTransferInternToStaffEmail(requestBefore, ICalCalendarMethod.CANCEL, sessionUserId);
+        }
 
         await sendTransferInternToStaffEmail(request, ICalCalendarMethod.REQUEST, sessionUserId);
 

@@ -132,7 +132,7 @@ export const UserCreateRequestsPage = () => {
                                         s.StatusDot,
                                         { [s.StatusDotApproved]: status === 'Approved' },
                                         { [s.StatusDotDenied]: status === 'Denied' },
-                                        { [s.StatusDotCanceled]: status === 'Denied' },
+                                        { [s.StatusDotCanceled]: status === 'Canceled' },
                                     )}
                                 />
                             }

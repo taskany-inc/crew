@@ -125,6 +125,10 @@ export const transferInternToStaff = async ({ userCreationRequestId }: JobDataMa
         userUpdateValues.supervisorId = userCreationRequest.supervisorId;
     }
 
+    if (Object.values(userUpdateValues).length) {
+        await db.updateTable('User').set(userUpdateValues).execute();
+    }
+
     const memberships = await userMethods.getMemberships(user.id);
     const orgMembership = memberships.find((m) => m.group.organizational);
     if (userCreationRequest.groupId && userCreationRequest.groupId !== orgMembership?.groupId) {
