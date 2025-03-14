@@ -99,6 +99,7 @@ export const InternalUserCreationRequestPage = ({
             supplementalPositions: request?.supplementalPositions || [],
             intern: !!request?.intern,
             transferFromGroup: request?.transferFromGroup,
+            createExternalAccount: true,
         }),
         [request],
     );
