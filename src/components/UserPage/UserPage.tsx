@@ -133,6 +133,9 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
             supplemental: UserSupplementalPositions['supplementalPositions'][number][];
         }>(
             (acum, item) => {
+                if (item.status !== 'ACTIVE') {
+                    return acum;
+                }
                 if (item.main) {
                     acum.main = item;
                 } else {
@@ -294,7 +297,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                     <Restricted visible={!activeScheduledDeactivation && !!sessionUser.role?.editScheduledDeactivation}>
                         <Button
                             onClick={dismissOrTransferModalVisibility.setTrue}
-                            text={tr('Schedule deactivation')}
+                            text={tr('Dismiss/transfer')}
                             view="warning"
                             outline
                             size="s"
