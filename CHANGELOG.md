@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.111.1](https://github.com/taskany-inc/crew/compare/v0.111.0...v0.111.1) (2025-03-14)
+
+
+### Bug Fixes
+
+* createExternalAccount for user request page ([effc7f1](https://github.com/taskany-inc/crew/commit/effc7f157ad201426e9cb14d2f2d80d8a8dd6274))
+
 ## [0.111.0](https://github.com/taskany-inc/crew/compare/v0.110.1...v0.111.0) (2025-03-14)
 
 
