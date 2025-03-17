@@ -23,8 +23,16 @@ const onRetryLimitExeed = (error: any, job: Job) =>
 
 const onQueeTooLong = () => Sentry.captureMessage('Queue too long. Smth went wrong.');
 
-// eslint-disable-next-line no-console
-const onError = (error: any) => console.log('onerror', error.message);
+const onError = (error: any, job: Job) => {
+    console.log('[WORKER]: onerror', error.message);
+
+    return Sentry.captureException(error, {
+        fingerprint: ['worker', 'resolve', 'error'],
+        extra: {
+            job,
+        },
+    });
+};
 
 const init = () =>
     worker(

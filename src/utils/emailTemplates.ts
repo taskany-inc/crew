@@ -527,7 +527,6 @@ export const newcomerSubject = (data: {
 
     const sameDate = data.userCreationRequest.supplementalPositions
         .map(({ workStartDate }) => {
-            console.log(workStartDate?.toDateString());
             return workStartDate?.toDateString();
         })
         .every((val, _index, arr) => val === arr[0]);
