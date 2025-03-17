@@ -52,6 +52,15 @@ const ChangeListItem = ({
     );
 };
 
+const NoDataEvent = ({ event }: { event: HistoryEventData }) => {
+    return (
+        <>
+            {tr('Event')} <BoldText>{event.action}</BoldText>
+            <Text>{tr("Doesn't contain additional data")}</Text>
+        </>
+    );
+};
+
 const componentMap: {
     [A in Capitalize<HistoryAction>]: (props: { event: HistoryEventData<Uncapitalize<A>> }) => ReactNode;
 } = {
@@ -1500,7 +1509,13 @@ export const HistoryRecord = ({ event }: HistoryRecordProps) => {
             title={author.name || event.action}
         >
             <Text size="xs" weight="thin">
-                <Component event={event} />
+                {nullable(
+                    event.before === null && event.after === null,
+                    () => (
+                        <NoDataEvent event={event} />
+                    ),
+                    <Component event={event} />,
+                )}
             </Text>
         </HistoryRecordBricks>
     );
