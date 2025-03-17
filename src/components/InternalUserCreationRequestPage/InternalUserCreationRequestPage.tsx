@@ -150,6 +150,7 @@ export const InternalUserCreationRequestPage = ({
                                 (requestId) => (
                                     <RequestFormActions
                                         requestStatus={requestStatus}
+                                        requestType="creation"
                                         requestId={requestId}
                                         onDecide={router.userRequests}
                                         onEdit={() => router.internalUserRequestEdit(requestId)}

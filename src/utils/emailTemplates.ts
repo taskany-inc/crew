@@ -113,14 +113,14 @@ export const scheduledDeactivationFromMainEmailHtml = (data: {
                 content: devicesToTable(data.data.devices as Record<'name' | 'id', string>[]),
             },
             {
+                title: tr('Application for return of equipment'),
+                content: data.data.applicationForReturnOfEquipment || '',
+            },
+            {
                 title: tr('Screenshot or photo from personal account {corpAppName}', {
                     corpAppName: data.corporateAppName,
                 }),
                 content: tr('In attachment'),
-            },
-            {
-                title: tr('Application for return of equipment'),
-                content: data.data.applicationForReturnOfEquipment || '',
             },
             { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
         ],
@@ -165,14 +165,14 @@ export const scheduledDeactivationFromNotMainEmailHtml = async (data: {
                 content: devicesToTable(data.data.devices as Record<'name' | 'id', string>[]),
             },
             {
+                title: tr('Application for return of equipment'),
+                content: data.data.applicationForReturnOfEquipment || '',
+            },
+            {
                 title: tr('Screenshot or photo from personal account {corpAppName}', {
                     corpAppName: data.corporateAppName,
                 }),
                 content: tr('In attachment'),
-            },
-            {
-                title: tr('Application for return of equipment'),
-                content: data.data.applicationForReturnOfEquipment || '',
             },
             { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
         ],
@@ -365,6 +365,11 @@ export const newComerInMainEmailHtml = async (data: {
             },
             { title: tr('Equipment'), content: userCreationRequest.equipment || '' },
             {
+                title: tr('Application for organizing a workplace and ordering equipment'),
+                content: userCreationRequest.workSpace || '',
+            },
+            { title: tr('Extra equipment'), content: userCreationRequest.extraEquipment || '' },
+            {
                 title: tr('Useful info for supervisor'),
                 content: links
                     .map((link) => {
@@ -375,11 +380,6 @@ export const newComerInMainEmailHtml = async (data: {
                         return `<tr><th></th><td><a href="${link.url}">${tr(linkName)}<a/></td></tr>`;
                     })
                     .join(''),
-            },
-            { title: tr('Extra equipment'), content: userCreationRequest.extraEquipment || '' },
-            {
-                title: tr('Application for organizing a workplace and ordering equipment'),
-                content: userCreationRequest.workSpace || '',
             },
             {
                 title: tr('Comments'),
