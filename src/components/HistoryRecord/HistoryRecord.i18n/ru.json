@@ -162,5 +162,7 @@
     "Internship role": "Роль на стажировке",
     "Internship supervisor": "Руководитель на стажировке",
     "canceled transfer intern to staff for": "отменил(а) перевод стажера в штат для",
-    "changed user data by the transfer intern to staff request": "изменил данные пользователя согласно заявке на перевод стажера в штат"
+    "changed user data by the transfer intern to staff request": "изменил данные пользователя согласно заявке на перевод стажера в штат",
+    "Event": "Событие",
+    "Doesn't contain additional data": "Не содержит дополнительных данных"
 }
