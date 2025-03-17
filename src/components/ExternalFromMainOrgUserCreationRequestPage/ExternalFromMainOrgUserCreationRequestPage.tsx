@@ -131,6 +131,7 @@ export const ExternalFromMainOrgUserCreationRequestPage = ({
                                 type === 'readOnly' && requestId,
                                 (requestId) => (
                                     <RequestFormActions
+                                        requestType="creation"
                                         onEdit={() => router.externalUserFromMainOrgRequestEdit(requestId)}
                                         requestStatus={requestStatus}
                                         requestId={requestId}

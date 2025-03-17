@@ -10,6 +10,7 @@ import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
 import { ExternalServiceName, findService } from '../../utils/externalServices';
 import { config } from '../../config';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import s from './AccessCoordinationList.module.css';
 import { tr } from './AccessCoordinationList.i18n';
@@ -57,6 +58,11 @@ export const AccessCoordinationList = () => {
     const dateTitleRef = useRef(null);
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
+        type: [
+            UserCreationRequestType.internalEmployee,
+            UserCreationRequestType.externalEmployee,
+            UserCreationRequestType.externalFromMainOrgEmployee,
+        ],
         status: null,
         orderBy: {
             name: sorting.find(({ key }) => key === 'name')?.dir,
@@ -190,7 +196,12 @@ export const AccessCoordinationList = () => {
                     width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
                     renderCell={({ id, type }) => (
                         <div onClick={(e) => e.preventDefault()}>
-                            <RequestFormActions requestId={id} small onEdit={() => onEdit(id, type)} />
+                            <RequestFormActions
+                                requestType="creation"
+                                requestId={id}
+                                small
+                                onEdit={() => onEdit(id, type)}
+                            />
                         </div>
                     )}
                 />
