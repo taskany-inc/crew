@@ -69,100 +69,94 @@ export const worker = async (
     onQueueTooLong: () => void,
     logger: (...rest: unknown[]) => void,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (error: any) => void,
+    onError: (error: unknown, job: Job) => void,
     defaultJobDelay: number,
     retryLimit: number,
 ) => {
-    try {
-        const completedCount = await iterateJobQueue(
-            jobState.completed,
-            async (job) => {
-                setTimeout(async () => {
-                    if (job && job.cron) {
-                        logger(`plan cron ${job.id}`);
-                        await jobUpdate(job.id, {
-                            state: jobState.scheduled,
-                        });
+    const completedCount = await iterateJobQueue(
+        jobState.completed,
+        async (job) => {
+            setTimeout(async () => {
+                if (job && job.cron) {
+                    logger(`plan cron ${job.id}`);
+                    await jobUpdate(job.id, {
+                        state: jobState.scheduled,
+                    });
+                } else {
+                    logger(`delete job ${job.id}`);
+                    await jobDelete(job.id);
+                }
+            }, 0);
+        },
+        getNextJob,
+    );
+
+    const scheduledCount = await iterateJobQueue(
+        jobState.scheduled,
+        async (job) => {
+            const planJob = () => jobUpdate(job.id, { state: jobState.scheduled });
+
+            if (job.cron) {
+                const interval = parser.parseExpression(job.cron, {
+                    currentDate: new Date(job.updatedAt),
+                });
+
+                if (Number(interval.next().toDate()) > Date.now() && !job.force) {
+                    await planJob();
+
+                    return;
+                }
+            }
+
+            if (!job.date && job.delay && Date.now() - new Date(job.createdAt).valueOf() < job.delay) {
+                await planJob();
+
+                return;
+            }
+
+            if (job.date && new Date() < job.date) {
+                await planJob();
+
+                return;
+            }
+
+            setTimeout(async () => {
+                try {
+                    logger(`resolve job ${job.kind} ${job.id}`);
+
+                    await resolve[job.kind](job.data as any);
+                    await jobUpdate(job.id, { state: jobState.completed, runs: { increment: true }, force: false });
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } catch (error: any) {
+                    if (job.retry !== retryLimit) {
+                        const retry = job.retry ? job.retry + 1 : 1;
+
+                        onError(error, job);
+
+                        logger(`retry job ${job.id}`);
+
+                        setTimeout(async () => {
+                            await jobUpdate(job.id, {
+                                state: jobState.scheduled,
+                                error: error?.message,
+                                retry,
+                                delay: defaultJobDelay * retry,
+                            });
+                        }, 0);
                     } else {
-                        logger(`delete job ${job.id}`);
+                        onRetryLimitExeed(error, job);
+
+                        logger(`delete job ${job.id} after ${retryLimit} retries`);
+
                         await jobDelete(job.id);
                     }
-                }, 0);
-            },
-            getNextJob,
-        );
-
-        const scheduledCount = await iterateJobQueue(
-            jobState.scheduled,
-            async (job) => {
-                const planJob = () => jobUpdate(job.id, { state: jobState.scheduled });
-
-                if (job.cron) {
-                    const interval = parser.parseExpression(job.cron, {
-                        currentDate: new Date(job.updatedAt),
-                    });
-
-                    if (Number(interval.next().toDate()) > Date.now() && !job.force) {
-                        await planJob();
-
-                        return;
-                    }
                 }
+            }, 0);
+        },
+        getNextJob,
+    );
 
-                if (!job.date && job.delay && Date.now() - new Date(job.createdAt).valueOf() < job.delay) {
-                    await planJob();
-
-                    return;
-                }
-
-                if (job.date && new Date() < job.date) {
-                    await planJob();
-
-                    return;
-                }
-
-                setTimeout(async () => {
-                    try {
-                        logger(`resolve job ${job.kind} ${job.id}`);
-
-                        await resolve[job.kind](job.data as any);
-                        await jobUpdate(job.id, { state: jobState.completed, runs: { increment: true }, force: false });
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    } catch (error: any) {
-                        if (job.retry !== retryLimit) {
-                            const retry = job.retry ? job.retry + 1 : 1;
-
-                            logger(`error job ${job.id}`, error);
-                            logger(`retry job ${job.id}`);
-
-                            setTimeout(async () => {
-                                await jobUpdate(job.id, {
-                                    state: jobState.scheduled,
-                                    error: error?.message,
-                                    retry,
-                                    delay: defaultJobDelay * retry,
-                                });
-                            }, 0);
-                        } else {
-                            onRetryLimitExeed(error, job);
-
-                            logger(`delete job ${job.id} after ${retryLimit} retries`);
-
-                            await jobDelete(job.id);
-                        }
-                    }
-                }, 0);
-            },
-            getNextJob,
-        );
-
-        if (completedCount + scheduledCount > 300) {
-            onQueueTooLong();
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-        // eslint-disable-next-line no-console
-        onError(error);
+    if (completedCount + scheduledCount > 300) {
+        onQueueTooLong();
     }
 };
