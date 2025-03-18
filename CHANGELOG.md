@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.112.0](https://github.com/taskany-inc/crew/compare/v0.111.1...v0.112.0) (2025-03-18)
+
+
+### Features
+
+* **INTERNAL-1556:** employment info rest endpoint ([7a3e678](https://github.com/taskany-inc/crew/commit/7a3e678db65cfae7beadd865cb5c496f37898d8b))
+* **INTERNAL-1725:** support logs with no data ([2f82c45](https://github.com/taskany-inc/crew/commit/2f82c45163ac7c732c49dcd29114f7b18d093e35))
+
+
+### Bug Fixes
+
+* **INTERNAL-1716:** fixes to transfer intern to staff ([30c6f67](https://github.com/taskany-inc/crew/commit/30c6f6775b8f010c2b01d5a512815759e0a13b1c))
+* return decide buttons ([01f15d1](https://github.com/taskany-inc/crew/commit/01f15d1bad18bed3fb768c52b0c6af96b86a25ef))
+* send worker error to sentry ([5981f11](https://github.com/taskany-inc/crew/commit/5981f11c9d20545ed811884f4b6653dc36202ef8))
+
 ## [0.111.1](https://github.com/taskany-inc/crew/compare/v0.111.0...v0.111.1) (2025-03-14)
 
 
