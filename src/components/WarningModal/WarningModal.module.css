@@ -3,8 +3,13 @@
     justify-content: flex-end;
     gap: var(--gap-s);
     margin-right: var(--gap-m);
+    padding-bottom: var(--gap-s);
 }
 
 .Input {
     margin-top: var(--gap-m);
+}
+
+.ModalContent {
+    flex: 1;
 }

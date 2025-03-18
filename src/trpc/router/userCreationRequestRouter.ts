@@ -826,4 +826,36 @@ export const userCreationRequestRouter = router({
 
             return canceledRequestTargetUserId;
         }),
+    confirmDraftRequest: protectedProcedure.input(z.object({ id: z.string() })).mutation(async ({ input, ctx }) => {
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'createExternalFromMainUserRequest'),
+            checkRoleForAccess(ctx.session.user.role, 'createExternalUserRequest'),
+            checkRoleForAccess(ctx.session.user.role, 'createInternalUserRequest'),
+        );
+
+        const confirmedRequest = await userCreationRequestsMethods.confirmDraftRequest(input.id, ctx.session.user.id);
+
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'acceptUserCreationRequest', {
+            groupId: undefined,
+            userId: undefined,
+            before: undefined,
+            after: {
+                id: confirmedRequest.id,
+                name: confirmedRequest.name,
+                email: confirmedRequest.email,
+            },
+        });
+
+        processEvent({
+            eventType: 'userRequestCreate',
+            url: ctx.headers.referer || '',
+            session: ctx.session,
+            uaHeader: ctx.headers['user-agent'],
+            additionalData: {
+                id: confirmedRequest.id,
+            },
+        });
+
+        return confirmedRequest;
+    }),
 });

@@ -5,6 +5,7 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export const UserCreationRequestStatus = {
+    Draft: 'Draft',
     Approved: 'Approved',
     Denied: 'Denied',
     Canceled: 'Canceled',
@@ -346,6 +347,8 @@ export type userCoordinators = {
 export type UserCreationRequest = {
     id: Generated<string>;
     type: string | null;
+    externalPersonId: string | null;
+    externalGroupId: string | null;
     creatorId: string | null;
     name: string;
     email: string;

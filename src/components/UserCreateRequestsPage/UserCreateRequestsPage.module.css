@@ -19,6 +19,10 @@
     color: var(--status-failed);
 }
 
+.StatusTextDraft {
+    color: var(--status-draft);
+}
+
 .StatusDot {
     background-color: var(--status-in-progress);
 }
@@ -29,6 +33,10 @@
 
 .StatusDotDenied {
     background-color: var(--status-failed);
+}
+
+.StatusDotDraft {
+    background-color: var(--status-draft);
 }
 
 .StartDate {

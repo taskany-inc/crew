@@ -45,7 +45,7 @@ const apiTokenCheck = t.middleware(async ({ next, ctx }) => {
     const token = await prisma.apiToken.findUnique({ where: { value: ctx.apiToken } });
     if (!token) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
-    return next({ ctx: { apiToken: ctx.apiToken } });
+    return next({ ctx: { apiToken: ctx.apiToken, apiTokenId: token.id } });
 });
 
 export const publicProcedure = t.procedure;

@@ -9,5 +9,7 @@
     "Cancel request": "Отменить",
     "Edit Form": "Редактировать",
     "Edit": "Редактировать",
-    "Are you sure you want to cancel this request?": "Вы действительно хотите отменить заявку?"
+    "Are you sure you want to cancel this request?": "Вы действительно хотите отменить заявку?",
+    "Submit": "Отправить",
+    "Are you sure you want to submit this request?": "Вы действительно хотите отправить эту заявку?"
 }

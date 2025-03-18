@@ -24,7 +24,7 @@ export const WarningModal = ({
 }: WarningModalProps) => (
     <Modal visible={visible} width={530}>
         <ModalHeader view={view}>{tr('Confirm action')}</ModalHeader>
-        <ModalContent>
+        <ModalContent className={s.ModalContent}>
             {warningText}
             {nullable(onInputChange, (onChange) => (
                 <Input className={s.Input} outline onChange={onChange} placeholder={inputPlaceholder} />

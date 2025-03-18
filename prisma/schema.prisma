@@ -163,14 +163,17 @@ model UserNames {
 }
 
 enum UserCreationRequestStatus {
+  Draft
   Approved
   Denied
   Canceled
 }
 
 model UserCreationRequest {
-  id   String  @id @default(dbgenerated("gen_random_uuid()"))
-  type String?
+  id               String  @id @default(dbgenerated("gen_random_uuid()"))
+  type             String?
+  externalPersonId String?
+  externalGroupId  String?
 
   creatorId String?
   creator   User?   @relation(fields: [creatorId], references: [id], name: "userCreationRequestCreator")
