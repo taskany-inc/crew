@@ -18,6 +18,7 @@ interface UserFormWorkSpaceBlockProps {
     type: 'new' | 'edit' | 'readOnly';
     requestType?: 'dismissal' | 'employment' | UserCreationRequestType.transferInside;
     requestId?: string;
+    status?: string;
 }
 
 interface UserFormWorkSpaceBlockType {
@@ -35,6 +36,7 @@ export const UserFormWorkSpaceBlock = ({
     type,
     requestType = 'employment',
     requestId,
+    status,
 }: UserFormWorkSpaceBlockProps) => {
     const {
         register,
@@ -44,6 +46,8 @@ export const UserFormWorkSpaceBlock = ({
         control,
         formState: { errors },
     } = useFormContext<UserFormWorkSpaceBlockType>();
+
+    const isRequiredField = status !== 'Draft';
 
     const onWorkModeChange = (mode: string) => {
         setValue('workMode', mode);
@@ -76,7 +80,7 @@ export const UserFormWorkSpaceBlock = ({
                     render={({ field }) => (
                         <FormControl
                             label={requestType === 'employment' ? tr('Required euipment') : tr('Equipment')}
-                            required
+                            required={isRequiredField}
                             error={errors.equipment}
                         >
                             <FormControlEditor
@@ -143,7 +147,7 @@ export const UserFormWorkSpaceBlock = ({
                         {...register('location', { required: tr('Required field') })}
                     />
                 </FormControl>
-                <FormControl label={tr('Work mode')} required>
+                <FormControl label={tr('Work mode')} required={isRequiredField}>
                     <WorkModeCombobox
                         readOnly={type === 'readOnly'}
                         onChange={onWorkModeChange}

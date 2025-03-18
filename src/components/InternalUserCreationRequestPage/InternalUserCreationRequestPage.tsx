@@ -45,7 +45,25 @@ const internalUserRequestSchema = (isloginUnique: (login: string) => Promise<boo
             message: tr('Enter Email'),
             path: ['personalEmail'],
         })
-        .superRefine(async ({ login }, ctx) => {
+        .superRefine(async ({ login, status, equipment, workMode }, ctx) => {
+            if (status !== UserCreationRequestStatus.Draft) {
+                if (equipment === '') {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: tr('Required field'),
+                        path: ['equipment'],
+                    });
+                }
+
+                if (workMode === '') {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: tr('Required field'),
+                        path: ['workMode'],
+                    });
+                }
+            }
+
             if (login === editFormLogin) return;
 
             const unique = await isloginUnique(login);
@@ -69,6 +87,7 @@ export const InternalUserCreationRequestPage = ({
     const defaultValues: Partial<CreateUserCreationRequestInternalEmployee> = useMemo(
         () => ({
             type: UserCreationRequestType.internalEmployee,
+            status: request?.status,
             creationCause: request?.creationCause || 'start',
             percentage: request ? request?.percentage : 1,
             surname: request?.surname || '',

@@ -35,7 +35,7 @@ interface HistoryEventsData {
         data: {
             id: string;
             type?: string;
-            status: null;
+            status: string | null;
             name: string;
             email: string;
             corporateEmail?: string;

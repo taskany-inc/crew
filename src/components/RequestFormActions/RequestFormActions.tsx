@@ -2,7 +2,7 @@ import { Button, Tooltip } from '@taskany/bricks/harmony';
 import { nullable, useLatest } from '@taskany/bricks';
 import { useCallback, useRef, useState } from 'react';
 import { UserCreationRequestStatus } from 'prisma/prisma-client';
-import { IconEditOutline, IconTickOutline, IconDeniedOutline, IconXOutline } from '@taskany/icons';
+import { IconEditOutline, IconTickOutline, IconDeniedOutline, IconXOutline, IconSendOutline } from '@taskany/icons';
 import cn from 'classnames';
 
 import { WarningModal } from '../WarningModal/WarningModal';
@@ -37,8 +37,8 @@ export const RequestFormActions = ({
 }: RequestFormActionsProps) => {
     const acceptWarningVisible = useBoolean(false);
     const declineWarningVisible = useBoolean(false);
-
     const cancelWarningVisible = useBoolean(false);
+    const submitWarningVisible = useBoolean(false);
 
     const session = useSessionUser();
 
@@ -50,6 +50,7 @@ export const RequestFormActions = ({
         cancelUserRequest,
         cancelTransferInternToStaffRequest,
         cancelTransferInsideRequest,
+        confirmDraftRequest,
     } = useUserCreationRequestMutations();
     const { cancelScheduledDeactivation } = useScheduledDeactivation();
 
@@ -91,6 +92,11 @@ export const RequestFormActions = ({
         return acceptWarningVisible.setFalse();
     }, [commentRef, requestType, onDecide]);
 
+    const handleSubmitDraftRequest = useCallback(() => {
+        confirmDraftRequest({ id: requestId });
+        return submitWarningVisible.setFalse();
+    }, [confirmDraftRequest, requestId, submitWarningVisible]);
+
     const handleChangeComment = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setComment(event.target.value);
     }, []);
@@ -108,12 +114,16 @@ export const RequestFormActions = ({
         declineWarningVisible.setFalse();
         setComment(undefined);
     };
+    const onSubmitCancel = () => {
+        submitWarningVisible.setFalse();
+    };
     const tooltipRef = useRef(null);
 
     const acceptRef = useRef(null);
     const declineRef = useRef(null);
     const editRef = useRef(null);
     const cancelRef = useRef(null);
+    const submitRef = useRef(null);
     let tooltipText = '';
 
     if (requestStatus === 'Approved') tooltipText = tr('Request already approved');
@@ -127,8 +137,10 @@ export const RequestFormActions = ({
 
     const canDecideOnRequest = session.role?.decideOnUserCreationRequest;
 
+    const isDraftRequest = requestStatus === 'Draft';
     const showDecideButtons =
         canDecideOnRequest &&
+        !isDraftRequest &&
         (requestType === UserCreationRequestType.externalEmployee ||
             requestType === UserCreationRequestType.externalFromMainOrgEmployee ||
             requestType === UserCreationRequestType.internalEmployee);
@@ -163,6 +175,19 @@ export const RequestFormActions = ({
                             onClick={cancelWarningVisible.setTrue}
                         />
                     ))}
+
+                    {nullable(isDraftRequest, () => (
+                        <Button
+                            ref={submitRef}
+                            iconLeft={small && <IconSendOutline size="s" />}
+                            size={small ? 's' : 'm'}
+                            view={small ? 'default' : 'primary'}
+                            type="button"
+                            text={small ? undefined : tr('Submit')}
+                            onClick={submitWarningVisible.setTrue}
+                        />
+                    ))}
+
                     {nullable(requestStatus === 'Approved' || requestStatus === 'Denied', () => (
                         <Tooltip reference={tooltipRef} placement="bottom">
                             {tooltipText}
@@ -176,6 +201,11 @@ export const RequestFormActions = ({
                             <Tooltip reference={cancelRef} placement="bottom">
                                 {tr('Cancel request')}
                             </Tooltip>
+                            {nullable(isDraftRequest, () => (
+                                <Tooltip reference={submitRef} placement="bottom">
+                                    {tr('Submit')}
+                                </Tooltip>
+                            ))}
                         </>
                     ))}
                     <WarningModal
@@ -186,6 +216,13 @@ export const RequestFormActions = ({
                         onConfirm={handleCancelSubmit}
                         inputPlaceholder={tr('Enter comment if needed')}
                         warningText={tr('Are you sure you want to cancel this request?')}
+                    />
+                    <WarningModal
+                        view="primary"
+                        visible={submitWarningVisible.value}
+                        onCancel={onSubmitCancel}
+                        onConfirm={handleSubmitDraftRequest}
+                        warningText={tr('Are you sure you want to submit this request?')}
                     />
                 </>
             ))}

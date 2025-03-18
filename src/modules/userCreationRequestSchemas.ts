@@ -70,19 +70,57 @@ export const getCreateUserCreationRequestBaseSchema = () =>
             .optional(),
         lineManagerIds: z.array(z.string()).optional(),
     });
+
+export const createUserRequestDraftSchema = z.object({
+    externalPersonId: z.string(),
+    name: z.string(),
+    login: z.string(),
+    phone: z.string(),
+    registrationEmail: z.string().email(),
+    workEmail: z.string().email().optional(),
+    position: z.string(),
+    supervisorEmail: z.string().email(),
+    externalGroupId: z.string().optional(),
+    coordinators: z
+        .array(
+            z.object({
+                email: z.string().email(),
+            }),
+        )
+        .optional(),
+    lineManagers: z
+        .array(
+            z.object({
+                email: z.string().email(),
+            }),
+        )
+        .optional(),
+    location: z.string(),
+    transfer: z.boolean().optional(),
+    combining: z.boolean().optional(),
+    organizations: z.array(
+        z.object({
+            organizationUnitId: z.string(),
+            startDate: z.string(),
+            unitId: z.string(),
+            percentage: z.number(),
+            main: z.boolean().optional(),
+        }),
+    ),
+});
+
+export type CreateUserCreationRequestDraft = z.infer<typeof createUserRequestDraftSchema>;
+
 export type CreateUserCreationRequestBase = z.infer<ReturnType<typeof getCreateUserCreationRequestBaseSchema>>;
 
 export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
     getCreateUserCreationRequestBaseSchema().extend({
         type: z.literal('internalEmployee'),
+        status: z.nativeEnum(UserCreationRequestStatus).nullish().optional(),
         phone: getPhoneSchema(),
-        workMode: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
+        workMode: z.string().optional(),
+        equipment: z.string().optional(),
         workModeComment: z.string().optional(),
-        equipment: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
         extraEquipment: z.string().optional(),
         workSpace: z.string().optional(),
         personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
@@ -98,6 +136,7 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
         date: dateSchema,
         osPreference: z.string().optional(),
     });
+
 export type CreateUserCreationRequestInternalEmployee = z.infer<
     ReturnType<typeof getCreateUserCreationRequestInternalEmployeeSchema>
 >;

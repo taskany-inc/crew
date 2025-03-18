@@ -17,5 +17,6 @@
     "Request type": "Тип заявки",
     "Canceled": "Отменена",
     "Transfer intern to staff": "Перевод стажера в штат",
-    "Transfer inside SD": "Перевод внутри SD"
+    "Transfer inside SD": "Перевод внутри SD",
+    "Draft": "Черновик"
 }
