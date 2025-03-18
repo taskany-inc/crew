@@ -134,10 +134,11 @@ export const UserCreateRequestsPage = () => {
         id: request.id,
     }));
 
-    const statusText = (status: 'Approved' | 'Denied' | 'Canceled' | null) => {
+    const statusText = (status: 'Approved' | 'Denied' | 'Canceled' | 'Draft' | null) => {
         if (status === 'Approved') return tr('Approved');
         if (status === 'Denied') return tr('Denied');
         if (status === 'Canceled') return tr('Canceled');
+        if (status === 'Draft') return tr('Draft');
         return tr('Under concideration');
     };
 
@@ -165,6 +166,7 @@ export const UserCreateRequestsPage = () => {
                                 { [s.StatusTextApproved]: status === 'Approved' },
                                 { [s.StatusTextDenied]: status === 'Denied' },
                                 { [s.StatusTextCanceled]: status === 'Canceled' },
+                                { [s.StatusTextDraft]: status === 'Draft' },
                             )}
                             text={statusText(status)}
                             iconLeft={
@@ -174,6 +176,7 @@ export const UserCreateRequestsPage = () => {
                                         { [s.StatusDotApproved]: status === 'Approved' },
                                         { [s.StatusDotDenied]: status === 'Denied' },
                                         { [s.StatusDotCanceled]: status === 'Canceled' },
+                                        { [s.StatusDotDraft]: status === 'Draft' },
                                     )}
                                 />
                             }

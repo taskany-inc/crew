@@ -10,6 +10,7 @@ import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
 import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 import { UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser';
+import { sql } from 'kysely';
 
 import { prisma } from '../utils/prisma';
 import { trimAndJoin } from '../utils/trimAndJoin';
@@ -28,13 +29,21 @@ import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
 import { jobUpdate, jobDelete } from '../worker/jobOperations';
 import { percentageMultiply } from '../utils/suplementPosition';
-import { DB, PositionStatus } from '../generated/kyselyTypes';
+import {
+    DB,
+    PositionStatus,
+    UserCreationRequestStatus,
+    User as KyselyUser,
+    SupplementalPosition as KyselySupplementalPosition,
+} from '../generated/kyselyTypes';
 import { userCreationRequestPhone } from '../utils/createUserCreationRequest';
 import { pages } from '../hooks/useRouter';
 import { ExternalServiceName, findService } from '../utils/externalServices';
 import { findCorporateMail, findSigmaMail } from '../utils/organizationalDomains';
 import { db } from '../utils/db';
 import { JsonValue } from '../utils/jsonValue';
+import { ExtractTypeFromGenerated } from '../utils/extractTypeFromGenerated';
+import { getCorporateEmail } from '../utils/getCorporateEmail';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
@@ -52,6 +61,7 @@ import {
     TransferInternToStaff,
     UserDecreeEditSchema,
     UserDecreeSchema,
+    CreateUserCreationRequestDraft,
 } from './userCreationRequestSchemas';
 import {
     CompleteUserCreationRequest,
@@ -267,6 +277,102 @@ const sendTransferInternToStaffEmail = async (
     });
 };
 
+export const getUserCreationRequestQuery = async (id: string): Promise<UserCreationRequestWithRelations | null> => {
+    const request = await db
+        .selectFrom('UserCreationRequest')
+        .where('UserCreationRequest.id', '=', id)
+        .selectAll()
+        .select([
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('Group').selectAll().whereRef('Group.id', '=', 'UserCreationRequest.groupId'),
+                ).as('group'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('OrganizationUnit')
+                        .selectAll()
+                        .whereRef('OrganizationUnit.id', '=', 'UserCreationRequest.organizationUnitId'),
+                ).as('organization'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserCreationRequest.supervisorId'),
+                ).as('supervisor'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserCreationRequest.buddyId'),
+                ).as('buddy'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserCreationRequest.recruiterId'),
+                ).as('recruiter'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserCreationRequest.creatorId'),
+                ).as('creator'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('_userCoordinators')
+                        .innerJoin('User', 'User.id', '_userCoordinators.A')
+                        .selectAll('User')
+                        .whereRef('_userCoordinators.B', '=', 'UserCreationRequest.id'),
+                ).as('coordinators'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('_userLineManagers')
+                        .innerJoin('User', 'User.id', '_userLineManagers.A')
+                        .selectAll('User')
+                        .whereRef('_userLineManagers.B', '=', 'UserCreationRequest.id'),
+                ).as('lineManagers'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('_userCurators')
+                        .innerJoin('User', 'User.id', '_userCurators.A')
+                        .selectAll('User')
+                        .whereRef('_userCurators.B', '=', 'UserCreationRequest.id'),
+                ).as('curators'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('_PermissionServiceToUserCreationRequest')
+                        .innerJoin(
+                            'PermissionService',
+                            'PermissionService.id',
+                            '_PermissionServiceToUserCreationRequest.A',
+                        )
+                        .selectAll('PermissionService')
+                        .whereRef('_PermissionServiceToUserCreationRequest.B', '=', 'UserCreationRequest.id'),
+                ).as('permissionServices'),
+        ])
+        .$castTo<UserCreationRequestWithRelations>()
+        .executeTakeFirst();
+
+    if (!request) return null;
+
+    const supplementalPositions = await db
+        .selectFrom('SupplementalPosition as sp')
+        .where('sp.userCreationRequestId', '=', id)
+        .selectAll('sp')
+        .select((eb) => [
+            jsonObjectFrom(
+                eb
+                    .selectFrom('OrganizationUnit')
+                    .selectAll()
+                    .whereRef('OrganizationUnit.id', '=', 'sp.organizationUnitId'),
+            ).as('organizationUnit'),
+        ])
+        .$castTo<UserCreationRequestWithRelations['supplementalPositions'][number]>()
+        .execute();
+
+    return {
+        ...request,
+        supplementalPositions: supplementalPositions ?? [],
+    };
+};
+
 export const userCreationRequestsMethods = {
     create: async (
         data: CreateUserCreationRequest,
@@ -469,6 +575,10 @@ export const userCreationRequestsMethods = {
             await userCreationRequestsMethods.accept({ id: userCreationRequest.id });
         }
 
+        if (userCreationRequest.status === UserCreationRequestStatus.Draft) {
+            return userCreationRequest;
+        }
+
         const { to } = await userMethods.getMailingList('createUserRequest', [data.organizationUnitId]);
 
         const requestLink = () => {
@@ -627,7 +737,7 @@ export const userCreationRequestsMethods = {
                 percentage: (data.percentage ?? 1) * percentageMultiply,
                 unitId: data.unitId,
                 groupId: data.groupId || undefined,
-                supervisorLogin: supervisor?.login,
+                supervisorLogin: supervisor?.login || undefined,
                 supervisorId: data.supervisorId || undefined,
                 buddyLogin: buddy?.login || undefined,
                 buddyId: buddy?.id || undefined,
@@ -1145,19 +1255,22 @@ export const userCreationRequestsMethods = {
         });
 
         if (editData.date && requestBeforeUpdate.date !== editData.date && editData.type === 'internalEmployee') {
-            await sendNewCommerEmails({
-                request: requestBeforeUpdate,
-                sessionUserId,
-                method: ICalCalendarMethod.CANCEL,
-                newOrganizationIds: updatedRequest.supplementalPositions.map(
-                    ({ organizationUnitId }) => organizationUnitId,
-                ),
-            });
-            await sendNewCommerEmails({
-                request: updatedRequest,
-                sessionUserId,
-                method: ICalCalendarMethod.REQUEST,
-            });
+            // Не отправляем письма для запросов со статусом Draft
+            if (requestBeforeUpdate.status !== UserCreationRequestStatus.Draft) {
+                await sendNewCommerEmails({
+                    request: requestBeforeUpdate,
+                    sessionUserId,
+                    method: ICalCalendarMethod.CANCEL,
+                    newOrganizationIds: updatedRequest.supplementalPositions.map(
+                        ({ organizationUnitId }) => organizationUnitId,
+                    ),
+                });
+                await sendNewCommerEmails({
+                    request: updatedRequest,
+                    sessionUserId,
+                    method: ICalCalendarMethod.REQUEST,
+                });
+            }
 
             if (requestBeforeUpdate.jobId) await jobUpdate(requestBeforeUpdate.jobId, { date: editData.date });
         }
@@ -1649,7 +1762,7 @@ export const userCreationRequestsMethods = {
 
         const phone = findService(ExternalServiceName.Phone, services as { serviceId: string; serviceName: string }[]);
 
-        if (!date || !title || !phone || !supervisorId || !workMode || !equipment || !location || !creationCause) {
+        if (!date || !title || !phone || !supervisorId || !location || !creationCause) {
             throw new TRPCError({
                 message: `Some data is missing for request with id ${id}`,
                 code: 'BAD_REQUEST',
@@ -1670,8 +1783,8 @@ export const userCreationRequestsMethods = {
             buddyId: buddyId || undefined,
             recruiterId: recruiterId || undefined,
             percentage: percentage ? percentage / percentageMultiply : undefined,
-            workMode,
-            equipment,
+            workMode: workMode || '',
+            equipment: equipment || '',
             location,
             creationCause,
             coordinatorIds: coordinators.map(({ id }) => id) || undefined,
@@ -3271,5 +3384,276 @@ export const userCreationRequestsMethods = {
         });
 
         return request.userTargetId;
+    },
+
+    createUserRequestDraft: async (input: CreateUserCreationRequestDraft) => {
+        try {
+            const isLoginUnique = await userMethods.isLoginUnique(input.login);
+
+            if (isLoginUnique === false) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: `User with login ${input.login} already exist`,
+                });
+            }
+            const mainOrganization = input.organizations.find((o) => o.main);
+            const organizationUnitId = mainOrganization?.organizationUnitId;
+
+            if (!organizationUnitId) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Organization unit ID is required',
+                });
+            }
+
+            return await db.transaction().execute(async (trx) => {
+                const lineManagerEmails = input.lineManagers?.map((lm) => lm.email) || [];
+                const coordinatorEmails = input.coordinators?.map((c) => c.email) || [];
+
+                const allEmails = [input.supervisorEmail, ...lineManagerEmails, ...coordinatorEmails];
+
+                const users = await trx
+                    .with('user_emails', (qb) =>
+                        qb
+                            .selectFrom('User')
+                            .select(['User.id as userId', 'User.email as email'])
+                            .where('User.email', 'in', allEmails)
+                            .unionAll(
+                                qb
+                                    .selectFrom('UserServices')
+                                    .innerJoin('User', 'User.id', 'UserServices.userId')
+                                    .select(['UserServices.userId as userId', 'UserServices.serviceId as email'])
+                                    .where('UserServices.serviceId', 'in', allEmails)
+                                    .where('UserServices.serviceName', 'in', [
+                                        ExternalServiceName.WorkEmail,
+                                        ExternalServiceName.PersonalEmail,
+                                        ExternalServiceName.Email,
+                                    ]),
+                            ),
+                    )
+                    .selectFrom('User')
+                    .innerJoin('user_emails', 'user_emails.userId', 'User.id')
+                    .selectAll('User')
+                    .select([sql<string[]>`array_agg(distinct user_emails.email)`.as('emails')])
+                    .groupBy('User.id')
+                    .execute();
+
+                const userMapByEmail = new Map<string, ExtractTypeFromGenerated<KyselyUser>>();
+
+                users.forEach((userWithEmails) => {
+                    const { emails, ...user } = userWithEmails;
+
+                    emails.forEach((email) => {
+                        if (email) {
+                            userMapByEmail.set(email, user);
+                        }
+                    });
+                });
+
+                const supervisorId = userMapByEmail.get(input.supervisorEmail)?.id;
+                const supervisorLogin = userMapByEmail.get(input.supervisorEmail)?.login;
+
+                if (!supervisorId) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: `Supervisor with email ${input.supervisorEmail} not found`,
+                    });
+                }
+
+                const coordinators =
+                    (input.coordinators
+                        ?.map((c) => userMapByEmail.get(c.email))
+                        .filter(Boolean) as ExtractTypeFromGenerated<KyselyUser>[]) || [];
+                const lineManagers =
+                    (input.lineManagers
+                        ?.map((lm) => userMapByEmail.get(lm.email))
+                        .filter(Boolean) as ExtractTypeFromGenerated<KyselyUser>[]) || [];
+
+                const phoneService = input.phone
+                    ? await trx
+                          .selectFrom('ExternalService')
+                          .select(['name'])
+                          .where('name', '=', ExternalServiceName.Phone)
+                          .executeTakeFirst()
+                    : null;
+
+                const servicesData: { serviceName: string; serviceId: string }[] = [];
+
+                if (phoneService && input.phone) {
+                    servicesData.push({ serviceName: phoneService.name, serviceId: input.phone });
+                }
+
+                const corporateEmail = getCorporateEmail(input.login);
+
+                const creationRequest = await trx
+                    .insertInto('UserCreationRequest')
+                    .values({
+                        type: 'internalEmployee',
+                        creationCause: 'start',
+                        status: UserCreationRequestStatus.Draft,
+                        name: input.name,
+                        email: corporateEmail,
+                        workEmail: corporateEmail,
+                        corporateEmail,
+                        personalEmail: input.registrationEmail,
+                        login: input.login,
+                        title: input.position,
+                        organizationUnitId,
+                        unitId: mainOrganization.unitId,
+                        date: new Date(mainOrganization?.startDate),
+                        percentage: (mainOrganization?.percentage || 1) * percentageMultiply,
+                        supervisorLogin,
+                        supervisorId,
+                        location: input.location,
+                        externalPersonId: input.externalPersonId,
+                        externalGroupId: input.externalGroupId,
+                        createExternalAccount: true,
+                        accessToInternalSystems: false,
+                        services: JSON.stringify(servicesData),
+                    })
+                    .returningAll()
+                    .$narrowType<{
+                        services: JsonValue;
+                    }>()
+                    .executeTakeFirstOrThrow();
+
+                const supplementalPositions = await trx
+                    .insertInto('SupplementalPosition')
+                    .values(
+                        input.organizations.map((org) => ({
+                            organizationUnitId: org.organizationUnitId,
+                            percentage: (org.percentage || 1) * percentageMultiply,
+                            role: input.position || undefined,
+                            status: PositionStatus.ACTIVE,
+                            unitId: org.unitId || null,
+                            workStartDate: new Date(org.startDate),
+                            main: !!org.main,
+                            userCreationRequestId: creationRequest.id,
+                        })),
+                    )
+                    .returningAll()
+                    .$castTo<ExtractTypeFromGenerated<KyselySupplementalPosition>>()
+                    .execute();
+
+                if (coordinators.length > 0) {
+                    await trx
+                        .insertInto('_userCoordinators')
+                        .values(coordinators.map((c) => ({ A: c.id, B: creationRequest.id })))
+                        .execute();
+                }
+
+                if (lineManagers.length > 0) {
+                    await trx
+                        .insertInto('_userLineManagers')
+                        .values(lineManagers.map((l) => ({ A: l.id, B: creationRequest.id })))
+                        .execute();
+                }
+
+                // TODO: send email to supervisor and coordinators
+
+                return {
+                    ...creationRequest,
+                    supplementalPositions,
+                    coordinators,
+                    lineManagers,
+                };
+            });
+        } catch (error) {
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: error instanceof Error ? error.message : 'Failed to create user request',
+            });
+        }
+    },
+
+    confirmDraftRequest: async (id: string, sessionUserId: string) => {
+        try {
+            const draftRequest = await db
+                .selectFrom('UserCreationRequest')
+                .where('UserCreationRequest.id', '=', id)
+                .selectAll()
+                .executeTakeFirst();
+
+            if (!draftRequest) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: `User creation request with id ${id} not found`,
+                });
+            }
+
+            if (draftRequest.status !== UserCreationRequestStatus.Draft) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Only draft requests can be confirmed',
+                });
+            }
+
+            if (
+                !draftRequest.date ||
+                !draftRequest.title ||
+                !draftRequest.supervisorId ||
+                !draftRequest.location ||
+                !draftRequest.creationCause ||
+                !draftRequest.workMode ||
+                !draftRequest.equipment ||
+                !draftRequest.login ||
+                !draftRequest.name ||
+                !draftRequest.email ||
+                !draftRequest.organizationUnitId ||
+                !draftRequest.type
+            ) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: `Some data is missing for request with id ${id}`,
+                });
+            }
+
+            await db
+                .updateTable('UserCreationRequest')
+                .set({
+                    status: UserCreationRequestStatus.Approved,
+                })
+                .where('UserCreationRequest.id', '=', id)
+                .execute();
+
+            const confirmedRequest = await getUserCreationRequestQuery(id);
+
+            if (!confirmedRequest) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to get updated request',
+                });
+            }
+
+            const { to } = await userMethods.getMailingList('createUserRequest', [confirmedRequest.organizationUnitId]);
+
+            const requestLink = pages.internalUserRequest(confirmedRequest.id);
+            const mailText = userCreationMailText(confirmedRequest.name, requestLink);
+            const subject = tr('New user request {userName}', { userName: confirmedRequest.name });
+
+            sendMail({
+                to,
+                subject,
+                text: mailText,
+            });
+
+            if (confirmedRequest.date) {
+                await sendNewCommerEmails({
+                    request: confirmedRequest,
+                    sessionUserId,
+                    method: ICalCalendarMethod.REQUEST,
+                });
+            }
+
+            return confirmedRequest;
+        } catch (error) {
+            if (error instanceof TRPCError) {
+                throw error;
+            }
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: error instanceof Error ? error.message : 'Failed to confirm draft request',
+            });
+        }
     },
 };

@@ -25,6 +25,9 @@ import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { config } from '../../config';
 import { ExternalServiceName } from '../../utils/externalServices';
 import { db } from '../../utils/db';
+import { createUserRequestDraftSchema } from '../../modules/userCreationRequestSchemas';
+import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
+import { UserCreationRequestStatus } from '../../generated/kyselyTypes';
 
 import { tr } from './router.i18n';
 
@@ -148,7 +151,7 @@ export const restRouter = router({
                     supervisorId: newSupervisor?.id,
                 },
             );
-            await historyEventMethods.create({ token: ctx.apiToken }, 'editUser', {
+            await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUser', {
                 groupId: undefined,
                 userId: user.id,
                 before,
@@ -206,7 +209,7 @@ export const restRouter = router({
             if (user.active !== input.data.active) {
                 updatedUser = await userMethods.editActiveState({ id: user.id, active: input.data.active });
 
-                await historyEventMethods.create({ token: ctx.apiToken }, 'editUserActiveState', {
+                await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUserActiveState', {
                     groupId: undefined,
                     userId: user.id,
                     before: user.active,
@@ -262,7 +265,7 @@ export const restRouter = router({
             const userBefore = await userMethods.getUserByField({ email: input.email });
             const result = await userMethods.editActiveState({ id: userBefore.id, active: input.active });
             if (userBefore.active !== result.active) {
-                await historyEventMethods.create({ token: ctx.apiToken }, 'editUserActiveState', {
+                await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUserActiveState', {
                     userId: result.id,
                     groupId: undefined,
                     before: userBefore.active,
@@ -293,7 +296,7 @@ export const restRouter = router({
             const targetUser = await userMethods.getUserByField({ email: targetUserEmail });
             const actingUser = await userMethods.getUserByField({ email: actingUserEmail });
             const result = await bonusPointsMethods.change({ userId: targetUser.id, ...restInput }, actingUser.id);
-            await historyEventMethods.create({ token: ctx.apiToken }, 'editUserBonuses', {
+            await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUserBonuses', {
                 groupId: undefined,
                 userId: result.id,
                 before: { amount: targetUser.bonusPoints },
@@ -500,7 +503,7 @@ export const restRouter = router({
                     unit: result.unit,
                 },
             );
-            await historyEventMethods.create({ token: ctx.apiToken }, 'editVacancy', {
+            await historyEventMethods.create({ token: ctx.apiTokenId }, 'editVacancy', {
                 groupId: result.groupId,
                 userId: undefined,
                 before: { id: result.id, name: vacancyBefore.name, ...before },
@@ -588,7 +591,7 @@ export const restRouter = router({
                 },
                 actingUser.id,
             );
-            await historyEventMethods.create({ token: ctx.apiToken }, 'giveAchievementToUser', {
+            await historyEventMethods.create({ token: ctx.apiTokenId }, 'giveAchievementToUser', {
                 groupId: undefined,
                 userId: targetUser.id,
                 before: undefined,
@@ -630,7 +633,7 @@ export const restRouter = router({
                 { achievementId, amount, userId: targetUser.id },
                 actingUser.id,
             );
-            await historyEventMethods.create({ token: ctx.apiToken }, 'giveAchievementToUser', {
+            await historyEventMethods.create({ token: ctx.apiTokenId }, 'giveAchievementToUser', {
                 groupId: undefined,
                 userId: targetUser.id,
                 before: undefined,
@@ -764,5 +767,79 @@ export const restRouter = router({
                 ])
                 .execute();
             return users;
+        }),
+
+    createUserRequest: restProcedure
+        .meta({
+            openapi: {
+                method: 'POST',
+                path: '/user-requests/create',
+                protect: true,
+                summary: 'Create a new user creation request',
+                description: 'Creates a new user creation request with the provided data',
+            },
+        })
+        .input(createUserRequestDraftSchema)
+        .output(
+            z.object({
+                id: z.string(),
+                status: z.string(),
+            }),
+        )
+        .mutation(async ({ input, ctx }) => {
+            try {
+                const { organizations, ...rest } = input;
+                const request = await userCreationRequestsMethods.createUserRequestDraft({
+                    ...rest,
+                    organizations: [
+                        {
+                            ...organizations[0],
+                            main: true,
+                        },
+                    ],
+                });
+
+                await historyEventMethods.create({ token: ctx.apiTokenId }, 'createUserCreationRequest', {
+                    groupId: undefined,
+                    userId: undefined,
+                    before: undefined,
+                    after: {
+                        id: request.id,
+                        type: request.type || undefined,
+                        status: UserCreationRequestStatus.Draft,
+                        login: request.login,
+                        email: request.email,
+                        workEmail: request.workEmail || undefined,
+                        name: request.name,
+                        organizationUnitId: request.organizationUnitId,
+                        supervisorId: request.supervisorId || undefined,
+                        supervisorLogin: request.supervisorLogin || undefined,
+                        title: request.title || undefined,
+                        location: request.location || undefined,
+                        date: request.date?.toISOString(),
+                        creationCause: request.creationCause || undefined,
+                        unitId: request.unitId || undefined,
+                        groupId: request.groupId || undefined,
+                        personalEmail: request.personalEmail || undefined,
+                        createExternalAccount: request.createExternalAccount,
+                        accessToInternalSystems: request.accessToInternalSystems || undefined,
+                        services: request.services
+                            ? (request.services as Record<'serviceName' | 'serviceId', string>[])
+                            : undefined,
+                        coordinatorLogins: request.coordinators?.map((c) => c.login).join(', ') || undefined,
+                        lineManagerLogins: request.lineManagers?.map((lm) => lm.login).join(', ') || undefined,
+                    },
+                });
+
+                return {
+                    id: request.id,
+                    status: 'success',
+                };
+            } catch (error) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: error instanceof Error ? error.message : 'Failed to create user request',
+                });
+            }
         }),
 });
