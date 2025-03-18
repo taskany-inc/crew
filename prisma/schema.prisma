@@ -163,14 +163,17 @@ model UserNames {
 }
 
 enum UserCreationRequestStatus {
+  Draft
   Approved
   Denied
   Canceled
 }
 
 model UserCreationRequest {
-  id   String  @id @default(dbgenerated("gen_random_uuid()"))
-  type String?
+  id               String  @id @default(dbgenerated("gen_random_uuid()"))
+  type             String?
+  externalPersonId String?
+  externalGroupId  String?
 
   creatorId String?
   creator   User?   @relation(fields: [creatorId], references: [id], name: "userCreationRequestCreator")
@@ -197,8 +200,7 @@ model UserCreationRequest {
   date                  DateTime?
   percentage            Int?
 
-
-  cancelComment               String?
+  cancelComment String?
 
   externalOrganizationSupervisorLogin String?
   accessToInternalSystems             Boolean?
@@ -243,7 +245,7 @@ model UserCreationRequest {
 
   reasonToGrantPermissionToServices String?
 
-  transferFromGroup String?
+  transferFromGroup               String?
   internshipOrganizationId        String?
   internshipOrganizationGroup     String?
   internshipRole                  String?

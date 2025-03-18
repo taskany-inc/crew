@@ -6,12 +6,10 @@ import { prisma } from '../utils/prisma';
 import { GetAllLogs, GetUserActivity } from './historyEventSchemas';
 import { CreateHistoryEventData, HistoryAction } from './historyEventTypes';
 
+export type Actor = { user: string } | { token: string } | { subsystem: string };
+
 export const historyEventMethods = {
-    create: <A extends HistoryAction>(
-        actor: { user: string } | { token: string } | { subsystem: string },
-        action: A,
-        data: CreateHistoryEventData<A>,
-    ) => {
+    create: <A extends HistoryAction>(actor: Actor, action: A, data: CreateHistoryEventData<A>) => {
         return prisma.historyEvent.create({
             data: {
                 actingUserId: 'user' in actor ? actor.user : undefined,

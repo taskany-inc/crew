@@ -48,6 +48,13 @@ export const useUserCreationRequestMutations = () => {
         },
     });
 
+    const confirmDraftRequest = trpc.userCreationRequest.confirmDraftRequest.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
+
     const createDecreeRequest = trpc.userCreationRequest.createDecreeRequest.useMutation({
         onSuccess: () => {
             utils.user.invalidate();
@@ -107,6 +114,9 @@ export const useUserCreationRequestMutations = () => {
                 cancelUserRequest.mutateAsync(data),
                 type === 'decree' ? 'userDecreeRequestCancel' : 'userCreationRequestCancel',
             ),
+
+        confirmDraftRequest: (data: { id: string }) =>
+            notifyPromise(confirmDraftRequest.mutateAsync(data), 'userCreationRequestDraftConfirm'),
 
         createDecreeRequest: (data: UserDecreeSchema) =>
             notifyPromise(createDecreeRequest.mutateAsync(data), 'userDecreeRequestCreate'),

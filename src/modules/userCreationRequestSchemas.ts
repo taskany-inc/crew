@@ -21,6 +21,10 @@ const percentageSchema = z
     .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })
     .max(1, { message: tr('Please enter percentage from 0.01 to 1') });
 
+const userWithLoginReferenceSchema = z.object({
+    login: z.string(),
+});
+
 export const getCreateUserCreationRequestBaseSchema = () =>
     z.object({
         type: z.literal('existing'),
@@ -70,6 +74,39 @@ export const getCreateUserCreationRequestBaseSchema = () =>
             .optional(),
         lineManagerIds: z.array(z.string()).optional(),
     });
+
+export const createUserRequestDraftSchema = z.object({
+    externalPersonId: z.string().optional(),
+    name: z.string(),
+    login: z.string(),
+    phone: z.string().optional(),
+    registrationEmail: z.string().email(),
+    position: z.string(),
+    supervisorLogin: z.string(),
+    externalGroupId: z.string().optional(),
+    coordinators: z.array(userWithLoginReferenceSchema).optional(),
+    lineManagers: z.array(userWithLoginReferenceSchema).optional(),
+    buddyLogin: z.string().optional(),
+    equipment: z.string().optional(),
+    extraEquipment: z.string().optional(),
+    workSpace: z.string().optional(),
+    location: z.string().optional(),
+    workMode: z.string().optional(),
+    workModeComment: z.string().optional(),
+    organizations: z.array(
+        z.object({
+            organizationUnitId: z.string(),
+            startDate: z.string(),
+            unitId: z.string().optional(),
+            percentage: z.number(),
+            main: z.boolean().optional(),
+        }),
+    ),
+    recruiterLogin: z.string().optional(),
+});
+
+export type CreateUserCreationRequestDraft = z.infer<typeof createUserRequestDraftSchema>;
+
 export type CreateUserCreationRequestBase = z.infer<ReturnType<typeof getCreateUserCreationRequestBaseSchema>>;
 
 export const getCreateUserCreationRequestInternalEmployeeSchema = () =>

@@ -20,13 +20,19 @@ import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
 import { jobUpdate, jobDelete } from '../worker/jobOperations';
 import { percentageMultiply } from '../utils/suplementPosition';
-import { PositionStatus } from '../generated/kyselyTypes';
+import {
+    PositionStatus,
+    UserCreationRequestStatus,
+    User as KyselyUser,
+    SupplementalPosition as KyselySupplementalPosition,
+} from '../generated/kyselyTypes';
 import { userCreationRequestPhone } from '../utils/createUserCreationRequest';
 import { pages } from '../hooks/useRouter';
 import { ExternalServiceName, findService } from '../utils/externalServices';
 import { findSigmaMail } from '../utils/organizationalDomains';
 import { db } from '../utils/db';
 import { JsonValue } from '../utils/jsonValue';
+import { ExtractTypeFromGenerated } from '../utils/extractTypeFromGenerated';
 
 import { userMethods } from './userMethods';
 import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
@@ -43,6 +49,7 @@ import {
     TransferInternToStaff,
     UserDecreeEditSchema,
     UserDecreeSchema,
+    CreateUserCreationRequestDraft,
 } from './userCreationRequestSchemas';
 import {
     CompleteUserCreationRequest,
@@ -249,6 +256,93 @@ const sendTransferInternToStaffEmail = async (
             events: [icalEvent],
         }),
     });
+};
+
+const getUserCreationRequestQuery = (id: string) => {
+    return db
+        .selectFrom('UserCreationRequest')
+        .where('UserCreationRequest.id', '=', id)
+        .selectAll()
+        .select([
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('Group').selectAll().whereRef('Group.id', '=', 'UserCreationRequest.groupId'),
+                ).as('group'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('OrganizationUnit')
+                        .selectAll()
+                        .whereRef('OrganizationUnit.id', '=', 'UserCreationRequest.organizationUnitId'),
+                ).as('organization'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserCreationRequest.supervisorId'),
+                ).as('supervisor'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserCreationRequest.buddyId'),
+                ).as('buddy'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserCreationRequest.recruiterId'),
+                ).as('recruiter'),
+            (eb) =>
+                jsonObjectFrom(
+                    eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserCreationRequest.creatorId'),
+                ).as('creator'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('_userCoordinators')
+                        .innerJoin('User', 'User.id', '_userCoordinators.A')
+                        .selectAll('User')
+                        .whereRef('_userCoordinators.B', '=', 'UserCreationRequest.id'),
+                ).as('coordinators'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('_userLineManagers')
+                        .innerJoin('User', 'User.id', '_userLineManagers.A')
+                        .selectAll('User')
+                        .whereRef('_userLineManagers.B', '=', 'UserCreationRequest.id'),
+                ).as('lineManagers'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('SupplementalPosition as sp')
+                        .selectAll('sp')
+                        .select((subEb) => [
+                            jsonObjectFrom(
+                                subEb
+                                    .selectFrom('OrganizationUnit')
+                                    .selectAll()
+                                    .whereRef('OrganizationUnit.id', '=', 'sp.organizationUnitId'),
+                            ).as('organizationUnit'),
+                        ])
+                        .whereRef('sp.userCreationRequestId', '=', 'UserCreationRequest.id'),
+                ).as('supplementalPositions'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('_userCurators')
+                        .innerJoin('User', 'User.id', '_userCurators.A')
+                        .selectAll('User')
+                        .whereRef('_userCurators.B', '=', 'UserCreationRequest.id'),
+                ).as('curators'),
+            (eb) =>
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('_PermissionServiceToUserCreationRequest')
+                        .innerJoin(
+                            'PermissionService',
+                            'PermissionService.id',
+                            '_PermissionServiceToUserCreationRequest.A',
+                        )
+                        .selectAll('PermissionService')
+                        .whereRef('_PermissionServiceToUserCreationRequest.B', '=', 'UserCreationRequest.id'),
+                ).as('permissionServices'),
+        ]);
 };
 
 export const userCreationRequestsMethods = {
@@ -2456,5 +2550,254 @@ export const userCreationRequestsMethods = {
         }
 
         return canceledRequest.userTargetId;
+    },
+
+    createUserRequestDraft: async (input: CreateUserCreationRequestDraft) => {
+        try {
+            const isLoginUnique = await userMethods.isLoginUnique(input.login);
+
+            if (isLoginUnique === false) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: `User with login ${input.login} already exist`,
+                });
+            }
+            const mainOrganization = input.organizations.find((o) => o.main);
+            const organizationUnitId = mainOrganization?.organizationUnitId;
+
+            if (!organizationUnitId) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Organization unit ID is required',
+                });
+            }
+
+            return await db.transaction().execute(async (trx) => {
+                const lineManagerLogins = input.lineManagers?.map((lm: { login: string }) => lm.login) || [];
+                const coordinatorLogins = input.coordinators?.map((c: { login: string }) => c.login) || [];
+
+                const users = await trx
+                    .selectFrom('User')
+                    .selectAll()
+                    .where((eb) =>
+                        eb.or([
+                            eb('login', '=', input.supervisorLogin),
+                            eb('login', 'in', [...lineManagerLogins, ...coordinatorLogins]),
+                            input.recruiterLogin ? eb('login', '=', input.recruiterLogin) : eb('id', '>', ''),
+                            input.buddyLogin ? eb('login', '=', input.buddyLogin) : eb('id', '>', ''),
+                        ]),
+                    )
+                    .$castTo<ExtractTypeFromGenerated<KyselyUser>>()
+                    .execute();
+
+                const userMap = new Map(users.map((u) => [u.login, u]));
+
+                const supervisorId = userMap.get(input.supervisorLogin)?.id;
+                if (!supervisorId) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: `Supervisor with login ${input.supervisorLogin} not found`,
+                    });
+                }
+
+                const recruiterId = input.recruiterLogin ? userMap.get(input.recruiterLogin)?.id : undefined;
+                const buddyId = input.buddyLogin ? userMap.get(input.buddyLogin)?.id : undefined;
+
+                const coordinators =
+                    (input.coordinators
+                        ?.map((c) => userMap.get(c.login))
+                        .filter(Boolean) as ExtractTypeFromGenerated<KyselyUser>[]) || [];
+                const lineManagers =
+                    (input.lineManagers
+                        ?.map((lm) => userMap.get(lm.login))
+                        .filter(Boolean) as ExtractTypeFromGenerated<KyselyUser>[]) || [];
+
+                const phoneService = input.phone
+                    ? await trx
+                          .selectFrom('ExternalService')
+                          .select(['name'])
+                          .where('name', '=', ExternalServiceName.Phone)
+                          .executeTakeFirst()
+                    : null;
+
+                const servicesData: { serviceName: string; serviceId: string }[] = [];
+
+                if (phoneService && input.phone) {
+                    servicesData.push({ serviceName: phoneService.name, serviceId: input.phone });
+                }
+
+                const creationRequest = await trx
+                    .insertInto('UserCreationRequest')
+                    .values({
+                        type: 'internalEmployee',
+                        creationCause: 'start',
+                        status: UserCreationRequestStatus.Draft,
+                        name: input.name,
+                        email: input.registrationEmail,
+                        login: input.login,
+                        title: input.position,
+                        organizationUnitId,
+                        unitId: mainOrganization.unitId,
+                        date: new Date(mainOrganization?.startDate),
+                        percentage: (mainOrganization?.percentage || 1) * percentageMultiply,
+                        supervisorLogin: input.supervisorLogin,
+                        supervisorId,
+                        recruiterLogin: input.recruiterLogin ?? undefined,
+                        recruiterId,
+                        buddyId,
+                        buddyLogin: input.buddyLogin,
+                        equipment: input.equipment,
+                        extraEquipment: input.extraEquipment,
+                        workSpace: input.workSpace,
+                        location: input.location,
+                        workMode: input.workMode,
+                        workModeComment: input.workModeComment,
+                        createExternalAccount: true,
+                        accessToInternalSystems: false,
+                        services: JSON.stringify(servicesData),
+                    })
+                    .returningAll()
+                    .$narrowType<{
+                        services: JsonValue;
+                    }>()
+                    .executeTakeFirstOrThrow();
+
+                const supplementalPositions = await trx
+                    .insertInto('SupplementalPosition')
+                    .values(
+                        input.organizations.map((org) => ({
+                            organizationUnitId: org.organizationUnitId,
+                            percentage: (org.percentage || 1) * percentageMultiply,
+                            role: input.position || undefined,
+                            status: PositionStatus.ACTIVE,
+                            unitId: org.unitId || null,
+                            workStartDate: new Date(org.startDate),
+                            main: !!org.main,
+                            userCreationRequestId: creationRequest.id,
+                        })),
+                    )
+                    .returningAll()
+                    .$castTo<ExtractTypeFromGenerated<KyselySupplementalPosition>>()
+                    .execute();
+
+                if (coordinators.length > 0) {
+                    await trx
+                        .insertInto('_userCoordinators')
+                        .values(coordinators.map((c) => ({ A: c.id, B: creationRequest.id })))
+                        .execute();
+                }
+
+                if (lineManagers.length > 0) {
+                    await trx
+                        .insertInto('_userLineManagers')
+                        .values(lineManagers.map((l) => ({ A: l.id, B: creationRequest.id })))
+                        .execute();
+                }
+
+                return {
+                    ...creationRequest,
+                    supplementalPositions,
+                    coordinators,
+                    lineManagers,
+                };
+            });
+        } catch (error) {
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: error instanceof Error ? error.message : 'Failed to create user request',
+            });
+        }
+    },
+
+    confirmDraftRequest: async (id: string, sessionUserId: string) => {
+        try {
+            const draftRequest = await db
+                .selectFrom('UserCreationRequest')
+                .where('UserCreationRequest.id', '=', id)
+                .selectAll()
+                .executeTakeFirst();
+
+            if (!draftRequest) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: `User creation request with id ${id} not found`,
+                });
+            }
+
+            if (draftRequest.status !== UserCreationRequestStatus.Draft) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Only draft requests can be confirmed',
+                });
+            }
+
+            await db
+                .updateTable('UserCreationRequest')
+                .set({
+                    status: null,
+                })
+                .where('UserCreationRequest.id', '=', id)
+                .execute();
+
+            const confirmedRequest = await getUserCreationRequestQuery(id)
+                .$castTo<UserCreationRequestWithRelations>()
+                .executeTakeFirst()
+                .then((request) => {
+                    if (request?.supplementalPositions?.length) {
+                        request.supplementalPositions = request.supplementalPositions.map((position) => {
+                            const updatedPosition = { ...position };
+
+                            if (typeof updatedPosition.workStartDate === 'string') {
+                                updatedPosition.workStartDate = new Date(updatedPosition.workStartDate);
+                            }
+
+                            if (typeof updatedPosition.workEndDate === 'string') {
+                                updatedPosition.workEndDate = new Date(updatedPosition.workEndDate);
+                            }
+
+                            return updatedPosition;
+                        });
+                    }
+
+                    return request;
+                });
+
+            if (!confirmedRequest) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Failed to get updated request',
+                });
+            }
+
+            const { to } = await userMethods.getMailingList('createUserRequest', [confirmedRequest.organizationUnitId]);
+
+            const requestLink = pages.internalUserRequest(confirmedRequest.id);
+            const mailText = userCreationMailText(confirmedRequest.name, requestLink);
+            const subject = tr('New user request {userName}', { userName: confirmedRequest.name });
+
+            sendMail({
+                to,
+                subject,
+                text: mailText,
+            });
+
+            if (confirmedRequest.date) {
+                await sendNewCommerEmails({
+                    request: confirmedRequest,
+                    sessionUserId,
+                    method: ICalCalendarMethod.REQUEST,
+                });
+            }
+
+            return confirmedRequest;
+        } catch (error) {
+            if (error instanceof TRPCError) {
+                throw error;
+            }
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: error instanceof Error ? error.message : 'Failed to confirm draft request',
+            });
+        }
     },
 };
