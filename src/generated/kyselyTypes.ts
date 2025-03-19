@@ -307,6 +307,7 @@ export type SupplementalPosition = {
     intern: Generated<boolean>;
     jobId: string | null;
     userCreationRequestId: string | null;
+    userTransferToRequestId: string | null;
     scheduledDeactivationId: string | null;
 };
 export type User = {
@@ -386,6 +387,9 @@ export type UserCreationRequest = {
     userTargetId: string | null;
     jobId: string | null;
     reasonToGrantPermissionToServices: string | null;
+    transferToTitle: string | null;
+    transferToSupervisorId: string | null;
+    transferToGroupId: string | null;
     transferFromGroup: string | null;
     internshipOrganizationId: string | null;
     internshipOrganizationGroup: string | null;

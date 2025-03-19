@@ -4,6 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
 import {
+    createTransferInsideSchema,
     createUserCreationRequestSchema,
     editTransferInternToStaffSchema,
     editUserCreationRequestSchema,
@@ -623,6 +624,10 @@ export const userCreationRequestRouter = router({
                 allowedTypes.push(UserCreationRequestType.transferInternToStaff);
             }
 
+            if (ctx.session.user.role?.editUserActiveState) {
+                allowedTypes.push(UserCreationRequestType.transferInside);
+            }
+
             const type = input.type ? input.type.filter((t) => allowedTypes.includes(t)) : allowedTypes;
 
             return userCreationRequestsMethods.getList({ ...input, type });
@@ -775,4 +780,22 @@ export const userCreationRequestRouter = router({
             });
             return canceledRequestTargetUserId;
         }),
+
+    createTransferInsideRequest: protectedProcedure
+        .input(createTransferInsideSchema())
+        .mutation(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
+
+            await userCreationRequestsMethods.createTransferInside(input, ctx.session.user.id);
+
+            // TODO history event
+        }),
+
+    getTransferInsideById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+        );
+        return userCreationRequestsMethods.getTransferInsideById(input);
+    }),
 });

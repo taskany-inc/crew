@@ -57,6 +57,10 @@ export const pages = {
     newTransferInternToStaff: (userId: string) => `/users/${userId}/transfer-intern-to-staff`,
     transferInternToStaff: (requestId: string) => `/requests/users/transfer-intern-to-staff/${requestId}`,
     editTransferInternToStaff: (requestId: string) => `/requests/users/transfer-intern-to-staff/${requestId}/edit`,
+
+    newTransferInside: (userId: string) => `/users/${userId}/transfer-inside`,
+    transferInside: (requestId: string) => `/requests/users/transfer-inside/${requestId}`,
+    editTransferInside: (requestId: string) => `/requests/users/transfer-inside/${requestId}/edit`,
 };
 
 export const useRouter = () => {
@@ -121,5 +125,9 @@ export const useRouter = () => {
         newTransferInternToStaff: (userId: string) => router.push(pages.newTransferInternToStaff(userId)),
         transferInternToStaff: (requestId: string) => router.push(pages.transferInternToStaff(requestId)),
         editTransferInternToStaff: (requestId: string) => router.push(pages.editTransferInternToStaff(requestId)),
+
+        newTransferInside: (userId: string) => router.push(pages.newTransferInside(userId)),
+        transferInside: (requestId: string) => router.push(pages.transferInside(requestId)),
+        editTransferInside: (requestId: string) => router.push(pages.editTransferInside(requestId)),
     };
 };

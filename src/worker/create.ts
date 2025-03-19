@@ -24,6 +24,13 @@ export interface JobDataMap {
     transferInternToStaff: {
         userCreationRequestId: string;
     };
+    activateUserSupplementalPosition: {
+        supplementalPositionId: string;
+        userId: string;
+    };
+    editUserOnTransfer: {
+        userCreationRequestId: string;
+    };
 }
 
 export type JobKind = keyof JobDataMap;
