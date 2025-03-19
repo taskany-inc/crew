@@ -212,3 +212,92 @@ export const transferInternToStaff = async ({ userCreationRequestId }: JobDataMa
         },
     );
 };
+
+export const activateUserSupplementalPosition = async ({
+    supplementalPositionId,
+    userId,
+}: JobDataMap['activateUserSupplementalPosition']) => {
+    await db
+        .updateTable('SupplementalPosition')
+        .where('id', '=', supplementalPositionId)
+        .set({ userId, status: 'ACTIVE' })
+        .execute();
+
+    // TODO history events
+};
+
+export const editUserOnTransfer = async ({ userCreationRequestId }: JobDataMap['editUserOnTransfer']) => {
+    const userCreationRequest = await userCreationRequestsMethods.getById(userCreationRequestId);
+
+    if (!userCreationRequest.userTargetId) {
+        throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: `No user with id ${userCreationRequest.userTargetId} in transferInternToStaff with id ${userCreationRequest.id}`,
+        });
+    }
+
+    const user = await userMethods.getById(userCreationRequest.userTargetId);
+    if (!user) {
+        throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: `No user with id ${userCreationRequest.userTargetId}`,
+        });
+    }
+
+    if (!user.active) {
+        await userMethods.editActiveState({ active: true, id: user.id });
+    }
+
+    const userUpdateValues: UpdateObjectExpression<DB, 'User'> = {};
+
+    let location: Location | undefined;
+
+    if (userCreationRequest.location && user.location?.name !== userCreationRequest.location) {
+        location = await locationMethods.findOrCreate(userCreationRequest.location);
+        userUpdateValues.locationId = location.id;
+    }
+
+    if (
+        userCreationRequest.transferToSupervisorId &&
+        user.supervisorId !== userCreationRequest.transferToSupervisorId
+    ) {
+        userUpdateValues.supervisorId = userCreationRequest.supervisorId;
+    }
+
+    if (Object.values(userUpdateValues).length) {
+        await db.updateTable('User').set(userUpdateValues).execute();
+    }
+
+    const memberships = await userMethods.getMemberships(user.id);
+    const orgMembership = memberships.find((m) => m.group.organizational);
+    if (userCreationRequest.transferToGroupId && userCreationRequest.transferToGroupId !== orgMembership?.groupId) {
+        orgMembership?.groupId &&
+            (await userMethods.removeFromGroup({ userId: user.id, groupId: orgMembership.groupId }));
+
+        const newMembership = await userMethods.addToGroup({
+            userId: user.id,
+            groupId: userCreationRequest.transferToGroupId,
+            percentage: orgMembership?.percentage || undefined,
+        });
+
+        if (userCreationRequest.transferToTitle) {
+            const role = await groupRoleMethods.getByName(userCreationRequest.transferToTitle);
+
+            role &&
+                (await groupRoleMethods.addToMembership({
+                    membershipId: newMembership.id,
+                    type: 'existing',
+                    id: role.id,
+                }));
+
+            !role &&
+                (await groupRoleMethods.addToMembership({
+                    membershipId: newMembership.id,
+                    type: 'new',
+                    name: userCreationRequest.transferToTitle,
+                }));
+        }
+    }
+
+    // TODO history events
+};

@@ -2,6 +2,7 @@ import { trpc } from '../trpc/trpcClient';
 import { notifyPromise } from '../utils/notifications/notifyPromise';
 
 import {
+    CreateTransferInside,
     CreateUserCreationRequest,
     EditTransferInternToStaff,
     EditUserCreationRequest,
@@ -83,6 +84,13 @@ export const useUserCreationRequestMutations = () => {
         },
     });
 
+    const createTransferInsideRequest = trpc.userCreationRequest.createTransferInsideRequest.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
+
     return {
         createUserCreationRequest: (data: CreateUserCreationRequest) =>
             notifyPromise(createUserCreationRequest.mutateAsync(data), 'userCreationRequestCreate'),
@@ -122,5 +130,8 @@ export const useUserCreationRequestMutations = () => {
 
         cancelTransferInternToStaffRequest: (data: { id: string; comment?: string }) =>
             notifyPromise(cancelTransferInternToStaffRequest.mutateAsync(data), 'transferInternToStaffRequestCancel'),
+
+        createTransferInsideRequest: (data: CreateTransferInside) =>
+            notifyPromise(createTransferInsideRequest.mutateAsync(data), 'transferInsideRequestCreate'),
     };
 };

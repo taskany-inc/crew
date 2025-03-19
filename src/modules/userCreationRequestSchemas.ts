@@ -340,3 +340,85 @@ export const editTransferInternToStaffSchema = () =>
     });
 
 export type EditTransferInternToStaff = z.infer<ReturnType<typeof editTransferInternToStaffSchema>>;
+
+export const createTransferInsideSchema = () =>
+    z.object({
+        type: z.literal(UserCreationRequestType.transferInside),
+        disableAccount: z.boolean().optional(),
+        userId: z.string(),
+        surname: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+        firstName: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+        middleName: z.string().optional(),
+        email: z
+            .string({ required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') })
+            .min(5, { message: tr('Minimum {min} symbols', { min: 5 }) })
+            .email(tr('Not a valid email')),
+        phone: getPhoneSchema(),
+        login: z
+            .string({ required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') })
+            .regex(/^[a-z0-9]+$/, { message: tr('Login should contain only lowercase letters and digits') }),
+        title: z
+            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') }),
+        transferToTitle: z.string().optional(),
+        organizationUnitId: z.string({
+            required_error: tr('Required field'),
+            invalid_type_error: tr('Required field'),
+        }),
+        transferToOrganizationUnitId: z.string({
+            required_error: tr('Required field'),
+            invalid_type_error: tr('Required field'),
+        }),
+        transferToGroupId: z.string().optional(),
+        groupId: z.string().optional(),
+        transferToSupervisorId: z
+            .string({ required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') }),
+        supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
+        corporateEmail: z.string().optional(),
+        date: dateSchema,
+        transferToDate: dateSchema,
+        attachIds: z.string().array().optional(),
+        workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        percentage: percentageSchema.optional(),
+        unitId: z.string().optional(),
+        transferToPercentage: percentageSchema.optional(),
+        transferToUnitId: z.string().optional(),
+        supplementalPositions: z
+            .array(
+                z.object({
+                    organizationUnitId: z.string().min(1, { message: tr('Required field') }),
+                    percentage: percentageSchema,
+                    unitId: z.string().optional(),
+                    main: z.boolean().optional(),
+                }),
+            )
+            .optional(),
+        transferToSupplementalPositions: z
+            .array(
+                z.object({
+                    organizationUnitId: z.string().min(1, { message: tr('Required field') }),
+                    percentage: percentageSchema,
+                    unitId: z.string().optional(),
+                    main: z.boolean().optional(),
+                    workStartDate: dateSchema,
+                }),
+            )
+            .min(1),
+        lineManagerIds: z.array(z.string()).optional(),
+        coordinatorIds: z.array(z.string()).optional(),
+        workMode: z
+            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') }),
+        workSpace: z.string().optional(),
+        location: z.string().min(1, { message: tr('Required field') }),
+        equipment: z
+            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
+            .min(1, { message: tr('Required field') }),
+        extraEquipment: z.string().optional(),
+        comment: z.string().optional(),
+    });
+export type CreateTransferInside = z.infer<ReturnType<typeof createTransferInsideSchema>>;

@@ -197,8 +197,7 @@ model UserCreationRequest {
   date                  DateTime?
   percentage            Int?
 
-
-  cancelComment               String?
+  cancelComment String?
 
   externalOrganizationSupervisorLogin String?
   accessToInternalSystems             Boolean?
@@ -239,11 +238,16 @@ model UserCreationRequest {
 
   supplementalPositions SupplementalPosition[]
 
+  supplementalPositionsTransferTo SupplementalPosition[] @relation(name: "supplementalPositionsTransferTo")
+
   permissionServices PermissionService[]
 
   reasonToGrantPermissionToServices String?
 
-  transferFromGroup String?
+  transferToTitle                 String?
+  transferToSupervisorId          String?
+  transferToGroupId               String?
+  transferFromGroup               String?
   internshipOrganizationId        String?
   internshipOrganizationGroup     String?
   internshipRole                  String?
@@ -833,6 +837,9 @@ model SupplementalPosition {
 
   userCreationRequest   UserCreationRequest? @relation(fields: [userCreationRequestId], references: [id])
   userCreationRequestId String?
+
+  userTransferToRequest   UserCreationRequest? @relation(fields: [userTransferToRequestId], references: [id], name: "supplementalPositionsTransferTo")
+  userTransferToRequestId String?
 
   scheduledDeactivation   ScheduledDeactivation? @relation(fields: [scheduledDeactivationId], references: [id])
   scheduledDeactivationId String?
