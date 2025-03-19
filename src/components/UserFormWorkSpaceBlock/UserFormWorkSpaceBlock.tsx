@@ -6,6 +6,8 @@ import { nullable, useCopyToClipboard } from '@taskany/bricks';
 import { notifyPromise } from '../../utils/notifications/notifyPromise';
 import { FormControl } from '../FormControl/FormControl';
 import { WorkModeCombobox } from '../WorkModeCombobox/WorkModeCombobox';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
+import { UserFormAttaches } from '../UserFormAttaches/UserFormAttaches';
 
 import s from './UserFormWorkSpaceBlock.module.css';
 import { tr } from './UserFormWorkSpaceBlock.i18n';
@@ -13,8 +15,9 @@ import { tr } from './UserFormWorkSpaceBlock.i18n';
 interface UserFormWorkSpaceBlockProps {
     className: string;
     id: string;
-    readOnly?: boolean;
-    type?: 'dismissal' | 'employment';
+    type: 'new' | 'edit' | 'readOnly';
+    requestType?: 'dismissal' | 'employment' | UserCreationRequestType.transferInside;
+    requestId?: string;
 }
 
 interface UserFormWorkSpaceBlockType {
@@ -29,8 +32,9 @@ interface UserFormWorkSpaceBlockType {
 export const UserFormWorkSpaceBlock = ({
     className,
     id,
-    readOnly,
-    type = 'employment',
+    type,
+    requestType = 'employment',
+    requestId,
 }: UserFormWorkSpaceBlockProps) => {
     const {
         register,
@@ -50,75 +54,88 @@ export const UserFormWorkSpaceBlock = ({
     const equipment = watch('equipment');
     const [, copy] = useCopyToClipboard();
 
+    let workSpaceLabel = tr('Work space application');
+
+    if (requestType === UserCreationRequestType.transferInside) workSpaceLabel = tr('Work space');
+
+    let workSpacePlaceholder = tr('Write work mode comment');
+
+    if (requestType === UserCreationRequestType.transferInside) {
+        workSpacePlaceholder = tr('Workspace № in format 6.01.195');
+    }
+
     return (
         <div className={className} id={id}>
             <Text className={s.SectionHeader} weight="bold" size="lg">
                 {tr('Work space')}
             </Text>
-            <div onClick={() => readOnly && equipment && notifyPromise(copy(equipment), 'copy')}>
+            <div onClick={() => type === 'readOnly' && equipment && notifyPromise(copy(equipment), 'copy')}>
                 <Controller
                     name="equipment"
                     control={control}
                     render={({ field }) => (
                         <FormControl
-                            label={type === 'employment' ? tr('Required euipment') : tr('Equipment')}
+                            label={requestType === 'employment' ? tr('Required euipment') : tr('Equipment')}
                             required
                             error={errors.equipment}
                         >
                             <FormControlEditor
-                                disabled={readOnly}
+                                disabled={type === 'readOnly'}
                                 className={s.FormEditor}
                                 outline
                                 disableAttaches
                                 placeholder={tr('Write equipment list')}
                                 {...field}
-                                value={readOnly && !equipment ? tr('Not specified') : equipment}
+                                value={type === 'readOnly' && !equipment ? tr('Not specified') : equipment}
                             />
                         </FormControl>
                     )}
                 />
             </div>
 
-            <div onClick={() => readOnly && extraEquipment && notifyPromise(copy(extraEquipment), 'copy')}>
+            <div onClick={() => type === 'readOnly' && extraEquipment && notifyPromise(copy(extraEquipment), 'copy')}>
                 <Controller
                     name="extraEquipment"
                     control={control}
                     render={({ field }) => (
                         <FormControl
-                            label={type === 'employment' ? tr('Extra equipment') : tr('Test devices')}
+                            label={requestType === 'employment' ? tr('Extra equipment') : tr('Test devices')}
                             error={errors.extraEquipment}
                         >
                             <FormControlEditor
-                                disabled={readOnly}
+                                disabled={type === 'readOnly'}
                                 className={s.FormEditor}
                                 outline
                                 disableAttaches
                                 placeholder={tr('Write equipment list')}
                                 {...field}
-                                value={readOnly && !extraEquipment ? tr('Not specified') : extraEquipment}
+                                value={type === 'readOnly' && !extraEquipment ? tr('Not specified') : extraEquipment}
                             />
                         </FormControl>
                     )}
                 />
             </div>
-            <div className={s.TwoInputsRow}>
-                {nullable(type === 'employment', () => (
-                    <FormControl label={tr('Work space application')} error={errors.workSpace}>
-                        <FormControlInput
-                            readOnly={readOnly}
-                            autoComplete="off"
-                            size="m"
-                            placeholder={tr('Write the application text')}
-                            value={readOnly && !watch('workSpace') ? tr('Not specified') : undefined}
-                            outline
-                            {...register('workSpace')}
-                        />
-                    </FormControl>
-                ))}
+            <div className={requestType === UserCreationRequestType.transferInside ? s.ThreeInputsRow : s.TwoInputsRow}>
+                {nullable(
+                    requestType === 'employment' || requestType === UserCreationRequestType.transferInside,
+                    () => (
+                        <FormControl label={workSpaceLabel} error={errors.workSpace}>
+                            <FormControlInput
+                                readOnly={type === 'readOnly'}
+                                autoComplete="off"
+                                size="m"
+                                placeholder={workSpacePlaceholder}
+                                value={type === 'readOnly' && !watch('workSpace') ? tr('Not specified') : undefined}
+                                outline
+                                {...register('workSpace')}
+                            />
+                        </FormControl>
+                    ),
+                )}
 
                 <FormControl label={tr('Location')} required error={errors.location}>
                     <FormControlInput
-                        readOnly={readOnly}
+                        readOnly={type === 'readOnly'}
                         autoComplete="off"
                         size="m"
                         outline
@@ -128,27 +145,34 @@ export const UserFormWorkSpaceBlock = ({
                 </FormControl>
                 <FormControl label={tr('Work mode')} required>
                     <WorkModeCombobox
-                        readOnly={readOnly}
+                        readOnly={type === 'readOnly'}
                         onChange={onWorkModeChange}
                         value={watch('workMode')}
                         error={errors.workMode}
                     />
                 </FormControl>
 
-                {nullable(type === 'employment', () => (
+                {nullable(requestType === 'employment', () => (
                     <FormControl label={tr('Work mode comment')} error={errors.workModeComment}>
                         <FormControlInput
-                            readOnly={readOnly}
+                            readOnly={type === 'readOnly'}
                             autoComplete="off"
                             size="m"
                             outline
-                            value={readOnly && !watch('workModeComment') ? tr('Not specified') : undefined}
+                            value={type === 'readOnly' && !watch('workModeComment') ? tr('Not specified') : undefined}
                             placeholder={tr('Write work mode comment')}
                             {...register('workModeComment')}
                         />
                     </FormControl>
                 ))}
             </div>
+            {nullable(requestType === UserCreationRequestType.transferInside, () => (
+                <UserFormAttaches
+                    requestId={requestId}
+                    requestType={UserCreationRequestType.transferInside}
+                    type={type}
+                />
+            ))}
         </div>
     );
 };

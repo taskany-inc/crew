@@ -16,5 +16,6 @@
     "Exit of a new employee": "Выход нового сотрудника SD",
     "Request type": "Тип заявки",
     "Canceled": "Отменена",
-    "Transfer intern to staff": "Перевод стажера в штат"
+    "Transfer intern to staff": "Перевод стажера в штат",
+    "Transfer inside SD": "Перевод в SD"
 }

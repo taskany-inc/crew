@@ -11,6 +11,7 @@ import { loginAuto } from '../../utils/createUserCreationRequest';
 import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { Nullish } from '../../utils/types';
 import { config } from '../../config';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import s from './UserFormPersonalDataBlock.module.css';
 import { tr } from './UserFormPersonalDataBlock.i18n';
@@ -45,7 +46,8 @@ interface UserFormPersonalDataBlockProps {
         | 'toDecree'
         | 'fromDecree'
         | 'dismissal'
-        | 'transferInternToStaff';
+        | 'transferInternToStaff'
+        | UserCreationRequestType.transferInside;
     readOnly?: boolean | ReadOnlyMap;
     defaultValue?: UserFormPersonalDataBlockType;
 }
@@ -154,17 +156,20 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                     </div>
                 ),
             )}
-            {nullable(type === 'toDecree' || type === 'dismissal', () => (
-                <div className={s.Checkbox}>
-                    <Checkbox
-                        readOnly={getReadOnly('disableAccount')}
-                        label={tr('Disable account')}
-                        checked={disableAccount}
-                        onChange={onDisableAccountClick}
-                        className={s.CheckboxInput}
-                    />
-                </div>
-            ))}
+            {nullable(
+                type === 'toDecree' || type === 'dismissal' || type === UserCreationRequestType.transferInside,
+                () => (
+                    <div className={s.Checkbox}>
+                        <Checkbox
+                            readOnly={getReadOnly('disableAccount')}
+                            label={tr('Disable account')}
+                            checked={disableAccount}
+                            onChange={onDisableAccountClick}
+                            className={s.CheckboxInput}
+                        />
+                    </div>
+                ),
+            )}
 
             <div className={s.ThreeInputsRow}>
                 <FormControl label={tr('Surname')} required error={errors.surname}>
@@ -261,7 +266,8 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                     type === 'fromDecree' ||
                     type === 'toDecree' ||
                     type === 'dismissal' ||
-                    type === 'transferInternToStaff',
+                    type === 'transferInternToStaff' ||
+                    type === UserCreationRequestType.transferInside,
                 () => (
                     <Text as="h3">
                         {tr('Email')}{' '}
@@ -272,7 +278,13 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                 ),
             )}
             <div
-                className={type === 'dismissal' || type === 'transferInternToStaff' ? s.ThreeInputsRow : s.TwoInputsRow}
+                className={
+                    type === 'dismissal' ||
+                    type === 'transferInternToStaff' ||
+                    type === UserCreationRequestType.transferInside
+                        ? s.ThreeInputsRow
+                        : s.TwoInputsRow
+                }
             >
                 {nullable(
                     type === 'internal' ||
@@ -281,7 +293,8 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         type === 'fromDecree' ||
                         type === 'toDecree' ||
                         type === 'dismissal' ||
-                        type === 'transferInternToStaff',
+                        type === 'transferInternToStaff' ||
+                        type === UserCreationRequestType.transferInside,
                     () => (
                         <FormControl
                             label={type === 'externalEmployee' ? tr('Personal email') : tr('Personal')}
@@ -311,7 +324,8 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         type === 'fromDecree' ||
                         type === 'toDecree' ||
                         type === 'dismissal' ||
-                        type === 'transferInternToStaff',
+                        type === 'transferInternToStaff' ||
+                        type === UserCreationRequestType.transferInside,
                     () => (
                         <FormControl
                             label={type === 'externalFromMainOrgEmployee' ? tr('Work email') : tr('Work')}
@@ -332,23 +346,28 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         </FormControl>
                     ),
                 )}
-                {nullable(type === 'dismissal' || type === 'transferInternToStaff', () => (
-                    <FormControl label={tr('Corporate email')} error={errors.corporateEmail}>
-                        <FormControlInput
-                            readOnly={getReadOnly('corporateEmail')}
-                            value={
-                                getReadOnly('corporateEmail') && !watch('corporateEmail')
-                                    ? tr('Not specified')
-                                    : undefined
-                            }
-                            autoComplete="off"
-                            size="m"
-                            placeholder="email@example.com"
-                            outline
-                            {...register('corporateEmail')}
-                        />
-                    </FormControl>
-                ))}
+                {nullable(
+                    type === 'dismissal' ||
+                        type === 'transferInternToStaff' ||
+                        type === UserCreationRequestType.transferInside,
+                    () => (
+                        <FormControl label={tr('Corporate email')} error={errors.corporateEmail}>
+                            <FormControlInput
+                                readOnly={getReadOnly('corporateEmail')}
+                                value={
+                                    getReadOnly('corporateEmail') && !watch('corporateEmail')
+                                        ? tr('Not specified')
+                                        : undefined
+                                }
+                                autoComplete="off"
+                                size="m"
+                                placeholder="email@example.com"
+                                outline
+                                {...register('corporateEmail')}
+                            />
+                        </FormControl>
+                    ),
+                )}
                 {nullable(type === 'externalEmployee', () => (
                     <>
                         <div ref={emailDomainSelectRef}>

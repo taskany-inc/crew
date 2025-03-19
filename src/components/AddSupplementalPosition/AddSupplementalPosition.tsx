@@ -20,14 +20,16 @@ interface Position {
 
 interface SupplementalPositionsType {
     supplementalPositions?: Array<Position>;
+    transferToSupplementalPositions?: Array<Position>;
 }
 
 interface AddSupplementalPositionProps {
     readOnly?: boolean;
     hasStartDate?: boolean;
+    transfer?: boolean;
 }
 
-export const AddSupplementalPosition = ({ readOnly, hasStartDate = true }: AddSupplementalPositionProps) => {
+export const AddSupplementalPosition = ({ readOnly, hasStartDate = true, transfer }: AddSupplementalPositionProps) => {
     const {
         register,
         setValue,
@@ -37,16 +39,19 @@ export const AddSupplementalPosition = ({ readOnly, hasStartDate = true }: AddSu
         formState: { errors },
     } = useFormContext<SupplementalPositionsType>();
 
+    const fieldName = transfer ? 'transferToSupplementalPositions' : 'supplementalPositions';
+
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'supplementalPositions',
+        name: fieldName,
         rules: { maxLength: 1 },
     });
 
     return (
         <div className={s.Base}>
             {fields.map((field, index) => {
-                const workStartDate = watch(`supplementalPositions.${index}.workStartDate`);
+                const workStartDate = watch(`${fieldName}.${index}.workStartDate`);
+
                 return (
                     <div key={field.id}>
                         <div className={s.Header}>
@@ -66,21 +71,16 @@ export const AddSupplementalPosition = ({ readOnly, hasStartDate = true }: AddSu
                                     readOnly={readOnly}
                                     searchType="internal"
                                     onChange={(orgUnit) =>
-                                        orgUnit &&
-                                        setValue(`supplementalPositions.${index}.organizationUnitId`, orgUnit.id)
+                                        orgUnit && setValue(`${fieldName}.${index}.organizationUnitId`, orgUnit.id)
                                     }
-                                    organizationUnitId={watch(`supplementalPositions.${index}.organizationUnitId`)}
-                                    error={errorPicker<Position>(
-                                        errors.supplementalPositions,
-                                        index,
-                                        'organizationUnitId',
-                                    )}
+                                    organizationUnitId={watch(`${fieldName}.${index}.organizationUnitId`)}
+                                    error={errorPicker<Position>(errors[fieldName], index, 'organizationUnitId')}
                                 />
                             </FormControl>
                             <FormControl
                                 label={tr('Percentage')}
                                 required
-                                error={errorPicker<Position>(errors.supplementalPositions, index, 'percentage')}
+                                error={errorPicker<Position>(errors[fieldName], index, 'percentage')}
                             >
                                 <FormControlInput
                                     placeholder={tr('Write percentage from 0.01 to 1')}
@@ -90,7 +90,7 @@ export const AddSupplementalPosition = ({ readOnly, hasStartDate = true }: AddSu
                                     type="number"
                                     step={0.01}
                                     readOnly={readOnly}
-                                    {...register(`supplementalPositions.${index}.percentage`, {
+                                    {...register(`${fieldName}.${index}.percentage`, {
                                         valueAsNumber: true,
                                     })}
                                 />
@@ -102,14 +102,14 @@ export const AddSupplementalPosition = ({ readOnly, hasStartDate = true }: AddSu
                                     size="m"
                                     placeholder={tr('Write unit ID')}
                                     readOnly={readOnly}
-                                    {...register(`supplementalPositions.${index}.unitId`)}
+                                    {...register(`${fieldName}.${index}.unitId`)}
                                 />
                             </FormControl>
                             {nullable(hasStartDate, () => (
                                 <FormControl
                                     required
                                     label={tr('Start date')}
-                                    error={errorPicker<Position>(errors.supplementalPositions, index, 'workStartDate')}
+                                    error={errorPicker<Position>(errors[fieldName], index, 'workStartDate')}
                                 >
                                     <FormControlInput
                                         readOnly={readOnly}
@@ -122,9 +122,9 @@ export const AddSupplementalPosition = ({ readOnly, hasStartDate = true }: AddSu
                                                 ? workStartDate.toISOString().substring(0, 10)
                                                 : undefined
                                         }
-                                        {...register(`supplementalPositions.${index}.workStartDate`, {
+                                        {...register(`${fieldName}.${index}.workStartDate`, {
                                             valueAsDate: true,
-                                            onChange: () => trigger('supplementalPositions'),
+                                            onChange: () => trigger(fieldName),
                                         })}
                                     />
                                 </FormControl>

@@ -30,15 +30,16 @@ interface tableData {
 }
 
 const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => {
+    let href = pages.internalUserRequest(props.item.id);
+
+    if (props.item.type === UserCreationRequestType.transferInternToStaff) {
+        href = pages.transferInternToStaff(props.item.id);
+    }
+
+    if (props.item.type === UserCreationRequestType.transferInside) href = pages.transferInside(props.item.id);
+
     return (
-        <a
-            href={
-                props.item.type === UserCreationRequestType.transferInternToStaff
-                    ? pages.transferInternToStaff(props.item.id)
-                    : pages.internalUserRequest(props.item.id)
-            }
-            className={s.TableRowLink}
-        >
+        <a href={href} className={s.TableRowLink}>
             <TableRow {...props} ref={ref} />
         </a>
     );
@@ -56,7 +57,11 @@ export const UserCreateRequestsPage = () => {
     ]);
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
-        type: [UserCreationRequestType.internalEmployee, UserCreationRequestType.transferInternToStaff],
+        type: [
+            UserCreationRequestType.internalEmployee,
+            UserCreationRequestType.transferInternToStaff,
+            UserCreationRequestType.transferInside,
+        ],
         orderBy: {
             name: sorting.find(({ key }) => key === 'name')?.dir,
             date: sorting.find(({ key }) => key === 'date')?.dir,
@@ -67,6 +72,10 @@ export const UserCreateRequestsPage = () => {
     const requestType = (creationCause: string | null, type: string | null) => {
         if (type === UserCreationRequestType.transferInternToStaff) {
             return tr('Transfer intern to staff');
+        }
+
+        if (type === UserCreationRequestType.transferInside) {
+            return tr('Transfer inside SD');
         }
 
         if (creationCause === 'transfer') {
@@ -197,25 +206,33 @@ export const UserCreateRequestsPage = () => {
                     name="actions"
                     title={tr('Actions')}
                     width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
-                    renderCell={({ id, status, type }) => (
-                        <div onClick={(e) => e.preventDefault()}>
-                            <RequestFormActions
-                                requestId={id}
-                                requestStatus={status ?? undefined}
-                                small
-                                requestType={
-                                    type === UserCreationRequestType.transferInternToStaff
-                                        ? UserCreationRequestType.transferInternToStaff
-                                        : 'creation'
-                                }
-                                onEdit={() =>
-                                    type === UserCreationRequestType.transferInternToStaff
-                                        ? router.editTransferInternToStaff(id)
-                                        : router.internalUserRequestEdit(id)
-                                }
-                            />
-                        </div>
-                    )}
+                    renderCell={({ id, status, type }) => {
+                        const onEdit = () => {
+                            if (type === UserCreationRequestType.transferInternToStaff) {
+                                return router.editTransferInternToStaff(id);
+                            }
+                            if (type === UserCreationRequestType.transferInside) {
+                                return router.editTransferInside(id);
+                            }
+                            return router.internalUserRequestEdit(id);
+                        };
+                        return (
+                            <div onClick={(e) => e.preventDefault()}>
+                                <RequestFormActions
+                                    requestId={id}
+                                    requestStatus={status ?? undefined}
+                                    small
+                                    requestType={
+                                        type === UserCreationRequestType.transferInternToStaff ||
+                                        type === UserCreationRequestType.transferInside
+                                            ? UserCreationRequestType.transferInternToStaff
+                                            : 'creation'
+                                    }
+                                    onEdit={onEdit}
+                                />
+                            </div>
+                        );
+                    }}
                 />
             </DataTable>
         </ProfilesManagementLayout>

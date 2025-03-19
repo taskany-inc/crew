@@ -187,11 +187,7 @@ export const InternalUserCreationRequestPage = ({
                                     type="internal"
                                 />
 
-                                <UserFormWorkSpaceBlock
-                                    readOnly={type === 'readOnly'}
-                                    id="work-space"
-                                    className={s.FormBlock}
-                                />
+                                <UserFormWorkSpaceBlock type={type} id="work-space" className={s.FormBlock} />
 
                                 <UserFormCommentsBlock
                                     readOnly={type === 'readOnly'}

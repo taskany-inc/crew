@@ -9,6 +9,7 @@ import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/Organizati
 import { AddSupplementalPosition } from '../AddSupplementalPosition/AddSupplementalPosition';
 import { Nullish } from '../../utils/types';
 import { UserSelect } from '../UserSelect/UserSelect';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import s from './UserFormRegistrationBlock.module.css';
 import { tr } from './UserFormRegistrationBlock.i18n';
@@ -16,7 +17,13 @@ import { tr } from './UserFormRegistrationBlock.i18n';
 interface UserFormRegistrationBlockProps {
     className: string;
     id: string;
-    type: 'internal' | 'existing' | 'toDecree' | 'fromDecree' | 'transferInternToStaff';
+    type:
+        | 'internal'
+        | 'existing'
+        | 'toDecree'
+        | 'fromDecree'
+        | 'transferInternToStaff'
+        | UserCreationRequestType.transferInside;
     organizationUnits?: OrganizationUnit[];
     onOrganistaionUnitChange?: (orgId: string) => void;
     onSupplementalOrganistaionUnitChange?: (orgId: string) => void;
@@ -139,7 +146,11 @@ export const UserFormRegistrationBlock = ({
                 </FormControl>
                 <FormControl
                     required
-                    label={type === 'transferInternToStaff' ? tr('Transfer date') : tr('Start date')}
+                    label={
+                        type === 'transferInternToStaff' || type === UserCreationRequestType.transferInside
+                            ? tr('Transfer date')
+                            : tr('Start date')
+                    }
                     error={errors.date}
                 >
                     <FormControlInput
@@ -216,7 +227,10 @@ export const UserFormRegistrationBlock = ({
             </div>
 
             <div className={s.AddSupplementalPosition}></div>
-            <AddSupplementalPosition readOnly={readOnly} hasStartDate={type !== 'transferInternToStaff'} />
+            <AddSupplementalPosition
+                readOnly={readOnly}
+                hasStartDate={type !== 'transferInternToStaff' && type !== UserCreationRequestType.transferInside}
+            />
         </div>
     );
 };

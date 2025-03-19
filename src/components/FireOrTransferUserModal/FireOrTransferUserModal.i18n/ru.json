@@ -7,5 +7,7 @@
     "Cancel": "Отмена",
     "Create": "Создать",
     "Transfer intern to staff": "Перевод стажера в штат ",
-    "Informing about the transfer of an intern to the staff": "Информирование о переводе стажера в штат SD"
+    "Informing about the transfer of an intern to the staff": "Информирование о переводе стажера в штат SD",
+    "Transfer employee inside organization": "Перевод сотрудника внутри SD",
+    "Informing about the transfer of an employee inside organization": "Уведомление о переводе сотрудника внутри SD"
 }

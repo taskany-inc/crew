@@ -16,7 +16,7 @@ interface FireOrTransferUserModalProps {
     intern?: boolean;
 }
 
-type RequestPage = 'userTransferNew' | 'userDismissNew' | 'newTransferInternToStaff';
+type RequestPage = 'userTransferNew' | 'userDismissNew' | 'newTransferInternToStaff' | 'newTransferInside';
 
 interface RequestTypeListType {
     name: string;
@@ -45,6 +45,14 @@ export const FireOrTransferUserModal = ({ visible, onClose, userId, intern }: Fi
             name: tr('Transfer intern to staff'),
             description: tr('Informing about the transfer of an intern to the staff'),
             type: 'newTransferInternToStaff',
+        });
+    }
+
+    if (!intern) {
+        requestTypeList.push({
+            name: tr('Transfer employee inside organization'),
+            description: tr('Informing about the transfer of an employee inside organization'),
+            type: 'newTransferInside',
         });
     }
 

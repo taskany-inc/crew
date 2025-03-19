@@ -16,3 +16,10 @@
     margin-top: var(--gap-s);
     margin-bottom: var(--gap-m);
 }
+
+.ThreeInputsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap-m);
+    margin-bottom: var(--gap-m);
+}
