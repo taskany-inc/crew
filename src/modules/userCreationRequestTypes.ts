@@ -20,7 +20,7 @@ export interface CompleteUserCreationRequest extends BaseUserCreationRequest {
 }
 
 export interface UserDecreeRequest extends BaseUserCreationRequest {
-    type: 'toDecree' | 'fromDecree';
+    type: UserCreationRequestType.toDecree | UserCreationRequestType.fromDecree;
     userTargetId: string;
     phone: string;
     coordinatorIds: string[];
@@ -31,13 +31,13 @@ export interface UserDecreeRequest extends BaseUserCreationRequest {
 }
 
 export interface UserCreationRequestWithRelations extends UserCreationRequest {
-    group: Group | null;
-    supervisor: User | null;
-    buddy: User | null;
-    recruiter: User | null;
-    coordinators: User[] | null;
+    group?: Group | null;
+    supervisor?: Omit<User, 'roleDeprecated'> | null;
+    buddy?: User | null;
+    recruiter?: User | null;
+    coordinators?: Array<Omit<User, 'roleDeprecated'>> | null;
     organization: OrganizationUnit;
-    lineManagers: User[] | null;
+    lineManagers?: Array<Omit<User, 'roleDeprecated'>> | null;
     supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
 }
 

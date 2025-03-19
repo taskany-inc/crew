@@ -236,6 +236,9 @@ model UserCreationRequest {
   jobId String? @unique
   job   Job?    @relation(fields: [jobId], references: [id])
 
+  disableAccountJobId String? @unique
+  disableAccountJob   Job?    @relation(fields: [disableAccountJobId], references: [id], name: "disableAccountRequest")
+
   supplementalPositions SupplementalPosition[]
 
   supplementalPositionsTransferTo SupplementalPosition[] @relation(name: "supplementalPositionsTransferTo")
@@ -795,6 +798,8 @@ model Job {
   scheduledDeactivation ScheduledDeactivation?
   userCreationRequest   UserCreationRequest?
   supplementalPosition  SupplementalPosition?
+
+  disableAccountRequest UserCreationRequest? @relation(name: "disableAccountRequest")
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt

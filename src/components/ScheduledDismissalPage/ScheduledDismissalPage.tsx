@@ -152,6 +152,7 @@ export const ScheduledDismissalPage = ({
             newOrganizationalGroup: scheduledDeactivation?.newOrganizationalGroup || undefined,
         }),
         [
+            transfer,
             mainSupplementalPosition?.organizationUnitId,
             mainSupplementalPosition?.role,
             user,
@@ -190,6 +191,7 @@ export const ScheduledDismissalPage = ({
     const {
         handleSubmit,
         reset,
+        getValues,
         setValue,
         formState: { isSubmitting, isSubmitSuccessful },
     } = methods;
@@ -264,7 +266,7 @@ export const ScheduledDismissalPage = ({
                                 type !== 'edit' && scheduledDeactivation,
                                 (s) => (
                                     <RequestFormActions
-                                        requestType="deactivation"
+                                        requestType={getValues('type')}
                                         requestId={s.id}
                                         onEdit={() =>
                                             transfer ? router.userTransferEdit(s.id) : router.userDismissEdit(s.id)

@@ -11,6 +11,7 @@ import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { useScheduledDeactivation } from '../../modules/scheduledDeactivationHooks';
 import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
+import { ScheduleDeactivateType } from '../../modules/scheduledDeactivationTypes';
 
 import s from './RequestFormActions.module.css';
 import { tr } from './RequestFormActions.i18n';
@@ -21,7 +22,7 @@ interface RequestFormActionsProps {
     onDecide?: () => void;
     onCancel?: () => void;
     requestStatus?: UserCreationRequestStatus;
-    requestType?: 'decree' | 'creation' | 'deactivation' | UserCreationRequestType.transferInternToStaff;
+    requestType?: UserCreationRequestType | ScheduleDeactivateType;
     small?: boolean;
 }
 
@@ -43,21 +44,32 @@ export const RequestFormActions = ({
 
     const [comment, setComment] = useState<string | undefined>();
 
-    const { declineUserRequest, acceptUserRequest, cancelUserRequest, cancelTransferInternToStaffRequest } =
-        useUserCreationRequestMutations();
+    const {
+        declineUserRequest,
+        acceptUserRequest,
+        cancelUserRequest,
+        cancelTransferInternToStaffRequest,
+        cancelTransferInsideRequest,
+    } = useUserCreationRequestMutations();
     const { cancelScheduledDeactivation } = useScheduledDeactivation();
 
     const commentRef = useLatest(comment);
 
     const handleCancelSubmit = useCallback(() => {
         onCancel && onCancel();
-        if (requestType === 'deactivation') {
+        if (requestType === 'retirement' || requestType === 'transfer') {
+            // TODO change all requests types to enums
             cancelScheduledDeactivation({ id: requestId, comment: commentRef.current });
             return cancelWarningVisible.setFalse();
         }
 
         if (requestType === UserCreationRequestType.transferInternToStaff) {
             cancelTransferInternToStaffRequest({ id: requestId, comment: commentRef.current });
+            return cancelWarningVisible.setFalse();
+        }
+
+        if (requestType === UserCreationRequestType.transferInside) {
+            cancelTransferInsideRequest({ id: requestId, comment: commentRef.current });
             return cancelWarningVisible.setFalse();
         }
 
@@ -115,6 +127,12 @@ export const RequestFormActions = ({
 
     const canDecideOnRequest = session.role?.decideOnUserCreationRequest;
 
+    const showDecideButtons =
+        canDecideOnRequest &&
+        (requestType === UserCreationRequestType.externalEmployee ||
+            requestType === UserCreationRequestType.externalFromMainOrgEmployee ||
+            requestType === UserCreationRequestType.internalEmployee);
+
     return (
         <div className={s.FormActions}>
             {nullable(canEditRequest, () => (
@@ -171,7 +189,7 @@ export const RequestFormActions = ({
                     />
                 </>
             ))}
-            {nullable(canDecideOnRequest && requestType === 'creation', () => (
+            {nullable(showDecideButtons, () => (
                 <div className={small && canEditRequest && canDecideOnRequest ? s.Separator : undefined}>
                     <div ref={tooltipRef} className={s.FormActions}>
                         <Button

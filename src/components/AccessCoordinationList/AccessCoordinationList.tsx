@@ -1,5 +1,5 @@
 import { getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
-import { forwardRef, useRef, useState } from 'react';
+import { forwardRef, useCallback, useRef, useState } from 'react';
 
 import { trpc } from '../../trpc/trpcClient';
 import { pages, useRouter } from '../../hooks/useRouter';
@@ -26,8 +26,8 @@ interface tableData {
     author?: string;
     createdAt?: string;
     id: string;
-    type: string;
-    requestType?: string;
+    type: UserCreationRequestType;
+    requestTypeName?: string;
 }
 
 const requestLink = (id: string, type: string) => {
@@ -44,6 +44,23 @@ const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((prop
     );
 });
 
+const RequestActions = ({ type, id }: { type: UserCreationRequestType; id: string }) => {
+    const router = useRouter();
+    const onEdit = useCallback(() => {
+        if (type === 'externalEmployee') return router.externalUserRequestEdit(id);
+
+        if (type === 'externalFromMainOrgEmployee') return router.externalUserFromMainOrgRequestEdit(id);
+
+        return router.internalUserRequestEdit(id);
+    }, [type, router, id]);
+
+    return (
+        <div onClick={(e) => e.preventDefault()}>
+            <RequestFormActions requestType={type} requestId={id} small onEdit={onEdit} />
+        </div>
+    );
+};
+
 export const AccessCoordinationList = () => {
     const sessionUser = useSessionUser();
     const userListFilter = useUserListFilter();
@@ -54,7 +71,6 @@ export const AccessCoordinationList = () => {
         { key: 'createdAt', dir: 'desc' },
     ]);
 
-    const router = useRouter();
     const dateTitleRef = useRef(null);
 
     const { data: userRequests = [] } = trpc.userCreationRequest.getList.useQuery({
@@ -71,13 +87,7 @@ export const AccessCoordinationList = () => {
         search: userListFilter.values.search,
     });
 
-    const onEdit = (id: string, type: string) => {
-        if (type === 'externalEmployee') return router.externalUserRequestEdit(id);
-        if (type === 'externalFromMainOrgEmployee') return router.externalUserFromMainOrgRequestEdit(id);
-        if (type === 'internalEmployee') return router.internalUserRequestEdit(id);
-    };
-
-    const requestType = (type: string | null) => {
+    const requestTypeName = (type: string | null) => {
         if (type === 'externalEmployee') {
             return tr('Account for external employee not from {main}', { main: config.mainOrganizationName });
         }
@@ -100,8 +110,8 @@ export const AccessCoordinationList = () => {
         author: request.creator?.name || '',
         createdAt: request.createdAt.toLocaleDateString(),
         id: request.id,
-        type: request.type || '',
-        requestType: requestType(request.type),
+        type: request.type as UserCreationRequestType,
+        requestTypeName: requestTypeName(request.type),
     }));
 
     const canEditRequest =
@@ -123,7 +133,7 @@ export const AccessCoordinationList = () => {
                     name="email"
                     value="email"
                     title={tr('Email')}
-                    width="8vw"
+                    width="7vw"
                     lines={1}
                     sortable={false}
                     ellipsis
@@ -131,7 +141,7 @@ export const AccessCoordinationList = () => {
 
                 <DataTableColumn
                     name="login"
-                    width="8vw"
+                    width="7vw"
                     value="login"
                     title={tr('Login')}
                     lines={1}
@@ -140,7 +150,7 @@ export const AccessCoordinationList = () => {
                 />
                 <DataTableColumn
                     name="phone"
-                    width="8vw"
+                    width="7vw"
                     value="phone"
                     title={tr('Phone')}
                     lines={1}
@@ -166,10 +176,17 @@ export const AccessCoordinationList = () => {
                 />
                 <DataTableColumn
                     name="author"
-                    width="9vw"
+                    width="7vw"
                     value="author"
                     ellipsis
                     title={tr('Author')}
+                    sortable={false}
+                />
+                <DataTableColumn
+                    name="requestType"
+                    width="6vw"
+                    value="requestTypeName"
+                    title={tr('Request type')}
                     sortable={false}
                 />
                 <DataTableColumn
@@ -194,16 +211,7 @@ export const AccessCoordinationList = () => {
                     name="actions"
                     title={tr('Actions')}
                     width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
-                    renderCell={({ id, type }) => (
-                        <div onClick={(e) => e.preventDefault()}>
-                            <RequestFormActions
-                                requestType="creation"
-                                requestId={id}
-                                small
-                                onEdit={() => onEdit(id, type)}
-                            />
-                        </div>
-                    )}
+                    renderCell={RequestActions}
                 />
             </DataTable>
         </ProfilesManagementLayout>

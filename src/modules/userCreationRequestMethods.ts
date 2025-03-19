@@ -578,7 +578,7 @@ export const userCreationRequestsMethods = {
             }
         }
 
-        if (data.type === 'toDecree' && data.firedOrganizationUnitId) {
+        if (data.type === UserCreationRequestType.toDecree && data.firedOrganizationUnitId) {
             const positionToFire = findActive(data.organizationUnitId);
 
             if (positionToFire) {
@@ -1165,14 +1165,14 @@ export const userCreationRequestsMethods = {
 
         const currentUser = await userMethods.getById(data.userTargetId);
 
-        const status = data.type === 'toDecree' ? PositionStatus.DECREE : PositionStatus.ACTIVE;
+        const status = data.type === UserCreationRequestType.toDecree ? PositionStatus.DECREE : PositionStatus.ACTIVE;
 
         editData.date && editData.date.setUTCHours(config.employmentUtcHour);
 
         const supplementalPositionsToDisconnect = requestBeforeUpdate.supplementalPositions.reduce<{ id: string }[]>(
             (acum, item) => {
                 const isInFired =
-                    editData.type === 'toDecree' &&
+                    editData.type === UserCreationRequestType.toDecree &&
                     editData.firedOrganizationUnitId &&
                     item.organizationUnitId === editData.firedOrganizationUnitId;
                 const isInMain = editData.organizationUnitId === item.organizationUnitId;
@@ -1740,7 +1740,7 @@ export const userCreationRequestsMethods = {
             ...restRequest
         } = request;
 
-        if (type !== 'toDecree' && type !== 'fromDecree') {
+        if (type !== UserCreationRequestType.toDecree && type !== UserCreationRequestType.toDecree) {
             throw new TRPCError({
                 message: `Wrong request type ${request.type} instead of InternalEmployee for request with id ${id}`,
                 code: 'BAD_REQUEST',
@@ -2474,10 +2474,14 @@ export const userCreationRequestsMethods = {
             throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date transfer to specified' });
         }
 
+        const transferToSupplementalPosition = restData.transferToSupplementalPositions
+            ? restData.transferToSupplementalPositions[0]
+            : undefined;
+
         const transferDate =
-            restData.transferToSupplementalPositions[0].workStartDate &&
-            restData.transferToDate > restData.transferToSupplementalPositions[0].workStartDate
-                ? restData.transferToSupplementalPositions[0].workStartDate
+            transferToSupplementalPosition?.workStartDate &&
+            restData.transferToDate > transferToSupplementalPosition.workStartDate
+                ? transferToSupplementalPosition.workStartDate
                 : restData.transferToDate;
 
         if (!date) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date transfer from specified' });
@@ -2637,8 +2641,10 @@ export const userCreationRequestsMethods = {
         const oldPositions = user.supplementalPositions.filter((s) => s.status === 'ACTIVE');
         const oldMainPosition = oldPositions.find((p) => p.main);
 
+        const positionIds: string[] = [];
+
         if (!oldMainPosition) {
-            await db
+            const position = await db
                 .insertInto('SupplementalPosition')
                 .values({
                     organizationUnitId: restData.organizationUnitId,
@@ -2647,14 +2653,21 @@ export const userCreationRequestsMethods = {
                     unitId: restData.unitId,
                     main: true,
                     workEndDate: date,
+                    userCreationRequestId: request.id,
                 })
-                .execute();
+                .returning('id')
+                .executeTakeFirstOrThrow();
+
+            positionIds.push(position.id);
         }
+
+        oldMainPosition && positionIds.push(oldMainPosition.id);
 
         if (
             oldMainPosition &&
             (oldMainPosition.organizationUnitId !== restData.organizationUnitId ||
                 oldMainPosition.unitId !== restData.unitId ||
+                oldMainPosition.workEndDate !== date ||
                 oldMainPosition.percentage !== (restData?.percentage || 1) * percentageMultiply)
         ) {
             await db
@@ -2665,6 +2678,7 @@ export const userCreationRequestsMethods = {
                     unitId: restData.unitId,
                     percentage: (restData?.percentage || 1) * percentageMultiply,
                     workEndDate: date,
+                    userCreationRequestId: request.id,
                 })
                 .execute();
         }
@@ -2675,7 +2689,7 @@ export const userCreationRequestsMethods = {
             : undefined;
 
         if (!oldSupplementalPosition && supplementalPositionTransferFrom) {
-            await db
+            const position = await db
                 .insertInto('SupplementalPosition')
                 .values({
                     organizationUnitId: supplementalPositionTransferFrom.organizationUnitId,
@@ -2683,14 +2697,21 @@ export const userCreationRequestsMethods = {
                     percentage: (supplementalPositionTransferFrom?.percentage || 1) * percentageMultiply,
                     unitId: supplementalPositionTransferFrom.unitId,
                     workEndDate: date,
+                    userCreationRequestId: request.id,
                 })
-                .execute();
+                .returning('id')
+                .executeTakeFirstOrThrow();
+
+            positionIds.push(position.id);
         }
+
+        oldSupplementalPosition && positionIds.push(oldSupplementalPosition.id);
 
         if (
             oldSupplementalPosition &&
             supplementalPositionTransferFrom &&
             (oldSupplementalPosition.organizationUnitId !== supplementalPositionTransferFrom.organizationUnitId ||
+                oldSupplementalPosition.workEndDate !== date ||
                 oldSupplementalPosition.unitId !== supplementalPositionTransferFrom.unitId ||
                 oldSupplementalPosition.percentage !==
                     (supplementalPositionTransferFrom?.percentage || 1) * percentageMultiply)
@@ -2703,6 +2724,7 @@ export const userCreationRequestsMethods = {
                     unitId: supplementalPositionTransferFrom.unitId,
                     percentage: (supplementalPositionTransferFrom?.percentage || 1) * percentageMultiply,
                     workEndDate: date,
+                    userCreationRequestId: request.id,
                 })
                 .execute();
         }
@@ -2722,12 +2744,12 @@ export const userCreationRequestsMethods = {
             },
         ];
 
-        if (restData.transferToSupplementalPositions[0]) {
+        if (transferToSupplementalPosition) {
             transferToSupplementalPositionValues.push({
-                organizationUnitId: restData.transferToSupplementalPositions[0].organizationUnitId,
-                workStartDate: restData.transferToSupplementalPositions[0].workStartDate || transferDate,
-                percentage: restData.transferToSupplementalPositions[0].percentage * percentageMultiply,
-                unitId: restData.transferToSupplementalPositions[0].unitId,
+                organizationUnitId: transferToSupplementalPosition.organizationUnitId,
+                workStartDate: transferToSupplementalPosition.workStartDate || transferDate,
+                percentage: transferToSupplementalPosition.percentage * percentageMultiply,
+                unitId: transferToSupplementalPosition.unitId,
                 main: false,
                 userTransferToRequestId: request.id,
             });
@@ -2740,29 +2762,45 @@ export const userCreationRequestsMethods = {
             .execute();
 
         await Promise.all([
-            ...request.supplementalPositions.map(async (s) => {
+            ...positionIds.map(async (id) => {
                 const job = await createJob('scheduledFiringFromSupplementalPosition', {
                     date,
-                    data: { supplementalPositionId: s.id, userId },
+                    data: { supplementalPositionId: id, userId },
                 });
 
-                await db.updateTable('SupplementalPosition').where('id', '=', s.id).set({ jobId: job.id }).execute();
+                await db.updateTable('SupplementalPosition').where('id', '=', id).set({ jobId: job.id }).execute();
             }),
             ...transferToSupplementalPositions.map(async (s) => {
-                s.workStartDate &&
-                    (await createJob('activateUserSupplementalPosition', {
+                if (s.workStartDate) {
+                    const job = await createJob('activateUserSupplementalPosition', {
                         date: s.workStartDate,
                         data: { supplementalPositionId: s.id, userId },
-                    }));
+                    });
+                    await db
+                        .updateTable('SupplementalPosition')
+                        .where('id', '=', s.id)
+                        .set({ jobId: job.id })
+                        .execute();
+                }
             }),
         ]);
 
+        const job = await createJob('editUserOnTransfer', {
+            date: transferDate,
+            data: { userCreationRequestId: request.id },
+        });
+
+        const setUpdate: UpdateObjectExpression<DB, 'UserCreationRequest'> = { jobId: job.id };
+
         if (disableAccount) {
-            await createJob('scheduledDeactivation', {
+            const job = await createJob('scheduledDeactivation', {
                 date,
                 data: { userId },
             });
+            setUpdate.disableAccountJobId = job.id;
         }
+
+        await db.updateTable('UserCreationRequest').where('id', '=', request.id).set(setUpdate).execute();
     },
 
     getTransferInsideById: async (id: string): Promise<CreateTransferInside> => {
@@ -2775,56 +2813,41 @@ export const userCreationRequestsMethods = {
                 jsonArrayFrom(
                     eb
                         .selectFrom('SupplementalPosition as s')
-                        .select([
+                        .select((eb) => [
                             's.id',
-                            's.workStartDate',
                             's.main',
                             's.organizationUnitId',
                             's.unitId',
                             's.percentage',
+                            eb.cast<Date>('s.workStartDate', 'date').as('workStartDate'),
                         ])
                         .whereRef('s.userCreationRequestId', '=', 'UserCreationRequest.id'),
                 ).as('supplementalPositions'),
-            ])
-            .select((eb) => [
-                'UserCreationRequest.id',
                 jsonArrayFrom(
                     eb
                         .selectFrom('SupplementalPosition as s')
-                        .select([
+                        .select((eb) => [
                             's.id',
-                            's.workStartDate',
                             's.main',
                             's.organizationUnitId',
                             's.unitId',
                             's.percentage',
+                            eb.cast<Date>('s.workStartDate', 'date').as('workStartDate'),
                         ])
                         .whereRef('s.userTransferToRequestId', '=', 'UserCreationRequest.id'),
                 ).as('supplementalPositionsTransferTo'),
-            ])
-            .select((eb) => [
-                'UserCreationRequest.id',
                 jsonArrayFrom(
                     eb.selectFrom('_userLineManagers').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
                 ).as('lineManagerIds'),
-            ])
-            .select((eb) => [
-                'UserCreationRequest.id',
                 jsonArrayFrom(
                     eb.selectFrom('_userCoordinators').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
                 ).as('coordinatorIds'),
-            ])
-            .select((eb) => [
-                'UserCreationRequest.id',
                 jsonArrayFrom(
                     eb
                         .selectFrom('Attach as a')
                         .select('a.id')
                         .whereRef('a.userCreationRequestId', '=', 'UserCreationRequest.id'),
                 ).as('attachIds'),
-            ])
-            .select((eb) => [
-                'UserCreationRequest.id',
                 jsonObjectFrom(
                     eb
                         .selectFrom('Group as g')
@@ -2897,8 +2920,10 @@ export const userCreationRequestsMethods = {
             lineManagerIds: request.lineManagerIds.map(({ A }) => A),
             coordinatorIds: request.coordinatorIds.map(({ A }) => A),
             attachIds: request.attachIds.map(({ id }) => id),
-            transferToOrganizationUnitId: mainTransferToOrganization?.organizationUnitId || '', // @ts-ignore
-            transferToDate: new Date(mainTransferToOrganization?.workStartDate) || null,
+            transferToOrganizationUnitId: mainTransferToOrganization?.organizationUnitId || '',
+            transferToDate: mainTransferToOrganization?.workStartDate
+                ? new Date(mainTransferToOrganization.workStartDate)
+                : null,
             transferToSupervisorId: request.transferToSupervisorId || '',
             transferToGroupId: request.transferToGroupId || undefined,
             transferToTitle: request.transferToTitle || undefined,
@@ -2910,10 +2935,113 @@ export const userCreationRequestsMethods = {
                     .map(({ organizationUnitId, percentage, unitId, main, workStartDate }) => ({
                         organizationUnitId,
                         percentage: percentage / percentageMultiply,
-                        unitId: unitId || undefined, // @ts-ignore
+                        unitId: unitId || undefined,
                         workStartDate: new Date(workStartDate),
                         main,
                     })) || [],
         };
+    },
+
+    cancelTransferInside: async (data: { id: string; comment?: string }, _sessionUserId: string) => {
+        const { id, comment } = data;
+
+        const request = await db
+            .selectFrom('UserCreationRequest')
+            .selectAll()
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('SupplementalPosition as s')
+                        .select([
+                            's.id',
+                            's.intern',
+                            's.jobId',
+                            's.main',
+                            's.organizationUnitId',
+                            's.percentage',
+                            's.personnelNumber',
+                            's.role',
+                            's.status',
+                            's.unitId',
+                            's.workEndDate',
+                            's.workStartDate',
+                            's.userCreationRequestId',
+                        ])
+                        .where('s.jobId', 'is not', null)
+                        .where('s.status', '=', 'ACTIVE')
+                        .where('s.workEndDate', 'is not', null)
+                        .whereRef('s.userCreationRequestId', '=', 'UserCreationRequest.id'),
+                ).as('supplementalPositions'),
+            ])
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('SupplementalPosition as s')
+                        .select([
+                            's.id',
+                            's.intern',
+                            's.jobId',
+                            's.main',
+                            's.organizationUnitId',
+                            's.percentage',
+                            's.personnelNumber',
+                            's.role',
+                            's.status',
+                            's.unitId',
+                            's.workEndDate',
+                            's.workStartDate',
+                            's.userCreationRequestId',
+                        ])
+                        .whereRef('s.userTransferToRequestId', '=', 'UserCreationRequest.id'),
+                ).as('supplementalPositionsTransferTo'),
+            ])
+            .where('id', '=', id)
+            .executeTakeFirst();
+
+        if (!request) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `No user transfer inside SD request with id ${id}` });
+        }
+
+        if (!request.userTargetId) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No userTargetId in user transfer inside SD request with id ${id}`,
+            });
+        }
+
+        await db
+            .updateTable('UserCreationRequest')
+            .where('id', '=', request.id)
+            .set({ status: 'Canceled', cancelComment: comment })
+            .execute();
+
+        await Promise.all([
+            ...request.supplementalPositions.map((s) => {
+                db.updateTable('SupplementalPosition').where('id', '=', s.id).set({ workEndDate: null }).execute();
+                return s.jobId && jobDelete(s.jobId);
+            }),
+            ...request.supplementalPositionsTransferTo.map(async (s) => {
+                return s.jobId && jobDelete(s.jobId);
+            }),
+            request.jobId && jobDelete(request.jobId),
+            request.disableAccountJobId && jobDelete(request.disableAccountJobId),
+        ]);
+
+        await db
+            .updateTable('SupplementalPosition')
+            .where(
+                'id',
+                'in',
+                request.supplementalPositions.map(({ id }) => id),
+            )
+            .set({ userCreationRequestId: null })
+            .execute();
+
+        await db
+            .insertInto('SupplementalPosition')
+            .values(request.supplementalPositions.map(({ id, jobId, ...rest }) => ({ ...rest })))
+            .execute();
     },
 };
