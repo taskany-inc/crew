@@ -215,8 +215,8 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                         <UserFormWorkSpaceBlock
                             id="work-space"
                             className={s.FormBlock}
-                            type={type === 'toDecree' ? 'dismissal' : 'employment'}
-                            readOnly={mode === 'read'}
+                            requestType={type === 'toDecree' ? 'dismissal' : 'employment'}
+                            type={mode === 'read' ? 'readOnly' : 'edit'}
                         />
 
                         <UserFormCommentsBlock id="comments" className={s.FormBlock} readOnly={mode === 'read'} />

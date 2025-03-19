@@ -9,6 +9,7 @@ import { UserSelect } from '../UserSelect/UserSelect';
 import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { Nullish } from '../../utils/types';
 import { trpc } from '../../trpc/trpcClient';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import s from './UserFormTeamBlock.module.css';
 import { tr } from './UserFormTeamBlock.i18n';
@@ -16,10 +17,17 @@ import { tr } from './UserFormTeamBlock.i18n';
 interface UserFormTeamBlockProps {
     className: string;
     id: string;
-    type: 'internal' | 'existing' | 'dismissal' | 'transfer' | 'transferInternToStaff';
+    type:
+        | 'internal'
+        | 'existing'
+        | 'dismissal'
+        | 'transfer'
+        | 'transferInternToStaff'
+        | UserCreationRequestType.transferInside;
     readOnly?: boolean;
     userId?: string;
     defaultGroupId?: string;
+    requestId?: string;
 }
 
 interface UserFormTeamBlockType {
@@ -33,10 +41,10 @@ interface UserFormTeamBlockType {
 export const UserFormTeamBlock = ({
     className,
     id,
-    type,
     readOnly,
     userId,
     defaultGroupId,
+    type,
 }: UserFormTeamBlockProps) => {
     const {
         setValue,
@@ -160,7 +168,7 @@ export const UserFormTeamBlock = ({
                             onReset={() => setValue('groupId', undefined)}
                         />
                     </FormControl>
-                    {nullable(type === 'transfer', () => (
+                    {nullable(type === 'transfer' || type === UserCreationRequestType.transferInside, () => (
                         <FormControl label="Coordinators">
                             <UserSelect
                                 excludedUsers={excludedUsers}
