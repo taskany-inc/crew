@@ -21,7 +21,7 @@ import { percentageMultiply } from '../../utils/suplementPosition';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { UserCreationRequestStatus } from '../../generated/kyselyTypes';
 import { UserFormWorkSpaceBlock } from '../UserFormWorkSpaceBlock/UserFormWorkSpaceBlock';
-import { UserFormTransferToForm } from '../UserFormTransferToForm/UserFormTransferToForm';
+import { UserFormTransferToOrganization } from '../UserFormTransferToOrganization/UserFormTransferToOrganization';
 
 import s from './TransferUserInsidePage.module.css';
 import { tr } from './TransferUserInsidePage.i18n';
@@ -162,9 +162,9 @@ export const TransferUserInsidePage = ({
                                     return (
                                         <RequestFormActions
                                             requestStatus={requestStatus}
-                                            requestType={UserCreationRequestType.transferInternToStaff}
+                                            requestType={UserCreationRequestType.transferInside}
                                             requestId={requestId}
-                                            onEdit={() => router.editTransferInternToStaff(requestId)}
+                                            onEdit={() => router.editTransferInside(requestId)}
                                         />
                                     );
                                 },
@@ -209,7 +209,7 @@ export const TransferUserInsidePage = ({
                                     requestType={UserCreationRequestType.transferInside}
                                 />
 
-                                <UserFormTransferToForm
+                                <UserFormTransferToOrganization
                                     edit={type === 'edit'}
                                     readOnly={type === 'readOnly'}
                                     className={s.FormBlock}

@@ -8,6 +8,7 @@ import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesMa
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
 import { UserCreationRequestStatus } from '../../generated/kyselyTypes';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import { tr } from './UserDecreeRequestsPage.i18n';
 import s from './UserDecreeRequestsPage.module.css';
@@ -21,6 +22,7 @@ interface tableData {
     supervisor?: string;
     date?: string;
     id: string;
+    type: UserCreationRequestType;
 }
 
 interface UserDecreeRequestsPageProps {
@@ -67,6 +69,7 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
         date: request.date?.toLocaleDateString(),
         id: request.id,
         status: request.status,
+        type: request.type as UserCreationRequestType,
     }));
 
     return (
@@ -120,14 +123,14 @@ export const UserDecreeRequestsPage: FC<UserDecreeRequestsPageProps> = ({ type }
                     width={
                         sessionUser.role?.createUser && sessionUser.role.editUserCreationRequests ? '110px' : '110px'
                     }
-                    renderCell={({ id, status }) => (
+                    renderCell={({ id, status, type }) => (
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions
                                 requestId={id}
                                 requestStatus={status ?? undefined}
                                 onEdit={() => router.decreeRequestEdit(id)}
                                 small
-                                requestType="decree"
+                                requestType={type}
                             />
                         </div>
                     )}

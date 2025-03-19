@@ -24,6 +24,7 @@ import { useSpyNav } from '../../hooks/useSpyNav';
 import { Nullish } from '../../utils/types';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { useUserMutations } from '../../modules/userHooks';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import s from './ExternalUserCreationRequestPage.module.css';
 import { tr } from './ExternalUserCreationRequestPage.i18n';
@@ -61,7 +62,7 @@ export const ExternalUserCreationRequestPage = ({
 
     const defaultValues: Partial<CreateUserCreationRequestExternalEmployee> = useMemo(
         () => ({
-            type: 'externalEmployee',
+            type: UserCreationRequestType.externalEmployee,
             organizationUnitId: request?.organizationUnitId,
             surname: request?.surname || '',
             firstName: request?.firstName || '',
@@ -140,7 +141,7 @@ export const ExternalUserCreationRequestPage = ({
                                 type === 'readOnly' && requestId,
                                 (requestId) => (
                                     <RequestFormActions
-                                        requestType="creation"
+                                        requestType={UserCreationRequestType.externalEmployee}
                                         onEdit={() => router.externalUserRequestEdit(requestId)}
                                         requestStatus={requestStatus}
                                         requestId={requestId}

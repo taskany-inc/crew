@@ -176,7 +176,7 @@ const getBaseDecreeSchema = () =>
 
 export const getUserToDecreeSchema = () =>
     getBaseDecreeSchema().extend({
-        type: z.literal('toDecree'),
+        type: z.literal(UserCreationRequestType.toDecree),
         disableAccount: z.boolean().optional(),
         firedOrganizationUnitId: z.string().optional(),
     });
@@ -185,7 +185,7 @@ export type UserToDecreeSchema = z.infer<ReturnType<typeof getUserToDecreeSchema
 
 export const getUserFromDecreeSchema = () =>
     getBaseDecreeSchema().extend({
-        type: z.literal('fromDecree'),
+        type: z.literal(UserCreationRequestType.fromDecree),
     });
 
 export type UserFromDecreeSchema = z.infer<ReturnType<typeof getUserFromDecreeSchema>>;
@@ -407,7 +407,7 @@ export const createTransferInsideSchema = () =>
                     workStartDate: dateSchema,
                 }),
             )
-            .min(1),
+            .optional(),
         lineManagerIds: z.array(z.string()).optional(),
         coordinatorIds: z.array(z.string()).optional(),
         workMode: z

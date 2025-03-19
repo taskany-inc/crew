@@ -23,6 +23,7 @@ import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { useUserMutations } from '../../modules/userHooks';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import s from './InternalUserCreationRequestPage.module.css';
 import { tr } from './InternalUserCreationRequestPage.i18n';
@@ -67,7 +68,7 @@ export const InternalUserCreationRequestPage = ({
 
     const defaultValues: Partial<CreateUserCreationRequestInternalEmployee> = useMemo(
         () => ({
-            type: 'internalEmployee',
+            type: UserCreationRequestType.internalEmployee,
             creationCause: request?.creationCause || 'start',
             percentage: request ? request?.percentage : 1,
             surname: request?.surname || '',
@@ -150,7 +151,7 @@ export const InternalUserCreationRequestPage = ({
                                 (requestId) => (
                                     <RequestFormActions
                                         requestStatus={requestStatus}
-                                        requestType="creation"
+                                        requestType={UserCreationRequestType.internalEmployee}
                                         requestId={requestId}
                                         onDecide={router.userRequests}
                                         onEdit={() => router.internalUserRequestEdit(requestId)}
