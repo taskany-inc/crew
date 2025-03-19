@@ -17,13 +17,14 @@ import { UserFormWorkSpaceBlock } from '../UserFormWorkSpaceBlock/UserFormWorkSp
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { useRouter } from '../../hooks/useRouter';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import { tr } from './DecreeForm.i18n';
 import s from './DecreeForm.module.css';
 
 interface DecreeFormProps {
     defaultValues: Partial<UserDecreeSchema>;
-    type: 'toDecree' | 'fromDecree';
+    type: UserCreationRequestType.toDecree | UserCreationRequestType.fromDecree;
     mode: 'read' | 'edit';
     onSubmit: (data: UserDecreeSchema) => Promise<void>;
     onCancel: () => void;
@@ -174,7 +175,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                             <RequestFormActions
                                 onEdit={() => router.decreeRequestEdit(rId)}
                                 requestId={rId}
-                                requestType="decree"
+                                requestType={type}
                             />
                         ),
                         <UserFormFormActions

@@ -91,6 +91,13 @@ export const useUserCreationRequestMutations = () => {
         },
     });
 
+    const cancelTransferInsideRequest = trpc.userCreationRequest.cancelTransferInsideRequest.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
+
     return {
         createUserCreationRequest: (data: CreateUserCreationRequest) =>
             notifyPromise(createUserCreationRequest.mutateAsync(data), 'userCreationRequestCreate'),
@@ -133,5 +140,8 @@ export const useUserCreationRequestMutations = () => {
 
         createTransferInsideRequest: (data: CreateTransferInside) =>
             notifyPromise(createTransferInsideRequest.mutateAsync(data), 'transferInsideRequestCreate'),
+
+        cancelTransferInsideRequest: (data: { id: string; comment?: string }) =>
+            notifyPromise(cancelTransferInsideRequest.mutateAsync(data), 'transferInsideRequestCancel'),
     };
 };

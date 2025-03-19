@@ -26,7 +26,7 @@ interface tableData {
     author?: string;
     createdAt?: string;
     id: string;
-    type: string;
+    type: UserCreationRequestType;
     requestType?: string;
 }
 
@@ -100,7 +100,7 @@ export const AccessCoordinationList = () => {
         author: request.creator?.name || '',
         createdAt: request.createdAt.toLocaleDateString(),
         id: request.id,
-        type: request.type || '',
+        type: request.type as UserCreationRequestType,
         requestType: requestType(request.type),
     }));
 
@@ -197,7 +197,7 @@ export const AccessCoordinationList = () => {
                     renderCell={({ id, type }) => (
                         <div onClick={(e) => e.preventDefault()}>
                             <RequestFormActions
-                                requestType="creation"
+                                requestType={type}
                                 requestId={id}
                                 small
                                 onEdit={() => onEdit(id, type)}

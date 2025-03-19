@@ -386,6 +386,7 @@ export type UserCreationRequest = {
     coordinatorId: string | null;
     userTargetId: string | null;
     jobId: string | null;
+    disableAccountJobId: string | null;
     reasonToGrantPermissionToServices: string | null;
     transferToTitle: string | null;
     transferToSupervisorId: string | null;

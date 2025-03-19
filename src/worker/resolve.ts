@@ -261,7 +261,7 @@ export const editUserOnTransfer = async ({ userCreationRequestId }: JobDataMap['
         userCreationRequest.transferToSupervisorId &&
         user.supervisorId !== userCreationRequest.transferToSupervisorId
     ) {
-        userUpdateValues.supervisorId = userCreationRequest.supervisorId;
+        userUpdateValues.supervisorId = userCreationRequest.transferToSupervisorId;
     }
 
     if (Object.values(userUpdateValues).length) {

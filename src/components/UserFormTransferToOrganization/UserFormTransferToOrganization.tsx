@@ -11,10 +11,10 @@ import { UserSelect } from '../UserSelect/UserSelect';
 import { GroupComboBox } from '../GroupComboBox/GroupComboBox';
 import { RoleSelect } from '../RoleSelect/RoleSelect';
 
-import s from './UserFormTransferToForm.module.css';
-import { tr } from './UserFormTransferToForm.i18n';
+import s from './UserFormTransferToOrganization.module.css';
+import { tr } from './UserFormTransferToOrganization.i18n';
 
-interface UserFormTransferToFormProps {
+interface UserFormTransferToOrganizationProps {
     className: string;
     id: string;
     excludedUsers?: string[];
@@ -24,7 +24,7 @@ interface UserFormTransferToFormProps {
     edit?: boolean;
 }
 
-interface UserFormTransferToFormType {
+interface UserFormTransferToOrganizationType {
     transferToOrganizationUnitId: string;
     transferToTitle?: string;
     transferToGroupId?: string;
@@ -38,7 +38,7 @@ interface UserFormTransferToFormType {
     }>;
 }
 
-export const UserFormTransferToForm = ({
+export const UserFormTransferToOrganization = ({
     className,
     id,
     readOnly,
@@ -46,14 +46,14 @@ export const UserFormTransferToForm = ({
     organizationUnits,
     onOrganistaionUnitChange,
     excludedUsers,
-}: UserFormTransferToFormProps) => {
+}: UserFormTransferToOrganizationProps) => {
     const {
         register,
         setValue,
         trigger,
         watch,
         formState: { errors },
-    } = useFormContext<UserFormTransferToFormType>();
+    } = useFormContext<UserFormTransferToOrganizationType>();
 
     const onOrganizationChange = (o: Nullish<OrganizationUnit>) => {
         if (o) {
@@ -68,7 +68,7 @@ export const UserFormTransferToForm = ({
         trigger('transferToGroupId');
     };
 
-    const onUserChange = (user: Nullish<User>, userType: keyof UserFormTransferToFormType) => {
+    const onUserChange = (user: Nullish<User>, userType: keyof UserFormTransferToOrganizationType) => {
         user && setValue(userType, user.id);
         trigger(userType);
     };

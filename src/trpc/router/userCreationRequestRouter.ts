@@ -798,4 +798,13 @@ export const userCreationRequestRouter = router({
         );
         return userCreationRequestsMethods.getTransferInsideById(input);
     }),
+
+    cancelTransferInsideRequest: protectedProcedure
+        .input(handleUserCreationRequest)
+        .mutation(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
+
+            await userCreationRequestsMethods.cancelTransferInside(input, ctx.session.user.id);
+            // TODO history event
+        }),
 });
