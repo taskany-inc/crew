@@ -1,5 +1,5 @@
 import { Badge, Dot, getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
-import { forwardRef, useRef, useState } from 'react';
+import { forwardRef, useCallback, useRef, useState } from 'react';
 import cn from 'classnames';
 import { UserCreationRequestStatus } from 'prisma/prisma-client';
 
@@ -26,8 +26,42 @@ interface tableData {
     date?: string;
     requestType: string;
     id: string;
-    type: string;
+    type: UserCreationRequestType;
 }
+
+const RequestActions = ({
+    id,
+    status,
+    type,
+}: {
+    id: string;
+    status: UserCreationRequestStatus | null;
+    type: UserCreationRequestType;
+}) => {
+    const router = useRouter();
+
+    const onEdit = useCallback(() => {
+        if (type === UserCreationRequestType.transferInternToStaff) {
+            return router.editTransferInternToStaff(id);
+        }
+        if (type === UserCreationRequestType.transferInside) {
+            return router.editTransferInside(id);
+        }
+        return router.internalUserRequestEdit(id);
+    }, [type, router, id]);
+
+    return (
+        <div onClick={(e) => e.preventDefault()}>
+            <RequestFormActions
+                requestId={id}
+                requestStatus={status ?? undefined}
+                small
+                requestType={type}
+                onEdit={onEdit}
+            />
+        </div>
+    );
+};
 
 const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => {
     let href = pages.internalUserRequest(props.item.id);
@@ -96,11 +130,9 @@ export const UserCreateRequestsPage = () => {
         recruiter: request.recruiter?.name || '',
         date: request.date?.toLocaleDateString(),
         requestType: requestType(request.creationCause, request.type),
-        type: request.type || '',
+        type: request.type as UserCreationRequestType,
         id: request.id,
     }));
-
-    const router = useRouter();
 
     const statusText = (status: 'Approved' | 'Denied' | 'Canceled' | null) => {
         if (status === 'Approved') return tr('Approved');
@@ -206,33 +238,7 @@ export const UserCreateRequestsPage = () => {
                     name="actions"
                     title={tr('Actions')}
                     width={canEditRequest && sessionUser.role?.decideOnUserCreationRequest ? '180px' : '100px'}
-                    renderCell={({ id, status, type }) => {
-                        const onEdit = () => {
-                            if (type === UserCreationRequestType.transferInternToStaff) {
-                                return router.editTransferInternToStaff(id);
-                            }
-                            if (type === UserCreationRequestType.transferInside) {
-                                return router.editTransferInside(id);
-                            }
-                            return router.internalUserRequestEdit(id);
-                        };
-                        return (
-                            <div onClick={(e) => e.preventDefault()}>
-                                <RequestFormActions
-                                    requestId={id}
-                                    requestStatus={status ?? undefined}
-                                    small
-                                    requestType={
-                                        type === UserCreationRequestType.transferInternToStaff ||
-                                        type === UserCreationRequestType.transferInside
-                                            ? UserCreationRequestType.transferInternToStaff
-                                            : 'creation'
-                                    }
-                                    onEdit={onEdit}
-                                />
-                            </div>
-                        );
-                    }}
+                    renderCell={RequestActions}
                 />
             </DataTable>
         </ProfilesManagementLayout>

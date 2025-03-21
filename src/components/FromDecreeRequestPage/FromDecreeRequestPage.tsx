@@ -5,6 +5,7 @@ import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { DecreeForm } from '../DecreeForm/DecreeForm';
 import { useUserCreationRequestMutations } from '../../modules/userCreationRequestHooks';
 import { CreateDecreeForm } from '../CreateDecreeForm/CreateDecreeForm';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 
 import s from './FromDecreeRequestPage.module.css';
 import { tr } from './FromDecreeRequestPage.i18n';
@@ -26,7 +27,7 @@ export const FromDecreeRequestPage: FC<FromDecreeRequestFormProps> = ({ user }) 
     return (
         <LayoutMain pageTitle={tr('Request')}>
             <div className={s.Wrapper}>
-                <CreateDecreeForm user={user} type="fromDecree" onSubmit={onSubmit} />
+                <CreateDecreeForm user={user} type={UserCreationRequestType.fromDecree} onSubmit={onSubmit} />
             </div>
         </LayoutMain>
     );
