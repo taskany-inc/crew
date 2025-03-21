@@ -400,6 +400,7 @@ export const userMethods = {
         const userBeforeUpdate = await userMethods.getById(id);
 
         if (organizationUnitId) {
+            // we should add new organization as main user supplementalPosition
             const newOrganization = await prisma.organizationUnit.findUnique({
                 where: {
                     id: organizationUnitId,
