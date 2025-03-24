@@ -79,25 +79,28 @@ ${
 `;
 
 export const scheduledDeactivationFromMainEmailHtml = (data: {
-    data: ScheduledDeactivation & { user: { name: string | null } | null };
+    data: (UserCreationRequest | ScheduledDeactivation) & { user: { name: string | null } | null };
     unitId: string;
     teamlead: string;
     role: string;
     sigmaMail?: string;
     corporateAppName: string;
-}) =>
-    tableTemplate({
+    date: Date;
+    workPlace: string | null;
+    comment: string | null;
+}) => {
+    return tableTemplate({
         tableArray: [
-            { title: tr('Dismissal date'), content: formatDate(data.data.deactivateDate, defaultLocale) },
+            { title: tr('Dismissal date'), content: formatDate(data.date, defaultLocale) },
             { title: tr('Employee full name'), content: data.data.user?.name || '' },
-            { title: tr('Location'), content: data.data.location },
+            { title: tr('Location'), content: data.data.location || '' },
             { title: tr('Unit Id'), content: data.unitId },
             { title: tr('Role'), content: data.role },
             { title: tr('SIGMA email'), content: data.sigmaMail || '' },
             { title: tr('Teamlead'), content: data.teamlead },
             {
                 title: tr('Work mode and workplace'),
-                content: `${data.data.workMode} ${data.data.workPlace ? `, ${data.data.workPlace}` : ''} `,
+                content: `${data.data.workMode} ${data.workPlace ? `, ${data.workPlace}` : ''} `,
             },
             {
                 title: tr('Testing devices'),
@@ -122,26 +125,30 @@ export const scheduledDeactivationFromMainEmailHtml = (data: {
                 }),
                 content: tr('In attachment'),
             },
-            { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
+            { title: tr('Comments'), content: data.comment ? data.comment.replace(/\n/g, '<br/>') : '' },
         ],
     });
+};
 
 export const scheduledDeactivationFromNotMainEmailHtml = async (data: {
-    data: ScheduledDeactivation & { user: { name: string | null } | null };
+    data: (UserCreationRequest | ScheduledDeactivation) & { user: { name: string | null } | null };
     unitId: string;
     teamlead: string;
     role: string;
     sigmaMail?: string;
     corporateMail?: string;
     corporateAppName: string;
+    workPlace: string | null;
+    date: Date;
+    comment: string | null;
 }) => {
     const corpDomain = await corporateDomain();
 
     return tableTemplate({
         tableArray: [
-            { title: tr('Dismissal date'), content: formatDate(data.data.deactivateDate, defaultLocale) },
+            { title: tr('Dismissal date'), content: formatDate(data.date, defaultLocale) },
             { title: tr('Employee full name'), content: data.data.user?.name || '' },
-            { title: tr('Location'), content: data.data.location },
+            { title: tr('Location'), content: data.data.location || '' },
             { title: 'UIN', content: data.unitId },
             { title: tr('Role'), content: data.role },
             { title: tr('SIGMA email'), content: data.sigmaMail || '' },
@@ -149,7 +156,7 @@ export const scheduledDeactivationFromNotMainEmailHtml = async (data: {
             { title: tr('Teamlead'), content: data.teamlead },
             {
                 title: tr('Work mode and workplace'),
-                content: `${data.data.workMode}${data.data.workPlace ? `, ${data.data.workPlace}` : ''} `,
+                content: `${data.data.workMode}${data.workPlace ? `, ${data.workPlace}` : ''} `,
             },
             {
                 title: tr('Testing devices'),
@@ -174,14 +181,14 @@ export const scheduledDeactivationFromNotMainEmailHtml = async (data: {
                 }),
                 content: tr('In attachment'),
             },
-            { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
+            { title: tr('Comments'), content: data.comment ? data.comment.replace(/\n/g, '<br/>') : '' },
         ],
         dzoMail: true,
     });
 };
 
 export const scheduledTransferEmailHtml = (data: {
-    data: ScheduledDeactivation & { user: { name: string | null } | null };
+    data: (UserCreationRequest | ScheduledDeactivation) & { user: { name: string | null } | null };
     unitId: string;
     teamlead: string;
     role: string;
@@ -192,14 +199,17 @@ export const scheduledTransferEmailHtml = (data: {
     coordinators?: string;
     sigmaMail?: string;
     applicationForReturnOfEquipment?: string;
+    date: Date;
+    workPlace: string | null;
+    comment: string | null;
 }) =>
     tableTemplate({
         tableArray: [
-            { title: tr('Transfer date'), content: formatDate(data.data.deactivateDate, defaultLocale) },
+            { title: tr('Transfer date'), content: formatDate(data.date, defaultLocale) },
             { title: tr('Employee full name'), content: data.data.user?.name || '' },
             { title: tr('Transfer from'), content: data.transferFrom },
             { title: tr('Transfer to'), content: data.transferTo },
-            { title: tr('Location'), content: data.data.location },
+            { title: tr('Location'), content: data.data.location || '' },
             { title: tr('Unit Id'), content: data.unitId },
             { title: tr('Role'), content: data.role },
             { title: tr('SIGMA email'), content: data.sigmaMail || '' },
@@ -208,7 +218,7 @@ export const scheduledTransferEmailHtml = (data: {
             { title: tr('Coordinator'), content: data.coordinators || '' },
             {
                 title: tr('Work mode and workplace'),
-                content: `${data.data.workMode} ${data.data.workPlace ? `, ${data.data.workPlace}` : ''} `,
+                content: `${data.data.workMode} ${data.workPlace ? `, ${data.workPlace}` : ''} `,
             },
             {
                 title: tr('Testing devices'),
@@ -230,7 +240,7 @@ export const scheduledTransferEmailHtml = (data: {
                 }),
                 content: tr('In attachment'),
             },
-            { title: tr('Comments'), content: data.data.comments ? data.data.comments.replace(/\n/g, '<br/>') : '' },
+            { title: tr('Comments'), content: data.comment ? data.comment.replace(/\n/g, '<br/>') : '' },
         ],
     });
 
@@ -527,7 +537,7 @@ export const newcomerSubject = (data: {
 
     const sameDate = data.userCreationRequest.supplementalPositions
         .map(({ workStartDate }) => {
-            return workStartDate?.toDateString();
+            return workStartDate && new Date(workStartDate).toDateString();
         })
         .every((val, _index, arr) => val === arr[0]);
 

@@ -103,7 +103,7 @@ export const UserCreateRequestsPage = () => {
         search: userListFilter.values.search,
     });
 
-    const requestType = (creationCause: string | null, type: string | null) => {
+    const requestType = (type: string | null, creationCause: string | null) => {
         if (type === UserCreationRequestType.transferInternToStaff) {
             return tr('Transfer intern to staff');
         }

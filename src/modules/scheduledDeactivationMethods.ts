@@ -1,6 +1,13 @@
 import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
-import { Attach, OrganizationUnit, Prisma, ScheduledDeactivation, UserDevice } from 'prisma/prisma-client';
+import {
+    Attach,
+    OrganizationUnit,
+    Prisma,
+    ScheduledDeactivation,
+    UserCreationRequest,
+    UserDevice,
+} from 'prisma/prisma-client';
 import { InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser';
 import { jsonObjectFrom } from 'kysely/helpers/postgres';
 
@@ -32,16 +39,15 @@ import { userMethods } from './userMethods';
 import { deviceMethods } from './deviceMethods';
 import { historyEventMethods } from './historyEventMethods';
 import { serviceMethods } from './serviceMethods';
-import { SupplementalPositionWithUnit } from './userCreationRequestTypes';
+import { SupplementalPositionWithUnit, UserCreationRequestType } from './userCreationRequestTypes';
 import { groupMethods } from './groupMethods';
 
 interface UserDissmissMailing {
     method: ICalCalendarMethod.REQUEST | ICalCalendarMethod.CANCEL;
     supplementalPositions: SupplementalPositionWithUnit[];
-    request:
-        | ScheduledDeactivation & { user: { name: string | null; supervisor: { id: string } | null } | null } & {
-              newOrganizationUnit: OrganizationUnit | null;
-          };
+    request: (UserCreationRequest | ScheduledDeactivation) & {
+        user: { name: string | null; supervisor?: { id: string } | null } | null;
+    };
     teamlead: string;
     role: string;
     sessionUserId: string;
@@ -50,10 +56,18 @@ interface UserDissmissMailing {
     sigmaMail?: string;
     corporateMail?: string;
     newOrganizationIds?: string[];
-    groupId?: string;
+    lineManagerIds: string[];
+    coordinatorIds: string[];
+    organizationalGroupId: string | null;
+    newOrganizationUnit?: OrganizationUnit | null;
+    newOrganizationalGroup?: string | null;
+    userId: string;
+    date: Date;
+    comment: string | null;
+    workPlace: string | null;
 }
 
-const sendDismissalEmails = async ({
+export const sendDismissalEmails = async ({
     method,
     supplementalPositions,
     request,
@@ -65,43 +79,52 @@ const sendDismissalEmails = async ({
     sigmaMail,
     corporateMail,
     newOrganizationIds,
+    lineManagerIds,
+    coordinatorIds,
+    organizationalGroupId,
+    newOrganizationUnit,
+    newOrganizationalGroup,
+    userId,
+    date,
+    comment,
+    workPlace,
 }: UserDissmissMailing) => {
     const attachments = attaches && (await nodemailerAttachments(attaches));
 
-    const lineManagers = request.lineManagerIds.length
-        ? await db.selectFrom('User').select(['name', 'email']).where('id', 'in', request.lineManagerIds).execute()
+    const lineManagers = lineManagerIds.length
+        ? await db.selectFrom('User').select(['name', 'email']).where('id', 'in', lineManagerIds).execute()
         : [];
 
-    const coordinators = request.coordinatorIds.length
-        ? await db.selectFrom('User').select(['name', 'email']).where('id', 'in', request.coordinatorIds).execute()
+    const coordinators = coordinatorIds.length
+        ? await db.selectFrom('User').select(['name', 'email']).where('id', 'in', coordinatorIds).execute()
         : [];
 
     const mainOrgUnit = supplementalPositions.find((s) => s.main)?.organizationUnit;
 
     if (!mainOrgUnit) {
         throw new TRPCError({
-            message: `No main position in dismiss id ${request.id} for user ${request.userId}`,
+            message: `No main position in dismiss/transfer id ${request.id} for user ${userId}`,
             code: 'BAD_REQUEST',
         });
     }
-    const groups = request.organizationalGroup
-        ? (await groupMethods.getBreadcrumbs(request.organizationalGroup)).map(({ name }) => name).join('>')
+    const groups = organizationalGroupId
+        ? (await groupMethods.getBreadcrumbs(organizationalGroupId)).map(({ name }) => name).join('>')
         : '';
 
     const subject =
-        request.type === 'retirement'
+        request.type === 'retirement' || request.type === UserCreationRequestType.transferInside
             ? `${tr('Retirement')} ${mainOrgUnit.name} ${request.user?.name} (${phone})`
             : `${tr('Transfer from')} ${mainOrgUnit.name} ${tr('to')} ${
-                  request?.newOrganizationUnit && request.newOrganizationUnit.name
-              }(${request?.newOrganizationalGroup || ''}) ${request.user?.name} (${phone})`;
+                  newOrganizationUnit && newOrganizationUnit.name
+              }(${newOrganizationalGroup || ''}) ${request.user?.name} (${phone})`;
 
     const transferFrom = `${mainOrgUnit.name} > ${groups}`;
 
-    const appConfig = await db.selectFrom('AppConfig').select('corporateAppName').executeTakeFirstOrThrow();
+    const appConfig = await db.selectFrom('AppConfig').select('corporateAppName').executeTakeFirst();
 
-    const { corporateAppName } = appConfig;
+    const corporateAppName = appConfig?.corporateAppName || '';
 
-    const transferTo = `${request.newOrganizationUnit?.name || ''} > ${request.newOrganizationalGroup || ''}`;
+    const transferTo = `${newOrganizationUnit?.name || ''} > ${newOrganizationalGroup || ''}`;
     let html = scheduledDeactivationFromMainEmailHtml({
         data: request,
         teamlead,
@@ -109,6 +132,9 @@ const sendDismissalEmails = async ({
         role,
         sigmaMail,
         corporateAppName: corporateAppName || '',
+        date,
+        workPlace,
+        comment,
     });
 
     if (!mainOrgUnit.main) {
@@ -120,6 +146,9 @@ const sendDismissalEmails = async ({
             sigmaMail,
             corporateMail,
             corporateAppName: corporateAppName || '',
+            date,
+            comment,
+            workPlace,
         });
     }
 
@@ -136,6 +165,9 @@ const sendDismissalEmails = async ({
             role,
             sigmaMail,
             corporateAppName: corporateAppName || '',
+            date,
+            comment,
+            workPlace,
         });
     }
 
@@ -157,23 +189,27 @@ const sendDismissalEmails = async ({
 
             if (request.user?.supervisor?.id) additionalEmails.push(request.user?.supervisor?.id);
 
-            if (main) additionalEmails.push(...request.lineManagerIds);
+            if (main) additionalEmails.push(...lineManagerIds);
 
-            if (main && request.coordinatorIds) additionalEmails.push(request.coordinatorIds.join(', '));
+            if (main && coordinatorIds) additionalEmails.push(coordinatorIds.join(', '));
 
             const { to, users } = await userMethods.getMailingList(
                 'scheduledDeactivation',
                 [organizationUnitId],
                 additionalEmails,
-                !!request.workPlace,
+                !!workPlace,
             );
 
-            request.type === 'retirement'
-                ? workEndDate.setUTCHours(config.deactivateUtcHour)
-                : workEndDate.setUTCHours(config.deactivateUtcHour - 1, 30);
+            request.type === 'transfer'
+                ? workEndDate.setUTCHours(config.deactivateUtcHour - 1, 30)
+                : workEndDate.setUTCHours(config.deactivateUtcHour);
+
+            let icalEventId = request.id + config.nodemailer.authUser + organizationUnitId;
+
+            if (request.type === UserCreationRequestType.transferInside) icalEventId += 'dismissalEmail';
 
             const icalEvent = createIcalEventData({
-                id: request.id + config.nodemailer.authUser + organizationUnitId,
+                id: icalEventId,
                 start: workEndDate,
                 duration: 30,
                 users,
@@ -511,6 +547,15 @@ export const scheduledDeactivationMethods = {
             phone: restData.phone,
             sigmaMail,
             corporateMail,
+            lineManagerIds: scheduledDeactivation.lineManagerIds,
+            coordinatorIds: scheduledDeactivation.coordinatorIds,
+            organizationalGroupId: scheduledDeactivation.organizationalGroup,
+            newOrganizationUnit: scheduledDeactivation.newOrganizationUnit,
+            newOrganizationalGroup: scheduledDeactivation.newOrganizationalGroup,
+            userId,
+            date: scheduledDeactivation.deactivateDate,
+            comment: scheduledDeactivation.comments,
+            workPlace: scheduledDeactivation.workPlace,
         });
 
         return scheduledDeactivation;
@@ -622,6 +667,15 @@ export const scheduledDeactivationMethods = {
             sigmaMail,
             corporateMail,
             phone,
+            lineManagerIds: scheduledDeactivation.lineManagerIds,
+            coordinatorIds: scheduledDeactivation.coordinatorIds,
+            organizationalGroupId: scheduledDeactivation.organizationalGroup,
+            newOrganizationUnit: scheduledDeactivation.newOrganizationUnit,
+            newOrganizationalGroup: scheduledDeactivation.newOrganizationalGroup,
+            userId: scheduledDeactivation.userId,
+            date: scheduledDeactivation.deactivateDate,
+            comment: scheduledDeactivation.comments,
+            workPlace: scheduledDeactivation.workPlace,
         });
 
         scheduledDeactivation.jobId && (await prisma.job.delete({ where: { id: scheduledDeactivation.jobId } }));
@@ -836,6 +890,15 @@ export const scheduledDeactivationMethods = {
             phone: restData.phone,
             sigmaMail,
             corporateMail,
+            lineManagerIds: scheduledDeactivation.lineManagerIds,
+            coordinatorIds: scheduledDeactivation.coordinatorIds,
+            organizationalGroupId: scheduledDeactivation.organizationalGroup,
+            newOrganizationUnit: scheduledDeactivation.newOrganizationUnit,
+            newOrganizationalGroup: scheduledDeactivation.newOrganizationalGroup,
+            userId,
+            date: scheduledDeactivation.deactivateDate,
+            comment: scheduledDeactivation.comments,
+            workPlace: scheduledDeactivation.workPlace,
         });
 
         await sendDismissalEmails({
@@ -850,6 +913,15 @@ export const scheduledDeactivationMethods = {
             newOrganizationIds: supplementalPositions.map(({ organizationUnitId }) => organizationUnitId),
             sigmaMail,
             corporateMail,
+            lineManagerIds: scheduledDeactivation.lineManagerIds,
+            coordinatorIds: scheduledDeactivation.coordinatorIds,
+            organizationalGroupId: scheduledDeactivation.organizationalGroup,
+            newOrganizationUnit: scheduledDeactivation.newOrganizationUnit,
+            newOrganizationalGroup: scheduledDeactivation.newOrganizationalGroup,
+            userId,
+            date: scheduledDeactivation.deactivateDate,
+            comment: scheduledDeactivation.comments,
+            workPlace: scheduledDeactivation.workPlace,
         });
 
         return scheduledDeactivation;
