@@ -142,7 +142,7 @@ export const worker = async (
                                 retry,
                                 delay: defaultJobDelay * retry,
                             });
-                        }, 0);
+                        }, 3000 * retry);
                     } else {
                         onRetryLimitExeed(error, job);
 
