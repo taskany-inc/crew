@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.114.0](https://github.com/taskany-inc/crew/compare/v0.113.0...v0.114.0) (2025-03-25)
+
+
+### Features
+
+* **INTERNAL-1492:** history records for transfer inside ([69c9aeb](https://github.com/taskany-inc/crew/commit/69c9aeb6d06abfb637dfd144628b1b498777edf6))
+
 ## [0.113.0](https://github.com/taskany-inc/crew/compare/v0.112.0...v0.113.0) (2025-03-25)
 
 
