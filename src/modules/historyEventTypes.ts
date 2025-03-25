@@ -588,6 +588,72 @@ interface HistoryEventsData {
             }[];
         };
     };
+    createTransferInside: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            id: string;
+            supervisorId?: string;
+            groupId?: string;
+            date?: string;
+            comment?: string;
+            location?: string;
+            workSpace?: string;
+            workMode?: string;
+            lineManagerIds?: string;
+            supplementalPositions?: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId?: string;
+                main?: boolean;
+                workEndDate?: string;
+            }[];
+            transferToSupplementalPositions?: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId?: string;
+                main?: boolean;
+                workStartDate?: string;
+            }[];
+            attachIds?: string[];
+            transferToSupervisorId?: string;
+            transferToGroupId?: string;
+            equipment?: string;
+            extraEquipment?: string;
+            coordinatorIds?: string;
+            title?: string;
+            transferToTitle?: string;
+            disableAccount?: boolean;
+        };
+    };
+    cancelTransferInside: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: { id: string; comment?: string };
+    };
+    scheduledTransferInside: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: true;
+        data: {
+            id: string;
+            groupId?: string;
+            role?: string;
+            location?: string;
+            supervisorId?: string;
+        };
+    };
+    scheduledActivatingUserSupplementalPosition: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            supplementalPositionId?: string;
+            organizationUnitId?: string;
+        };
+    };
 }
 
 export type HistoryAction = keyof HistoryEventsData;

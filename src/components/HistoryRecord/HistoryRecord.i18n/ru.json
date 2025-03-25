@@ -164,5 +164,19 @@
     "canceled transfer intern to staff for": "отменил(а) перевод стажера в штат для",
     "changed user data by the transfer intern to staff request": "изменил данные пользователя согласно заявке на перевод стажера в штат",
     "Event": "Событие",
-    "Doesn't contain additional data": "Не содержит дополнительных данных"
+    "Doesn't contain additional data": "Не содержит дополнительных данных",
+    "Work space": "Рабочее место",
+    "canceled transfer employee inside": "отменил(а) перевод сотрудника внутри SD",
+    "changed user data by the transfer employee inside request": "изменил данные пользователя согласно заявке на перевод cотрудника внутри SD",
+    "activated position": "активировал позицию",
+    "Supplemental position Id": "ID позиции",
+    "Organization unit id": "ID организации",
+    "to transfer employee inside": "на перевод сотрудника внутри SD",
+    "Transfer to supplemental positions": "Перевод на позиции",
+    "Transfer to supervisor id": "Перевод к руководителю",
+    "Group id": "ID подразделения",
+    "Transfer to group id": "Перевод в подразделение с ID",
+    "Transfer to title": "Перевод на должность/роль",
+    "Coordinator ids": "ID координаротов",
+    "Disable account": "Отключить аккаунт"
 }

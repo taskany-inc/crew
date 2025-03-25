@@ -255,7 +255,7 @@ const componentMap: {
                         <ChangeListItem title={tr('Comment')} after={event.after.comment} />
                         <ChangeListItem title={tr('Creation cause')} after={event.after.creationCause} />
                         <ChangeListItem title={tr('Location')} after={event.after.location} />
-                        <ChangeListItem title={tr('Work space application')} after={event.after.workSpace} />
+                        <ChangeListItem title={tr('Work space')} after={event.after.workSpace} />
                         <ChangeListItem title={tr('Equipment')} after={event.after.equipment} />
                         <ChangeListItem title={tr('Extra equipment')} after={event.after.extraEquipment} />
                         <ChangeListItem title={tr('Work mode')} after={event.after.workMode} />
@@ -1426,6 +1426,22 @@ const componentMap: {
         );
     },
 
+    CancelTransferInside: ({ event }) => {
+        const visible = useBoolean(false);
+
+        return (
+            <div className={s.Row}>
+                {tr('canceled transfer employee inside')}
+                <UserListItem user={event.user} />
+                <Text>{tr('with comment: ')}</Text>
+                <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                {nullable(visible.value, () => (
+                    <Text>{event.after.comment}</Text>
+                ))}
+            </div>
+        );
+    },
+
     ScheduledTransferInternToStaff: ({ event }) => {
         const visible = useBoolean(false);
         const [, copy] = useCopyToClipboard();
@@ -1474,6 +1490,130 @@ const componentMap: {
                             before={event.before.location}
                         />
                         <ChangeListItem title={tr('Title')} after={event.after.role} before={event.before.role} />
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    ScheduledTransferInside: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('changed user data by the transfer employee inside request')}
+                    <Tag onClick={handleCopyId}>{event.after.id}</Tag> <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} before={event.before.groupId} />
+                        <ChangeListItem
+                            title={tr('Supervisor id')}
+                            after={event.after.supervisorId}
+                            before={event.before.supervisorId}
+                        />
+                        <ChangeListItem
+                            title={tr('Location')}
+                            after={event.after.location}
+                            before={event.before.location}
+                        />
+                        <ChangeListItem title={tr('Title')} after={event.after.role} before={event.before.role} />
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    ScheduledActivatingUserSupplementalPosition: ({ event }) => {
+        const visible = useBoolean(false);
+        return (
+            <>
+                <div className={s.Row}>
+                    <UserListItem user={event.user} /> {tr('activated position')}
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                    <BoldText>{event.after.organizationUnitId}</BoldText>{' '}
+                    <BoldText>{event.after.supplementalPositionId}</BoldText>
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem
+                            title={tr('Supplemental position Id')}
+                            after={event.after.supplementalPositionId}
+                        />
+                        <ChangeListItem title={tr('Organization unit id')} after={event.after.organizationUnitId} />
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    CreateTransferInside: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('created request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('to transfer employee inside')} <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} />
+                        <ChangeListItem
+                            title={tr('Supplemental positions')}
+                            after={event.after.supplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main, workEndDate }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main} work end date: ${workEndDate}`,
+                                )
+                                .join(', ')}
+                        />
+                        <ChangeListItem
+                            title={tr('Transfer to supplemental positions')}
+                            after={event.after.transferToSupplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main, workStartDate }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main} work start date: ${workStartDate}`,
+                                )
+                                .join(', ')}
+                        />
+                        <ChangeListItem title={tr('Equipment')} after={event.after.equipment} />
+                        <ChangeListItem title={tr('Extra equipment')} after={event.after.extraEquipment} />
+                        <ChangeListItem title={tr('Supervisor id')} after={event.after.supervisorId} />
+                        <ChangeListItem
+                            title={tr('Transfer to supervisor id')}
+                            after={event.after.transferToSupervisorId}
+                        />
+                        <ChangeListItem title={tr('Group id')} after={event.after.groupId} />
+                        <ChangeListItem title={tr('Transfer to group id')} after={event.after.transferToGroupId} />
+                        <ChangeListItem title={tr('Title')} after={event.after.title} />
+                        <ChangeListItem title={tr('Transfer to title')} after={event.after.transferToTitle} />
+                        <ChangeListItem title={tr('Date')} after={event.after.date} />
+                        <ChangeListItem title={tr('Comment')} after={event.after.comment} />
+                        <ChangeListItem title={tr('Location')} after={event.after.location} />
+                        <ChangeListItem title={tr('Work space application')} after={event.after.workSpace} />
+                        <ChangeListItem title={tr('Work mode')} after={event.after.workMode} />
+                        <ChangeListItem title={tr('Line manager ids')} after={event.after.lineManagerIds} />
+                        <ChangeListItem title={tr('Coordinator ids')} after={event.after.coordinatorIds} />
+                        <ChangeListItem title={tr('Attach ids')} after={event.after.attachIds?.join(', ')} />
+                        <ChangeListItem title={tr('Disable account')} after={event.after.disableAccount} />
                     </>
                 ))}
             </>
