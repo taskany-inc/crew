@@ -91,10 +91,6 @@ export interface UserAchievements {
     achievements?: Array<UserAchievement & { achievement: Achievement }>;
 }
 
-export interface UserOrganizationUnit {
-    organizationUnit: Nullish<OrganizationUnit>;
-}
-
 export interface UserScheduledDeactivations {
     scheduledDeactivations: Array<
         ScheduledDeactivation &

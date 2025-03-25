@@ -530,7 +530,6 @@ export const groupMethods = {
                     select: {
                         name: true,
                         email: true,
-                        organizationUnit: true,
                         supplementalPositions: { include: { organizationUnit: true } },
                     },
                 },
@@ -543,7 +542,6 @@ export const groupMethods = {
         const membershipsDict = objByKeyMulti(memberships, 'groupId');
         const data: {
             userName: string | null;
-            orgUnitName: string | undefined;
             supplemental: string;
             email: string;
             roles: string;
@@ -556,7 +554,6 @@ export const groupMethods = {
                 membershipsDict[id]?.forEach((m) => {
                     data.push({
                         userName: m.user.name,
-                        orgUnitName: m.user.organizationUnit?.name || '',
                         supplemental: m.user.supplementalPositions
                             .map(({ organizationUnit }) => organizationUnit.name)
                             .join(', '),
@@ -576,7 +573,6 @@ export const groupMethods = {
 
         return createCsvDocument(data, [
             { key: 'userName', name: tr('Full name') },
-            { key: 'orgUnitName', name: tr('Organization') },
             { key: 'supplemental', name: tr('Supplemental positions') },
             { key: 'email', name: 'Email' },
             { key: 'roles', name: tr('Roles') },

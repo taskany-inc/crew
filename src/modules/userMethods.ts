@@ -17,7 +17,6 @@ import {
     UserSupervisorOf,
     UserSupervisorIn,
     UserMeta,
-    UserOrganizationUnit,
     UserRoleData,
     MailingSettingType,
     UserScheduledDeactivations,
@@ -226,7 +225,6 @@ export const userMethods = {
             UserAchievements &
             UserSupervisorOf &
             UserSupervisorIn &
-            UserOrganizationUnit &
             UserRoleData &
             UserScheduledDeactivations &
             UserSupplementalPositions &
@@ -270,7 +268,6 @@ export const userMethods = {
                 settings: true,
                 supervisorOf: { where: { active: true } },
                 supervisorIn: { where: { archived: false } },
-                organizationUnit: true,
                 groupAdmins: true,
                 role: true,
                 scheduledDeactivations: {
@@ -387,34 +384,10 @@ export const userMethods = {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } }, active: { not: true } } });
     },
 
-    edit: async ({
-        id,
-        savePreviousName,
-        supplementalPosition,
-        organizationUnitId,
-        curatorIds,
-        supervisorId,
-        ...data
-    }: EditUserFields) => {
+    edit: async ({ id, savePreviousName, supplementalPosition, curatorIds, supervisorId, ...data }: EditUserFields) => {
         const updateUser: Prisma.UserUpdateInput = data;
         const userBeforeUpdate = await userMethods.getById(id);
 
-        if (organizationUnitId) {
-            const newOrganization = await prisma.organizationUnit.findUnique({
-                where: {
-                    id: organizationUnitId,
-                },
-            });
-
-            if (!newOrganization) {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: `No organization with id ${organizationUnitId}`,
-                });
-            }
-
-            updateUser.organizationUnit = { connect: { id: organizationUnitId } };
-        }
         if (curatorIds) {
             const ids = curatorIds.map((id) => ({ id }));
             const oldIds = userBeforeUpdate.curators?.map(({ id }) => ({ id }));
@@ -556,7 +529,6 @@ export const userMethods = {
             where: {
                 userId: user.id,
                 serviceName: ExternalServiceName.ServiceNumber,
-                organizationUnitId: user.organizationUnitId ?? undefined,
             },
         });
 
@@ -587,7 +559,6 @@ export const userMethods = {
             login: user.login,
             serviceNumber: serviceNumberService?.serviceId,
             accountingId: accountingService?.serviceId,
-            organizationUnitId: user.organizationUnitId,
             groups: user.memberships.map((m) => ({
                 id: m.groupId,
                 name: m.group.name,
