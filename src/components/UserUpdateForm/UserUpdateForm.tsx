@@ -23,11 +23,9 @@ import { EditUser, EditUserFields, editUserFieldsSchema } from '../../modules/us
 import { useUserMutations } from '../../modules/userHooks';
 import {
     UserCurators,
-    UserOrganizationUnit,
     UserSupervisorWithSupplementalPositions,
     UserSupplementalPositions,
 } from '../../modules/userTypes';
-import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { SupplementalPositionItem } from '../SupplementalPositionItem/SupplementalPositionItem';
 import { useSupplementalPositionMutations } from '../../modules/supplementalPositionHooks';
 import { UserSelect } from '../UserSelect/UserSelect';
@@ -36,11 +34,7 @@ import { tr } from './UserUpdateForm.i18n';
 import s from './UserUpdateForm.module.css';
 
 interface UserDataFormProps {
-    user: User &
-        UserSupervisorWithSupplementalPositions &
-        UserOrganizationUnit &
-        UserSupplementalPositions &
-        UserCurators;
+    user: User & UserSupervisorWithSupplementalPositions & UserSupplementalPositions & UserCurators;
     onClose: () => void;
 }
 
@@ -66,7 +60,6 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
             supervisorId: user.supervisorId,
             name: user.name || undefined,
             savePreviousName: undefined,
-            organizationUnitId: user.organizationUnitId || undefined,
             curatorIds: user.curators?.map(({ id }) => id),
         },
         mode: 'onChange',
@@ -136,17 +129,6 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                     error={errors.curatorIds}
                                 />
                             </FormControl>
-                        </div>
-                        <div className={s.Field}>
-                            <Text className={s.Text} weight="bold" color={gray8}>
-                                {tr('Organization')}:
-                            </Text>
-                            <OrganizationUnitComboBox
-                                organizationUnitId={watch('organizationUnitId')}
-                                onChange={(organizationUnit) => {
-                                    setValue('organizationUnitId', organizationUnit?.id);
-                                }}
-                            />
                         </div>
                         {nullable(!!user.supplementalPositions.length, () => (
                             <div className={s.BadgeWrapperList}>

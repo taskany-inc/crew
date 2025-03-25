@@ -71,7 +71,6 @@ export const restRouter = router({
                     savePreviousName: z.boolean().optional(),
                     registrationEmail: z.string().optional(),
                     phone: z.string().optional(),
-                    organizationUnitId: z.string().optional(),
                     supervisorLogin: z.string().optional(),
                 }),
             }),
@@ -100,7 +99,6 @@ export const restRouter = router({
                 email: input.data.registrationEmail,
                 name: input.data.name,
                 supervisorId: newSupervisor?.id,
-                organizationUnitId: input.data.organizationUnitId,
             });
 
             const phoneService = await prisma.userService.findFirst({
@@ -140,7 +138,6 @@ export const restRouter = router({
                     name: user.name,
                     email: user.email,
                     phone: phoneService?.serviceId,
-                    organizationalUnitId: user.organizationUnitId,
                     supervisorId: user.supervisorId,
                     savePreviousName: input.data.savePreviousName,
                 },
@@ -148,7 +145,6 @@ export const restRouter = router({
                     name: input.data.name,
                     email: input.data.registrationEmail,
                     phone: input.data.phone,
-                    organizationalUnitId: input.data.organizationUnitId,
                     supervisorId: newSupervisor?.id,
                 },
             );

@@ -40,7 +40,6 @@ export const createProfile = async ({ userCreationRequestId }: JobDataMap['creat
             email: user.email,
             phone,
             login: user.login || undefined,
-            organizationalUnitId: user.organizationUnitId || undefined,
             supervisorId: user.supervisorId || undefined,
         },
     });
@@ -63,7 +62,6 @@ export const resolveDecree = async ({ userCreationRequestId }: JobDataMap['creat
             email: user.email,
             phone,
             login: user.login || undefined,
-            organizationalUnitId: user.organizationUnitId || undefined,
             supervisorId: user.supervisorId || undefined,
         },
     });

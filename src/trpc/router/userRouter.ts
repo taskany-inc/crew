@@ -130,7 +130,6 @@ export const userRouter = router({
             {
                 name: userBeforeWithCurators.name,
                 supervisorId: userBeforeWithCurators.supervisorId,
-                organizationalUnitId: userBeforeWithCurators.organizationUnitId ?? undefined,
                 email: userBeforeWithCurators.email,
                 savePreviousName: input.savePreviousName,
                 curatorIds: userBeforeWithCurators.curators.map(({ id }) => id),
@@ -138,7 +137,6 @@ export const userRouter = router({
             {
                 name: result.name,
                 supervisorId: result.supervisorId,
-                organizationalUnitId: result.organizationUnitId ?? undefined,
                 email: result.email,
                 curatorIds: userAfterWithCurators?.curators.map(({ id }) => id),
             },

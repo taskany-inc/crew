@@ -92,7 +92,6 @@ export const editUserSchema = z.object({
 export type EditUser = z.infer<typeof editUserSchema>;
 
 export const editUserFieldsSchema = editUserSchema.extend({
-    organizationUnitId: z.string().optional(),
     email: z.string().optional(),
 });
 
@@ -144,7 +143,6 @@ export const userRestApiDataSchema = z.object({
     login: z.string().nullable(),
     serviceNumber: z.string().nullish(),
     accountingId: z.string().nullish(),
-    organizationUnitId: z.string().nullable(),
     groups: z
         .object({
             id: z.string(),
