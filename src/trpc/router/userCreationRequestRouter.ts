@@ -19,7 +19,10 @@ import { processEvent } from '../../utils/analyticsEvent';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { protectedProcedure, router } from '../trpcBackend';
 import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
-import { transferInternToStaffHistoryEvent } from '../../utils/transferInterntoStaffHistoryEvent';
+import {
+    transferInternToStaffHistoryEvent,
+    transferInsideHistoryEvent,
+} from '../../utils/userCreationRequestHistoryEvents';
 
 import { tr } from './router.i18n';
 
@@ -786,9 +789,14 @@ export const userCreationRequestRouter = router({
         .mutation(async ({ input, ctx }) => {
             accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
 
-            await userCreationRequestsMethods.createTransferInside(input, ctx.session.user.id);
-
-            // TODO history event
+            const request = await userCreationRequestsMethods.createTransferInside(input, ctx.session.user.id);
+            await historyEventMethods.create({ user: ctx.session.user.id }, 'createTransferInside', {
+                userId: input.userId,
+                groupId: undefined,
+                before: undefined,
+                after: transferInsideHistoryEvent(request),
+            });
+            return request;
         }),
 
     getTransferInsideById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
@@ -804,7 +812,18 @@ export const userCreationRequestRouter = router({
         .mutation(async ({ input, ctx }) => {
             accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
 
-            await userCreationRequestsMethods.cancelTransferInside(input, ctx.session.user.id);
-            // TODO history event
+            const canceledRequestTargetUserId = await userCreationRequestsMethods.cancelTransferInside(
+                input,
+                ctx.session.user.id,
+            );
+
+            await historyEventMethods.create({ user: ctx.session.user.id }, 'cancelTransferInside', {
+                userId: canceledRequestTargetUserId,
+                groupId: undefined,
+                before: undefined,
+                after: { id: input.id, comment: input.comment },
+            });
+
+            return canceledRequestTargetUserId;
         }),
 });

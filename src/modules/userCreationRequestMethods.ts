@@ -2915,6 +2915,8 @@ export const userCreationRequestsMethods = {
             method: ICalCalendarMethod.REQUEST,
             sessionUserId,
         });
+
+        return { ...request, supplementalPositions: positions, transferToSupplementalPositions };
     },
 
     getTransferInsideById: async (id: string): Promise<CreateTransferInside> => {
@@ -3267,5 +3269,7 @@ export const userCreationRequestsMethods = {
             method: ICalCalendarMethod.CANCEL,
             sessionUserId,
         });
+
+        return request.userTargetId;
     },
 };

@@ -217,13 +217,26 @@ export const activateUserSupplementalPosition = async ({
     supplementalPositionId,
     userId,
 }: JobDataMap['activateUserSupplementalPosition']) => {
-    await db
+    const position = await db
         .updateTable('SupplementalPosition')
         .where('id', '=', supplementalPositionId)
         .set({ userId, status: 'ACTIVE' })
-        .execute();
+        .returningAll()
+        .executeTakeFirst();
 
-    // TODO history events
+    await historyEventMethods.create(
+        { subsystem: 'Scheduled activating supplemental position' },
+        'scheduledActivatingUserSupplementalPosition',
+        {
+            userId,
+            groupId: undefined,
+            before: undefined,
+            after: {
+                organizationUnitId: position?.organizationUnitId,
+                supplementalPositionId,
+            },
+        },
+    );
 };
 
 export const editUserOnTransfer = async ({ userCreationRequestId }: JobDataMap['editUserOnTransfer']) => {
@@ -299,5 +312,25 @@ export const editUserOnTransfer = async ({ userCreationRequestId }: JobDataMap['
         }
     }
 
-    // TODO history events
+    const { before, after } = dropUnchangedValuesFromEvent(
+        {
+            groupId: orgMembership?.groupId,
+            role: orgMembership?.roles.map(({ name }) => name).join(', '),
+            location: location?.name,
+            supervisorId: user.supervisorId,
+        },
+        {
+            groupId: userCreationRequest.groupId || undefined,
+            role: userCreationRequest.title || undefined,
+            location: userCreationRequest.location || undefined,
+            supervisorId: userCreationRequest.supervisorId || undefined,
+        },
+    );
+
+    await historyEventMethods.create({ subsystem: 'Scheduled transfer inside' }, 'scheduledTransferInside', {
+        userId: user.id,
+        groupId: undefined,
+        before: { ...before, id: userCreationRequest.id },
+        after: { ...after, id: userCreationRequest.id },
+    });
 };
