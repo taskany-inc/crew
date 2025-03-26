@@ -92,6 +92,50 @@ const componentMap: {
         );
     },
 
+    ChangeEmployeeStatus: ({ event }) => {
+        const visible = useBoolean(false);
+        const locale = useLocale();
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('Request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('was')}{' '}
+                    <BoldText>{event.after.status === 'EMPLOYMENT' ? tr('confirmed') : tr('cancelled')}</BoldText>
+                    {nullable(event.after.name, () => (
+                        <>
+                            {' '}
+                            {tr('for employee')} <BoldText>{event.after.name}</BoldText>
+                        </>
+                    ))}
+                    {nullable(event.after.startDate, () => (
+                        <>
+                            {' '}
+                            {tr('with start date')}{' '}
+                            <BoldText>{formatDate(new Date(String(event.after.startDate)), locale)}</BoldText>
+                        </>
+                    ))}
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Request ID')} after={event.after.id} />
+                        <ChangeListItem title={tr('Status')} after={event.after.status} />
+                        <ChangeListItem title={tr('Name')} after={event.after.name} />
+                        <ChangeListItem title={tr('Email')} after={event.after.email} />
+                        <ChangeListItem title={tr('External person ID')} after={event.after.personId} />
+                        <ChangeListItem title={tr('Start date')} after={event.after.startDate} />
+                        <ChangeListItem title={tr('Comment')} after={event.after.comment} />
+                    </>
+                ))}
+            </>
+        );
+    },
+
     ResolveUserDecreeRequest: ({ event }) => {
         const visible = useBoolean(false);
 
