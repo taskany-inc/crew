@@ -107,6 +107,20 @@ interface HistoryEventsData {
             comment?: string;
         };
     };
+    changeEmployeeStatus: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: false;
+        data: {
+            id: string;
+            status: string;
+            name?: string;
+            email?: string;
+            personId?: string;
+            startDate?: string;
+            comment?: string;
+        };
+    };
     acceptUserCreationRequest: {
         requireGroupId: false;
         requireUserId: false;
