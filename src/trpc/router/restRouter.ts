@@ -28,6 +28,8 @@ import { db } from '../../utils/db';
 import { createUserRequestDraftSchema } from '../../modules/userCreationRequestSchemas';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
 import { UserCreationRequestStatus } from '../../generated/kyselyTypes';
+import { createJob } from '../../worker/create';
+import { jobDelete } from '../../worker/jobOperations';
 
 import { tr } from './router.i18n';
 
@@ -839,6 +841,135 @@ export const restRouter = router({
                 throw new TRPCError({
                     code: 'INTERNAL_SERVER_ERROR',
                     message: error instanceof Error ? error.message : 'Failed to create user request',
+                });
+            }
+        }),
+
+    resolveUserRequestByPersonId: restProcedure
+        .meta({
+            openapi: {
+                method: 'POST',
+                path: '/user-requests/resolve-by-person-id/{personId}',
+                protect: true,
+                summary: 'Handle employee status (employment or cancellation)',
+            },
+        })
+        .input(
+            z.object({
+                status: z.enum(['EMPLOYMENT', 'CANCELLATION']),
+                startDate: z.string().optional(),
+                personId: z.string(),
+            }),
+        )
+        .output(
+            z.object({
+                id: z.string(),
+                status: z.string(),
+            }),
+        )
+        .mutation(async ({ input, ctx }) => {
+            try {
+                const { personId, status, startDate: startDateStr } = input;
+
+                const request = await db
+                    .selectFrom('UserCreationRequest')
+                    .where('UserCreationRequest.externalPersonId', '=', personId)
+                    .where('UserCreationRequest.status', '=', UserCreationRequestStatus.Approved)
+                    .orderBy('UserCreationRequest.createdAt', 'desc')
+                    .selectAll()
+                    .executeTakeFirst();
+
+                if (!request) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: `No approved creation request found for externalPersonId: ${personId}`,
+                    });
+                }
+
+                const user = await db.selectFrom('User').where('User.login', '=', request.login).executeTakeFirst();
+
+                if (user) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: `User with login ${request.login} already exists`,
+                    });
+                }
+
+                if (status === 'EMPLOYMENT') {
+                    if (!startDateStr) {
+                        throw new TRPCError({
+                            code: 'BAD_REQUEST',
+                            message: 'Start date is required for employment',
+                        });
+                    }
+
+                    const startDate = new Date(startDateStr);
+
+                    if (request.jobId) {
+                        await jobDelete(request.jobId);
+                    }
+
+                    await createJob('createProfile', {
+                        data: { userCreationRequestId: request.id },
+                        date: startDate,
+                    });
+
+                    await historyEventMethods.create({ token: ctx.apiTokenId }, 'changeEmployeeStatus', {
+                        groupId: undefined,
+                        userId: undefined,
+                        before: undefined,
+                        after: {
+                            id: request.id,
+                            status: 'EMPLOYMENT',
+                            name: request.name,
+                            email: request.email,
+                            personId,
+                            startDate: startDate.toISOString(),
+                        },
+                    });
+
+                    return {
+                        id: request.id,
+                        status: 'success',
+                    };
+                }
+                if (status === 'CANCELLATION') {
+                    await userCreationRequestsMethods.cancel(
+                        { id: request.id, comment: 'Cancelled via API' },
+                        ctx.apiTokenId,
+                    );
+
+                    await historyEventMethods.create({ token: ctx.apiTokenId }, 'changeEmployeeStatus', {
+                        groupId: undefined,
+                        userId: undefined,
+                        before: undefined,
+                        after: {
+                            id: request.id,
+                            status: 'CANCELLATION',
+                            name: request.name,
+                            email: request.email,
+                            personId,
+                        },
+                    });
+
+                    return {
+                        id: request.id,
+                        status: 'success',
+                    };
+                }
+
+                throw new TRPCError({
+                    code: 'PRECONDITION_FAILED',
+                    message: 'Invalid status provided',
+                });
+            } catch (error) {
+                if (error instanceof TRPCError) {
+                    throw error;
+                }
+
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: error instanceof Error ? error.message : 'An unexpected error occurred',
                 });
             }
         }),

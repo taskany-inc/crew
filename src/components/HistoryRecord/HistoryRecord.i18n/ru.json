@@ -176,7 +176,15 @@
     "Transfer to supervisor id": "Перевод к руководителю",
     "Group id": "ID подразделения",
     "Transfer to group id": "Перевод в подразделение с ID",
-    "Transfer to title": "Перевод на должность/роль",
-    "Coordinator ids": "ID координаротов",
-    "Disable account": "Отключить аккаунт"
+    "Transfer to title": "Название должности при переводе",
+    "Coordinator ids": "ID координаторов",
+    "Disable account": "Отключить аккаунт",
+    "Request": "Заявка",
+    "Request ID": "ID заявки",
+    "confirmed": "подтверждена",
+    "cancelled": "отменена",
+    "for employee": "для сотрудника",
+    "with start date": "с датой начала",
+    "External person ID": "Внешний ID сотрудника",
+    "Start date": "Дата начала"
 }
