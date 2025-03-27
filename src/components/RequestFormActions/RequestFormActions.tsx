@@ -133,11 +133,13 @@ export const RequestFormActions = ({
             requestType === UserCreationRequestType.externalFromMainOrgEmployee ||
             requestType === UserCreationRequestType.internalEmployee);
 
+    const hideEditButton = requestType === UserCreationRequestType.transferInside;
+
     return (
         <div className={s.FormActions}>
             {nullable(canEditRequest, () => (
                 <>
-                    {nullable(onEdit, () => (
+                    {nullable(onEdit && !hideEditButton, () => (
                         <div>
                             <Button
                                 ref={editRef}

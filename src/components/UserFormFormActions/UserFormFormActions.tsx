@@ -44,7 +44,10 @@ export const UserFormFormActions = ({
                 view="warning"
                 visible={cancelWarningVisible.value}
                 onCancel={cancelWarningVisible.setFalse}
-                onConfirm={onCancel}
+                onConfirm={() => {
+                    onCancel && onCancel();
+                    cancelWarningVisible.setFalse();
+                }}
                 warningText={cancelConfirmation}
             />
             <WarningModal
