@@ -169,7 +169,7 @@ export const UserFormTeamBlock = ({
                         />
                     </FormControl>
                     {nullable(type === 'transfer' || type === UserCreationRequestType.transferInside, () => (
-                        <FormControl label="Coordinators">
+                        <FormControl label={tr('Coordinators')}>
                             <UserSelect
                                 excludedUsers={excludedUsers}
                                 readOnly={readOnly}

@@ -23,7 +23,7 @@ const onRetryLimitExeed = (error: any, job: Job) =>
 
 const onQueeTooLong = () => Sentry.captureMessage('Queue too long. Smth went wrong.');
 
-const onError = (error: any, job: Job) => {
+const onError = (error: any, job?: Job) => {
     console.log('[WORKER]: onerror', error.message);
 
     return Sentry.captureException(error, {
@@ -50,5 +50,9 @@ const init = () =>
 
 (() =>
     setInterval(async () => {
-        await init();
+        try {
+            await init();
+        } catch (e) {
+            onError(e);
+        }
     }, config.worker.queueInterval))();
