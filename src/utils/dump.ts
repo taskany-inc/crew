@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { logger } from './logger';
+
 const getTypeDescription = (v: unknown) => {
     if (typeof v === 'string') {
         const lines = v.split('\n').length;
@@ -27,13 +29,13 @@ const getTypeDescription = (v: unknown) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const dumpToJson = (filename: string, v: any) => {
-    console.log(`Saving to ${filename}.json - ${getTypeDescription(v)}`);
+    logger.info(`Saving to ${filename}.json - ${getTypeDescription(v)}`);
     const dirname = path.dirname(fileURLToPath(import.meta.url));
     fs.writeFileSync(`${dirname}/${filename}.json`, JSON.stringify(v, null, 2));
 };
 
 export const dumpToTxt = (filename: string, v: string) => {
-    console.log(`Saving to ${filename}.txt - ${getTypeDescription(v)}`);
+    logger.info(`Saving to ${filename}.txt - ${getTypeDescription(v)}`);
     const dirname = path.dirname(fileURLToPath(import.meta.url));
     fs.writeFileSync(`${dirname}/${filename}.txt`, v);
 };

@@ -1,4 +1,5 @@
 import { userAgentFromString } from 'next/server';
+import pino from 'pino';
 
 import { TrpcContext } from '../trpc/trpcContext';
 
@@ -89,6 +90,8 @@ const constructEvent = ({
     return params;
 };
 
+const telemetryLogger = pino({ level: 'debug' }).child({ TELEMETRY_EVENT: true });
+
 export const trackEvent = (events: AnalyticsEvent[]) => {
     const telemetryURL = process.env.TELEMETRY_URL;
 
@@ -101,8 +104,8 @@ export const trackEvent = (events: AnalyticsEvent[]) => {
                 'Content-Type': 'application/json',
             },
         });
-    } else {
-        console.log('TELEMETRY EVENT', JSON.stringify(events));
+    } else if (process.env.NODE_ENV === 'production') {
+        telemetryLogger.info(events);
     }
 };
 

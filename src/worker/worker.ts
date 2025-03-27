@@ -1,3 +1,4 @@
+import pino from 'pino';
 import parser from 'cron-parser';
 
 import { JsonValue } from '../utils/jsonValue';
@@ -67,7 +68,7 @@ export const worker = async (
     resolve: { [key: string]: (args: any) => any },
     onRetryLimitExeed: (error: unknown, job: Job) => void,
     onQueueTooLong: () => void,
-    logger: (...rest: unknown[]) => void,
+    logger: pino.Logger,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: unknown, job: Job) => void,
     defaultJobDelay: number,
@@ -78,12 +79,12 @@ export const worker = async (
         async (job) => {
             setTimeout(async () => {
                 if (job && job.cron) {
-                    logger(`plan cron ${job.id}`);
+                    logger.info(`plan cron ${job.id}`);
                     await jobUpdate(job.id, {
                         state: jobState.scheduled,
                     });
                 } else {
-                    logger(`delete job ${job.id}`);
+                    logger.info(`delete job ${job.id}`);
                     await jobDelete(job.id);
                 }
             }, 0);
@@ -122,7 +123,7 @@ export const worker = async (
 
             setTimeout(async () => {
                 try {
-                    logger(`resolve job ${job.kind} ${job.id}`);
+                    logger.info(`resolve job ${job.kind} ${job.id}`);
 
                     await resolve[job.kind](job.data as any);
                     await jobUpdate(job.id, { state: jobState.completed, runs: { increment: true }, force: false });
@@ -133,7 +134,7 @@ export const worker = async (
 
                         onError(error, job);
 
-                        logger(`retry job ${job.id}`);
+                        logger.info(`retry job ${job.id}`);
 
                         setTimeout(async () => {
                             await jobUpdate(job.id, {
@@ -146,7 +147,7 @@ export const worker = async (
                     } else {
                         onRetryLimitExeed(error, job);
 
-                        logger(`delete job ${job.id} after ${retryLimit} retries`);
+                        logger.warn(`delete job ${job.id} after ${retryLimit} retries`);
 
                         await jobDelete(job.id);
                     }
