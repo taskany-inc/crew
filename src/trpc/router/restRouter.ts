@@ -977,4 +977,64 @@ export const restRouter = router({
                 });
             }
         }),
+
+    editUserRequest: restProcedure
+        .meta({
+            openapi: {
+                method: 'PUT',
+                path: '/user-requests/edit-by-person-id/{externalPersonId}',
+                protect: true,
+                summary: 'Edit an existing user creation request',
+                description: 'Updates an existing user creation request (only internalEmployee type)',
+            },
+        })
+        .input(createUserRequestDraftSchema)
+        .output(
+            z.object({
+                id: z.string(),
+                status: z.string(),
+            }),
+        )
+        .mutation(async ({ input, ctx }) => {
+            try {
+                const updatedRequest = await userCreationRequestsMethods.editUserRequestDraft(input, ctx.apiTokenId);
+
+                await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUserCreationRequest', {
+                    groupId: undefined,
+                    userId: undefined,
+                    before: {
+                        id: updatedRequest.id,
+                        type: 'internalEmployee',
+                        name: updatedRequest.name,
+                        login: updatedRequest.login,
+                        email: updatedRequest.email,
+                        workEmail: updatedRequest.workEmail || undefined,
+                        personalEmail: updatedRequest.personalEmail || undefined,
+                    },
+                    after: {
+                        id: updatedRequest.id,
+                        type: 'internalEmployee',
+                        name: updatedRequest.name,
+                        login: updatedRequest.login,
+                        email: updatedRequest.email,
+                        workEmail: updatedRequest.workEmail || undefined,
+                        personalEmail: updatedRequest.personalEmail || undefined,
+                    },
+                });
+
+                return {
+                    id: updatedRequest.id,
+                    status: 'success',
+                };
+            } catch (error) {
+                if (error instanceof TRPCError) {
+                    throw error;
+                }
+
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: error instanceof Error ? error.message : 'Failed to update user request',
+                });
+            }
+        }),
 });

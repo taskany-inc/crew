@@ -372,6 +372,52 @@ export const getUserCreationRequestQuery = async (id: string): Promise<UserCreat
     };
 };
 
+export const findUsersByEmails = async (
+    emails: string[],
+): Promise<Map<string, ExtractTypeFromGenerated<KyselyUser>>> => {
+    if (!emails.length) return new Map();
+
+    const users = await db
+        .with('user_emails', (qb) =>
+            qb
+                .selectFrom('User')
+                .select(['User.id as userId', 'User.email as email'])
+                .where('User.email', 'in', emails)
+                .unionAll(
+                    qb
+                        .selectFrom('UserServices')
+                        .innerJoin('User', 'User.id', 'UserServices.userId')
+                        .select(['UserServices.userId as userId', 'UserServices.serviceId as email'])
+                        .where('UserServices.serviceId', 'in', emails)
+                        .where('UserServices.serviceName', 'in', [
+                            ExternalServiceName.WorkEmail,
+                            ExternalServiceName.PersonalEmail,
+                            ExternalServiceName.Email,
+                        ]),
+                ),
+        )
+        .selectFrom('User')
+        .innerJoin('user_emails', 'user_emails.userId', 'User.id')
+        .selectAll('User')
+        .select([sql<string[]>`array_agg(distinct user_emails.email)`.as('emails')])
+        .groupBy('User.id')
+        .execute();
+
+    const userMapByEmail = new Map<string, ExtractTypeFromGenerated<KyselyUser>>();
+
+    users.forEach((userWithEmails) => {
+        const { emails, ...user } = userWithEmails;
+
+        emails.forEach((email) => {
+            if (email) {
+                userMapByEmail.set(email, user);
+            }
+        });
+    });
+
+    return userMapByEmail;
+};
+
 export const userCreationRequestsMethods = {
     create: async (
         data: CreateUserCreationRequest,
@@ -887,6 +933,7 @@ export const userCreationRequestsMethods = {
             comment,
             workEmail,
             percentage,
+            externalGroupId,
             ...restRequest
         } = request;
 
@@ -924,6 +971,7 @@ export const userCreationRequestsMethods = {
             organizationUnitId: organization.id,
             supervisorId: supervisor?.id,
             lineManagerIds: lineManagers.map(({ id }) => id),
+            externalGroupId: externalGroupId || undefined,
             supplementalPositions: supplementalPositions.map(
                 ({ organizationUnitId, unitId, percentage, workStartDate }) => ({
                     organizationUnitId,
@@ -996,6 +1044,7 @@ export const userCreationRequestsMethods = {
             personalEmail,
             osPreference,
             date,
+            externalGroupId,
             ...restRequest
         } = request;
 
@@ -1019,6 +1068,7 @@ export const userCreationRequestsMethods = {
             middleName: fullNameArray[2],
             phone,
             reason: reasonToGrantPermissionToServices,
+            externalGroupId: externalGroupId || undefined,
             groupId: group?.id,
             organizationUnitId: organization.id,
             supervisorId: supervisor?.id,
@@ -1754,6 +1804,7 @@ export const userCreationRequestsMethods = {
             coordinators,
             lineManagers,
             transferFromGroup,
+            externalGroupId,
             ...restRequest
         } = request;
 
@@ -1786,6 +1837,7 @@ export const userCreationRequestsMethods = {
             equipment: equipment || '',
             location,
             creationCause,
+            externalGroupId: externalGroupId || undefined,
             coordinatorIds: coordinators.map(({ id }) => id) || undefined,
             lineManagerIds: lineManagers.map(({ id }) => id),
             groupId: groupId || undefined,
@@ -3411,43 +3463,7 @@ export const userCreationRequestsMethods = {
 
                 const allEmails = [input.supervisorEmail, ...lineManagerEmails, ...coordinatorEmails];
 
-                const users = await trx
-                    .with('user_emails', (qb) =>
-                        qb
-                            .selectFrom('User')
-                            .select(['User.id as userId', 'User.email as email'])
-                            .where('User.email', 'in', allEmails)
-                            .unionAll(
-                                qb
-                                    .selectFrom('UserServices')
-                                    .innerJoin('User', 'User.id', 'UserServices.userId')
-                                    .select(['UserServices.userId as userId', 'UserServices.serviceId as email'])
-                                    .where('UserServices.serviceId', 'in', allEmails)
-                                    .where('UserServices.serviceName', 'in', [
-                                        ExternalServiceName.WorkEmail,
-                                        ExternalServiceName.PersonalEmail,
-                                        ExternalServiceName.Email,
-                                    ]),
-                            ),
-                    )
-                    .selectFrom('User')
-                    .innerJoin('user_emails', 'user_emails.userId', 'User.id')
-                    .selectAll('User')
-                    .select([sql<string[]>`array_agg(distinct user_emails.email)`.as('emails')])
-                    .groupBy('User.id')
-                    .execute();
-
-                const userMapByEmail = new Map<string, ExtractTypeFromGenerated<KyselyUser>>();
-
-                users.forEach((userWithEmails) => {
-                    const { emails, ...user } = userWithEmails;
-
-                    emails.forEach((email) => {
-                        if (email) {
-                            userMapByEmail.set(email, user);
-                        }
-                    });
-                });
+                const userMapByEmail = await findUsersByEmails(allEmails);
 
                 const supervisorId = userMapByEmail.get(input.supervisorEmail)?.id;
                 const supervisorLogin = userMapByEmail.get(input.supervisorEmail)?.login;
@@ -3650,6 +3666,122 @@ export const userCreationRequestsMethods = {
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: error instanceof Error ? error.message : 'Failed to confirm draft request',
+            });
+        }
+    },
+
+    editUserRequestDraft: async (data: CreateUserCreationRequestDraft, sessionUserId: string) => {
+        try {
+            const { externalPersonId, ...updateData } = data;
+
+            const existingRequest = await db
+                .selectFrom('UserCreationRequest')
+                .where('UserCreationRequest.externalPersonId', '=', externalPersonId)
+                .selectAll()
+                .executeTakeFirst();
+
+            if (!existingRequest) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: `No creation request found for externalPersonId: ${externalPersonId}`,
+                });
+            }
+
+            if (existingRequest.type !== 'internalEmployee') {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Only internalEmployee requests can be edited through this endpoint',
+                });
+            }
+
+            const organization = updateData.organizations[0];
+
+            const [surname, firstName, middleName] = updateData.name.split(' ');
+
+            const lineManagerEmails = updateData.lineManagers?.map((lm) => lm.email) || [];
+            const coordinatorEmails = updateData.coordinators?.map((coord) => coord.email) || [];
+            const allEmails = [updateData.supervisorEmail, ...lineManagerEmails, ...coordinatorEmails];
+
+            const userMap = await findUsersByEmails(allEmails);
+
+            const supervisor = userMap.get(updateData.supervisorEmail);
+
+            if (!supervisor) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: `Supervisor with email ${updateData.supervisorEmail} not found`,
+                });
+            }
+
+            const lineManagerIds = lineManagerEmails
+                .map((email) => userMap.get(email)?.id)
+                .filter((id): id is string => !!id);
+
+            const coordinatorIds = coordinatorEmails
+                .map((email) => userMap.get(email)?.id)
+                .filter((id): id is string => !!id);
+
+            const requestWithRelations = await getUserCreationRequestQuery(existingRequest.id);
+
+            if (!requestWithRelations) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: `Failed to get request with relations for id: ${existingRequest.id}`,
+                });
+            }
+
+            return await userCreationRequestsMethods.edit(
+                {
+                    id: existingRequest.id,
+                    data: {
+                        type: 'internalEmployee',
+                        surname,
+                        firstName,
+                        middleName,
+                        login: updateData.login,
+                        phone: updateData.phone,
+                        email: updateData.workEmail || updateData.registrationEmail,
+                        personalEmail: updateData.registrationEmail,
+                        workEmail: updateData.workEmail,
+                        corporateEmail: updateData.workEmail,
+                        title: updateData.position,
+                        supervisorId: supervisor.id,
+                        organizationUnitId: organization.organizationUnitId,
+                        externalGroupId: updateData.externalGroupId,
+                        date: organization.startDate ? new Date(organization.startDate) : null,
+                        percentage: organization.percentage,
+                        unitId: organization.unitId,
+                        location: updateData.location,
+                        creationCause: requestWithRelations.creationCause ?? 'start',
+                        workMode: requestWithRelations.workMode ?? undefined,
+                        equipment: requestWithRelations.equipment ?? undefined,
+                        extraEquipment: requestWithRelations.extraEquipment ?? undefined,
+                        workSpace: requestWithRelations.workSpace ?? undefined,
+                        lineManagerIds,
+                        coordinatorIds,
+                        intern: requestWithRelations.supplementalPositions.some((pos) => pos.intern) || false,
+                        osPreference: requestWithRelations.osPreference ?? undefined,
+                        supplementalPositions: requestWithRelations.supplementalPositions
+                            .filter((pos) => !pos.main)
+                            .map((pos) => ({
+                                organizationUnitId: pos.organizationUnitId,
+                                percentage: pos.percentage / percentageMultiply,
+                                unitId: pos.unitId || undefined,
+                                workStartDate: pos.workStartDate,
+                            })),
+                    },
+                },
+                requestWithRelations,
+                sessionUserId,
+            );
+        } catch (error) {
+            if (error instanceof TRPCError) {
+                throw error;
+            }
+
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: error instanceof Error ? error.message : 'Failed to update user request',
             });
         }
     },
