@@ -10,7 +10,7 @@ import { TRPCError } from '@trpc/server';
 import { ICalCalendarMethod } from 'ical-generator';
 import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 import { UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser';
-import { sql } from 'kysely';
+import { sql, SqlBool, ExpressionOrFactory } from 'kysely';
 
 import { prisma } from '../utils/prisma';
 import { trimAndJoin } from '../utils/trimAndJoin';
@@ -277,10 +277,12 @@ const sendTransferInternToStaffEmail = async (
     });
 };
 
-export const getUserCreationRequestQuery = async (id: string): Promise<UserCreationRequestWithRelations | null> => {
+const getUserCreationRequestBase = async (
+    where: ExpressionOrFactory<DB, 'UserCreationRequest', SqlBool>,
+): Promise<UserCreationRequestWithRelations | null> => {
     const request = await db
         .selectFrom('UserCreationRequest')
-        .where('UserCreationRequest.id', '=', id)
+        .where(where)
         .selectAll()
         .select([
             (eb) =>
@@ -354,7 +356,7 @@ export const getUserCreationRequestQuery = async (id: string): Promise<UserCreat
 
     const supplementalPositions = await db
         .selectFrom('SupplementalPosition as sp')
-        .where('sp.userCreationRequestId', '=', id)
+        .where('sp.userCreationRequestId', '=', request.id)
         .selectAll('sp')
         .select((eb) => [
             jsonObjectFrom(
@@ -371,6 +373,49 @@ export const getUserCreationRequestQuery = async (id: string): Promise<UserCreat
         ...request,
         supplementalPositions: supplementalPositions ?? [],
     };
+};
+
+const getUserCreationRequestById = async (id: string) =>
+    getUserCreationRequestBase((eb) => eb('UserCreationRequest.id', '=', id));
+
+const getUserCreationRequestByExternalPersonId = async (externalPersonId: string) =>
+    getUserCreationRequestBase((eb) => eb('UserCreationRequest.externalPersonId', '=', externalPersonId));
+
+export const findUsersByEmails = async (
+    emails: string[],
+): Promise<Record<string, ExtractTypeFromGenerated<KyselyUser>>> => {
+    if (!emails.length) return {};
+
+    const users = await db
+        .selectFrom('User')
+        .leftJoin('UserServices', (join) =>
+            join
+                .onRef('UserServices.userId', '=', 'User.id')
+                .on('UserServices.serviceName', 'in', [
+                    ExternalServiceName.WorkEmail,
+                    ExternalServiceName.PersonalEmail,
+                    ExternalServiceName.Email,
+                ]),
+        )
+        .where((eb) => eb.or([eb('User.email', 'in', emails), eb('UserServices.serviceId', 'in', emails)]))
+        .selectAll('User')
+        .select([
+            sql<string[]>`array_remove(array_agg(distinct "UserServices"."serviceId"), null)`.as('additionalEmails'),
+        ])
+        .groupBy('User.id')
+        .execute();
+
+    return users.reduce<Record<string, ExtractTypeFromGenerated<KyselyUser>>>((acc, userWithEmails) => {
+        const { additionalEmails, ...user } = userWithEmails;
+
+        acc[user.email] = user;
+
+        emails.forEach((email) => {
+            acc[email] = user;
+        });
+
+        return acc;
+    }, {});
 };
 
 export const userCreationRequestsMethods = {
@@ -813,6 +858,7 @@ export const userCreationRequestsMethods = {
     },
 
     getById: async (id: string) => {
+        // TODO: use getUserCreationRequestById query instead
         const request = await prisma.userCreationRequest.findUnique({
             where: { id },
             include: {
@@ -833,6 +879,19 @@ export const userCreationRequestsMethods = {
 
         if (!request) {
             throw new TRPCError({ message: `No user creation request with id ${id}`, code: 'NOT_FOUND' });
+        }
+
+        return request;
+    },
+
+    getByExternalPersonId: async (externalPersonId: string) => {
+        const request = await getUserCreationRequestByExternalPersonId(externalPersonId);
+
+        if (!request) {
+            throw new TRPCError({
+                message: `No user creation request with externalPersonId ${externalPersonId}`,
+                code: 'NOT_FOUND',
+            });
         }
 
         return request;
@@ -888,6 +947,7 @@ export const userCreationRequestsMethods = {
             comment,
             workEmail,
             percentage,
+            externalGroupId,
             ...restRequest
         } = request;
 
@@ -925,6 +985,7 @@ export const userCreationRequestsMethods = {
             organizationUnitId: organization.id,
             supervisorId: supervisor?.id,
             lineManagerIds: lineManagers.map(({ id }) => id),
+            externalGroupId: externalGroupId || undefined,
             supplementalPositions: supplementalPositions.map(
                 ({ organizationUnitId, unitId, percentage, workStartDate }) => ({
                     organizationUnitId,
@@ -997,6 +1058,7 @@ export const userCreationRequestsMethods = {
             personalEmail,
             osPreference,
             date,
+            externalGroupId,
             ...restRequest
         } = request;
 
@@ -1020,6 +1082,7 @@ export const userCreationRequestsMethods = {
             middleName: fullNameArray[2],
             phone,
             reason: reasonToGrantPermissionToServices,
+            externalGroupId: externalGroupId || undefined,
             groupId: group?.id,
             organizationUnitId: organization.id,
             supervisorId: supervisor?.id,
@@ -1755,6 +1818,7 @@ export const userCreationRequestsMethods = {
             coordinators,
             lineManagers,
             transferFromGroup,
+            externalGroupId,
             ...restRequest
         } = request;
 
@@ -1787,6 +1851,7 @@ export const userCreationRequestsMethods = {
             equipment: equipment || '',
             location,
             creationCause,
+            externalGroupId: externalGroupId || undefined,
             coordinatorIds: coordinators.map(({ id }) => id) || undefined,
             lineManagerIds: lineManagers.map(({ id }) => id),
             groupId: groupId || undefined,
@@ -3412,46 +3477,10 @@ export const userCreationRequestsMethods = {
 
                 const allEmails = [input.supervisorEmail, ...lineManagerEmails, ...coordinatorEmails];
 
-                const users = await trx
-                    .with('user_emails', (qb) =>
-                        qb
-                            .selectFrom('User')
-                            .select(['User.id as userId', 'User.email as email'])
-                            .where('User.email', 'in', allEmails)
-                            .unionAll(
-                                qb
-                                    .selectFrom('UserServices')
-                                    .innerJoin('User', 'User.id', 'UserServices.userId')
-                                    .select(['UserServices.userId as userId', 'UserServices.serviceId as email'])
-                                    .where('UserServices.serviceId', 'in', allEmails)
-                                    .where('UserServices.serviceName', 'in', [
-                                        ExternalServiceName.WorkEmail,
-                                        ExternalServiceName.PersonalEmail,
-                                        ExternalServiceName.Email,
-                                    ]),
-                            ),
-                    )
-                    .selectFrom('User')
-                    .innerJoin('user_emails', 'user_emails.userId', 'User.id')
-                    .selectAll('User')
-                    .select([sql<string[]>`array_agg(distinct user_emails.email)`.as('emails')])
-                    .groupBy('User.id')
-                    .execute();
+                const userMapByEmail = await findUsersByEmails(allEmails);
 
-                const userMapByEmail = new Map<string, ExtractTypeFromGenerated<KyselyUser>>();
-
-                users.forEach((userWithEmails) => {
-                    const { emails, ...user } = userWithEmails;
-
-                    emails.forEach((email) => {
-                        if (email) {
-                            userMapByEmail.set(email, user);
-                        }
-                    });
-                });
-
-                const supervisorId = userMapByEmail.get(input.supervisorEmail)?.id;
-                const supervisorLogin = userMapByEmail.get(input.supervisorEmail)?.login;
+                const supervisorId = userMapByEmail[input.supervisorEmail]?.id;
+                const supervisorLogin = userMapByEmail[input.supervisorEmail]?.login;
 
                 if (!supervisorId) {
                     throw new TRPCError({
@@ -3462,11 +3491,12 @@ export const userCreationRequestsMethods = {
 
                 const coordinators =
                     (input.coordinators
-                        ?.map((c) => userMapByEmail.get(c.email))
+                        ?.map((c) => userMapByEmail[c.email])
                         .filter(Boolean) as ExtractTypeFromGenerated<KyselyUser>[]) || [];
+
                 const lineManagers =
                     (input.lineManagers
-                        ?.map((lm) => userMapByEmail.get(lm.email))
+                        ?.map((lm) => userMapByEmail[lm.email])
                         .filter(Boolean) as ExtractTypeFromGenerated<KyselyUser>[]) || [];
 
                 const phoneService = input.phone
@@ -3616,7 +3646,7 @@ export const userCreationRequestsMethods = {
                 .where('UserCreationRequest.id', '=', id)
                 .execute();
 
-            const confirmedRequest = await getUserCreationRequestQuery(id);
+            const confirmedRequest = await getUserCreationRequestById(id);
 
             if (!confirmedRequest) {
                 throw new TRPCError({
@@ -3653,6 +3683,109 @@ export const userCreationRequestsMethods = {
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: error instanceof Error ? error.message : 'Failed to confirm draft request',
+            });
+        }
+    },
+
+    editUserRequestDraft: async (data: CreateUserCreationRequestDraft, sessionUserId: string) => {
+        try {
+            const { externalPersonId, ...updateData } = data;
+
+            const existingRequest = await getUserCreationRequestByExternalPersonId(externalPersonId);
+
+            if (!existingRequest) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: `No creation request found for externalPersonId: ${externalPersonId}`,
+                });
+            }
+
+            if (existingRequest.type !== 'internalEmployee') {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: 'Only internalEmployee requests can be edited through this endpoint',
+                });
+            }
+
+            const organization = updateData.organizations[0];
+
+            const [surname, firstName, middleName] = updateData.name.split(' ');
+
+            const lineManagerEmails = updateData.lineManagers?.map((lm) => lm.email) || [];
+            const coordinatorEmails = updateData.coordinators?.map((coord) => coord.email) || [];
+            const allEmails = [updateData.supervisorEmail, ...lineManagerEmails, ...coordinatorEmails];
+
+            const userMap = await findUsersByEmails(allEmails);
+
+            const supervisor = userMap[updateData.supervisorEmail];
+
+            if (!supervisor) {
+                throw new TRPCError({
+                    code: 'BAD_REQUEST',
+                    message: `Supervisor with email ${updateData.supervisorEmail} not found`,
+                });
+            }
+
+            const lineManagerIds = lineManagerEmails
+                .map((email) => userMap[email]?.id)
+                .filter((id): id is string => !!id);
+
+            const coordinatorIds = coordinatorEmails
+                .map((email) => userMap[email]?.id)
+                .filter((id): id is string => !!id);
+
+            return await userCreationRequestsMethods.edit(
+                {
+                    id: existingRequest.id,
+                    data: {
+                        type: 'internalEmployee',
+                        surname,
+                        firstName,
+                        middleName,
+                        login: updateData.login,
+                        phone: updateData.phone,
+                        email: updateData.workEmail || updateData.registrationEmail,
+                        personalEmail: updateData.registrationEmail,
+                        workEmail: updateData.workEmail,
+                        corporateEmail: updateData.workEmail,
+                        title: updateData.position,
+                        supervisorId: supervisor.id,
+                        organizationUnitId: organization.organizationUnitId,
+                        externalGroupId: updateData.externalGroupId,
+                        date: organization.startDate ? new Date(organization.startDate) : null,
+                        percentage: organization.percentage,
+                        unitId: organization.unitId,
+                        location: updateData.location,
+                        creationCause: existingRequest.creationCause ?? 'start',
+                        workMode: existingRequest.workMode ?? undefined,
+                        equipment: existingRequest.equipment ?? undefined,
+                        extraEquipment: existingRequest.extraEquipment ?? undefined,
+                        workSpace: existingRequest.workSpace ?? undefined,
+                        lineManagerIds,
+                        coordinatorIds,
+                        intern: existingRequest.supplementalPositions.some((pos) => pos.intern) || false,
+                        osPreference: existingRequest.osPreference ?? undefined,
+                        supplementalPositions: existingRequest.supplementalPositions
+                            .filter((pos) => !pos.main)
+                            .map((pos) => ({
+                                organizationUnitId: pos.organizationUnitId,
+                                percentage: pos.percentage / percentageMultiply,
+                                unitId: pos.unitId || undefined,
+                                workStartDate: pos.workStartDate,
+                            })),
+                    },
+                },
+                existingRequest,
+                sessionUserId,
+            );
+        } catch (error) {
+            if (error instanceof TRPCError) {
+                throw error;
+            }
+
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: error instanceof Error ? error.message : 'Failed to update user request',
             });
         }
     },

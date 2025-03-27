@@ -973,4 +973,95 @@ export const restRouter = router({
                 });
             }
         }),
+
+    editUserRequest: restProcedure
+        .meta({
+            openapi: {
+                method: 'PUT',
+                path: '/user-requests/edit-by-person-id/{externalPersonId}',
+                protect: true,
+                summary: 'Edit an existing user creation request',
+                description: 'Updates an existing user creation request (only internalEmployee type)',
+            },
+        })
+        .input(createUserRequestDraftSchema)
+        .output(
+            z.object({
+                id: z.string(),
+                status: z.string(),
+            }),
+        )
+        .mutation(async ({ input, ctx }) => {
+            try {
+                const existingRequest = await userCreationRequestsMethods.getByExternalPersonId(input.externalPersonId);
+                const updatedRequest = await userCreationRequestsMethods.editUserRequestDraft(input, ctx.apiTokenId);
+
+                await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUserCreationRequest', {
+                    groupId: undefined,
+                    userId: undefined,
+                    before: {
+                        id: existingRequest.id,
+                        type: existingRequest.type || undefined,
+                        name: existingRequest.name,
+                        login: existingRequest.login,
+                        email: existingRequest.email,
+                        workEmail: existingRequest.workEmail || undefined,
+                        personalEmail: existingRequest.personalEmail || undefined,
+                        organizationUnitId: existingRequest.organizationUnitId,
+                        supervisorId: existingRequest.supervisorId || undefined,
+                        supervisorLogin: existingRequest.supervisorLogin || undefined,
+                        title: existingRequest.title || undefined,
+                        location: existingRequest.location || undefined,
+                        date: existingRequest.date?.toISOString(),
+                        creationCause: existingRequest.creationCause || undefined,
+                        unitId: existingRequest.unitId || undefined,
+                        groupId: existingRequest.groupId || undefined,
+                        createExternalAccount: existingRequest.createExternalAccount,
+                        accessToInternalSystems: existingRequest.accessToInternalSystems || undefined,
+                        coordinatorLogins: existingRequest.coordinators?.map((c) => c.login).join(', ') || undefined,
+                        lineManagerLogins: existingRequest.lineManagers?.map((lm) => lm.login).join(', ') || undefined,
+                        equipment: existingRequest.equipment || undefined,
+                        extraEquipment: existingRequest.extraEquipment || undefined,
+                    },
+                    after: {
+                        id: updatedRequest.id,
+                        type: updatedRequest.type || undefined,
+                        name: updatedRequest.name,
+                        login: updatedRequest.login,
+                        email: updatedRequest.email,
+                        workEmail: updatedRequest.workEmail || undefined,
+                        personalEmail: updatedRequest.personalEmail || undefined,
+                        organizationUnitId: updatedRequest.organizationUnitId,
+                        supervisorId: updatedRequest.supervisorId || undefined,
+                        supervisorLogin: updatedRequest.supervisorLogin || undefined,
+                        title: updatedRequest.title || undefined,
+                        location: updatedRequest.location || undefined,
+                        date: updatedRequest.date?.toISOString(),
+                        creationCause: updatedRequest.creationCause || undefined,
+                        unitId: updatedRequest.unitId || undefined,
+                        groupId: updatedRequest.groupId || undefined,
+                        createExternalAccount: updatedRequest.createExternalAccount,
+                        accessToInternalSystems: updatedRequest.accessToInternalSystems || undefined,
+                        coordinatorLogins: updatedRequest.coordinators?.map((c) => c.login).join(', ') || undefined,
+                        lineManagerLogins: updatedRequest.lineManagers?.map((lm) => lm.login).join(', ') || undefined,
+                        equipment: updatedRequest.equipment || undefined,
+                        extraEquipment: updatedRequest.extraEquipment || undefined,
+                    },
+                });
+
+                return {
+                    id: updatedRequest.id,
+                    status: 'success',
+                };
+            } catch (error) {
+                if (error instanceof TRPCError) {
+                    throw error;
+                }
+
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: error instanceof Error ? error.message : 'Failed to update user request',
+                });
+            }
+        }),
 });

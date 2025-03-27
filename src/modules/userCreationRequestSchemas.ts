@@ -43,6 +43,7 @@ export const getCreateUserCreationRequestBaseSchema = () =>
             required_error: tr('Required field'),
             invalid_type_error: tr('Required field'),
         }),
+        externalGroupId: z.string().optional(),
         groupId: z.string().optional(),
         supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         title: z
