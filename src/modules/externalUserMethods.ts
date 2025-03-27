@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
 import { config } from '../config';
+import { logger } from '../utils/logger';
 
 import { CreateUser } from './userSchemas';
 import { ExternalUserUpdate } from './externalUserTypes';
@@ -39,6 +40,7 @@ export const externalUserMethods = {
         });
         if (!response.ok) {
             const text = await response.text();
+            logger.error(response.text, 'Failed to create external user');
             throw new TRPCError({ code: 'BAD_REQUEST', message: text });
         }
     },
@@ -60,6 +62,7 @@ export const externalUserMethods = {
         });
         if (!response.ok) {
             const text = await response.text();
+            logger.error(response.text, 'Failed to update external user');
             throw new TRPCError({ code: 'BAD_REQUEST', message: text });
         }
     },

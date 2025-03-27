@@ -43,6 +43,10 @@ export const config = {
         retryLimit: process.env.WORKER_JOBS_RETRY,
         defaultJobDelay: process.env.WORKER_JOBS_DELAY ? parseInt(process.env.WORKER_JOBS_DELAY, 10) : 1000,
     },
+    logs: {
+        minimumLevel: process.env.LOG_MIN_LEVEL || 'debug',
+        file: process.env.LOG_TO_FILE,
+    },
     techAdminId: process.env.TECH_ADMIN_ID,
     corporateEmailDomain: process.env.NEXT_PUBLIC_CORPORATE_EMAIL_DOMAIN || '@taskany.org',
     sectionAchiementId: process.env.SECTION_ACHIEVEMENT_ID,

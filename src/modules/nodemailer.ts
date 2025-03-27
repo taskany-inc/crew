@@ -6,6 +6,7 @@ import fs from 'fs';
 
 import { config } from '../config';
 import { minuteInMiliSeconds } from '../utils/dateTime';
+import { logger } from '../utils/logger';
 
 import { getObject } from './s3Methods';
 
@@ -41,7 +42,7 @@ const message = ({ from = 'Crew', to, subject, text, html, icalEvent, attachment
 
 export const sendMail = (body: MessageBody) => {
     if (!config.nodemailer.enabled) {
-        console.log(`Skipping mail ${body.subject} to ${body.to}`);
+        logger.info(`Skipping mail ${body.subject} to ${body.to}`);
         return;
     }
 

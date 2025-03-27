@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { config } from '../config';
+import { logger } from '../utils/logger';
 
 import { worker, Job } from './worker';
 import * as resolve from './resolve';
@@ -8,10 +9,9 @@ import { getNextJob, jobDelete, jobUpdate } from './jobOperations';
 
 const retryLimit = config.worker.retryLimit ? parseInt(config.worker.retryLimit, 10) : 3;
 
-// eslint-disable-next-line no-console
-const log = (...rest: unknown[]) => console.log('[WORKER]:', ...rest);
+const workerLogger = logger.child({ WORKER: true });
 
-log('Worker started successfully');
+workerLogger.info('Worker started successfully');
 
 const onRetryLimitExeed = (error: any, job: Job) =>
     Sentry.captureException(error, {
@@ -24,7 +24,7 @@ const onRetryLimitExeed = (error: any, job: Job) =>
 const onQueeTooLong = () => Sentry.captureMessage('Queue too long. Smth went wrong.');
 
 const onError = (error: any, job?: Job) => {
-    console.log('[WORKER]: onerror', error.message);
+    workerLogger.error('Error in worker', error, job);
 
     return Sentry.captureException(error, {
         fingerprint: ['worker', 'resolve', 'error'],
@@ -42,7 +42,7 @@ const init = () =>
         resolve,
         onRetryLimitExeed,
         onQueeTooLong,
-        log,
+        workerLogger,
         onError,
         config.worker.defaultJobDelay,
         retryLimit,
