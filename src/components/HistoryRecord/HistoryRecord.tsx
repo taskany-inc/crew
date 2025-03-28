@@ -75,7 +75,10 @@ const componentMap: {
                 {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Name')} after={event.after.name} />
-                        <ChangeListItem title={tr('Email')} after={event.after.email} />
+                        <ChangeListItem
+                            title={tr('Email')}
+                            after={event.after.email || event.after.workEmail || event.after.personalEmail}
+                        />
                         <ChangeListItem title={tr('Phone')} after={event.after.phone} />
                         <ChangeListItem title={tr('Login')} after={event.after.login} />
                         <ChangeListItem title={tr('Organization id')} after={event.after.organizationalUnitId} />
@@ -359,7 +362,8 @@ const componentMap: {
                 <div className={s.Row}>
                     {tr('denied request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag> {tr('to create user')}{' '}
                     <BoldText>
-                        {event.after.name} ({event.after.email})
+                        {event.after.name} (
+                        {event.after.email || event.after.personalEmail || event.after.personalEmail})
                     </BoldText>
                     {nullable(event.after.comment, () => (
                         <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
@@ -410,7 +414,11 @@ const componentMap: {
                 </div>
                 {nullable(visible.value, () => (
                     <>
-                        <ChangeListItem title={tr('Email')} after={event.after.email} before={event.before.email} />
+                        <ChangeListItem
+                            title={tr('Email')}
+                            after={event.after.email || event.after.workEmail || event.after.personalEmail}
+                            before={event.before.email || event.after.workEmail || event.after.personalEmail}
+                        />
                         <ChangeListItem title={tr('Date')} after={event.after.date} before={event.before.date} />
                         <ChangeListItem
                             title={tr('Work email')}
@@ -1006,7 +1014,10 @@ const componentMap: {
                 {nullable(visible.value, () => (
                     <>
                         <ChangeListItem title={tr('Id')} after={event.after.id} />
-                        <ChangeListItem title={tr('Email')} after={event.after.email} />
+                        <ChangeListItem
+                            title={tr('Email')}
+                            after={event.after.email || event.after.personalEmail || event.after.workEmail}
+                        />
                         <ChangeListItem title={tr('Phone')} after={event.after.phone} />
                         <ChangeListItem
                             title={tr('Deactivation date')}
@@ -1079,7 +1090,11 @@ const componentMap: {
                     <>
                         <ChangeListItem title={tr('Id')} after={event.after.id} />
                         <ChangeListItem title={tr('Type')} after={event.after.type} before={event.before.type} />
-                        <ChangeListItem title={tr('Email')} after={event.after.email} before={event.before.email} />
+                        <ChangeListItem
+                            title={tr('Email')}
+                            after={event.after.email || event.after.workEmail || event.after.personalEmail}
+                            before={event.before.email || event.before.personalEmail || event.before.workEmail}
+                        />
                         <ChangeListItem title={tr('Phone')} after={event.after.phone} before={event.before.phone} />
                         <ChangeListItem
                             title={tr('Deactivation date')}
