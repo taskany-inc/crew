@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.115.0](https://github.com/taskany-inc/crew/compare/v0.114.0...v0.115.0) (2025-03-28)
+
+
+### Features
+
+* **INTERNAL-1653:** stop using org unit relation in user model ([be48506](https://github.com/taskany-inc/crew/commit/be4850687c3dc0cca29925fad643171ad84996f3))
+* **INTERNAL-1766:** pino logs ([33a8671](https://github.com/taskany-inc/crew/commit/33a8671569f5376fae7d2a0030da079a1599457c))
+
+
+### Bug Fixes
+
+* **INTERNAL-1759:** transfer inside fixes ([3549cd2](https://github.com/taskany-inc/crew/commit/3549cd2fa012600536dbbd55ed78ed8c1ff816da))
+
 ## [0.114.0](https://github.com/taskany-inc/crew/compare/v0.113.0...v0.114.0) (2025-03-25)
 
 
