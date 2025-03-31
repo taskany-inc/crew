@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.116.0](https://github.com/taskany-inc/crew/compare/v0.115.0...v0.116.0) (2025-03-31)
+
+
+### Features
+
+* **INTERNAL-1688:** rest-api: draft request ([c2bbb39](https://github.com/taskany-inc/crew/commit/c2bbb39283728924e9e143e39442ffa8441408f7))
+* **INTERNAL-1760:** rest-api: resolve request ([ce8f1c1](https://github.com/taskany-inc/crew/commit/ce8f1c1dd7cf63bfaa1e667e82020e159c8157d1))
+
 ## [0.115.0](https://github.com/taskany-inc/crew/compare/v0.114.0...v0.115.0) (2025-03-28)
 
 
