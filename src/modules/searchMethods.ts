@@ -52,6 +52,14 @@ export const searchMethods = {
                             mode: 'insensitive',
                         },
                     },
+
+                    {
+                        services: {
+                            some: {
+                                serviceId: { contains: input.replace(/[\s\n\t]/g, '_'), mode: 'insensitive' },
+                            },
+                        },
+                    },
                 ],
             },
         });

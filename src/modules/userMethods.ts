@@ -77,6 +77,9 @@ const usersWhere = async (data: GetUserList) => {
     if (data.search) {
         OR.push({ name: { contains: data.search, mode: 'insensitive' } });
         OR.push({ otherNames: { some: { name: { contains: data.search, mode: 'insensitive' } } } });
+        OR.push({
+            services: { some: { serviceId: { contains: data.search.replace(/[\s\n\t]/g, '_'), mode: 'insensitive' } } },
+        });
     }
     if (data.supervisors) AND.push({ supervisorId: { in: data.supervisors } });
     if (data.groups) {
