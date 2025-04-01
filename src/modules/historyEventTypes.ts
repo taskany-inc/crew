@@ -25,7 +25,15 @@ interface HistoryEventsData {
             email?: string;
             phone?: string;
             login?: string;
-            organizationalUnitId?: string;
+            personalEmail?: string;
+            workEmail?: string;
+            location?: string;
+            supplementalPositions?: {
+                organizationUnitId: string;
+                percentage: number | null;
+                unitId?: string | null;
+                role?: string | null;
+            }[];
         };
     };
     createUserCreationRequest: {

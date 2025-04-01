@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import {
     Button,
@@ -19,7 +20,8 @@ import { gray8 } from '@taskany/colors';
 
 import { FormControl } from '../FormControl/FormControl';
 import { UserComboBox } from '../UserComboBox/UserComboBox';
-import { EditUser, EditUserFields, editUserFieldsSchema } from '../../modules/userSchemas';
+import { EditUser, editUserSchema } from '../../modules/userSchemas';
+import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
 import { useUserMutations } from '../../modules/userHooks';
 import {
     UserCurators,
@@ -54,7 +56,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
         setValue,
         watch,
         formState: { isSubmitted, errors },
-    } = useForm<EditUserFields>({
+    } = useForm<EditUser>({
         defaultValues: {
             id: user.id,
             supervisorId: user.supervisorId,
@@ -63,7 +65,7 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
             curatorIds: user.curators?.map(({ id }) => id),
         },
         mode: 'onChange',
-        resolver: zodResolver(editUserFieldsSchema),
+        resolver: zodResolver(editUserSchema),
     });
     const curatorIds = watch('curatorIds');
     const savePreviousName = watch('savePreviousName') ?? false;
@@ -72,6 +74,12 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
         await editUser(data);
         onClose();
     };
+
+    const supplementalPositions = useMemo(() => {
+        const { positions } = getLastSupplementalPositions(user.supplementalPositions);
+
+        return positions;
+    }, [user]);
 
     return (
         <>
@@ -130,12 +138,12 @@ export const UserUpdateForm = ({ onClose, user }: UserDataFormProps) => {
                                 />
                             </FormControl>
                         </div>
-                        {nullable(!!user.supplementalPositions.length, () => (
+                        {nullable(supplementalPositions, (positions) => (
                             <div className={s.BadgeWrapperList}>
                                 <Text className={s.Text} weight="bold" color={gray8}>
                                     {tr('Supplemental:')}
                                 </Text>
-                                {user.supplementalPositions.map((position) => (
+                                {positions.map((position) => (
                                     <SupplementalPositionItem
                                         key={position.id}
                                         supplementalPosition={{ ...position, unitId: position.unitId || '' }}

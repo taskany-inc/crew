@@ -27,7 +27,7 @@ import { ExternalServiceName } from '../../utils/externalServices';
 import { db } from '../../utils/db';
 import { createUserRequestDraftSchema } from '../../modules/userCreationRequestSchemas';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
-import { UserCreationRequestStatus } from '../../generated/kyselyTypes';
+import { PositionStatus, UserCreationRequestStatus } from '../../generated/kyselyTypes';
 import { createJob } from '../../worker/create';
 import { jobDelete } from '../../worker/jobOperations';
 
@@ -76,96 +76,130 @@ export const restRouter = router({
                     savePreviousName: z.boolean().optional(),
                     registrationEmail: z.string().optional(),
                     phone: z.string().optional(),
-                    supervisorLogin: z.string().optional(),
+                    login: z.string().optional(),
+                    workEmail: z.string().optional(),
+                    position: z.string().optional(),
+                    supervisorEmail: z.string().optional(),
+                    externalGroupId: z.string().optional(),
+                    location: z.string().optional(),
                 }),
             }),
         )
-        .output(
-            z.object({
-                id: z.string(),
-                name: z.string().nullable(),
-                login: z.string().nullable(),
-                registrationEmail: z.string(),
-                corporateEmail: z.string(),
-                active: z.boolean(),
-                supervisorLogin: z.string().nullish(),
-            }),
-        )
+        .output(userRestApiDataSchema)
         .query(async ({ input, ctx }) => {
             const user = await userMethods.getByLogin(input.login);
+
             let newSupervisor: Awaited<ReturnType<typeof userMethods.getUserByField>> | null = null;
 
-            if (input.data.supervisorLogin && user.supervisor?.login !== input.data.supervisorLogin) {
-                newSupervisor = await userMethods.getUserByField({ login: input.data.supervisorLogin });
+            if (input.data.supervisorEmail && user.supervisor?.email !== input.data.supervisorEmail) {
+                newSupervisor = await userMethods.getUserByField({ email: input.data.supervisorEmail });
             }
 
-            const { supervisorId, email, ...rest } = await userMethods.edit({
+            const userSupplementalPositionsBeforeUpdate = user.supplementalPositions.filter(
+                (position) => position.status === PositionStatus.ACTIVE,
+            );
+
+            const isPositionChanged = userSupplementalPositionsBeforeUpdate[0]?.role !== input.data.position;
+
+            if (input.data.position && isPositionChanged) {
+                await prisma.supplementalPosition.updateMany({
+                    where: {
+                        userId: user.id,
+                        status: PositionStatus.ACTIVE,
+                    },
+                    data: {
+                        role: input.data.position,
+                    },
+                });
+            }
+
+            const updatedUser = await userMethods.edit({
                 id: user.id,
-                email: input.data.registrationEmail,
+                email: input.data.workEmail,
                 name: input.data.name,
+                location: input.data.location,
+                login: input.data.login,
                 supervisorId: newSupervisor?.id,
+                savePreviousName: input.data.savePreviousName,
             });
 
-            const phoneService = await prisma.userService.findFirst({
-                where: {
+            const userServicesBeforeUpdate = await serviceMethods.getUserServices(user.id);
+
+            const phoneBefore = userServicesBeforeUpdate.find(
+                (service) => service.serviceName === ExternalServiceName.Phone,
+            )?.serviceId;
+
+            const personalEmailBefore = userServicesBeforeUpdate.find(
+                (service) => service.serviceName === ExternalServiceName.PersonalEmail,
+            )?.serviceId;
+
+            const workEmailBefore = userServicesBeforeUpdate.find(
+                (service) => service.serviceName === ExternalServiceName.WorkEmail,
+            )?.serviceId;
+
+            if (input.data.registrationEmail) {
+                await serviceMethods.editUserService({
+                    userId: user.id,
+                    serviceName: ExternalServiceName.PersonalEmail,
+                    serviceId: input.data.registrationEmail,
+                });
+            }
+
+            if (input.data.phone) {
+                await serviceMethods.editUserService({
                     userId: user.id,
                     serviceName: ExternalServiceName.Phone,
-                },
-            });
+                    serviceId: input.data.phone,
+                });
+            }
 
-            if (input.data.phone && phoneService?.serviceId !== input.data.phone) {
-                if (phoneService) {
-                    await prisma.userService.update({
-                        where: {
-                            serviceName_serviceId: {
-                                serviceName: ExternalServiceName.Phone,
-                                serviceId: phoneService.serviceId,
-                            },
-                        },
-                        data: {
-                            serviceName: ExternalServiceName.Phone,
-                            serviceId: input.data.phone,
-                        },
-                    });
-                } else {
-                    await prisma.userService.create({
-                        data: {
-                            userId: user.id,
-                            serviceName: ExternalServiceName.Phone,
-                            serviceId: input.data.phone,
-                        },
-                    });
-                }
+            if (input.data.workEmail) {
+                await serviceMethods.editUserService({
+                    userId: user.id,
+                    serviceName: ExternalServiceName.WorkEmail,
+                    serviceId: input.data.workEmail,
+                });
             }
 
             const { before, after } = dropUnchangedValuesFromEvent(
                 {
                     name: user.name,
                     email: user.email,
-                    phone: phoneService?.serviceId,
+                    login: user.login,
                     supervisorId: user.supervisorId,
-                    savePreviousName: input.data.savePreviousName,
+                    supplementalPositions: isPositionChanged ? userSupplementalPositionsBeforeUpdate : null,
+                    phone: phoneBefore,
+                    personalEmail: personalEmailBefore,
+                    workEmail: workEmailBefore,
+                    location: user.location?.name,
                 },
                 {
-                    name: input.data.name,
-                    email: input.data.registrationEmail,
-                    phone: input.data.phone,
-                    supervisorId: newSupervisor?.id,
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    login: updatedUser.login,
+                    supervisorId: updatedUser.supervisorId,
+                    supplementalPositions: isPositionChanged
+                        ? updatedUser.supplementalPositions.filter(
+                              (position) => position.status === PositionStatus.ACTIVE,
+                          )
+                        : null,
+                    phone: input.data.phone ?? phoneBefore,
+                    personalEmail: input.data.registrationEmail ?? personalEmailBefore,
+                    workEmail: input.data.workEmail ?? workEmailBefore,
+                    location: updatedUser.location?.name,
                 },
             );
-            await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUser', {
-                groupId: undefined,
-                userId: user.id,
-                before,
-                after,
-            });
 
-            return {
-                ...rest,
-                registrationEmail: email,
-                corporateEmail: getCorporateEmail(user.login),
-                supervisorLogin: newSupervisor?.login,
-            };
+            if (Object.keys(before).length > 0 || Object.keys(after).length > 0) {
+                await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUser', {
+                    groupId: undefined,
+                    userId: user.id,
+                    before,
+                    after,
+                });
+            }
+
+            return userMethods.getUserDataForRestApi({ id: user.id });
         }),
 
     getUserByLogin: restProcedure

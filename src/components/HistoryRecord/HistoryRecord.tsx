@@ -61,6 +61,29 @@ const NoDataEvent = ({ event }: { event: HistoryEventData }) => {
     );
 };
 
+const formatSupplementalPositions = (
+    positions: Array<{
+        organizationUnitId: string;
+        percentage: number | null;
+        unitId?: string | null;
+        role?: string | null;
+        main?: boolean;
+        workEndDate?: string;
+        workStartDate?: string;
+    }>,
+) =>
+    positions
+        ?.map(({ organizationUnitId, percentage, unitId, role, main, workEndDate, workStartDate }) => {
+            const parts = [`${organizationUnitId}: ${percentage}%`];
+            if (unitId) parts.push(`, ${unitId}`);
+            if (role) parts.push(`, ${role}`);
+            if (main !== undefined) parts.push(`, main: ${!!main}`);
+            if (workEndDate) parts.push(`, work end date: ${workEndDate}`);
+            if (workStartDate) parts.push(`, work start date: ${workStartDate}`);
+            return parts.join('');
+        })
+        .join(', ');
+
 const componentMap: {
     [A in Capitalize<HistoryAction>]: (props: { event: HistoryEventData<Uncapitalize<A>> }) => ReactNode;
 } = {
@@ -193,9 +216,24 @@ const componentMap: {
                             after={event.after.supervisorId}
                         />
                         <ChangeListItem
-                            title={tr('Organization id')}
-                            before={event.before.organizationalUnitId}
-                            after={event.after.organizationalUnitId}
+                            title={tr('Personal email')}
+                            before={event.before.personalEmail}
+                            after={event.after.personalEmail}
+                        />
+                        <ChangeListItem
+                            title={tr('Work email')}
+                            before={event.before.workEmail}
+                            after={event.after.workEmail}
+                        />
+                        <ChangeListItem
+                            title={tr('Location')}
+                            before={event.before.location}
+                            after={event.after.location}
+                        />
+                        <ChangeListItem
+                            title={tr('Supplemental positions')}
+                            before={formatSupplementalPositions(event.before.supplementalPositions ?? [])}
+                            after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
                         />
                         {nullable(event.before.name !== event.after.name, () => (
                             <Text>
@@ -271,12 +309,7 @@ const componentMap: {
                         <ChangeListItem title={tr('Unit id')} after={event.after.unitId} />
                         <ChangeListItem
                             title={tr('Supplemental positions')}
-                            after={event.after.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId }) =>
-                                        `${organizationUnitId}: ${percentage}% ${unitId ? `, ${unitId}` : ''}`,
-                                )
-                                .join(', ')}
+                            after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
                         />
                         <ChangeListItem title={tr('Supervisor login')} after={event.after.supervisorLogin} />
                         <ChangeListItem title={tr('Supervisor id')} after={event.after.supervisorId} />
@@ -476,18 +509,8 @@ const componentMap: {
                         <ChangeListItem title={tr('Unit id')} after={event.after.unitId} before={event.before.unitId} />
                         <ChangeListItem
                             title={tr('Supplemental positions')}
-                            after={event.after.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId }) =>
-                                        `${organizationUnitId}: ${percentage}% ${unitId ? `, ${unitId}` : ''}`,
-                                )
-                                .join(', ')}
-                            before={event.before.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId }) =>
-                                        `${organizationUnitId}: ${percentage}% ${unitId ? `, ${unitId}` : ''}`,
-                                )
-                                .join(', ')}
+                            after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
+                            before={formatSupplementalPositions(event.before.supplementalPositions ?? [])}
                         />
                         <ChangeListItem
                             title={tr('Supervisor login')}
@@ -1288,14 +1311,7 @@ const componentMap: {
                         <ChangeListItem title={tr('Team')} after={event.after.groupId} />
                         <ChangeListItem
                             title={tr('Supplemental positions')}
-                            after={event.after.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId, main }) =>
-                                        `${organizationUnitId}: ${percentage}% ${
-                                            unitId ? `, ${unitId}` : ''
-                                        } main: ${!!main}`,
-                                )
-                                .join(', ')}
+                            after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
                         />
                         <ChangeListItem title={tr('Devices')} after={devices} />
                         <ChangeListItem title={tr('Testing devices')} after={testingDevices} />
@@ -1359,22 +1375,8 @@ const componentMap: {
                         <ChangeListItem title={tr('Team')} after={event.after.groupId} before={event.before.groupId} />
                         <ChangeListItem
                             title={tr('Supplemental positions')}
-                            after={event.after.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId, main }) =>
-                                        `${organizationUnitId}: ${percentage}% ${
-                                            unitId ? `, ${unitId}` : ''
-                                        } main: ${!!main}`,
-                                )
-                                .join(', ')}
-                            before={event.before.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId, main }) =>
-                                        `${organizationUnitId}: ${percentage}% ${
-                                            unitId ? `, ${unitId}` : ''
-                                        } main: ${!!main}`,
-                                )
-                                .join(', ')}
+                            after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
+                            before={formatSupplementalPositions(event.before.supplementalPositions ?? [])}
                         />
                         <ChangeListItem title={tr('Devices')} after={devices} before={devicesBefore} />
                         <ChangeListItem
@@ -1506,22 +1508,8 @@ const componentMap: {
                         <ChangeListItem title={tr('Team')} after={event.after.groupId} before={event.before.groupId} />
                         <ChangeListItem
                             title={tr('Supplemental positions')}
-                            after={event.after.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId, main }) =>
-                                        `${organizationUnitId}: ${percentage}% ${
-                                            unitId ? `, ${unitId}` : ''
-                                        } main: ${!!main}`,
-                                )
-                                .join(', ')}
-                            before={event.before.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId, main }) =>
-                                        `${organizationUnitId}: ${percentage}% ${
-                                            unitId ? `, ${unitId}` : ''
-                                        } main: ${!!main}`,
-                                )
-                                .join(', ')}
+                            after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
+                            before={formatSupplementalPositions(event.before.supplementalPositions ?? [])}
                         />
                         <ChangeListItem
                             title={tr('Supervisor id')}
@@ -1618,14 +1606,7 @@ const componentMap: {
                         <ChangeListItem title={tr('Team')} after={event.after.groupId} />
                         <ChangeListItem
                             title={tr('Supplemental positions')}
-                            after={event.after.supplementalPositions
-                                ?.map(
-                                    ({ organizationUnitId, percentage, unitId, main, workEndDate }) =>
-                                        `${organizationUnitId}: ${percentage}% ${
-                                            unitId ? `, ${unitId}` : ''
-                                        } main: ${!!main} work end date: ${workEndDate}`,
-                                )
-                                .join(', ')}
+                            after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
                         />
                         <ChangeListItem
                             title={tr('Transfer to supplemental positions')}

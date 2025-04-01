@@ -126,7 +126,9 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
 
     const { orgUnitAndRole, supplemental } = useMemo(() => {
-        const { main, supplemental } = user.supplementalPositions.reduce<{
+        const { positions } = getLastSupplementalPositions(user.supplementalPositions);
+
+        const { main, supplemental } = positions.reduce<{
             main: UserSupplementalPositions['supplementalPositions'][number] | null;
             supplemental: UserSupplementalPositions['supplementalPositions'][number][];
         }>(
@@ -144,8 +146,6 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
             { main: null, supplemental: [] },
         );
 
-        const { positions } = getLastSupplementalPositions(supplemental);
-
         const headerNodes: string[] = [];
 
         if (main?.organizationUnit) {
@@ -162,7 +162,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
 
         return {
             orgUnitAndRole: headerNodes.join(': '),
-            supplemental: positions,
+            supplemental,
             main,
         };
     }, [user.supplementalPositions, orgRoles]);

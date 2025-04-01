@@ -6,7 +6,7 @@ import { protectedProcedure, router } from '../trpcBackend';
 import { userMethods } from '../../modules/userMethods';
 import {
     addUserToGroupSchema,
-    editUserFieldsSchema,
+    editUserSchema,
     editUserSettingsSchema,
     getUserListSchema,
     removeUserFromGroupSchema,
@@ -111,7 +111,7 @@ export const userRouter = router({
         return userMethods.getGroupMembers(input);
     }),
 
-    edit: protectedProcedure.input(editUserFieldsSchema).mutation(async ({ input, ctx }) => {
+    edit: protectedProcedure.input(editUserSchema).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUser'));
 
         const userBeforeWithCurators = await prisma.user.findUnique({

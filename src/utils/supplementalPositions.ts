@@ -7,7 +7,11 @@ export const getLastSupplementalPositions = <P extends SupplementalPosition>(ite
             const currentEndDate = position.workEndDate?.valueOf() || 0;
 
             if (position.status === PositionStatus.ACTIVE) {
-                acum.endDate = null;
+                if (acum.endDate) {
+                    acum.endDate = null;
+                    acum.positions = [];
+                }
+
                 acum.positions.push(position);
             } else {
                 if (acum.positions.length && !acum.endDate) {
