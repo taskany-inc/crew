@@ -4,6 +4,7 @@ import { hashPassword } from '../src/utils/passwords';
 import { prisma } from '../src/utils/prisma';
 import { AccessOperation } from '../src/utils/access';
 import { ExternalServiceName } from '../src/utils/externalServices';
+import { DomainTypes } from '../src/utils/organizationalDomains';
 
 const main = async () => {
     const adminEmail = 'admin@taskany.org';
@@ -129,12 +130,38 @@ const main = async () => {
         }),
     );
 
-    await prisma.organizationUnit.createMany({
-        data: [
-            { name: 'Head office', country: 'UK' },
-            { name: 'Subsidiary', country: 'France' },
-        ],
-    });
+    const domains = await Promise.all([
+        prisma.organizationDomain.create({
+            data: {
+                domain: '@taskany.org',
+                type: DomainTypes.Corporate,
+            },
+        }),
+        prisma.organizationDomain.create({
+            data: {
+                domain: '@taskany-sigma.org',
+                type: DomainTypes.Sigma,
+            },
+        }),
+    ]);
+
+    const organizationData = [
+        { name: 'Head office', country: 'UK', main: true },
+        { name: 'Subsidiary', country: 'France' },
+    ];
+
+    await Promise.all(
+        organizationData.map((data) =>
+            prisma.organizationUnit.create({
+                data: {
+                    ...data,
+                    organizationDomains: {
+                        connect: domains,
+                    },
+                },
+            }),
+        ),
+    );
 
     await prisma.group.create({
         data: {
