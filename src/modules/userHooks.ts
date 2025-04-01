@@ -3,7 +3,7 @@ import { notifyPromise } from '../utils/notifications/notifyPromise';
 
 import {
     AddUserToGroup,
-    EditUserFields,
+    EditUser,
     EditUserActiveState,
     EditUserRoleData,
     EditUserSettings,
@@ -98,7 +98,7 @@ export const useUserMutations = () => {
         editUserMailingSettings: (data: EditUserMailingSettings) =>
             notifyPromise(editUserMailingSettings.mutateAsync(data), 'userEditMailingSettings'),
 
-        editUser: (data: EditUserFields) => notifyPromise(editUser.mutateAsync(data), 'userUpdate'),
+        editUser: (data: EditUser) => notifyPromise(editUser.mutateAsync(data), 'userUpdate'),
 
         editUserActiveState: (data: EditUserActiveState) =>
             notifyPromise(editUserActiveState.mutateAsync(data), 'userUpdate'),

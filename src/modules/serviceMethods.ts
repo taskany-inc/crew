@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server';
 
 import { prisma } from '../utils/prisma';
+import { db } from '../utils/db';
 
 import { GetServiceList, CreateService, DeleteUserService } from './serviceSchemas';
 import { UserServiceInfo } from './serviceTypes';
@@ -48,5 +49,43 @@ export const serviceMethods = {
                 serviceName_serviceId: { serviceName: data.serviceName, serviceId: data.serviceId },
             },
         });
+    },
+
+    editUserService: async (data: CreateService) => {
+        const conflictingService = await db
+            .selectFrom('UserServices')
+            .innerJoin('User', 'User.id', 'UserServices.userId')
+            .where('UserServices.serviceName', '=', data.serviceName)
+            .where('UserServices.serviceId', '=', data.serviceId)
+            .select(['UserServices.userId', 'User.name', 'User.email'])
+            .executeTakeFirst();
+
+        if (conflictingService && conflictingService.userId !== data.userId) {
+            throw new TRPCError({
+                code: 'PRECONDITION_FAILED',
+                message: tr('Service with this id already belongs to user {user}', {
+                    user: conflictingService.name || conflictingService.email,
+                }),
+            });
+        }
+
+        const existingService = await db
+            .selectFrom('UserServices')
+            .where('UserServices.userId', '=', data.userId)
+            .where('UserServices.serviceName', '=', data.serviceName)
+            .select(['UserServices.serviceName', 'UserServices.serviceId'])
+            .executeTakeFirst();
+
+        if (existingService) {
+            return db
+                .updateTable('UserServices')
+                .set({ serviceId: data.serviceId })
+                .where('UserServices.serviceName', '=', existingService.serviceName)
+                .where('UserServices.serviceId', '=', existingService.serviceId)
+                .returningAll()
+                .executeTakeFirstOrThrow();
+        }
+
+        return db.insertInto('UserServices').values(data).returningAll().executeTakeFirstOrThrow();
     },
 };

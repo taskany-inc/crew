@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { themes } from '../utils/theme';
+import { PositionStatus } from '../generated/kyselyTypes';
 
 import { tr } from './modules.i18n';
 import { mailingSettingType } from './userTypes';
@@ -80,22 +81,12 @@ export const editUserSchema = z.object({
     savePreviousName: z.boolean().optional(),
     supervisorId: z.string().nullish(),
     curatorIds: z.array(z.string()).optional(),
-    supplementalPosition: z
-        .object({
-            organizationUnitId: z.string(),
-            percentage: z.number(),
-            unitId: z.string().optional(),
-        })
-        .optional(),
+    email: z.string().optional(),
+    location: z.string().optional(),
+    login: z.string().optional(),
 });
 
 export type EditUser = z.infer<typeof editUserSchema>;
-
-export const editUserFieldsSchema = editUserSchema.extend({
-    email: z.string().optional(),
-});
-
-export type EditUserFields = z.infer<typeof editUserFieldsSchema>;
 
 export const editUserActiveStateSchema = z.object({
     id: z.string(),
@@ -139,6 +130,7 @@ export const userRestApiDataSchema = z.object({
     middleName: z.string().optional(),
     registrationEmail: z.string().nullish(),
     corporateEmail: z.string(),
+    workEmail: z.string().optional(),
     phone: z.string().nullish(),
     login: z.string().nullable(),
     serviceNumber: z.string().nullish(),
@@ -151,6 +143,16 @@ export const userRestApiDataSchema = z.object({
         })
         .array(),
     supervisorLogin: z.string().nullish(),
+    positions: z.array(
+        z.object({
+            organizationUnitId: z.string(),
+            percentage: z.number(),
+            unitId: z.string(),
+            workStartDate: z.date().nullish(),
+            main: z.boolean().optional(),
+            status: z.nativeEnum(PositionStatus),
+        }),
+    ),
     active: z.boolean(),
 });
 export type UserRestApiData = z.infer<typeof userRestApiDataSchema>;

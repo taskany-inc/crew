@@ -8,6 +8,7 @@ import { defaultTake } from '../utils';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
 import { calculateDiffBetweenArrays } from '../utils/calculateDiffBetweenArrays';
 import { ExternalServiceName, findService } from '../utils/externalServices';
+import { getLastSupplementalPositions } from '../utils/supplementalPositions';
 
 import {
     MembershipInfo,
@@ -36,7 +37,7 @@ import {
     GetUserSuggestions,
     EditUserActiveState,
     GetUserByField,
-    EditUserFields,
+    EditUser,
     UserRestApiData,
     EditUserRoleData,
     EditUserMailingSettings,
@@ -47,9 +48,9 @@ import { tr } from './modules.i18n';
 import { addCalculatedGroupFields, groupMethods } from './groupMethods';
 import { userAccess } from './userAccess';
 import { externalUserMethods } from './externalUserMethods';
-import { supplementalPositionMethods } from './supplementalPositionMethods';
 import { mailSettingsMethods } from './mailSettingsMethods';
 import { locationMethods } from './locationMethods';
+import { serviceMethods } from './serviceMethods';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -387,8 +388,12 @@ export const userMethods = {
         return prisma.user.findMany({ where: { memberships: { some: { groupId } }, active: { not: true } } });
     },
 
-    edit: async ({ id, savePreviousName, supplementalPosition, curatorIds, supervisorId, ...data }: EditUserFields) => {
-        const updateUser: Prisma.UserUpdateInput = data;
+    edit: async ({ id, savePreviousName, curatorIds, supervisorId, login, name, email, location }: EditUser) => {
+        const updateUser: Prisma.UserUpdateInput = {
+            login,
+            name,
+            email,
+        };
         const userBeforeUpdate = await userMethods.getById(id);
 
         if (curatorIds) {
@@ -414,35 +419,35 @@ export const userMethods = {
             };
         }
 
-        if (supplementalPosition) {
-            const supplementalOrganization = await prisma.organizationUnit.findUnique({
-                where: {
-                    id: supplementalPosition.organizationUnitId,
-                },
+        if (location && location !== userBeforeUpdate.location?.name) {
+            const newLocation = await locationMethods.findOrCreate(location);
+
+            updateUser.location = {
+                connect: { id: newLocation.id },
+            };
+        }
+
+        if (userBeforeUpdate.name !== name || userBeforeUpdate.supervisorId !== supervisorId) {
+            await externalUserMethods.update(id, {
+                name,
+                supervisorId,
             });
-
-            if (!supplementalOrganization) {
-                throw new TRPCError({
-                    code: 'BAD_REQUEST',
-                    message: `No organization with id ${supplementalPosition.organizationUnitId}`,
-                });
-            }
-
-            await supplementalPositionMethods.addToUser({ userId: id, ...supplementalPosition });
         }
 
-        await externalUserMethods.update(id, {
-            name: data.name,
-            supervisorId,
+        if (savePreviousName && userBeforeUpdate.name) {
+            await prisma.userNames.create({ data: { userId: id, name: userBeforeUpdate.name } });
+        }
+
+        return prisma.user.update({
+            where: { id },
+            data: updateUser,
+            include: {
+                curators: true,
+                location: true,
+                supervisor: true,
+                supplementalPositions: { include: { organizationUnit: true } },
+            },
         });
-
-        if (savePreviousName) {
-            const userBeforeUpdate = await userMethods.getByIdOrThrow(id);
-            if (userBeforeUpdate.name) {
-                await prisma.userNames.create({ data: { userId: id, name: userBeforeUpdate.name } });
-            }
-        }
-        return prisma.user.update({ where: { id }, data: updateUser, include: { curators: true } });
     },
 
     editActiveState: async (data: EditUserActiveState): Promise<User> => {
@@ -535,20 +540,14 @@ export const userMethods = {
             },
         });
 
-        const [phoneService, accountingService] = await Promise.all([
-            prisma.userService.findFirst({
-                where: {
-                    userId: user.id,
-                    serviceName: ExternalServiceName.Phone,
-                },
-            }),
-            prisma.userService.findFirst({
-                where: {
-                    userId: user.id,
-                    serviceName: ExternalServiceName.AccountingSystem,
-                },
-            }),
-        ]);
+        const userServices = await serviceMethods.getUserServices(user.id);
+
+        const phoneService = userServices.find((s) => s.serviceName === ExternalServiceName.Phone);
+        const accountingService = userServices.find((s) => s.serviceName === ExternalServiceName.AccountingSystem);
+        const workEmailService = userServices.find((s) => s.serviceName === ExternalServiceName.WorkEmail);
+        const personalEmailService = userServices.find((s) => s.serviceName === ExternalServiceName.PersonalEmail);
+
+        const { positions } = getLastSupplementalPositions(user.supplementalPositions);
 
         return {
             ...user,
@@ -556,7 +555,8 @@ export const userMethods = {
             surname,
             firstName,
             middleName,
-            registrationEmail: user.email,
+            registrationEmail: personalEmailService?.serviceId,
+            workEmail: workEmailService?.serviceId,
             corporateEmail: getCorporateEmail(user.login),
             phone: phoneService?.serviceId,
             login: user.login,
@@ -566,6 +566,14 @@ export const userMethods = {
                 id: m.groupId,
                 name: m.group.name,
                 roles: m.roles.map((r) => r.name),
+            })),
+            positions: positions.map((p) => ({
+                organizationUnitId: p.organizationUnitId,
+                percentage: p.percentage,
+                unitId: p.unitId || '',
+                workStartDate: p.workStartDate,
+                status: p.status,
+                main: p.main,
             })),
             supervisorLogin: user.supervisor?.login,
             active: user.active,
