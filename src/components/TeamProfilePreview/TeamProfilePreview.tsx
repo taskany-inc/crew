@@ -29,6 +29,11 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
 
     const { team } = useRouter();
 
+    const onShowTeam = () => {
+        team(groupId);
+        hidePreview();
+    };
+
     return (
         <Drawer animated visible onClose={hidePreview}>
             <DrawerHeader
@@ -39,7 +44,7 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                         counter={counter}
                         size="m"
                         action={
-                            <Link onClick={() => team(group.id)} href={pages.team(group.id)}>
+                            <Link onClick={onShowTeam} href={pages.team(group.id)}>
                                 <Button
                                     view="ghost"
                                     text={tr('Show team')}
