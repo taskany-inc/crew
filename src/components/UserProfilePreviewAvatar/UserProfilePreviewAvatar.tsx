@@ -8,6 +8,7 @@ import { UserWithSuplementalPositions } from '../../modules/userTypes';
 import { pages, useRouter } from '../../hooks/useRouter';
 import { getLastSupplementalPositions } from '../../utils/supplementalPositions';
 import { Link } from '../Link';
+import { usePreviewContext } from '../../contexts/previewContext';
 
 import s from './UserProfilePreviewAvatar.module.css';
 import { tr } from './UserProfilePreviewAvatar.i18n';
@@ -17,6 +18,7 @@ interface UserProfilePreviewAvatarProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const UserProfilePreviewAvatar: FC<UserProfilePreviewAvatarProps> = ({ className, user, ...rest }) => {
+    const { hidePreview } = usePreviewContext();
     const { user: goToUser } = useRouter();
 
     const mainPosition = useMemo(() => {
@@ -24,6 +26,11 @@ export const UserProfilePreviewAvatar: FC<UserProfilePreviewAvatarProps> = ({ cl
 
         return positions.find((item) => item.main);
     }, [user]);
+
+    const onShowProfile = () => {
+        goToUser(user.id);
+        hidePreview();
+    };
 
     return (
         <div className={cn(s.UserProfilePreviewAvatar, className)} {...rest}>
@@ -43,7 +50,7 @@ export const UserProfilePreviewAvatar: FC<UserProfilePreviewAvatarProps> = ({ cl
                             </>
                         ))}
                     </div>
-                    <Link onClick={() => goToUser(user.id)} href={pages.user(user.id)}>
+                    <Link onClick={onShowProfile} href={pages.user(user.id)}>
                         <Button view="ghost" text={tr('Show profile')} iconLeft={<IconTopRightOutline size="s" />} />
                     </Link>
                 </div>
