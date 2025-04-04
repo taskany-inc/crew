@@ -1,8 +1,7 @@
-import * as Sentry from '@sentry/nextjs';
-
 import { config } from '../config';
 import { logger } from '../utils/logger';
 
+import Sentry from './sentry';
 import { worker, Job } from './worker';
 import * as resolve from './resolve';
 import { getNextJob, jobDelete, jobUpdate } from './jobOperations';
