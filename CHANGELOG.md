@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.117.0](https://github.com/taskany-inc/crew/compare/v0.116.0...v0.117.0) (2025-04-04)
+
+
+### Features
+
+* **INTERNAL-1792:** add sentry logs ([bf03eef](https://github.com/taskany-inc/crew/commit/bf03eef54fad0a496f17cc7c899bceeb9d1e8a0e))
+
 ## [0.116.0](https://github.com/taskany-inc/crew/compare/v0.115.0...v0.116.0) (2025-04-03)
 
 
