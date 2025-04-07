@@ -26,9 +26,7 @@ interface LayoutMainProps {
     children?: ReactNode;
 }
 
-export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
-    const fullTitle = pageTitle ? `${pageTitle} - Taskany Crew` : 'Taskany Crew';
-
+export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle = 'Untitled', children }) => {
     const { data: userSettings } = trpc.user.getSettings.useQuery();
     const appConfig = useAppConfig();
 
@@ -50,8 +48,8 @@ export const LayoutMain: FC<LayoutMainProps> = ({ pageTitle, children }) => {
     return (
         <>
             <Head>
-                <title>{fullTitle}</title>
                 <link rel="icon" href={getFavicon(appConfig)} />
+                <title>SD Crew - {pageTitle}</title>
                 <link rel="stylesheet" id="themeVariables" href={`/theme/${theme}.css`} />
             </Head>
             <OfflineBanner />
