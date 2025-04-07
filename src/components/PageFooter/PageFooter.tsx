@@ -1,5 +1,5 @@
 import { FC, useCallback, useState } from 'react';
-import { Footer, FooterItem, Modal } from '@taskany/bricks';
+import { FooterCopyright, FooterMenu, Footer, FooterItem, Modal } from '@taskany/bricks/harmony';
 import { useRouter } from 'next/router';
 
 import { trpc } from '../../trpc/trpcClient';
@@ -7,6 +7,7 @@ import FeedbackCreateForm from '../FeedbackCreateForm/FeedbackCreateForm';
 import { Link } from '../Link';
 import { defaultLocale, languages } from '../../utils/getLang';
 import { useUserMutations } from '../../modules/userHooks';
+import SheepLogoWithTips from '../SheepLogoWithTips/SheepLogoWithTips';
 
 import { tr } from './PageFooter.i18n';
 
@@ -34,21 +35,25 @@ export const PageFooter: FC = () => {
 
     return (
         <Footer>
-            <Modal visible={openFeedbackForm} onClose={() => setOpenFeedbackForm(false)}>
-                <FeedbackCreateForm onClose={() => setOpenFeedbackForm(false)} />
-            </Modal>
-            <Link>
-                <FooterItem onClick={() => setOpenFeedbackForm(true)}>{tr('Feedback')}</FooterItem>
-            </Link>
-            {menuItems.map(({ title, url }) => (
-                <Link key={title} href={url}>
-                    <FooterItem>{title}</FooterItem>
+            <FooterCopyright orgName={tr('SD Crew')} />
+            <FooterMenu>
+                <Modal visible={openFeedbackForm} onClose={() => setOpenFeedbackForm(false)}>
+                    <FeedbackCreateForm onClose={() => setOpenFeedbackForm(false)} />
+                </Modal>
+                <Link>
+                    <FooterItem onClick={() => setOpenFeedbackForm(true)}>{tr('Feedback')}</FooterItem>
                 </Link>
-            ))}
+                {menuItems.map(({ title, url }) => (
+                    <Link key={title} href={url}>
+                        <FooterItem>{title}</FooterItem>
+                    </Link>
+                ))}
 
-            <Link inline onClick={onLocaleChange}>
-                <FooterItem>{tr('Locale change title')}</FooterItem>
-            </Link>
+                <Link inline onClick={onLocaleChange}>
+                    <FooterItem>{tr('Locale change title')}</FooterItem>
+                </Link>
+            </FooterMenu>
+            <SheepLogoWithTips />
         </Footer>
     );
 };
