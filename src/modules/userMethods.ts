@@ -1,5 +1,6 @@
 import { Prisma, SupplementalPosition, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { sql } from 'kysely';
 
 import { prisma } from '../utils/prisma';
 import { SessionUser } from '../utils/auth';
@@ -9,6 +10,8 @@ import { getCorporateEmail } from '../utils/getCorporateEmail';
 import { calculateDiffBetweenArrays } from '../utils/calculateDiffBetweenArrays';
 import { ExternalServiceName, findService } from '../utils/externalServices';
 import { getLastSupplementalPositions } from '../utils/supplementalPositions';
+import { db } from '../utils/db';
+import { getSearchRegex } from '../utils/regex';
 
 import {
     MembershipInfo,
@@ -71,50 +74,52 @@ export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: S
     };
 };
 
-const usersWhere = async (data: GetUserList) => {
-    const OR: Prisma.UserWhereInput[] = [];
-    const AND: Prisma.UserWhereInput[] = [];
-    const membershipsSome: Prisma.MembershipWhereInput = {};
+export const getUserListQuery = async (data: GetUserList) => {
+    let query = db
+        .selectFrom('User')
+        .leftJoin('UserServices as us', 'User.id', 'us.userId')
+        .leftJoin('Membership as m', 'User.id', 'm.userId')
+        .leftJoin('_MembershipToRole as mtr', 'm.id', 'mtr.A')
+        .leftJoin('Role as r', 'r.id', 'mtr.B')
+        .leftJoin('MailingSettings as ms', 'User.id', 'ms.userId');
     if (data.search) {
-        OR.push({ name: { contains: data.search, mode: 'insensitive' } });
-        OR.push({ otherNames: { some: { name: { contains: data.search, mode: 'insensitive' } } } });
-        OR.push({
-            services: { some: { serviceId: { contains: data.search.replace(/[\s\n\t]/g, '_'), mode: 'insensitive' } } },
-        });
+        const regex = getSearchRegex(data.search);
+        query = query.where((eb) =>
+            eb.or([
+                eb('User.name', '~*', regex),
+                eb('User.email', '~*', regex),
+                eb('User.login', '~*', regex),
+                eb('us.serviceId', '~*', regex),
+            ]),
+        );
     }
-    if (data.supervisors) AND.push({ supervisorId: { in: data.supervisors } });
+    if (data.supervisors) {
+        query = query.where('User.supervisorId', 'in', data.supervisors);
+    }
     if (data.groups) {
         let groupIds = [...data.groups];
         if (data.includeChildrenGroups) {
             groupIds = await groupMethods.getDeepChildrenIds(groupIds);
         }
-        membershipsSome.groupId = { in: groupIds };
+        query = query.where('m.groupId', 'in', groupIds);
     }
     if (data.roles) {
-        membershipsSome.roles = { some: { id: { in: data.roles } } };
+        query = query.where('r.id', 'in', data.roles);
     }
-
     if (data.active !== undefined) {
-        AND.push({ active: data.active });
+        query = query.where('User.active', 'is', data.active);
     }
-
     if (data.mailingSettings) {
-        AND.push({
-            mailingSettings: {
-                some: {
-                    [data.mailingSettings.type]: true,
-                    organizationUnitId: data.mailingSettings.organizationUnitId,
-                },
-            },
-        });
+        query = query
+            .where(`ms.${data.mailingSettings.type}`, 'is', true)
+            .where('ms.organizationUnitId', '=', data.mailingSettings.organizationUnitId);
     }
-
-    if (data.groups || data.roles) {
-        AND.push({ memberships: { some: membershipsSome } });
-    }
-
-    const where: Prisma.UserWhereInput = { OR: OR.length ? OR : undefined, AND: AND.length ? AND : undefined };
-    return where;
+    return {
+        query: query
+            // TODO: delete after removing roleDeprecated from db
+            .select(sql<'USER'>`'USER'`.as('roleDeprecated'))
+            .groupBy('User.id'),
+    };
 };
 
 export const userMethods = {
@@ -330,11 +335,18 @@ export const userMethods = {
     getList: async (data: GetUserList) => {
         const { cursor, take, ...restData } = data;
 
-        const where = await usersWhere(restData);
+        const { query } = await getUserListQuery(restData);
 
-        const counter = await prisma.user.count({ where });
+        const { counter } = await query
+            .clearSelect()
+            .clearGroupBy()
+            .select((eb) => [eb.fn.count<number>('User.id').distinct().as('counter')])
+            .executeTakeFirstOrThrow();
 
-        const total = await prisma.user.count({});
+        const { total } = await db
+            .selectFrom('User')
+            .select((eb) => [eb.fn.countAll<number>().as('total')])
+            .executeTakeFirstOrThrow();
 
         if (!counter) {
             return {
@@ -344,19 +356,15 @@ export const userMethods = {
             };
         }
 
-        const users = await prisma.user.findMany({
-            where,
-            take: (take || defaultTake) + 1,
-            orderBy: { active: 'desc' },
-            cursor: cursor ? { id: cursor } : undefined,
-        });
+        const users = await query
+            .limit(take || defaultTake)
+            .offset(cursor || 0)
+            .orderBy('User.active', 'desc')
+            .selectAll('User')
+            .execute();
 
-        let nextCursor: typeof cursor | undefined;
-
-        if (users.length > (take || defaultTake)) {
-            const nextItem = users.pop();
-            nextCursor = nextItem?.id;
-        }
+        let nextCursor: number | undefined = (cursor || 0) + (take || defaultTake);
+        if (nextCursor > counter) nextCursor = undefined;
 
         return { users, total, nextCursor, counter };
     },
