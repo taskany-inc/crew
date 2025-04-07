@@ -57,7 +57,7 @@ export const getUserListSchema = z.object({
     roles: z.array(z.string()).optional(),
     supervisors: z.array(z.string()).optional(),
     active: z.boolean().optional(),
-    cursor: z.string().nullish(),
+    cursor: z.number().nullish(),
     mailingSettings: z.object({ type: z.enum(mailingSettingType), organizationUnitId: z.string() }).optional(),
     take: z
         .number()

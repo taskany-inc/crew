@@ -6,7 +6,7 @@ import readXlsxFile, { Row } from 'read-excel-file/node';
 import { Membership } from 'prisma/prisma-client';
 
 import { db } from '../utils/db';
-import { regexName } from '../utils/regex';
+import { getSearchRegex } from '../utils/regex';
 import { dumpToJson } from '../utils/dump';
 
 import { Person, StructureNode, StructureParsingConfig } from './importSchemas';
@@ -167,8 +167,8 @@ const createFindUser = (addError: AddMessage) => {
                 .leftJoin('UserNames', 'User.id', 'UserNames.userId')
                 .where((eb) =>
                     eb.or([
-                        eb('User.name', '~*', regexName(fullName)),
-                        eb('UserNames.name', '~*', regexName(fullName)),
+                        eb('User.name', '~*', getSearchRegex(fullName)),
+                        eb('UserNames.name', '~*', getSearchRegex(fullName)),
                     ]),
                 )
                 .select(['User.id', 'User.name'])
