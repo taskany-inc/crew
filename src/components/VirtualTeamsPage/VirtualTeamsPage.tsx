@@ -20,7 +20,7 @@ interface VirtualTeamsPage {
 
 export const VirtualTeamsPage: React.FC<VirtualTeamsPage> = (props) => {
     const { mothership } = props;
-    const { values } = useGroupTreeFilter();
+    const { values, isEmpty } = useGroupTreeFilter();
 
     const currentGroup = trpc.group.getById.useQuery(mothership.id);
 
@@ -83,6 +83,7 @@ export const VirtualTeamsPage: React.FC<VirtualTeamsPage> = (props) => {
                         counts={counts}
                         childs={item.children}
                         firstLevel
+                        isOpen={!isEmpty}
                         businessUnit={item.group.businessUnit}
                     />
                 );

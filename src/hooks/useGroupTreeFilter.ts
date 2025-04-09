@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useUrlParams } from '@taskany/bricks';
 
@@ -18,7 +18,9 @@ export const useGroupTreeFilter = () => {
         pushUrl,
     );
 
-    return { values, setter, clearParams };
+    const isEmpty = useMemo(() => Object.values(values).filter(Boolean).length === 0, [values]);
+
+    return { values, setter, clearParams, isEmpty };
 };
 
 export const groupTreeFilterValuesToRequestData = (values: ReturnType<typeof useGroupTreeFilter>['values']) => ({
@@ -27,7 +29,7 @@ export const groupTreeFilterValuesToRequestData = (values: ReturnType<typeof use
 
 export type GroupTreeFilterRequestData = ReturnType<typeof groupTreeFilterValuesToRequestData>;
 
-const groupMatchesFilters = <T extends { group: { supervisorId?: string | null } }>(
+export const groupMatchesFilters = <T extends { group: { supervisorId?: string | null } }>(
     group: T,
     filters: GroupTreeFilterRequestData,
 ): boolean => {

@@ -7,7 +7,11 @@ import { IconCostEstimateOutline, IconSearchOutline, IconUsersOutline } from '@t
 import { trpc } from '../../trpc/trpcClient';
 import { usePreviewContext } from '../../contexts/previewContext';
 import { pages } from '../../hooks/useRouter';
-import { useGroupTreeFilter } from '../../hooks/useGroupTreeFilter';
+import {
+    groupMatchesFilters,
+    groupTreeFilterValuesToRequestData,
+    useGroupTreeFilter,
+} from '../../hooks/useGroupTreeFilter';
 import { Link } from '../Link';
 import { Branch, Heading } from '../StructTreeView/StructTreeView';
 import { GroupTree } from '../../trpc/inferredTypes';
@@ -159,6 +163,7 @@ export const NewGroupTreeViewNode: React.FC<
         loading?: boolean;
         hideDescription?: boolean;
         organizational?: boolean;
+        isOpen?: boolean;
     }
 > = ({
     id,
@@ -172,10 +177,13 @@ export const NewGroupTreeViewNode: React.FC<
     orgId,
     hideDescription,
     organizational,
+    isOpen: isOpenFromParent,
 }) => {
+    const { values } = useGroupTreeFilter();
+
     const groupMembersQuery = trpc.group.getMemberships.useQuery(
         { groupId: id, filterByOrgId: orgId },
-        { enabled: false, keepPreviousData: true, refetchOnWindowFocus: false },
+        { enabled: isOpenFromParent, keepPreviousData: true, refetchOnWindowFocus: false },
     );
 
     const sortedChilds = useMemo(() => sortByStringKey(childs ?? [], ['group', 'name']), [childs]);
@@ -186,25 +194,24 @@ export const NewGroupTreeViewNode: React.FC<
             filterByOrgId: orgId,
             organizational,
         },
-        { enabled: false, keepPreviousData: true, refetchOnWindowFocus: false },
+        { enabled: isOpenFromParent, keepPreviousData: true, refetchOnWindowFocus: false },
     );
 
-    const { values } = useGroupTreeFilter();
+    const matchesFilters = useMemo(
+        () => groupMatchesFilters({ group: { supervisorId } }, groupTreeFilterValuesToRequestData(values)),
+        [supervisorId, values],
+    );
 
-    const isDefaultOpen = useMemo(() => {
-        if (values.supervisor && values.supervisor.length) {
-            return !supervisorId || !values.supervisor?.includes(supervisorId);
-        }
-        return false;
-    }, [values, supervisorId]);
+    // current element is not matches filters and opened - open childs
+    const isChildsOpen = !matchesFilters && isOpenFromParent;
 
-    const [isOpen, setIsOpen] = useState(isDefaultOpen);
+    const [isOpen, setIsOpen] = useState(isOpenFromParent);
 
     useEffect(() => {
-        if (isDefaultOpen) {
+        if (isOpenFromParent) {
             setIsOpen(true);
         }
-    }, [isDefaultOpen]);
+    }, [isOpenFromParent]);
 
     const memberToRender = useMemo(() => {
         if (groupMembersQuery.data == null) {
@@ -337,17 +344,20 @@ export const NewGroupTreeViewNode: React.FC<
 
             {nullable(sortedChilds, (data) =>
                 data.map(({ group, children }) =>
-                    nullable(group, (gr) => (
-                        <NewGroupTreeViewNode
-                            key={gr.id}
-                            {...gr}
-                            orgId={orgId}
-                            childs={children}
-                            counts={metaDataByGroupIds.data?.[gr.id]?.counts ?? null}
-                            supervisor={metaDataByGroupIds.data?.[gr.id]?.supervisor ?? null}
-                            organizational={organizational}
-                        />
-                    )),
+                    nullable(group, (gr) => {
+                        return (
+                            <NewGroupTreeViewNode
+                                key={gr.id}
+                                {...gr}
+                                orgId={orgId}
+                                childs={children}
+                                counts={metaDataByGroupIds.data?.[gr.id]?.counts ?? null}
+                                supervisor={metaDataByGroupIds.data?.[gr.id]?.supervisor ?? null}
+                                organizational={organizational}
+                                isOpen={isChildsOpen}
+                            />
+                        );
+                    }),
                 ),
             )}
         </Branch>

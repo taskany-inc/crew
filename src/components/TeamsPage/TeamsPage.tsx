@@ -25,7 +25,7 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
 
     const groupTree = trpc.group.getGroupTree.useQuery();
 
-    const { values } = useGroupTreeFilter();
+    const { values, isEmpty } = useGroupTreeFilter();
 
     const filteredTree = useMemo(
         () => filterGroupTree(groupTree.data, groupTreeFilterValuesToRequestData(values)),
@@ -77,6 +77,7 @@ export const TeamsPage: React.FC<TeamsPage> = (props) => {
                             counts={counts}
                             childs={item.children}
                             firstLevel
+                            isOpen={!isEmpty}
                             organizational
                             businessUnit={item.group.businessUnit}
                         />

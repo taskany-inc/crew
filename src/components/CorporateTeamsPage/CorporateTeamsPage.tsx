@@ -22,7 +22,7 @@ interface CorporateTeamsPage {
 const CorporateTreeNodeWrapper: React.FC<
     OrganizationUnit & { mothershipId: string; counts: Record<string, number> | null }
 > = ({ id, name, counts }) => {
-    const { values } = useGroupTreeFilter();
+    const { values, isEmpty } = useGroupTreeFilter();
 
     const groupTreeQuery = trpc.group.getGroupTreeByOrgId.useQuery(id);
 
@@ -39,6 +39,7 @@ const CorporateTreeNodeWrapper: React.FC<
             id={id}
             orgId={id}
             firstLevel
+            isOpen={!isEmpty}
             counts={counts}
             childs={data?.children}
             supervisorId={null}
