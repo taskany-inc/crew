@@ -14,6 +14,7 @@ import { notifyPromise } from '../../utils/notifications/notifyPromise';
 import { getFavicon } from '../../utils/getFavicon';
 import { useAppConfig } from '../../contexts/appConfigContext';
 import { devicesToString } from '../../utils/scheduledDeactivationHistoryEvent';
+import { trimAndJoin } from '../../utils/trimAndJoin';
 
 import s from './HistoryRecord.module.css';
 import { tr } from './HistoryRecord.i18n';
@@ -244,6 +245,57 @@ const componentMap: {
                                 {tr('saved')}
                             </Text>
                         ))}
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    ExternalUserCreate: ({ event }) => {
+        const visible = useBoolean(false);
+        return (
+            <>
+                <div className={s.Row}>
+                    {event.after.success
+                        ? tr('successfully created external user')
+                        : tr('failed to create external user')}{' '}
+                    {trimAndJoin([event.after.surname, event.after.firstName, event.after.middleName])}
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Response')} after={event.after.response} />
+                        <ChangeListItem title={tr('Surname')} after={event.after.surname} />
+                        <ChangeListItem title={tr('First name')} after={event.after.firstName} />
+                        <ChangeListItem title={tr('Middle name')} after={event.after.middleName} />
+                        <ChangeListItem title={tr('Phone')} after={event.after.phone} />
+                        <ChangeListItem title={tr('Work email')} after={event.after.workMail} />
+                        <ChangeListItem title={tr('Personal email')} after={event.after.personalMail} />
+                        <ChangeListItem title={tr('Organization')} after={event.after.organization} />
+                        <ChangeListItem title={tr('Login')} after={event.after.login} />
+                        <ChangeListItem title={tr('External')} after={event.after.isExternal} />
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    ExternalUserUpdate: ({ event }) => {
+        const visible = useBoolean(false);
+        return (
+            <>
+                <div className={s.Row}>
+                    {event.after.success
+                        ? tr('successfully updated external user')
+                        : tr('failed to update external user')}{' '}
+                    <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Response')} after={event.after.response} />
+                        <ChangeListItem title={tr('Name')} before={event.before.name} after={event.after.name} />
+                        <ChangeListItem title={tr('Active')} before={event.before.active} after={event.after.active} />
                     </>
                 ))}
             </>
