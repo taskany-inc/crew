@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.119.0](https://github.com/taskany-inc/crew/compare/v0.118.0...v0.119.0) (2025-04-09)
+
+
+### Features
+
+* **INTERNAL-1687:** fix external user methods ([521d680](https://github.com/taskany-inc/crew/commit/521d680ccb81e90a8fa6d8dc36ac50258822edbd))
+
+
+### Bug Fixes
+
+* **INTERNAL-1702:** fix group node openning ([e74a17d](https://github.com/taskany-inc/crew/commit/e74a17d3041674ac2aee7661ae6a781bb730c9e5))
+
 ## [0.118.0](https://github.com/taskany-inc/crew/compare/v0.117.0...v0.118.0) (2025-04-08)
 
 
