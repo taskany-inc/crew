@@ -186,5 +186,15 @@
     "for employee": "",
     "with start date": "",
     "External person ID": "",
-    "Start date": ""
+    "Start date": "",
+    "successfully created external user": "",
+    "failed to create external user": "",
+    "Response": "",
+    "Surname": "",
+    "First name": "",
+    "Middle name": "",
+    "External": "",
+    "successfully updated external user": "",
+    "failed to update external user": "",
+    "Active": ""
 }

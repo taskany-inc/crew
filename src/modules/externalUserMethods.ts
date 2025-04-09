@@ -6,6 +6,9 @@ import { logger } from '../utils/logger';
 
 import { CreateUser } from './userSchemas';
 import { ExternalUserUpdate } from './externalUserTypes';
+import { historyEventMethods } from './historyEventMethods';
+
+const externalUserLogger = logger.child({ externalUserMethods: true });
 
 export const externalUserMethods = {
     create: async (data: CreateUser) => {
@@ -38,11 +41,18 @@ export const externalUserMethods = {
                 authorization: config.externalUserService.apiToken,
             },
         });
+        const text = await response.text();
         if (!response.ok) {
-            const text = await response.text();
-            logger.error(response.text, 'Failed to create external user');
-            throw new TRPCError({ code: 'BAD_REQUEST', message: text });
+            externalUserLogger.error({ response: text, data }, 'Failed to create external user');
+        } else {
+            externalUserLogger.info({ response: text, data }, 'Successfully created external user');
         }
+        await historyEventMethods.create({ subsystem: 'External user methods' }, 'externalUserCreate', {
+            groupId: undefined,
+            userId: undefined,
+            before: undefined,
+            after: { success: response.ok, response: text, ...body, organization: body.organization.name },
+        });
     },
 
     update: async (userId: string, data: Omit<ExternalUserUpdate, 'email'>) => {
@@ -60,10 +70,17 @@ export const externalUserMethods = {
                 authorization: config.externalUserService.apiToken,
             },
         });
+        const text = await response.text();
         if (!response.ok) {
-            const text = await response.text();
-            logger.error(response.text, 'Failed to update external user');
-            throw new TRPCError({ code: 'BAD_REQUEST', message: text });
+            externalUserLogger.error({ response: text, userId, data }, 'Failed to update external user');
+        } else {
+            externalUserLogger.info({ response: text, userId, data }, 'Successfully updated external user');
         }
+        await historyEventMethods.create({ subsystem: 'External user methods' }, 'externalUserUpdate', {
+            groupId: undefined,
+            userId,
+            before: { success: response.ok, response: text, name: user.name ?? undefined, active: user.active },
+            after: { success: response.ok, response: text, name: data.name, active: data.active },
+        });
     },
 };

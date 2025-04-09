@@ -36,6 +36,35 @@ interface HistoryEventsData {
             }[];
         };
     };
+    externalUserCreate: {
+        requireGroupId: false;
+        requireUserId: false;
+        requireBefore: false;
+        data: {
+            success: boolean;
+            response: string;
+            surname: string;
+            firstName: string;
+            middleName?: string;
+            phone?: string;
+            workMail?: string;
+            personalMail?: string;
+            organization?: string;
+            login?: string;
+            isExternal?: boolean;
+        };
+    };
+    externalUserUpdate: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: true;
+        data: {
+            success: boolean;
+            response: string;
+            name?: string;
+            active?: boolean;
+        };
+    };
     createUserCreationRequest: {
         requireGroupId: false;
         requireUserId: false;

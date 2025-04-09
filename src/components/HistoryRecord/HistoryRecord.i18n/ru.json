@@ -186,5 +186,15 @@
     "for employee": "для сотрудника",
     "with start date": "с датой начала",
     "External person ID": "Внешний ID сотрудника",
-    "Start date": "Дата начала"
+    "Start date": "Дата начала",
+    "successfully created external user": "успешно создал(а) внешнего пользователя",
+    "failed to create external user": "не смог(ла) создать внешнего пользователя",
+    "Response": "Ответ",
+    "Surname": "Фамилия",
+    "First name": "Имя",
+    "Middle name": "Отчество",
+    "External": "Внешний",
+    "successfully updated external user": "успешно обновил(а) внешнего пользователя",
+    "failed to update external user": "не смог(ла) обновить внешнего пользователя",
+    "Active": "Активный"
 }
