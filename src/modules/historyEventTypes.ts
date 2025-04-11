@@ -649,6 +649,45 @@ interface HistoryEventsData {
             disableAccount?: boolean;
         };
     };
+    editTransferInside: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: true;
+        data: {
+            id: string;
+            supervisorId?: string;
+            groupId?: string;
+            date?: string;
+            comment?: string;
+            location?: string;
+            workSpace?: string;
+            workMode?: string;
+            lineManagerIds?: string;
+            supplementalPositions?: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId?: string;
+                main?: boolean;
+                workEndDate?: string;
+            }[];
+            transferToSupplementalPositions?: {
+                organizationUnitId: string;
+                percentage: number;
+                unitId?: string;
+                main?: boolean;
+                workStartDate?: string;
+            }[];
+            attachIds?: string[];
+            transferToSupervisorId?: string;
+            transferToGroupId?: string;
+            equipment?: string;
+            extraEquipment?: string;
+            coordinatorIds?: string;
+            title?: string;
+            transferToTitle?: string;
+            disableAccount?: boolean;
+        };
+    };
     cancelTransferInside: {
         requireGroupId: false;
         requireUserId: true;

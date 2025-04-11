@@ -1644,6 +1644,130 @@ const componentMap: {
             </>
         );
     },
+    EditTransferInside: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('edited request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('to transfer employee inside')} <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} before={event.before.groupId} />
+                        <ChangeListItem
+                            title={tr('Supplemental positions')}
+                            after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
+                            before={formatSupplementalPositions(event.before.supplementalPositions ?? [])}
+                        />
+                        <ChangeListItem
+                            title={tr('Transfer to supplemental positions')}
+                            after={event.after.transferToSupplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main, workStartDate }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main} work start date: ${workStartDate}`,
+                                )
+                                .join(', ')}
+                            before={event.before.transferToSupplementalPositions
+                                ?.map(
+                                    ({ organizationUnitId, percentage, unitId, main, workStartDate }) =>
+                                        `${organizationUnitId}: ${percentage}% ${
+                                            unitId ? `, ${unitId}` : ''
+                                        } main: ${!!main} work start date: ${workStartDate}`,
+                                )
+                                .join(', ')}
+                        />
+                        <ChangeListItem
+                            title={tr('Equipment')}
+                            after={event.after.equipment}
+                            before={event.before.equipment}
+                        />
+                        <ChangeListItem
+                            title={tr('Extra equipment')}
+                            after={event.after.extraEquipment}
+                            before={event.before.extraEquipment}
+                        />
+                        <ChangeListItem
+                            title={tr('Supervisor id')}
+                            after={event.after.supervisorId}
+                            before={event.before.supervisorId}
+                        />
+                        <ChangeListItem
+                            title={tr('Transfer to supervisor id')}
+                            after={event.after.transferToSupervisorId}
+                            before={event.before.transferToSupervisorId}
+                        />
+                        <ChangeListItem
+                            title={tr('Group id')}
+                            after={event.after.groupId}
+                            before={event.before.groupId}
+                        />
+                        <ChangeListItem
+                            title={tr('Transfer to group id')}
+                            after={event.after.transferToGroupId}
+                            before={event.before.transferToGroupId}
+                        />
+                        <ChangeListItem title={tr('Title')} after={event.after.title} before={event.before.title} />
+                        <ChangeListItem
+                            title={tr('Transfer to title')}
+                            after={event.after.transferToTitle}
+                            before={event.before.transferToTitle}
+                        />
+                        <ChangeListItem title={tr('Date')} after={event.after.date} before={event.before.date} />
+                        <ChangeListItem
+                            title={tr('Comment')}
+                            after={event.after.comment}
+                            before={event.before.comment}
+                        />
+                        <ChangeListItem
+                            title={tr('Location')}
+                            after={event.after.location}
+                            before={event.before.location}
+                        />
+                        <ChangeListItem
+                            title={tr('Work space application')}
+                            after={event.after.workSpace}
+                            before={event.before.workSpace}
+                        />
+                        <ChangeListItem
+                            title={tr('Work mode')}
+                            after={event.after.workMode}
+                            before={event.before.workMode}
+                        />
+                        <ChangeListItem
+                            title={tr('Line manager ids')}
+                            after={event.after.lineManagerIds}
+                            before={event.before.lineManagerIds}
+                        />
+                        <ChangeListItem
+                            title={tr('Coordinator ids')}
+                            after={event.after.coordinatorIds}
+                            before={event.before.coordinatorIds}
+                        />
+                        <ChangeListItem
+                            title={tr('Attach ids')}
+                            after={event.after.attachIds?.join(', ')}
+                            before={event.before.attachIds?.join(', ')}
+                        />
+                        <ChangeListItem
+                            title={tr('Disable account')}
+                            after={event.after.disableAccount}
+                            before={event.before.disableAccount}
+                        />
+                    </>
+                ))}
+            </>
+        );
+    },
 };
 
 interface HistoryRecordProps {
