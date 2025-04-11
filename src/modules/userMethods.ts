@@ -307,16 +307,30 @@ export const userMethods = {
     },
 
     getUserByField: async (data: GetUserByField) => {
-        const where: Prisma.UserWhereInput = {
-            id: data.id,
-            email: data.email,
-            login: data.login,
-            services:
-                data.serviceName && data.serviceId
-                    ? { some: { serviceName: data.serviceName, serviceId: data.serviceId } }
-                    : undefined,
-        };
-        const user = await prisma.user.findFirst({ where });
+        if (Object.keys(data).length === 0) {
+            throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'No search data is provided' });
+        }
+        let query = db.selectFrom('User').leftJoin('UserServices as us', 'User.id', 'us.userId').selectAll('User');
+        if (data.id) {
+            query = query.where('User.id', '=', data.id);
+        }
+        if (data.email) {
+            query = query.where((eb) =>
+                eb.or([
+                    eb('User.email', '=', data.email!),
+                    eb.and([eb('us.serviceName', 'ilike', '%mail%'), eb('us.serviceId', '=', data.email!)]),
+                ]),
+            );
+        }
+        if (data.login) {
+            query = query.where('User.login', '=', data.login);
+        }
+        if (data.serviceName && data.serviceId) {
+            query = query.where((eb) =>
+                eb.and([eb('us.serviceName', '=', data.serviceName!), eb('us.serviceId', '=', data.serviceId!)]),
+            );
+        }
+        const user = await query.executeTakeFirst();
         if (!user) {
             throw new TRPCError({ code: 'NOT_FOUND', message: `Cannot find user by ${JSON.stringify(data)}` });
         }
