@@ -461,4 +461,12 @@ export const createTransferInsideSchema = () =>
         extraEquipment: z.string().optional(),
         comment: z.string().optional(),
     });
+
 export type CreateTransferInside = z.infer<ReturnType<typeof createTransferInsideSchema>>;
+
+export const editTransferInsideSchema = () =>
+    createTransferInsideSchema().extend({
+        id: z.string(),
+    });
+
+export type EditTransferInside = z.infer<ReturnType<typeof editTransferInsideSchema>>;

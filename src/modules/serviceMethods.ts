@@ -1,7 +1,9 @@
 import { TRPCError } from '@trpc/server';
+import { UserService } from 'prisma/prisma-client';
 
 import { prisma } from '../utils/prisma';
 import { db } from '../utils/db';
+import { ExternalServiceName, findService } from '../utils/externalServices';
 
 import { GetServiceList, CreateService, DeleteUserService } from './serviceSchemas';
 import { UserServiceInfo } from './serviceTypes';
@@ -87,5 +89,37 @@ export const serviceMethods = {
         }
 
         return db.insertInto('UserServices').values(data).returningAll().executeTakeFirstOrThrow();
+    },
+
+    updateUserServicesInRequest: async (data: {
+        services: UserService[];
+        userId: string;
+        phone?: string;
+        workEmail?: string;
+        personalEmail?: string;
+    }) => {
+        if (!findService(ExternalServiceName.Phone, data.services) && data.phone) {
+            await serviceMethods.addToUser({
+                userId: data.userId,
+                serviceId: data.phone,
+                serviceName: ExternalServiceName.Phone,
+            });
+        }
+
+        if (!findService(ExternalServiceName.WorkEmail, data.services) && data.workEmail) {
+            await serviceMethods.addToUser({
+                userId: data.userId,
+                serviceId: data.workEmail,
+                serviceName: ExternalServiceName.WorkEmail,
+            });
+        }
+
+        if (!findService(ExternalServiceName.PersonalEmail, data.services) && data.personalEmail) {
+            await serviceMethods.addToUser({
+                userId: data.userId,
+                serviceId: data.personalEmail,
+                serviceName: ExternalServiceName.PersonalEmail,
+            });
+        }
     },
 };

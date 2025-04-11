@@ -48,7 +48,7 @@ export const TransferUserInsidePage = ({
     personalEmail,
     requestStatus,
 }: TransferUserInsidePageProps) => {
-    const { createTransferInsideRequest } = useUserCreationRequestMutations();
+    const { createTransferInsideRequest, editTransferInsideRequest } = useUserCreationRequestMutations();
 
     const orgMembership = user?.memberships.find((m) => m.group.organizational);
 
@@ -125,6 +125,10 @@ export const TransferUserInsidePage = ({
     useEffect(() => reset(defaultValues), []);
 
     const onFormSubmit = handleSubmit(async (data) => {
+        if (type === 'edit' && requestId) {
+            editTransferInsideRequest({ id: requestId, ...data });
+            return router.userRequests();
+        }
         await createTransferInsideRequest(data);
 
         reset(defaultValues);
@@ -179,7 +183,7 @@ export const TransferUserInsidePage = ({
                             <div className={s.Form} ref={rootRef}>
                                 <UserFormPersonalDataBlock
                                     type={UserCreationRequestType.transferInside}
-                                    readOnly={personalInfoReadOnly}
+                                    readOnly={type === 'readOnly' ? true : personalInfoReadOnly}
                                     className={s.FormBlock}
                                     id="personal-data"
                                 />

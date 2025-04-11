@@ -6,6 +6,7 @@ import { userCreationRequestsMethods } from '../../modules/userCreationRequestMe
 import {
     createTransferInsideSchema,
     createUserCreationRequestSchema,
+    editTransferInsideSchema,
     editTransferInternToStaffSchema,
     editUserCreationRequestSchema,
     getUserCreationRequestListSchema,
@@ -798,6 +799,29 @@ export const userCreationRequestRouter = router({
             });
             return request;
         }),
+
+    editTransferInsideRequest: protectedProcedure.input(editTransferInsideSchema()).mutation(async ({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
+        const requestBefore = await userCreationRequestsMethods.getTransferInsideByIdWithRelations(input.id);
+
+        const request = await userCreationRequestsMethods.editTransferInside(input, ctx.session.user.id);
+        const { before, after } = dropUnchangedValuesFromEvent(
+            transferInsideHistoryEvent(requestBefore),
+            transferInsideHistoryEvent({
+                ...request,
+                lineManagerIds: request.lineManagerIds.map(({ A }) => A),
+                coordinatorIds: request.coordinatorIds.map(({ A }) => A),
+            }),
+        );
+
+        await historyEventMethods.create({ user: ctx.session.user.id }, 'editTransferInside', {
+            userId: input.userId,
+            groupId: undefined,
+            before: { ...before, id: request.id },
+            after: { ...after, id: request.id },
+        });
+        return request;
+    }),
 
     getTransferInsideById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
         accessCheckAnyOf(

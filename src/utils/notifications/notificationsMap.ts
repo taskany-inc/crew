@@ -32,7 +32,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'attach', 'Delete'>
     | NamespacedAction<'supplementalPosition', 'Add' | 'Remove'>
     | NamespacedAction<'transferInternToStaffRequest', 'Create' | 'Edit' | 'Cancel'>
-    | NamespacedAction<'transferInsideRequest', 'Create' | 'Cancel'>
+    | NamespacedAction<'transferInsideRequest', 'Create' | 'Cancel' | 'Edit'>
     | 'sendFeedback'
     | 'copy';
 
@@ -244,6 +244,10 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         transferInsideRequestCreate: {
             success: tr('Voila! Transfer employee inside organization created 🎉'),
             loading: tr('Creating transfer employee inside organization request...'),
+        },
+        transferInsideRequestEdit: {
+            success: tr('Voila! Transfer employee inside organization updated 🎉'),
+            loading: tr('Updating transfer employee inside organization request...'),
         },
         transferInsideRequestCancel: {
             success: tr('Voila! Transfer employee inside organization is canceled 🎉'),
