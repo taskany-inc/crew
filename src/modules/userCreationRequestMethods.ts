@@ -138,9 +138,11 @@ const sendNewCommerEmails = async ({ request, sessionUserId, method, newOrganiza
                 transferFrom,
             });
 
+            const date = new Date(workStartDate);
+
             request.creationCause === 'transfer'
-                ? workStartDate.setUTCHours(config.employmentUtcHour - 1)
-                : workStartDate.setUTCHours(config.employmentUtcHour);
+                ? date.setUTCHours(config.employmentUtcHour - 1)
+                : date.setUTCHours(config.employmentUtcHour);
 
             let icalEventId = request.id + config.nodemailer.authUser + organizationUnitId;
 
@@ -148,7 +150,7 @@ const sendNewCommerEmails = async ({ request, sessionUserId, method, newOrganiza
 
             const icalEvent = createIcalEventData({
                 id: icalEventId,
-                start: workStartDate,
+                start: date,
                 duration: 30,
                 users,
                 summary: subject,
@@ -157,13 +159,13 @@ const sendNewCommerEmails = async ({ request, sessionUserId, method, newOrganiza
 
             let html = await newComerInMainEmailHtml({
                 userCreationRequest: request,
-                date: workStartDate,
+                date,
             });
 
             if (!request.organization.main) {
                 html = await newComerNotInMainEmailHtml({
                     userCreationRequest: request,
-                    date: workStartDate,
+                    date,
                 });
             }
 
@@ -177,7 +179,7 @@ const sendNewCommerEmails = async ({ request, sessionUserId, method, newOrganiza
 
                 html = await transferNewcomerFromMainEmailHtml({
                     userCreationRequest: request,
-                    date: workStartDate,
+                    date,
                     transferFrom,
                     transferTo,
                     sigmaMail,
@@ -3249,9 +3251,6 @@ export const userCreationRequestsMethods = {
                             percentage: number;
                             status: PositionStatus;
                         }>()
-                        .where('s.jobId', 'is not', null)
-                        .where('s.status', '=', 'ACTIVE')
-                        .where('s.workEndDate', 'is not', null)
                         .whereRef('s.userCreationRequestId', '=', 'UserCreationRequest.id'),
                 ).as('supplementalPositions'),
                 jsonArrayFrom(
@@ -3392,12 +3391,14 @@ export const userCreationRequestsMethods = {
             request.disableAccountJobId && jobDelete(request.disableAccountJobId),
         ]);
 
+        const supplementalPositionsToDisconnect = request.supplementalPositions.filter((p) => p.userCreationRequestId);
+
         await db
             .updateTable('SupplementalPosition')
             .where(
                 'id',
                 'in',
-                request.supplementalPositions.map(({ id }) => id),
+                supplementalPositionsToDisconnect.map(({ id }) => id),
             )
             .set({ userCreationRequestId: null })
             .execute();
@@ -3405,7 +3406,7 @@ export const userCreationRequestsMethods = {
         await db
             .insertInto('SupplementalPosition')
             .values(
-                request.supplementalPositions.map(({ id, userId, organizationUnit, jobId, ...restData }) => ({
+                supplementalPositionsToDisconnect.map(({ id, userId, organizationUnit, jobId, ...restData }) => ({
                     ...restData,
                 })),
             )
