@@ -1,3 +1,6 @@
+import { SupplementalPosition } from 'prisma/prisma-client';
+import { TRPCError } from '@trpc/server';
+
 import { TLocale } from './getLang';
 
 const formattersDTF: Record<TLocale, Intl.DateTimeFormat> = {
@@ -40,3 +43,41 @@ export const dateAgo = (pastDate: Date, locale: TLocale): string | undefined => 
 
 export const stripTimezone = (d?: string) => d?.split('T')[0];
 export const minuteInMiliSeconds = 60000;
+
+const guard = <V extends SupplementalPosition, K extends string>(
+    val: Partial<V>,
+    key: K,
+): key is Extract<K, keyof V> => {
+    return Reflect.has(val, key);
+};
+
+export const supplementalPositionsDate = (
+    supplementalPositions: Partial<SupplementalPosition>[],
+    dateType: 'workEndDate' | 'workStartDate',
+) => {
+    let foundedDate: Date | null | undefined = null;
+
+    for (const pos of supplementalPositions) {
+        if (guard(pos, dateType)) {
+            if (!foundedDate && pos[dateType]) foundedDate = pos[dateType];
+            const currDate = pos[dateType];
+
+            if (currDate == null) {
+                // eslint-disable-next-line no-continue
+                continue;
+            }
+
+            if (foundedDate && currDate && dateType === 'workEndDate') {
+                foundedDate = foundedDate > currDate ? foundedDate : currDate;
+            }
+
+            if (foundedDate && currDate && dateType === 'workStartDate') {
+                foundedDate = foundedDate < currDate ? foundedDate : currDate;
+            }
+        }
+    }
+
+    if (!foundedDate) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date specified' });
+
+    return foundedDate;
+};

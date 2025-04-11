@@ -4,6 +4,7 @@ import { notifyPromise } from '../utils/notifications/notifyPromise';
 import {
     CreateTransferInside,
     CreateUserCreationRequest,
+    EditTransferInside,
     EditTransferInternToStaff,
     EditUserCreationRequest,
     TransferInternToStaff,
@@ -98,6 +99,13 @@ export const useUserCreationRequestMutations = () => {
         },
     });
 
+    const editTransferInsideRequest = trpc.userCreationRequest.editTransferInsideRequest.useMutation({
+        onSuccess: () => {
+            utils.user.invalidate();
+            utils.userCreationRequest.invalidate();
+        },
+    });
+
     const cancelTransferInsideRequest = trpc.userCreationRequest.cancelTransferInsideRequest.useMutation({
         onSuccess: () => {
             utils.user.invalidate();
@@ -150,6 +158,9 @@ export const useUserCreationRequestMutations = () => {
 
         createTransferInsideRequest: (data: CreateTransferInside) =>
             notifyPromise(createTransferInsideRequest.mutateAsync(data), 'transferInsideRequestCreate'),
+
+        editTransferInsideRequest: (data: EditTransferInside) =>
+            notifyPromise(editTransferInsideRequest.mutateAsync(data), 'transferInsideRequestEdit'),
 
         cancelTransferInsideRequest: (data: { id: string; comment?: string }) =>
             notifyPromise(cancelTransferInsideRequest.mutateAsync(data), 'transferInsideRequestCancel'),
