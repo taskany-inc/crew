@@ -26,6 +26,7 @@ import { db } from '../utils/db';
 import { DB } from '../generated/kyselyTypes';
 import { JsonValue } from '../utils/jsonValue';
 import { findCorporateMail, findSigmaMail } from '../utils/organizationalDomains';
+import { supplementalPositionsDate } from '../utils/dateTime';
 
 import {
     CreateScheduledDeactivation,
@@ -48,6 +49,7 @@ interface UserDissmissMailing {
     request: (UserCreationRequest | ScheduledDeactivation) & {
         user: { name: string | null; supervisor?: { id: string } | null } | null;
     };
+    organization: OrganizationUnit;
     teamlead: string;
     role: string;
     sessionUserId: string;
@@ -84,7 +86,7 @@ export const sendDismissalEmails = async ({
     organizationalGroupId,
     newOrganizationUnit,
     newOrganizationalGroup,
-    userId,
+    organization,
     date,
     comment,
     workPlace,
@@ -99,26 +101,18 @@ export const sendDismissalEmails = async ({
         ? await db.selectFrom('User').select(['name', 'email']).where('id', 'in', coordinatorIds).execute()
         : [];
 
-    const mainOrgUnit = supplementalPositions.find((s) => s.main)?.organizationUnit;
-
-    if (!mainOrgUnit) {
-        throw new TRPCError({
-            message: `No main position in dismiss/transfer id ${request.id} for user ${userId}`,
-            code: 'BAD_REQUEST',
-        });
-    }
     const groups = organizationalGroupId
         ? (await groupMethods.getBreadcrumbs(organizationalGroupId)).map(({ name }) => name).join('>')
         : '';
 
     const subject =
         request.type === 'retirement' || request.type === UserCreationRequestType.transferInside
-            ? `${tr('Retirement')} ${mainOrgUnit.name} ${request.user?.name} (${phone})`
-            : `${tr('Transfer from')} ${mainOrgUnit.name} ${tr('to')} ${
+            ? `${tr('Retirement')} ${organization.name} ${request.user?.name} (${phone})`
+            : `${tr('Transfer from')} ${organization.name} ${tr('to')} ${
                   newOrganizationUnit && newOrganizationUnit.name
               }(${newOrganizationalGroup || ''}) ${request.user?.name} (${phone})`;
 
-    const transferFrom = `${mainOrgUnit.name} > ${groups}`;
+    const transferFrom = `${organization.name} > ${groups}`;
 
     const appConfig = await db.selectFrom('AppConfig').select('corporateAppName').executeTakeFirst();
 
@@ -137,7 +131,7 @@ export const sendDismissalEmails = async ({
         comment,
     });
 
-    if (!mainOrgUnit.main) {
+    if (!organization.main) {
         html = await scheduledDeactivationFromNotMainEmailHtml({
             data: request,
             teamlead,
@@ -200,9 +194,11 @@ export const sendDismissalEmails = async ({
                 !!workPlace,
             );
 
+            const data = new Date(workEndDate);
+
             request.type === 'transfer'
-                ? workEndDate.setUTCHours(config.deactivateUtcHour - 1, 30)
-                : workEndDate.setUTCHours(config.deactivateUtcHour);
+                ? data.setUTCHours(config.deactivateUtcHour - 1, 30)
+                : data.setUTCHours(config.deactivateUtcHour);
 
             let icalEventId = request.id + config.nodemailer.authUser + organizationUnitId;
 
@@ -210,7 +206,7 @@ export const sendDismissalEmails = async ({
 
             const icalEvent = createIcalEventData({
                 id: icalEventId,
-                start: workEndDate,
+                start: data,
                 duration: 30,
                 users,
                 summary: subject,
@@ -290,19 +286,26 @@ export const scheduledDeactivationMethods = {
             });
         }
 
-        const deactivateDate = data.supplementalPositions.reduce((acc: Date | undefined | null, rec) => {
-            if (!acc) return rec.workEndDate;
-            if (!rec.workEndDate) return acc;
-            return acc > rec.workEndDate ? acc : rec.workEndDate;
-        }, undefined);
-
-        if (!deactivateDate) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date specified' });
+        const deactivateDate = supplementalPositionsDate(data.supplementalPositions, 'workEndDate');
 
         const deactivateJobDate = new Date(deactivateDate);
         deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
         deactivateDate.setUTCHours(config.deactivateUtcHour);
 
         const supplementalPositionConnect: string[] = [];
+
+        const organization = await db
+            .selectFrom('OrganizationUnit')
+            .selectAll()
+            .where('id', '=', data.supplementalPositions[0].organizationUnitId)
+            .executeTakeFirst();
+
+        if (!organization) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No organization finded by id ${data.supplementalPositions[0].organizationUnitId}`,
+            });
+        }
 
         await Promise.all(
             data.supplementalPositions.map(async (s, index) => {
@@ -544,6 +547,7 @@ export const scheduledDeactivationMethods = {
             role: restData.title,
             attaches,
             sessionUserId,
+            organization,
             phone: restData.phone,
             sigmaMail,
             corporateMail,
@@ -627,6 +631,28 @@ export const scheduledDeactivationMethods = {
             ({ workEndDate, status }) => workEndDate && status === 'ACTIVE',
         );
 
+        const mainPosition = supplementalPositions.find(({ main }) => main);
+
+        if (!mainPosition) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No main position finded in scheduled deactivation with id ${id}`,
+            });
+        }
+
+        const organization = await db
+            .selectFrom('OrganizationUnit')
+            .selectAll()
+            .where('id', '=', mainPosition.organizationUnitId)
+            .executeTakeFirst();
+
+        if (!organization) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No organization finded by id ${mainPosition.organizationUnitId}`,
+            });
+        }
+
         await prisma.supplementalPosition.updateMany({
             where: { id: { in: supplementalPositions.map(({ id }) => id) } },
             data: { workEndDate: null },
@@ -664,6 +690,7 @@ export const scheduledDeactivationMethods = {
             supplementalPositions,
             role: scheduledDeactivation.organizationRole || '',
             sessionUserId,
+            organization,
             sigmaMail,
             corporateMail,
             phone,
@@ -689,15 +716,22 @@ export const scheduledDeactivationMethods = {
     edit: async (data: EditScheduledDeactivation, sessionUserId: string) => {
         const { userId, type, devices, testingDevices, id, ...restData } = data;
 
-        const deactivateDate = data.supplementalPositions.reduce((acc: Date | undefined | null, rec) => {
-            if (!acc) return rec.workEndDate;
-            if (!rec.workEndDate) return acc;
-            return acc > rec.workEndDate ? acc : rec.workEndDate;
-        }, undefined);
-
-        if (!deactivateDate) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date specified' });
+        const deactivateDate = supplementalPositionsDate(data.supplementalPositions, 'workEndDate');
 
         deactivateDate.setUTCHours(config.deactivateUtcHour);
+
+        const organization = await db
+            .selectFrom('OrganizationUnit')
+            .selectAll()
+            .where('id', '=', restData.supplementalPositions[0].organizationUnitId)
+            .executeTakeFirst();
+
+        if (!organization) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No organization finded by id ${restData.supplementalPositions[0].organizationUnitId}`,
+            });
+        }
 
         const scheduledDeactivationBeforeUpdate = await scheduledDeactivationMethods.getById(id);
 
@@ -708,6 +742,30 @@ export const scheduledDeactivationMethods = {
             });
         }
         await userMethods.getByIdOrThrow(userId);
+
+        const mainPositionBeforeUpdate = scheduledDeactivationBeforeUpdate.supplementalPositions.find(
+            ({ main }) => main,
+        );
+
+        if (!mainPositionBeforeUpdate) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No main position finded in scheduled deactivation with id ${id}`,
+            });
+        }
+
+        const organizationBeforeUpdate = await db
+            .selectFrom('OrganizationUnit')
+            .selectAll()
+            .where('id', '=', mainPositionBeforeUpdate.organizationUnitId)
+            .executeTakeFirst();
+
+        if (!organizationBeforeUpdate) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No organization finded by id ${mainPositionBeforeUpdate.organizationUnitId}`,
+            });
+        }
 
         const supplementalPositionConnect: { id: string }[] = [];
         data.supplementalPositions.map(async (s, index) => {
@@ -882,6 +940,7 @@ export const scheduledDeactivationMethods = {
         await sendDismissalEmails({
             request: scheduledDeactivation,
             method: ICalCalendarMethod.REQUEST,
+            organization,
             teamlead: scheduledDeactivation.user.supervisor?.name || '',
             supplementalPositions,
             role: restData.title,
@@ -904,6 +963,7 @@ export const scheduledDeactivationMethods = {
         await sendDismissalEmails({
             request: scheduledDeactivationBeforeUpdate,
             method: ICalCalendarMethod.CANCEL,
+            organization: organizationBeforeUpdate,
             teamlead: scheduledDeactivationBeforeUpdate.user.supervisor?.name || '',
             supplementalPositions: scheduledDeactivationBeforeUpdate.supplementalPositions,
             role: restData.title,
