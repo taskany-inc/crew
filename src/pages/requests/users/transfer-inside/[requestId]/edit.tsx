@@ -51,7 +51,7 @@ export default function EditTransferIncideRequest({ userId, requestId }: { userI
 
     return (
         <TransferUserInsidePage
-            type="readOnly"
+            type="edit"
             user={user}
             phone={phone}
             userDevices={userDevices}
