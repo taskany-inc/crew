@@ -6,7 +6,7 @@ import { getPhoneSchema } from '../utils/phoneSchema';
 import { tr } from './modules.i18n';
 import { UserCreationRequestType } from './userCreationRequestTypes';
 
-const dateSchema = z
+export const dateSchema = z
     .date({
         errorMap: () => ({
             message: tr('Required field'),
@@ -15,7 +15,7 @@ const dateSchema = z
     .nullable()
     .refine((date) => date, tr('Required field'));
 
-const percentageSchema = z
+export const percentageSchema = z
     .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
     .multipleOf(0.01)
     .min(0.01, { message: tr('Please enter percentage from 0.01 to 1') })

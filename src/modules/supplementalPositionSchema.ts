@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+import {
+    dateSchema,
+    getCreateUserCreationRequestInternalEmployeeSchema,
+    percentageSchema,
+} from './userCreationRequestSchemas';
+import { tr } from './modules.i18n';
+import { UserCreationRequestType } from './userCreationRequestTypes';
+
 export const addSupplementalPositionToUserSchema = z.object({
     userId: z.string(),
     organizationUnitId: z.string(),
@@ -41,3 +49,23 @@ export const updateSupplementalPositionSchema = z.object({
 });
 
 export type UpdateSupplementalPosition = z.infer<typeof updateSupplementalPositionSchema>;
+
+export const createSupplementalPositionRequestSchema = () =>
+    getCreateUserCreationRequestInternalEmployeeSchema()
+        .omit({ creationCause: true, date: true, intern: true })
+        .extend({
+            type: z.literal(UserCreationRequestType.createSuppementalPosition),
+            userTargetId: z.string(),
+            supplementalPositions: z
+                .array(
+                    z.object({
+                        organizationUnitId: z.string().min(1, { message: tr('Required field') }),
+                        percentage: percentageSchema,
+                        unitId: z.string().optional(),
+                        workStartDate: dateSchema,
+                    }),
+                )
+                .min(1),
+        });
+
+export type CreateSupplementalPositionRequest = z.infer<ReturnType<typeof createSupplementalPositionRequestSchema>>;

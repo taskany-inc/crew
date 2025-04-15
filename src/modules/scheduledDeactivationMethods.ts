@@ -316,12 +316,12 @@ export const scheduledDeactivationMethods = {
                 deactivateJobDate.setUTCHours(config.deactivateJobUtcHour);
 
                 if (s.id) {
-                    const job =
-                        data.disableAccount &&
+                    data.disableAccount &&
                         (await createJob('scheduledFiringFromSupplementalPosition', {
                             date: deactivateJobDate,
                             data: { supplementalPositionId: s.id, userId },
                         }));
+
                     await prisma.supplementalPosition.update({
                         where: { id: s.id },
                         data: {
@@ -329,7 +329,6 @@ export const scheduledDeactivationMethods = {
                             organizationUnitId: s.organizationUnitId,
                             percentage: s.percentage * percentageMultiply,
                             unitId: s.unitId,
-                            ...(job && job.id && { jobId: job.id }),
                         },
                     });
 
@@ -346,17 +345,12 @@ export const scheduledDeactivationMethods = {
                         },
                     });
 
-                    const job =
-                        data.disableAccount &&
+                    data.disableAccount &&
                         (await createJob('scheduledFiringFromSupplementalPosition', {
                             date: deactivateJobDate,
                             data: { supplementalPositionId: s.id, userId },
                         }));
 
-                    await prisma.supplementalPosition.update({
-                        where: { id: newPosition.id },
-                        data: { ...(job && job.id && { jobId: job.id }) },
-                    });
                     supplementalPositionConnect.push(newPosition.id);
                 }
             }),
@@ -394,13 +388,6 @@ export const scheduledDeactivationMethods = {
             await userMethods.edit({ id: userId, supervisorId: restData.supervisorId });
         }
 
-        const job =
-            data.disableAccount &&
-            (await createJob('scheduledDeactivation', {
-                date: deactivateJobDate,
-                data: { userId, method: 'sp' },
-            }));
-
         const createScheduledDeactivationData: InsertExpression<DB, 'ScheduledDeactivation'> = {
             userId,
             creatorId: sessionUserId,
@@ -408,7 +395,6 @@ export const scheduledDeactivationMethods = {
             deactivateDate,
             ...(devices && devices.length && { devices: { toJSON: () => devices } }),
             ...(testingDevices && { testingDevices: { toJSON: () => testingDevices } }),
-            ...(job && job.id && { jobId: job.id }),
             phone: restData.phone,
             email: user.email,
             disableAccount: restData.disableAccount,
@@ -531,6 +517,12 @@ export const scheduledDeactivationMethods = {
                 requestDevices: testingDevices,
                 userId,
                 sessionUserId,
+            }));
+
+        data.disableAccount &&
+            (await createJob('scheduledDeactivation', {
+                date: deactivateJobDate,
+                data: { userId, scheduledDeactivationId: scheduledDeactivation.id, method: 'sp' },
             }));
 
         const mails = [restData.workEmail, scheduledDeactivation.email, restData.personalEmail];
@@ -785,14 +777,9 @@ export const scheduledDeactivationMethods = {
                         },
                     });
 
-                    const job = await createJob('scheduledFiringFromSupplementalPosition', {
+                    await createJob('scheduledFiringFromSupplementalPosition', {
                         date: deactivateJobDate,
                         data: { supplementalPositionId: s.id, userId },
-                    });
-
-                    await prisma.supplementalPosition.update({
-                        where: { id: newPosition.id },
-                        data: { jobId: job.id },
                     });
                     supplementalPositionConnect.push({ id: newPosition.id });
                 }
@@ -814,15 +801,9 @@ export const scheduledDeactivationMethods = {
                         data: { date: deactivateJobDate },
                     });
                 } else {
-                    const newJob = await createJob('scheduledFiringFromSupplementalPosition', {
+                    await createJob('scheduledFiringFromSupplementalPosition', {
                         date: deactivateJobDate,
                         data: { supplementalPositionId: s.id, userId },
-                    });
-                    await prisma.supplementalPosition.update({
-                        where: { id: s.id },
-                        data: {
-                            job: { connect: { id: newJob.id } },
-                        },
                     });
                 }
             }

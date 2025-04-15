@@ -12,6 +12,8 @@ export interface JobDataMap {
     scheduledDeactivation: {
         userId: string;
         method?: ExternalUserUpdate['method'];
+        userCreationRequestId?: string;
+        scheduledDeactivationId?: string;
     };
     createProfile: {
         userCreationRequestId: string;
@@ -63,13 +65,41 @@ export async function createJob<K extends keyof JobDataMap>(
         .returningAll()
         .executeTakeFirstOrThrow();
 
-    if (kind === 'createProfile' || kind === 'resolveDecree') {
+    if (
+        kind === 'createProfile' ||
+        kind === 'resolveDecree' ||
+        kind === 'transferInternToStaff' ||
+        kind === 'editUserOnTransfer'
+    ) {
         const { userCreationRequestId } = data as JobDataMap['createProfile'];
         await db
             .updateTable('UserCreationRequest')
             .set({ jobId: job.id })
             .where('id', '=', userCreationRequestId)
             .execute();
+    }
+
+    if (kind === 'activateUserSupplementalPosition' || kind === 'scheduledFiringFromSupplementalPosition') {
+        const { supplementalPositionId } = data as JobDataMap['activateUserSupplementalPosition'];
+        await db
+            .updateTable('SupplementalPosition')
+            .set({ jobId: job.id })
+            .where('id', '=', supplementalPositionId)
+            .execute();
+    }
+
+    if (kind === 'scheduledDeactivation') {
+        const { scheduledDeactivationId, userCreationRequestId } = data as JobDataMap['scheduledDeactivation'];
+
+        scheduledDeactivationId &&
+            (await db.updateTable('ScheduledDeactivation').set({ jobId: job.id }))
+                .where('id', '=', scheduledDeactivationId)
+                .execute();
+
+        userCreationRequestId &&
+            (await db.updateTable('UserCreationRequest').set({ disableAccountJobId: job.id }))
+                .where('id', '=', userCreationRequestId)
+                .execute();
     }
 
     return job;

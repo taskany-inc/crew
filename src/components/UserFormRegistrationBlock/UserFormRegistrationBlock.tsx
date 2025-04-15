@@ -17,13 +17,7 @@ import { tr } from './UserFormRegistrationBlock.i18n';
 interface UserFormRegistrationBlockProps {
     className: string;
     id: string;
-    type:
-        | 'internal'
-        | 'existing'
-        | 'toDecree'
-        | 'fromDecree'
-        | 'transferInternToStaff'
-        | UserCreationRequestType.transferInside;
+    type: 'internal' | 'existing' | 'toDecree' | 'fromDecree' | 'transferInternToStaff' | UserCreationRequestType;
     organizationUnits?: OrganizationUnit[];
     onOrganistaionUnitChange?: (orgId: string) => void;
     onSupplementalOrganistaionUnitChange?: (orgId: string) => void;
@@ -109,7 +103,7 @@ export const UserFormRegistrationBlock = ({
             <div className={s.TwoInputsRow}>
                 <FormControl label={tr('Organization')} required>
                     <OrganizationUnitComboBox
-                        readOnly={readOnly}
+                        readOnly={readOnly || type === UserCreationRequestType.createSuppementalPosition}
                         searchType="internal"
                         organizationUnitId={watch('organizationUnitId')}
                         onChange={onOrganizationChange}
@@ -119,7 +113,7 @@ export const UserFormRegistrationBlock = ({
                 </FormControl>
                 <FormControl label={tr('Unit ID')} error={errors.unitId}>
                     <FormControlInput
-                        readOnly={readOnly}
+                        readOnly={readOnly || type === UserCreationRequestType.createSuppementalPosition}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write unit ID')}
@@ -130,7 +124,7 @@ export const UserFormRegistrationBlock = ({
                 </FormControl>
                 <FormControl label={tr('Percentage')} error={errors.percentage}>
                     <FormControlInput
-                        readOnly={readOnly}
+                        readOnly={readOnly || type === UserCreationRequestType.createSuppementalPosition}
                         autoComplete="off"
                         size="m"
                         placeholder={tr('Write the percentage')}
@@ -144,29 +138,31 @@ export const UserFormRegistrationBlock = ({
                         step={0.01}
                     />
                 </FormControl>
-                <FormControl
-                    required
-                    label={
-                        type === 'transferInternToStaff' || type === UserCreationRequestType.transferInside
-                            ? tr('Transfer date')
-                            : tr('Start date')
-                    }
-                    error={errors.date}
-                >
-                    <FormControlInput
-                        readOnly={readOnly}
-                        outline
-                        autoComplete="off"
-                        size="m"
-                        type="date"
-                        value={
-                            (edit || readOnly) && watch('date')
-                                ? watch('date').toISOString().substring(0, 10)
-                                : undefined
+                {nullable(type !== UserCreationRequestType.createSuppementalPosition, () => (
+                    <FormControl
+                        required
+                        label={
+                            type === 'transferInternToStaff' || type === UserCreationRequestType.transferInside
+                                ? tr('Transfer date')
+                                : tr('Start date')
                         }
-                        {...register('date', { valueAsDate: true })}
-                    />
-                </FormControl>
+                        error={errors.date}
+                    >
+                        <FormControlInput
+                            readOnly={readOnly}
+                            outline
+                            autoComplete="off"
+                            size="m"
+                            type="date"
+                            value={
+                                (edit || readOnly) && watch('date')
+                                    ? watch('date').toISOString().substring(0, 10)
+                                    : undefined
+                            }
+                            {...register('date', { valueAsDate: true })}
+                        />
+                    </FormControl>
+                ))}
 
                 {nullable(type === 'internal', () => (
                     <FormControl label={tr('Recruiter')}>

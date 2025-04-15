@@ -5,6 +5,7 @@ import { userAccess } from '../../modules/userAccess';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import {
     addSupplementalPositionToUserSchema,
+    createSupplementalPositionRequestSchema,
     removeSupplementalPositionFromUserSchema,
 } from '../../modules/supplementalPositionSchema';
 
@@ -36,5 +37,14 @@ export const supplementalPositionRouter = router({
             });
 
             return result;
+        }),
+
+    createRequest: protectedProcedure
+        .input(createSupplementalPositionRequestSchema())
+        .mutation(async ({ input, ctx }) => {
+            accessCheck(userAccess.isEditable(ctx.session.user, input.userTargetId));
+            await supplementalPositionMethods.createRequest(input, ctx.session.user.id);
+
+            // TODO history event
         }),
 });
