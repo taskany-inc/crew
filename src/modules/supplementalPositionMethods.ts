@@ -1,20 +1,27 @@
 import { TRPCError } from '@trpc/server';
 import { jsonObjectFrom } from 'kysely/helpers/postgres';
 import { OrganizationUnit, SupplementalPosition } from 'prisma/prisma-client';
+import { InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser';
 
 import { prisma } from '../utils/prisma';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { db } from '../utils/db';
 import { createJob, JobKind } from '../worker/create';
 import { jobDelete } from '../worker/jobOperations';
+import { config } from '../config';
+import { trimAndJoin } from '../utils/trimAndJoin';
+import { DB } from '../generated/kyselyTypes';
 
 import {
     AddSupplementalPositionToUser,
     CreateSupplementalPosition,
+    CreateSupplementalPositionRequest,
     RemoveSupplementalPositionFromUser,
     UpdateSupplementalPosition,
 } from './supplementalPositionSchema';
+import { userMethods } from './userMethods';
 import { tr } from './modules.i18n';
+import { serviceMethods } from './serviceMethods';
 
 export const supplementalPositionMethods = {
     addToUser: async (data: AddSupplementalPositionToUser) => {
@@ -47,8 +54,8 @@ export const supplementalPositionMethods = {
         });
     },
 
-    create: async (data: CreateSupplementalPosition) => {
-        const position = await db
+    create: async (data: CreateSupplementalPosition, base = db) => {
+        const position = await base
             .insertInto('SupplementalPosition')
             .values(data)
             .returningAll()
@@ -176,5 +183,128 @@ export const supplementalPositionMethods = {
 
             position.jobId && (await jobDelete(position.jobId));
         }
+    },
+
+    createRequest: async (data: CreateSupplementalPositionRequest, sessionUserId: string) => {
+        const startSupplementalPositionDate = data.supplementalPositions[0].workStartDate;
+        if (!startSupplementalPositionDate) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: `No workStartDate in creation request for supplemental position for user with id ${data.userTargetId}`,
+            });
+        }
+
+        startSupplementalPositionDate.setUTCHours(config.employmentUtcHour);
+
+        const user = await userMethods.getById(data.userTargetId);
+
+        if (!user) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${data.userTargetId} found` });
+        }
+
+        if (!user.login) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `User with id ${data.userTargetId} has no login` });
+        }
+
+        const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
+
+        await serviceMethods.updateUserServicesInRequest({
+            userId: user.id,
+            services: user.services,
+            phone: data.phone,
+            personalEmail: data.personalEmail,
+            workEmail: data.workEmail,
+        });
+
+        const requestValues: InsertExpression<DB, 'UserCreationRequest'> = {
+            type: data.type,
+            userTargetId: data.userTargetId,
+            supervisorId: data.supervisorId,
+            organizationUnitId: data.organizationUnitId,
+            email: user.email,
+            login: user.login,
+            createExternalAccount: false,
+            name,
+            creatorId: sessionUserId,
+            groupId: data.groupId,
+            title: data.title,
+            corporateEmail: data.corporateEmail,
+            comment: data.comment,
+            workEmail: data.workEmail,
+            personalEmail: data.personalEmail,
+            services: [],
+            workMode: data.workMode,
+            workModeComment: data.workModeComment,
+            equipment: data.equipment,
+            extraEquipment: data.extraEquipment,
+            workSpace: data.workSpace,
+            location: data.location,
+            unitId: data.unitId,
+            percentage: data.percentage ? data.percentage * percentageMultiply : undefined,
+        };
+
+        if (data.buddyId) {
+            await userMethods.getByIdOrThrow(data.buddyId);
+            requestValues.buddyId = data.buddyId;
+        }
+
+        if (data.recruiterId) {
+            await userMethods.getByIdOrThrow(data.recruiterId);
+            requestValues.recruiterId = data.recruiterId;
+        }
+
+        const { request, supplementalPosition } = await db.transaction().execute(async (trx) => {
+            const request = await trx
+                .insertInto('UserCreationRequest')
+                .values(requestValues)
+                .returningAll()
+                .executeTakeFirst();
+
+            if (!request) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: `Failed creation request for supplemental position for user with id ${data.userTargetId}`,
+                });
+            }
+
+            const supplementalPosition = await supplementalPositionMethods.create(
+                {
+                    ...data.supplementalPositions[0],
+                    percentage: data.supplementalPositions[0].percentage * percentageMultiply,
+                    workStartDate: startSupplementalPositionDate,
+                    userCreationRequestId: request.id,
+                },
+                trx,
+            );
+
+            await Promise.all([
+                data.coordinatorIds?.length &&
+                    trx
+                        .insertInto('_userCoordinators')
+                        .values(data.coordinatorIds.map((id) => ({ A: id, B: request.id })))
+                        .execute(),
+
+                data.lineManagerIds?.length &&
+                    trx
+                        .insertInto('_userLineManagers')
+                        .values(data.lineManagerIds.map((id) => ({ A: id, B: request.id })))
+                        .execute(),
+            ]);
+
+            return { request, supplementalPosition };
+        });
+
+        await createJob('activateUserSupplementalPosition', {
+            date: startSupplementalPositionDate,
+            data: {
+                userId: data.userTargetId,
+                supplementalPositionId: supplementalPosition.id,
+            },
+        });
+
+        await createJob('editUserOnTransfer', {
+            date: startSupplementalPositionDate,
+            data: { userCreationRequestId: request.id },
+        });
     },
 };

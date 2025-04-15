@@ -47,7 +47,7 @@ interface UserFormPersonalDataBlockProps {
         | 'fromDecree'
         | 'dismissal'
         | 'transferInternToStaff'
-        | UserCreationRequestType.transferInside;
+        | UserCreationRequestType;
     readOnly?: boolean | ReadOnlyMap;
     defaultValue?: UserFormPersonalDataBlockType;
 }
@@ -294,7 +294,8 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         type === 'toDecree' ||
                         type === 'dismissal' ||
                         type === 'transferInternToStaff' ||
-                        type === UserCreationRequestType.transferInside,
+                        type === UserCreationRequestType.transferInside ||
+                        type === UserCreationRequestType.createSuppementalPosition,
                     () => (
                         <FormControl
                             label={type === 'externalEmployee' ? tr('Personal email') : tr('Personal')}
@@ -325,7 +326,8 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         type === 'toDecree' ||
                         type === 'dismissal' ||
                         type === 'transferInternToStaff' ||
-                        type === UserCreationRequestType.transferInside,
+                        type === UserCreationRequestType.transferInside ||
+                        type === UserCreationRequestType.createSuppementalPosition,
                     () => (
                         <FormControl
                             label={type === 'externalFromMainOrgEmployee' ? tr('Work email') : tr('Work')}

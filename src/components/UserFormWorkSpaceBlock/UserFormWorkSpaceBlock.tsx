@@ -16,7 +16,7 @@ interface UserFormWorkSpaceBlockProps {
     className: string;
     id: string;
     type: 'new' | 'edit' | 'readOnly';
-    requestType?: 'dismissal' | 'employment' | UserCreationRequestType.transferInside;
+    requestType?: 'dismissal' | 'employment' | UserCreationRequestType;
     requestId?: string;
     status?: string;
 }
@@ -47,7 +47,7 @@ export const UserFormWorkSpaceBlock = ({
         formState: { errors },
     } = useFormContext<UserFormWorkSpaceBlockType>();
 
-    const isRequiredField = status !== 'Draft';
+    const isRequiredField = status !== 'Draft' && requestType !== UserCreationRequestType.createSuppementalPosition;
 
     const onWorkModeChange = (mode: string) => {
         setValue('workMode', mode);

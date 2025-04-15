@@ -50,4 +50,5 @@ export enum UserCreationRequestType {
     fromDecree = 'fromDecree',
     transferInternToStaff = 'transferInternToStaff',
     transferInside = 'transferInside',
+    createSuppementalPosition = 'createSuppementalPosition',
 }

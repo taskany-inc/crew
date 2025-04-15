@@ -2261,22 +2261,18 @@ export const userCreationRequestsMethods = {
 
         Promise.all(
             oldPositions.map(async (s) => {
-                const job = await createJob('scheduledFiringFromSupplementalPosition', {
+                await createJob('scheduledFiringFromSupplementalPosition', {
                     date: data.date || undefined,
                     data: { supplementalPositionId: s.id, userId: data.userId },
                 });
-
-                await db.updateTable('SupplementalPosition').where('id', '=', s.id).set({ jobId: job.id }).execute();
             }),
         );
 
         if (request.date) {
-            const job = await createJob('transferInternToStaff', {
+            await createJob('transferInternToStaff', {
                 data: { userCreationRequestId: request.id },
                 date: request.date,
             });
-
-            await db.updateTable('UserCreationRequest').where('id', '=', request.id).set({ jobId: job.id }).execute();
         }
 
         return {
@@ -3004,35 +3000,24 @@ export const userCreationRequestsMethods = {
         await Promise.all([
             ...transferToSupplementalPositions.map(async (s) => {
                 if (s.workStartDate) {
-                    const job = await createJob('activateUserSupplementalPosition', {
+                    await createJob('activateUserSupplementalPosition', {
                         date: s.workStartDate,
                         data: { supplementalPositionId: s.id, userId },
                     });
-                    await db
-                        .updateTable('SupplementalPosition')
-                        .where('id', '=', s.id)
-                        .set({ jobId: job.id })
-                        .execute();
                 }
             }),
         ]);
 
-        const job = await createJob('editUserOnTransfer', {
+        await createJob('editUserOnTransfer', {
             date: transferDate,
             data: { userCreationRequestId: request.id },
         });
 
-        const setUpdate: UpdateObjectExpression<DB, 'UserCreationRequest'> = { jobId: job.id };
-
-        if (disableAccount) {
-            const job = await createJob('scheduledDeactivation', {
+        disableAccount &&
+            (await createJob('scheduledDeactivation', {
                 date,
-                data: { userId, method: 'cloud-no-move' },
-            });
-            setUpdate.disableAccountJobId = job.id;
-        }
-
-        await db.updateTable('UserCreationRequest').where('id', '=', request.id).set(setUpdate).execute();
+                data: { userId, userCreationRequestId: request.id, method: 'cloud-no-move' },
+            }));
 
         const lineManagers = restData.lineManagerIds?.length
             ? await db.selectFrom('User').selectAll().where('id', 'in', restData.lineManagerIds).execute()
@@ -3584,20 +3569,17 @@ export const userCreationRequestsMethods = {
         }
 
         if (!request.date || !request.jobId) {
-            const job = await createJob('editUserOnTransfer', {
+            await createJob('editUserOnTransfer', {
                 date: transferDate,
                 data: { userCreationRequestId: request.id },
             });
-
-            setUpdate.jobId = job.id;
         }
 
         if (!request.disableAccountJobId && disableAccount) {
-            const job = await createJob('scheduledDeactivation', {
+            await createJob('scheduledDeactivation', {
                 date,
-                data: { userId: request.userTargetId, method: 'cloud-no-move' },
+                data: { userId: request.userTargetId, userCreationRequestId: request.id, method: 'cloud-no-move' },
             });
-            setUpdate.disableAccountJobId = job.id;
         }
 
         date.setUTCHours(config.deactivateUtcHour);
