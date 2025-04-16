@@ -473,7 +473,7 @@ export const userMethods = {
     },
 
     editActiveState: async (data: EditUserActiveState): Promise<User> => {
-        await externalUserMethods.update(data.id, { active: data.active });
+        await externalUserMethods.update(data.id, { active: data.active, method: data.method });
 
         const positions = await prisma.supplementalPosition.findMany({
             where: {

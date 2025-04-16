@@ -3033,7 +3033,7 @@ export const userCreationRequestsMethods = {
         if (disableAccount) {
             const job = await createJob('scheduledDeactivation', {
                 date,
-                data: { userId },
+                data: { userId, method: 'cloud-no-move' },
             });
             setUpdate.disableAccountJobId = job.id;
         }
@@ -3601,7 +3601,7 @@ export const userCreationRequestsMethods = {
         if (!request.disableAccountJobId && disableAccount) {
             const job = await createJob('scheduledDeactivation', {
                 date,
-                data: { userId: request.userTargetId },
+                data: { userId: request.userTargetId, method: 'cloud-no-move' },
             });
             setUpdate.disableAccountJobId = job.id;
         }

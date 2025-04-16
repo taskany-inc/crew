@@ -293,6 +293,7 @@ const componentMap: {
                 </div>
                 {nullable(visible.value, () => (
                     <>
+                        <ChangeListItem title={tr('Method')} after={event.after.method} />
                         <ChangeListItem title={tr('Response')} after={event.after.response} />
                         <ChangeListItem title={tr('Name')} before={event.before.name} after={event.after.name} />
                         <ChangeListItem title={tr('Active')} before={event.before.active} after={event.after.active} />
@@ -1838,6 +1839,14 @@ const useAuthor = (event: HistoryEventData) => {
     return { name: tr('Unknown actor') };
 };
 
+const noDataEvents: HistoryAction[] = [
+    'archiveGroup',
+    'deleteGroup',
+    'addUserToGroupAdmin',
+    'removeUserFromGroupAdmin',
+    'removeUserFromGroup',
+];
+
 export const HistoryRecord = ({ event }: HistoryRecordProps) => {
     const author = useAuthor(event);
     const locale = useLocale();
@@ -1851,7 +1860,7 @@ export const HistoryRecord = ({ event }: HistoryRecordProps) => {
         >
             <Text size="xs" weight="thin">
                 {nullable(
-                    event.before === null && event.after === null,
+                    event.before === null && event.after === null && !noDataEvents.includes(event.action),
                     () => (
                         <NoDataEvent event={event} />
                     ),

@@ -42,7 +42,7 @@ export const DeactivateProfileForm = ({ onClose, user }: DeactivateProfileFormPr
     });
 
     const updateUser = useCallback(async () => {
-        await editUserActiveState({ id: user.id, active: !user.active });
+        await editUserActiveState({ id: user.id, active: !user.active, method: 'cloud-move' });
         onClose();
     }, [user, editUserActiveState, onClose]);
 

@@ -243,7 +243,11 @@ export const restRouter = router({
 
             let updatedUser: Awaited<ReturnType<typeof userMethods.editActiveState>> = user;
             if (user.active !== input.data.active) {
-                updatedUser = await userMethods.editActiveState({ id: user.id, active: input.data.active });
+                updatedUser = await userMethods.editActiveState({
+                    id: user.id,
+                    active: input.data.active,
+                    method: 'cloud-move',
+                });
 
                 await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUserActiveState', {
                     groupId: undefined,
@@ -299,7 +303,11 @@ export const restRouter = router({
         .output(userSchema)
         .mutation(async ({ input, ctx }) => {
             const userBefore = await userMethods.getUserByField({ email: input.email });
-            const result = await userMethods.editActiveState({ id: userBefore.id, active: input.active });
+            const result = await userMethods.editActiveState({
+                id: userBefore.id,
+                active: input.active,
+                method: 'cloud-move',
+            });
             if (userBefore.active !== result.active) {
                 await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUserActiveState', {
                     userId: result.id,

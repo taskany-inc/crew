@@ -196,5 +196,6 @@
     "External": "Внешний",
     "successfully updated external user": "успешно обновил(а) внешнего пользователя",
     "failed to update external user": "не смог(ла) обновить внешнего пользователя",
-    "Active": "Активный"
+    "Active": "Активный",
+    "Method": "Метод"
 }

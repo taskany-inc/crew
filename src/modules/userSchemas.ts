@@ -92,6 +92,7 @@ export const editUserActiveStateSchema = z.object({
     id: z.string(),
     active: z.boolean(),
     scheduled: z.boolean().optional(),
+    method: z.enum(['sp', 'cloud-move', 'cloud-no-move']).optional(),
 });
 
 export type EditUserActiveState = z.infer<typeof editUserActiveStateSchema>;
