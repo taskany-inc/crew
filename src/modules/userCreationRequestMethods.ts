@@ -141,7 +141,7 @@ const sendNewCommerEmails = async ({ request, sessionUserId, method, newOrganiza
             const date = new Date(workStartDate);
 
             request.creationCause === 'transfer'
-                ? date.setUTCHours(config.employmentUtcHour - 1)
+                ? date.setUTCHours(config.employmentUtcHour + 1)
                 : date.setUTCHours(config.employmentUtcHour);
 
             let icalEventId = request.id + config.nodemailer.authUser + organizationUnitId;
