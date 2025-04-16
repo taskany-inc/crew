@@ -63,6 +63,7 @@ interface HistoryEventsData {
             response: string;
             name?: string;
             active?: boolean;
+            method?: string;
         };
     };
     createUserCreationRequest: {

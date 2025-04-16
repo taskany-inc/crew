@@ -398,7 +398,7 @@ export const scheduledDeactivationMethods = {
             data.disableAccount &&
             (await createJob('scheduledDeactivation', {
                 date: deactivateJobDate,
-                data: { userId },
+                data: { userId, method: 'sp' },
             }));
 
         const createScheduledDeactivationData: InsertExpression<DB, 'ScheduledDeactivation'> = {

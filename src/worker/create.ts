@@ -1,5 +1,6 @@
 import { db } from '../utils/db';
 import { config } from '../config';
+import { ExternalUserUpdate } from '../modules/externalUserTypes';
 
 export enum jobState {
     scheduled = 'scheduled',
@@ -10,6 +11,7 @@ export enum jobState {
 export interface JobDataMap {
     scheduledDeactivation: {
         userId: string;
+        method?: ExternalUserUpdate['method'];
     };
     createProfile: {
         userCreationRequestId: string;

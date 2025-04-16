@@ -16,8 +16,8 @@ import { percentageMultiply } from '../utils/suplementPosition';
 
 import { JobDataMap } from './create';
 
-export const scheduledDeactivation = async ({ userId }: JobDataMap['scheduledDeactivation']) => {
-    await userMethods.editActiveState({ id: userId, active: false });
+export const scheduledDeactivation = async ({ userId, method }: JobDataMap['scheduledDeactivation']) => {
+    await userMethods.editActiveState({ id: userId, active: false, method });
     await historyEventMethods.create({ subsystem: 'Scheduled profile deactivate' }, 'editUserActiveState', {
         userId,
         groupId: undefined,
