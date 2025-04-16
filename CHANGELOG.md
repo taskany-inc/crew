@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.120.0](https://github.com/taskany-inc/crew/compare/v0.119.0...v0.120.0) (2025-04-16)
+
+
+### Features
+
+* **INTERNAL-1491:** backend edit transfer inside ([df29972](https://github.com/taskany-inc/crew/commit/df299728707ce7cd5d46e169fca932704cd356f7))
+* **INTERNAL-1491:** frontend edit transfer inside ([32449bc](https://github.com/taskany-inc/crew/commit/32449bc2ede178021cd5c4d1dbc3a70b45490e3a))
+* **INTERNAL-1752:** fix cancel errors ([a5cf5da](https://github.com/taskany-inc/crew/commit/a5cf5da3f57808a51ea42566e61945817b859498))
+* **INTERNAL-1805:** multiple external user deactivation methods ([d3502d7](https://github.com/taskany-inc/crew/commit/d3502d7ddcdfd819097c97f160c285cfe0f43701))
+* **userCreationRequestMethods:** fix ical method on cancelling event ([ff099db](https://github.com/taskany-inc/crew/commit/ff099dbc7a30abca9605a8abd4fe528808a6115b))
+
+
+### Bug Fixes
+
+* correct time for transfer newcommer event ([38e70e2](https://github.com/taskany-inc/crew/commit/38e70e2ef26e6d8b7e2c4f117719c21b463ae9cd))
+* **INTERNAL-1163:** fix footer ([b8da1c5](https://github.com/taskany-inc/crew/commit/b8da1c53618881214f4fcb6ed15a083e0c1798a6))
+* **INTERNAL-1806:** fix search by email in rest router ([f74122b](https://github.com/taskany-inc/crew/commit/f74122b1fd9af73f844def11185c10ccc76d2105))
+
 ## [0.119.0](https://github.com/taskany-inc/crew/compare/v0.118.0...v0.119.0) (2025-04-09)
 
 
