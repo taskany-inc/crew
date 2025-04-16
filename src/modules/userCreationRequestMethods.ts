@@ -1883,17 +1883,11 @@ export const userCreationRequestsMethods = {
         });
         if (canceledRequest.jobId) await jobDelete(canceledRequest.jobId);
 
-        const additionalEmails = [sessionUserId];
-
-        if (canceledRequest.supervisorId) additionalEmails.push(canceledRequest.supervisorId);
-
-        if (canceledRequest.buddyId) additionalEmails.push(canceledRequest.buddyId);
-
         if (canceledRequest.type === 'internalEmployee') {
             await sendNewCommerEmails({
                 request: canceledRequest,
                 sessionUserId,
-                method: ICalCalendarMethod.REQUEST,
+                method: ICalCalendarMethod.CANCEL,
             });
         }
 
