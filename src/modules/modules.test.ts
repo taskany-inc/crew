@@ -109,14 +109,16 @@ describe('groups', () => {
         assert.equal(membershipsAfter.length, 0);
     });
 
-    it('kicks archived user out of all organizational groups', async () => {
+    it('kicks archived user out of all organizational groups and restores memberships', async () => {
         await prisma.group.update({ where: { id: 'goldfinch' }, data: { organizational: true } });
         const membershipsBefore = await userMethods.getMemberships('charmander');
         assert.equal(membershipsBefore.length, 1);
         await userMethods.editActiveState({ id: 'charmander', active: false });
+        const membershipsAfterDeactivation = await userMethods.getMemberships('charmander');
+        assert.equal(membershipsAfterDeactivation.length, 0);
         await userMethods.editActiveState({ id: 'charmander', active: true });
-        const membershipsAfter = await userMethods.getMemberships('charmander');
-        assert.equal(membershipsAfter.length, 0);
+        const membershipsAfterActivation = await userMethods.getMemberships('charmander');
+        assert.equal(membershipsAfterActivation.length, 1);
     });
 
     it('cannot add user to the same group twice', async () => {

@@ -1,4 +1,4 @@
-import { Prisma, SupplementalPosition, User } from '@prisma/client';
+import { Prisma, SupplementalPosition, User, PositionStatus } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { sql } from 'kysely';
 
@@ -32,6 +32,7 @@ import {
     UserCuratorOf,
     UserLocation,
     UserSupervisorWithSupplementalPositions,
+    UserUserCreationRequestsTarget,
 } from './userTypes';
 import {
     AddUserToGroup,
@@ -237,6 +238,7 @@ export const userMethods = {
             UserSupervisorIn &
             UserRoleData &
             UserScheduledDeactivations &
+            UserUserCreationRequestsTarget &
             UserSupplementalPositions &
             UserServices &
             UserCurators &
@@ -283,6 +285,16 @@ export const userMethods = {
                 scheduledDeactivations: {
                     orderBy: { createdAt: 'desc' },
                     include: { organizationUnit: true, newOrganizationUnit: true, attaches: true },
+                },
+                userCreationRequestTarget: {
+                    orderBy: { createdAt: 'desc' },
+                    include: {
+                        supplementalPositions: {
+                            include: {
+                                organizationUnit: true,
+                            },
+                        },
+                    },
                 },
                 curators: true,
                 curatorOf: { where: { active: true } },
@@ -475,40 +487,106 @@ export const userMethods = {
 
     editActiveState: async (data: EditUserActiveState): Promise<User> => {
         await externalUserMethods.update(data.id, { active: data.active, method: data.method });
+        const currentUser = await userMethods.getById(data.id);
 
-        const positions = await prisma.supplementalPosition.findMany({
-            where: {
-                userId: data.id,
-            },
-        });
+        if (!currentUser) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `User with id ${data.id} not found` });
+        }
 
         const workEndDate = new Date();
 
-        if (data.active === false && !data.scheduled) {
-            await prisma.membership.deleteMany({ where: { userId: data.id, group: { organizational: true } } });
+        if (data.active) {
+            const currentDate = new Date();
 
-            await prisma.supplementalPosition.updateMany({
-                where: {
-                    id: {
-                        in: positions.reduce<string[]>((acum, position) => {
-                            if (position.status === 'ACTIVE') {
-                                acum.push(position.id);
-                            }
-                            return acum;
-                        }, []),
+            const { positions: lastFiredPositions, endDate: lastPositionEndDate } = getLastSupplementalPositions(
+                currentUser.supplementalPositions,
+            );
+
+            if (lastFiredPositions.length > 0 && lastPositionEndDate) {
+                const hoursDifference =
+                    Math.abs(currentDate.getTime() - lastPositionEndDate.getTime()) / (1000 * 60 * 60);
+
+                if (hoursDifference > 24) {
+                    // If more than 24 hours have passed, create new positions
+                    const newPositionsData = lastFiredPositions.map((p) => ({
+                        userId: data.id,
+                        organizationUnitId: p.organizationUnitId,
+                        status: PositionStatus.ACTIVE,
+                        percentage: p.percentage,
+                        unitId: p.unitId,
+                        main: p.main,
+                        workStartDate: currentDate,
+                        workEndDate: null,
+                    }));
+
+                    await prisma.supplementalPosition.createMany({
+                        data: newPositionsData,
+                    });
+                } else {
+                    // If less than 24 hours have passed, restore old positions
+                    const positionIds = lastFiredPositions.map((p) => p.id);
+
+                    await prisma.supplementalPosition.updateMany({
+                        where: { id: { in: positionIds } },
+                        data: { status: PositionStatus.ACTIVE, workEndDate: null },
+                    });
+                }
+            }
+
+            if (currentUser.deactivatedAt) {
+                const deactivationDate = new Date(currentUser.deactivatedAt);
+                const dayStart = new Date(deactivationDate);
+                const dayEnd = new Date(deactivationDate);
+                dayStart.setHours(0, 0, 0, 0);
+                dayEnd.setHours(23, 59, 59, 999);
+
+                // Find archived in deactivation day memberships
+                const archivedMemberships = await prisma.membership.findMany({
+                    where: {
+                        userId: data.id,
+                        archived: true,
+                        updatedAt: {
+                            gte: dayStart,
+                            lte: dayEnd,
+                        },
                     },
-                },
-                data: {
-                    status: 'FIRED',
-                    workEndDate,
-                },
+                });
+
+                if (archivedMemberships.length > 0) {
+                    // Restore archived memberships
+                    await prisma.membership.updateMany({
+                        where: { id: { in: archivedMemberships.map((m) => m.id) } },
+                        data: { archived: false },
+                    });
+                }
+            }
+        } else {
+            // If user is deactivated
+            const activePositionIds = currentUser.supplementalPositions
+                .filter((p) => p.status === PositionStatus.ACTIVE)
+                .map((p) => p.id);
+
+            // deactivate active positions
+            if (activePositionIds.length > 0) {
+                await prisma.supplementalPosition.updateMany({
+                    where: { id: { in: activePositionIds } },
+                    data: { status: PositionStatus.FIRED, workEndDate },
+                });
+            }
+
+            // deactivate active memberships
+            await prisma.membership.updateMany({
+                where: { userId: data.id, archived: false },
+                data: { archived: true },
             });
         }
 
-        await prisma.membership.updateMany({ where: { userId: data.id }, data: { archived: !data.active } });
         return prisma.user.update({
             where: { id: data.id },
-            data: { active: data.active, deactivatedAt: data.active ? null : workEndDate },
+            data: {
+                active: data.active,
+                deactivatedAt: data.active ? null : workEndDate,
+            },
         });
     },
 

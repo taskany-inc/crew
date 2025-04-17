@@ -64,7 +64,7 @@ export const CreateDecreeForm: FC<CreateDecreeFormProps> = ({ user, type, onSubm
                 if (item.serviceName === ExternalServiceName.Phone && !acum.phone) {
                     acum.phone = item.serviceId;
                 }
-                if (item.serviceName === ExternalServiceName.Email && !acum.personalEmail) {
+                if (item.serviceName === ExternalServiceName.PersonalEmail && !acum.personalEmail) {
                     acum.personalEmail = item.serviceId;
                 }
 
@@ -97,7 +97,7 @@ export const CreateDecreeForm: FC<CreateDecreeFormProps> = ({ user, type, onSubm
             date: new Date(),
             location: user.location?.name,
         };
-    }, [user, role, type, devices]);
+    }, [user, role, type, devices, positions]);
 
     return (
         <DecreeForm
