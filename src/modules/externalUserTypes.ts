@@ -1,3 +1,9 @@
+import { CreateUser } from './userSchemas';
+
+export interface ExternalUserCreate extends CreateUser {
+    unit?: string;
+}
+
 export interface ExternalUserUpdate {
     email: string;
     name?: string;
