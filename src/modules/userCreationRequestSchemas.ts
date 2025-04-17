@@ -196,6 +196,7 @@ const getBaseDecreeSchema = () =>
     getCreateUserCreationRequestBaseSchema()
         .omit({
             osPreference: true,
+            intern: true,
         })
         .extend({
             id: z.string().optional(),
