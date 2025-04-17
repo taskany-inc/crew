@@ -1,4 +1,4 @@
-import { ComponentProps, useMemo, FC } from 'react';
+import { ComponentProps, useMemo, FC, useCallback } from 'react';
 
 import { DecreeForm } from '../DecreeForm/DecreeForm';
 import { UserDecreeSchema } from '../../modules/userCreationRequestSchemas';
@@ -107,11 +107,19 @@ export const DecreePage: FC<DecreePageProps> = ({ request, mode }) => {
         router.user(request.userTargetId);
     };
 
+    const onCancel = useCallback(() => {
+        if (request.type === 'toDecree') {
+            router.toDecreeRequests();
+        } else {
+            router.fromDecreeRequests();
+        }
+    }, [request.type, router]);
+
     return (
         <LayoutMain pageTitle={tr('Request')}>
             <div className={s.Wrapper}>
                 <DecreeForm
-                    onCancel={() => router.user(request.userTargetId)}
+                    onCancel={onCancel}
                     type={request.type}
                     onSubmit={onSubmit}
                     defaultValues={defaultValues}

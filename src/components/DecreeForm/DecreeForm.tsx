@@ -174,6 +174,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                         (rId) => (
                             <RequestFormActions
                                 onEdit={() => router.decreeRequestEdit(rId)}
+                                onCancel={onCancel}
                                 requestId={rId}
                                 requestType={type}
                             />
