@@ -50,6 +50,8 @@ const RequestActions = ({
         return router.internalUserRequestEdit(id);
     }, [type, router, id]);
 
+    if (type === UserCreationRequestType.createSuppementalPosition) return null; // TODO request actions for supplement position request
+
     return (
         <div onClick={(e) => e.preventDefault()}>
             <RequestFormActions
@@ -71,6 +73,10 @@ const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((prop
     }
 
     if (props.item.type === UserCreationRequestType.transferInside) href = pages.transferInside(props.item.id);
+
+    if (props.item.type === UserCreationRequestType.createSuppementalPosition) {
+        href = pages.supplementalPositionRequest(props.item.id);
+    }
 
     return (
         <a href={href} className={s.TableRowLink}>
@@ -95,6 +101,7 @@ export const UserCreateRequestsPage = () => {
             UserCreationRequestType.internalEmployee,
             UserCreationRequestType.transferInternToStaff,
             UserCreationRequestType.transferInside,
+            UserCreationRequestType.createSuppementalPosition,
         ],
         orderBy: {
             name: sorting.find(({ key }) => key === 'name')?.dir,
@@ -114,6 +121,10 @@ export const UserCreateRequestsPage = () => {
 
         if (creationCause === 'transfer') {
             return tr('Transfer to SD');
+        }
+
+        if (creationCause === UserCreationRequestType.createSuppementalPosition) {
+            return tr('New supplemental position');
         }
 
         return tr('Exit of a new employee');

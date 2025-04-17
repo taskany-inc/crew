@@ -52,7 +52,16 @@ export type UpdateSupplementalPosition = z.infer<typeof updateSupplementalPositi
 
 export const createSupplementalPositionRequestSchema = () =>
     getCreateUserCreationRequestInternalEmployeeSchema()
-        .omit({ creationCause: true, date: true, intern: true })
+        .omit({
+            creationCause: true,
+            date: true,
+            intern: true,
+            externalGroupId: true,
+            corporateEmail: true,
+            osPreference: true,
+            workModeComment: true,
+            transferFromGroup: true,
+        })
         .extend({
             type: z.literal(UserCreationRequestType.createSuppementalPosition),
             userTargetId: z.string(),
