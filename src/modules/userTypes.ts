@@ -10,6 +10,7 @@ import {
     ScheduledDeactivation,
     SupplementalPosition,
     UserService,
+    UserCreationRequest,
 } from '@prisma/client';
 
 import { Nullish } from '../utils/types';
@@ -97,6 +98,14 @@ export interface UserScheduledDeactivations {
             ScheduledDeactivationOrganizationUnit &
             ScheduledDeactivationNewOrganizationUnit &
             ScheduledDeactivationAttaches
+    >;
+}
+
+export interface UserUserCreationRequestsTarget {
+    userCreationRequestTarget: Array<
+        UserCreationRequest & {
+            supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
+        }
     >;
 }
 

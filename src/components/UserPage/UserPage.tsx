@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { User } from 'prisma/prisma-client';
+import { User, UserCreationRequestStatus } from 'prisma/prisma-client';
 import { Text, Button, nullable, Modal } from '@taskany/bricks';
 import { gapL, gapS, gapXl, gray10, gray8, textColor } from '@taskany/colors';
 import styled from 'styled-components';
@@ -41,8 +41,10 @@ import {
     UserSupervisorIn,
     UserSupervisorOf,
     UserSupplementalPositions,
+    UserUserCreationRequestsTarget,
 } from '../../modules/userTypes';
 import { ScheduleDeactivateType } from '../../modules/scheduledDeactivationTypes';
+import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 import { useLocale } from '../../hooks/useLocale';
 import { formatDate } from '../../utils/dateTime';
 import { supplementPositionListToString } from '../../utils/suplementPosition';
@@ -102,6 +104,7 @@ interface UserPageInnerProps {
         UserNames &
         UserMemberships &
         UserSupervisorWithSupplementalPositions &
+        UserUserCreationRequestsTarget &
         UserRoleData &
         UserAchievements &
         UserSupervisorOf &
@@ -125,9 +128,31 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     const orgMembership = user.memberships.find((m) => m.group.organizational);
     const orgRoles = orgMembership?.roles.map((r) => r.name).join(', ');
 
-    const { orgUnitAndRole, supplemental } = useMemo(() => {
+    const decreeRequest = useMemo(() => {
+        return user.userCreationRequestTarget.find(
+            (r) =>
+                (r.type === UserCreationRequestType.toDecree || r.type === UserCreationRequestType.fromDecree) &&
+                r.status !== UserCreationRequestStatus.Canceled &&
+                r.status !== UserCreationRequestStatus.Denied &&
+                r.date &&
+                r.date > new Date(),
+        );
+    }, [user.userCreationRequestTarget]);
+
+    const { positions, hasActivePosition, hasDecreePosition } = useMemo(() => {
         const { positions } = getLastSupplementalPositions(user.supplementalPositions);
 
+        const hasActivePosition = !positions.length || positions.find((p) => p.status === 'ACTIVE');
+        const hasDecreePosition = positions.some((p) => p.status === 'DECREE');
+
+        return {
+            positions,
+            hasActivePosition,
+            hasDecreePosition,
+        };
+    }, [user.supplementalPositions]);
+
+    const { orgUnitAndRole, supplemental } = useMemo(() => {
         const { main, supplemental } = positions.reduce<{
             main: UserSupplementalPositions['supplementalPositions'][number] | null;
             supplemental: UserSupplementalPositions['supplementalPositions'][number][];
@@ -165,7 +190,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
             supplemental,
             main,
         };
-    }, [user.supplementalPositions, orgRoles]);
+    }, [positions, orgRoles]);
 
     const handleEditUserRole = async (data?: Nullish<{ code: string }>) => {
         if (!data) return;
@@ -187,18 +212,6 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
     );
 
     const activeScheduledDeactivation = getActiveScheduledDeactivation(user);
-
-    const { hasDecreePosition, hasActivePosition } = useMemo(() => {
-        const hasActivePosition =
-            !user.supplementalPositions.length || user.supplementalPositions.find((p) => p.status === 'ACTIVE');
-
-        const hasDecreePosition = user.supplementalPositions.some((p) => p.status === 'DECREE');
-
-        return {
-            hasActivePosition,
-            hasDecreePosition,
-        };
-    }, [user.supplementalPositions]);
 
     return (
         <LayoutMain pageTitle={user.name}>
@@ -237,6 +250,16 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             </Text>
                         ),
                     )}
+
+                    {nullable(decreeRequest, (request) => (
+                        <Text size="s" color={gray8} weight="bold">
+                            {request.type === UserCreationRequestType.toDecree
+                                ? tr('Decree leave planned for')
+                                : tr('Return from decree leave planned for')}{' '}
+                            {formatDate(request.date as Date, locale)}
+                        </Text>
+                    ))}
+
                     <Text size="xxl" weight="bold" color={user.active ? textColor : gray8}>
                         {user.name}
                         {!user.active && tr(' [inactive]')}
@@ -269,7 +292,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             size="s"
                         />
                     </Restricted>
-                    <Restricted visible={!!sessionUser.role?.editUserActiveState}>
+                    <Restricted visible={!!sessionUser.role?.editUserActiveState && !decreeRequest}>
                         {nullable(
                             hasActivePosition,
                             () => (

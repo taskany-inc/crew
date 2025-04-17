@@ -6,9 +6,6 @@
     "Supervisor of users": "Руководитель у пользователей",
     "Supervisor in teams": "Руководитель в командах",
     "History of activity": "История активности",
-    "scheduled on {date}": "запланирован(о) на {date}",
-    "Retirement": "Увольнение",
-    "Transfer": "Перевод",
     "Supplemental: ": "Дополнительно: ",
     "Previous names": "Предыдущие ФИО",
     "To decree": "В декрет",
@@ -16,5 +13,7 @@
     "Retirement scheduled on": "Увольнение запланировано на",
     "Transfer scheduled on": "Перевод запланирован на",
     "Intern": "Стажер",
-    "Dismiss/transfer": "Увольнение/Перевод"
+    "Dismiss/transfer": "Увольнение/Перевод",
+    "Decree leave planned for": "Выход в декрет запланирован на",
+    "Return from decree leave planned for": "Выход из декрета запланирован на"
 }
