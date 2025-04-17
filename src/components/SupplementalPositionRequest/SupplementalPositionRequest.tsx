@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Text } from '@taskany/bricks/harmony';
+import { nullable } from '@taskany/bricks';
 
 import { UserFormRegistrationBlock } from '../UserFormRegistrationBlock/UserFormRegistrationBlock';
 import { LayoutMain } from '../LayoutMain/LayoutMain';
@@ -13,7 +14,7 @@ import { useSpyNav } from '../../hooks/useSpyNav';
 import { UserFormTeamBlock } from '../UserFormTeamBlock/UserFormTeamBlock';
 import { UserFormCommentsBlock } from '../UserFormCommentsBlock/UserFormCommentsBlock';
 import { User } from '../../trpc/inferredTypes';
-import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
+import { UserCreationRequestType, UserCreationRequestWithRelations } from '../../modules/userCreationRequestTypes';
 import { percentageMultiply } from '../../utils/suplementPosition';
 import { UserFormWorkSpaceBlock } from '../UserFormWorkSpaceBlock/UserFormWorkSpaceBlock';
 import {
@@ -27,6 +28,7 @@ import { tr } from './SupplementalPositionRequest.i18n';
 
 interface SupplementalPositionRequestProps {
     user: User;
+    request?: UserCreationRequestWithRelations;
     phone?: string;
     type?: 'new' | 'readOnly' | 'edit';
     personalEmail?: string;
@@ -35,6 +37,7 @@ interface SupplementalPositionRequestProps {
 
 export const SupplementalPositionRequest = ({
     user,
+    request,
     type = 'new',
     phone,
     workEmail,
@@ -53,8 +56,8 @@ export const SupplementalPositionRequest = ({
         userTargetId: user.id,
         email: user.email,
         login: user.login || '',
-        title: orgMembership?.roles.map(({ name }) => name).join(', ') || user.title || undefined,
-        groupId: orgMembership?.groupId,
+        title: request?.title || orgMembership?.roles.map(({ name }) => name).join(', ') || user.title || undefined,
+        groupId: request?.groupId || orgMembership?.groupId,
         surname,
         firstName,
         middleName,
@@ -62,12 +65,11 @@ export const SupplementalPositionRequest = ({
         phone,
         workEmail,
         personalEmail,
-        corporateEmail: user.email,
-        location: user.location?.name,
-        unitId: mainPosition?.unitId || '',
-        supervisorId: user.supervisorId || undefined,
-        organizationUnitId: mainPosition?.organizationUnitId || '',
-        supplementalPositions: [
+        location: request?.location || user.location?.name,
+        unitId: mainPosition?.unitId || undefined,
+        supervisorId: request?.supervisorId || user.supervisorId || undefined,
+        organizationUnitId: mainPosition?.organizationUnitId || undefined,
+        supplementalPositions: request?.supplementalPositions.map((s) => ({ ...s, unitId: s.unitId || undefined })) || [
             {
                 organizationUnitId: '',
                 percentage: 0.01,
@@ -75,6 +77,15 @@ export const SupplementalPositionRequest = ({
                 workStartDate: null,
             },
         ],
+        recruiterId: request?.recruiterId || undefined,
+        comment: request?.comment || undefined,
+        workMode: request?.workMode || undefined,
+        equipment: request?.equipment || undefined,
+        extraEquipment: request?.extraEquipment || undefined,
+        workSpace: request?.workSpace || undefined,
+        buddyId: request?.buddyId || undefined,
+        lineManagerIds: request?.lineManagers?.map(({ id }) => id) || [],
+        coordinatorIds: request?.coordinators?.map(({ id }) => id) || [],
     };
 
     const router = useRouter();
@@ -114,11 +125,13 @@ export const SupplementalPositionRequest = ({
                                     ? tr('Create a supplemental position for employee')
                                     : tr('Request supplemental position for employee')}
                             </Text>
-                            <UserFormFormActions
-                                submitDisabled={isSubmitting || isSubmitSuccessful}
-                                onCancel={() => (type === 'new' ? router.user(user.id) : router.userRequests)}
-                                onReset={type === 'new' ? () => reset(defaultValues) : undefined}
-                            />
+                            {nullable(type === 'new', () => (
+                                <UserFormFormActions
+                                    submitDisabled={isSubmitting || isSubmitSuccessful}
+                                    onCancel={() => (type === 'new' ? router.user(user.id) : router.userRequests)}
+                                    onReset={type === 'new' ? () => reset(defaultValues) : undefined}
+                                />
+                            ))}
                         </div>
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>

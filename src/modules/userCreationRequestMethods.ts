@@ -4128,4 +4128,24 @@ export const userCreationRequestsMethods = {
             });
         }
     },
+
+    getSupplementalPositionRequestById: async (id: string): Promise<UserCreationRequestWithRelations> => {
+        const request = await userCreationRequestsMethods.getById(id);
+        const { type } = request;
+
+        if (type !== UserCreationRequestType.createSuppementalPosition) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: `Wrong type in request ${id} - ${type} instead of UserCreationRequestType.createSuppementalPosition`,
+            });
+        }
+
+        const { userTargetId } = request;
+
+        if (!userTargetId) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: `No userTargetId for request ${id}` });
+        }
+
+        return request;
+    },
 };

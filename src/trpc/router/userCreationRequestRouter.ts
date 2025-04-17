@@ -625,11 +625,11 @@ export const userCreationRequestRouter = router({
             }
 
             if (ctx.session.user.role?.editUserActiveState) {
-                allowedTypes.push(UserCreationRequestType.transferInternToStaff);
-            }
-
-            if (ctx.session.user.role?.editUserActiveState) {
-                allowedTypes.push(UserCreationRequestType.transferInside);
+                allowedTypes.push(
+                    UserCreationRequestType.transferInternToStaff,
+                    UserCreationRequestType.transferInside,
+                    UserCreationRequestType.createSuppementalPosition,
+                );
             }
 
             const type = input.type ? input.type.filter((t) => allowedTypes.includes(t)) : allowedTypes;
@@ -881,5 +881,13 @@ export const userCreationRequestRouter = router({
         });
 
         return confirmedRequest;
+    }),
+
+    getSupplementalPositionRequestById: protectedProcedure.input(z.string()).query(({ input, ctx }) => {
+        accessCheckAnyOf(
+            checkRoleForAccess(ctx.session.user.role, 'editUserCreationRequests'),
+            checkRoleForAccess(ctx.session.user.role, 'createUser'),
+        );
+        return userCreationRequestsMethods.getSupplementalPositionRequestById(input);
     }),
 });

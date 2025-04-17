@@ -63,6 +63,7 @@ export const pages = {
     editTransferInside: (requestId: string) => `/requests/users/transfer-inside/${requestId}/edit`,
 
     createSupplementalPositionRequest: (userId: string) => `/users/${userId}/new-supplemental-position`,
+    supplementalPositionRequest: (requestId: string) => `/requests/users/new-supplemental-position/${requestId}`,
 };
 
 export const useRouter = () => {
@@ -134,5 +135,6 @@ export const useRouter = () => {
 
         createSupplementalPositionRequest: (userId: string) =>
             router.push(pages.createSupplementalPositionRequest(userId)),
+        supplementalPositionRequest: (requestId: string) => router.push(pages.supplementalPositionRequest(requestId)),
     };
 };
