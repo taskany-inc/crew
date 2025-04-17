@@ -12,6 +12,7 @@ import { ExternalServiceName, findService } from '../utils/externalServices';
 import { getLastSupplementalPositions } from '../utils/supplementalPositions';
 import { db } from '../utils/db';
 import { getSearchRegex } from '../utils/regex';
+import { getUnitGroup } from '../utils/getUnitGroup';
 
 import {
     MembershipInfo,
@@ -748,6 +749,23 @@ export const userMethods = {
 
             const isExternal = request.type === 'externalFromMainOrgEmployee' || request.type === 'externalEmployee';
 
+            let unit: string | undefined;
+            if (request.groupId) {
+                unit = await getUnitGroup(request.groupId);
+            } else if (request.supervisorId) {
+                const supervisorOrgGroup = await db
+                    .selectFrom('Group')
+                    .leftJoin('Membership as m', 'Group.id', 'm.groupId')
+                    .where((eb) =>
+                        eb.and([eb('Group.organizational', '=', true), eb('m.userId', '=', request.supervisorId)]),
+                    )
+                    .select('Group.id')
+                    .executeTakeFirst();
+                if (supervisorOrgGroup) {
+                    unit = await getUnitGroup(supervisorOrgGroup.id);
+                }
+            }
+
             await externalUserMethods.create({
                 surname,
                 firstName,
@@ -758,6 +776,7 @@ export const userMethods = {
                 login: request.login,
                 organizationUnitId: request.organizationUnitId,
                 isExternal,
+                unit,
             });
         }
 

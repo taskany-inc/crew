@@ -4,20 +4,29 @@ import { prisma } from '../utils/prisma';
 import { config } from '../config';
 import { logger } from '../utils/logger';
 
-import { CreateUser } from './userSchemas';
-import { ExternalUserUpdate } from './externalUserTypes';
+import { ExternalUserCreate, ExternalUserUpdate } from './externalUserTypes';
 import { historyEventMethods } from './historyEventMethods';
 
 const externalUserLogger = logger.child({ externalUserMethods: true });
 
 export const externalUserMethods = {
-    create: async (data: CreateUser) => {
+    create: async (data: ExternalUserCreate) => {
         if (!config.externalUserService.enabled) return;
         if (!config.externalUserService.apiToken || !config.externalUserService.apiUrlCreate) {
             throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'External user service is not configured' });
         }
-        const { organizationUnitId, firstName, middleName, surname, phone, workMail, personalMail, login, isExternal } =
-            data;
+        const {
+            organizationUnitId,
+            firstName,
+            middleName,
+            surname,
+            phone,
+            workMail,
+            personalMail,
+            login,
+            isExternal,
+            unit,
+        } = data;
         const organization = await prisma.organizationUnit.findFirstOrThrow({
             where: { id: organizationUnitId },
             select: { country: true, name: true },
@@ -32,6 +41,7 @@ export const externalUserMethods = {
             organization,
             login,
             isExternal,
+            unit,
         };
         const response = await fetch(config.externalUserService.apiUrlCreate, {
             method: 'POST',
