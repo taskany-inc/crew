@@ -30,7 +30,7 @@ export type NotificationNamespaces =
     | NamespacedAction<'bonusPoints', 'Change'>
     | NamespacedAction<'userRole', 'ChangeScope'>
     | NamespacedAction<'attach', 'Delete'>
-    | NamespacedAction<'supplementalPosition', 'Add' | 'Remove' | 'CreateRequest'>
+    | NamespacedAction<'supplementalPosition', 'Add' | 'Remove' | 'CreateRequest' | 'CancelRequest' | 'UpdateRequest'>
     | NamespacedAction<'transferInternToStaffRequest', 'Create' | 'Edit' | 'Cancel'>
     | NamespacedAction<'transferInsideRequest', 'Create' | 'Cancel' | 'Edit'>
     | 'sendFeedback'
@@ -256,6 +256,14 @@ export const getNotificicationKeyMap = (key: keyof NotificationMap) => {
         supplementalPositionCreateRequest: {
             success: tr('Voila! Request for supplemental position created 🎉'),
             loading: tr('Creating request for supplemental position...'),
+        },
+        supplementalPositionCancelRequest: {
+            success: tr('Voila! Request for supplemental position canceled 🎉'),
+            loading: tr('Canceling request for supplemental position...'),
+        },
+        supplementalPositionUpdateRequest: {
+            success: tr('Voila! Request for supplemental position updated 🎉'),
+            loading: tr('Updating request for supplemental position...'),
         },
     };
 

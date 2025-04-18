@@ -108,5 +108,9 @@
     "Voila! Transfer employee inside organization updated 🎉": "",
     "Updating transfer employee inside organization request...": "",
     "Voila! Request for supplemental position created 🎉": "",
-    "Creating request for supplemental position...": ""
+    "Creating request for supplemental position...": "",
+    "Voila! Request for supplemental position canceled 🎉": "",
+    "Canceling request for supplemental position...": "",
+    "Voila! Request for supplemental position updated 🎉": "",
+    "Updating request for supplemental position...": ""
 }
