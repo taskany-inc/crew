@@ -13,7 +13,12 @@ export const dateSchema = z
         }),
     })
     .nullable()
-    .refine((date) => date, tr('Required field'));
+    .refine((date) => date, tr('Required field'))
+    .refine((date) => {
+        if (!date) return true;
+        const year = date.getFullYear();
+        return year >= 2000;
+    }, tr('Select a date no earlier than 2000'));
 
 export const percentageSchema = z
     .number({ required_error: tr('Please enter percentage from 0.01 to 1') })
