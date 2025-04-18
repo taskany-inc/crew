@@ -78,3 +78,8 @@ export const createSupplementalPositionRequestSchema = () =>
         });
 
 export type CreateSupplementalPositionRequest = z.infer<ReturnType<typeof createSupplementalPositionRequestSchema>>;
+
+export const updateSupplementalPositionRequestSchema = () =>
+    createSupplementalPositionRequestSchema().extend({ id: z.string() });
+
+export type UpdateSupplementalPositionRequest = z.infer<ReturnType<typeof updateSupplementalPositionRequestSchema>>;

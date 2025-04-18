@@ -1,7 +1,8 @@
 import { TRPCError } from '@trpc/server';
-import { jsonObjectFrom } from 'kysely/helpers/postgres';
-import { OrganizationUnit, SupplementalPosition } from 'prisma/prisma-client';
+import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
+import { OrganizationUnit, PositionStatus, SupplementalPosition } from 'prisma/prisma-client';
 import { InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser';
+import { UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser';
 
 import { prisma } from '../utils/prisma';
 import { percentageMultiply } from '../utils/suplementPosition';
@@ -18,6 +19,7 @@ import {
     CreateSupplementalPositionRequest,
     RemoveSupplementalPositionFromUser,
     UpdateSupplementalPosition,
+    UpdateSupplementalPositionRequest,
 } from './supplementalPositionSchema';
 import { userMethods } from './userMethods';
 import { tr } from './modules.i18n';
@@ -111,20 +113,32 @@ export const supplementalPositionMethods = {
         return position;
     },
 
-    updateRequestPosition: async (data: {
-        date: Date;
-        jobKind: JobKind;
-        userId: string;
-        position?: SupplementalPosition;
-        updateValues?: { organizationUnitId: string; percentage?: number; unitId?: string };
-        main: boolean;
-        requestId: string;
-        connectToUser?: boolean;
-    }) => {
-        const { date, jobKind, userId, position, updateValues, main, requestId, connectToUser } = data;
+    updateRequestPosition: async (
+        data: {
+            date: Date;
+            jobKind: JobKind;
+            userId: string;
+            position?: SupplementalPosition;
+            updateValues?: { organizationUnitId: string; percentage?: number; unitId?: string };
+            main: boolean;
+            requestId: string;
+            connectToUser?: boolean;
+            userCreationRequestKey: 'userCreationRequestId' | 'userTransferToRequestId';
+        },
+        base = db,
+    ) => {
+        const {
+            date,
+            jobKind,
+            userId,
+            position,
+            updateValues,
+            main,
+            requestId,
+            connectToUser,
+            userCreationRequestKey,
+        } = data;
         const dateKey = jobKind === 'scheduledFiringFromSupplementalPosition' ? 'workEndDate' : 'workStartDate';
-        const userCreationRequestKey =
-            jobKind === 'scheduledFiringFromSupplementalPosition' ? 'userCreationRequestId' : 'userTransferToRequestId';
 
         if (!position && updateValues) {
             const newPosition = await supplementalPositionMethods.create({
@@ -139,7 +153,7 @@ export const supplementalPositionMethods = {
 
             const job = await createJob(jobKind, { date, data: { supplementalPositionId: newPosition.id, userId } });
 
-            await db
+            await base
                 .updateTable('SupplementalPosition')
                 .where('id', '=', newPosition.id)
                 .set({ jobId: job.id })
@@ -166,20 +180,20 @@ export const supplementalPositionMethods = {
                     data: { supplementalPositionId: updatedPosition.id, userId },
                 });
 
-                await db
+                await base
                     .updateTable('SupplementalPosition')
                     .where('id', '=', updatedPosition.id)
                     .set({ jobId: job.id })
                     .execute();
             } else if (position.workStartDate !== date) {
-                await db.updateTable('Job').where('id', '=', position.jobId).set({ date }).execute();
+                await base.updateTable('Job').where('id', '=', position.jobId).set({ date }).execute();
             }
 
             return updatedPosition;
         }
 
         if (position && !updateValues && !main) {
-            await db.deleteFrom('SupplementalPosition').where('id', '=', position.id).execute();
+            await base.deleteFrom('SupplementalPosition').where('id', '=', position.id).execute();
 
             position.jobId && (await jobDelete(position.jobId));
         }
@@ -275,19 +289,11 @@ export const supplementalPositionMethods = {
                 trx,
             );
 
-            await Promise.all([
-                data.coordinatorIds?.length &&
-                    trx
-                        .insertInto('_userCoordinators')
-                        .values(data.coordinatorIds.map((id) => ({ A: id, B: request.id })))
-                        .execute(),
-
-                data.lineManagerIds?.length &&
-                    trx
-                        .insertInto('_userLineManagers')
-                        .values(data.lineManagerIds.map((id) => ({ A: id, B: request.id })))
-                        .execute(),
-            ]);
+            data.lineManagerIds?.length &&
+                (await trx
+                    .insertInto('_userLineManagers')
+                    .values(data.lineManagerIds.map((id) => ({ A: id, B: request.id })))
+                    .execute());
 
             return { request, supplementalPosition };
         });
@@ -304,5 +310,170 @@ export const supplementalPositionMethods = {
             date: startSupplementalPositionDate,
             data: { userCreationRequestId: request.id },
         });
+    },
+
+    cancelRequest: async ({ id, comment }: { id: string; comment?: string }) => {
+        const request = await db
+            .selectFrom('UserCreationRequest as u')
+            .selectAll()
+            .select((eb) => [
+                'u.id',
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('SupplementalPosition as s')
+                        .selectAll()
+                        .whereRef('u.id', '=', 's.userCreationRequestId'),
+                ).as('supplementalPositions'),
+            ])
+            .where('id', '=', id)
+            .executeTakeFirst();
+
+        if (!request) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `No new supplemental position with id ${id} found` });
+        }
+
+        await db
+            .updateTable('UserCreationRequest')
+            .where('id', '=', id)
+            .set({ status: 'Canceled', cancelComment: comment })
+            .execute();
+
+        if (request.jobId) {
+            await jobDelete(request.jobId);
+        }
+
+        if (request.supplementalPositions[0] && request.supplementalPositions[0].jobId) {
+            await jobDelete(request.supplementalPositions[0].jobId);
+        }
+    },
+
+    updateRequest: async (data: UpdateSupplementalPositionRequest) => {
+        const { id, ...restData } = data;
+
+        const date = restData.supplementalPositions[0].workStartDate;
+
+        if (!date) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: `No workStartDate in creation request for supplemental position for user with id ${data.userTargetId}`,
+            });
+        }
+
+        const request = await db
+            .selectFrom('UserCreationRequest')
+            .where('id', '=', id)
+            .selectAll()
+            .select((eb) => [
+                'UserCreationRequest.id',
+                jsonArrayFrom(
+                    eb
+                        .selectFrom('SupplementalPosition as s')
+                        .selectAll()
+                        .whereRef('UserCreationRequest.id', '=', 's.userCreationRequestId')
+                        .$narrowType<{
+                            percentage: number;
+                            status: PositionStatus;
+                        }>(),
+                ).as('supplementalPositions'),
+                jsonArrayFrom(
+                    eb.selectFrom('_userLineManagers').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
+                ).as('lineManagers'),
+            ])
+            .executeTakeFirst();
+
+        if (!request) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `No new supplemental position with id ${id} found` });
+        }
+
+        const { userTargetId } = request;
+
+        if (!userTargetId) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `No new supplemental position with id ${id} found` });
+        }
+
+        const user = await userMethods.getById(data.userTargetId);
+
+        if (!user) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${data.userTargetId} found` });
+        }
+
+        await serviceMethods.updateUserServicesInRequest({
+            userId: user.id,
+            services: user.services,
+            phone: data.phone,
+            personalEmail: data.personalEmail,
+            workEmail: data.workEmail,
+        });
+
+        const position = request.supplementalPositions[0];
+
+        const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
+
+        const setValues: UpdateObjectExpression<DB, 'UserCreationRequest'> = {
+            type: restData.type,
+            userTargetId: restData.userTargetId,
+            supervisorId: restData.supervisorId,
+            organizationUnitId: restData.organizationUnitId,
+            createExternalAccount: false,
+            name,
+            groupId: restData.groupId,
+            title: restData.title,
+            comment: restData.comment,
+            workEmail: restData.workEmail,
+            personalEmail: restData.personalEmail,
+            workMode: restData.workMode,
+            equipment: restData.equipment,
+            extraEquipment: restData.extraEquipment,
+            workSpace: restData.workSpace,
+            location: restData.location,
+            unitId: restData.unitId,
+            percentage: restData.percentage ? restData.percentage * percentageMultiply : undefined,
+        };
+
+        await db.transaction().execute(async (trx) => {
+            await supplementalPositionMethods.updateRequestPosition(
+                {
+                    userId: userTargetId,
+                    jobKind: 'activateUserSupplementalPosition',
+                    position,
+                    main: false,
+                    requestId: id,
+                    updateValues: restData.supplementalPositions[0],
+                    date,
+                    userCreationRequestKey: 'userCreationRequestId',
+                },
+                trx,
+            );
+
+            await trx
+                .updateTable('UserCreationRequest')
+                .set(setValues)
+                .where('id', '=', id)
+                .returningAll()
+                .executeTakeFirst();
+
+            if (request.lineManagers.length) {
+                await trx
+                    .deleteFrom('_userLineManagers')
+                    .where('B', '=', id)
+                    .where(
+                        'A',
+                        'in',
+                        request.lineManagers.map(({ A }) => A),
+                    )
+                    .execute();
+            }
+
+            if (restData.lineManagerIds?.length) {
+                await trx
+                    .insertInto('_userLineManagers')
+                    .values(restData.lineManagerIds.map((id) => ({ A: id, B: request.id })))
+                    .execute();
+            }
+        });
+
+        if (request.jobId && position.workStartDate && position.workStartDate !== date) {
+            await db.updateTable('Job').where('id', '=', request.jobId).set({ date }).execute();
+        }
     },
 };

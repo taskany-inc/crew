@@ -1,5 +1,5 @@
 import { supplementalPositionMethods } from '../../modules/supplementalPositionMethods';
-import { accessCheck } from '../../utils/access';
+import { accessCheck, checkRoleForAccess } from '../../utils/access';
 import { protectedProcedure, router } from '../trpcBackend';
 import { userAccess } from '../../modules/userAccess';
 import { historyEventMethods } from '../../modules/historyEventMethods';
@@ -7,7 +7,9 @@ import {
     addSupplementalPositionToUserSchema,
     createSupplementalPositionRequestSchema,
     removeSupplementalPositionFromUserSchema,
+    updateSupplementalPositionRequestSchema,
 } from '../../modules/supplementalPositionSchema';
+import { handleUserCreationRequest } from '../../modules/userCreationRequestSchemas';
 
 export const supplementalPositionRouter = router({
     addToUser: protectedProcedure.input(addSupplementalPositionToUserSchema).mutation(async ({ input, ctx }) => {
@@ -42,8 +44,24 @@ export const supplementalPositionRouter = router({
     createRequest: protectedProcedure
         .input(createSupplementalPositionRequestSchema())
         .mutation(async ({ input, ctx }) => {
-            accessCheck(userAccess.isEditable(ctx.session.user, input.userTargetId));
+            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
             await supplementalPositionMethods.createRequest(input, ctx.session.user.id);
+
+            // TODO history event
+        }),
+
+    cancelRequest: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
+        accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
+        await supplementalPositionMethods.cancelRequest(input);
+
+        // TODO history event
+    }),
+
+    updateRequest: protectedProcedure
+        .input(updateSupplementalPositionRequestSchema())
+        .mutation(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
+            await supplementalPositionMethods.updateRequest(input);
 
             // TODO history event
         }),

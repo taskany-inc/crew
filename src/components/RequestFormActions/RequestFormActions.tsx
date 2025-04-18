@@ -12,6 +12,7 @@ import { useUserCreationRequestMutations } from '../../modules/userCreationReque
 import { useScheduledDeactivation } from '../../modules/scheduledDeactivationHooks';
 import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 import { ScheduleDeactivateType } from '../../modules/scheduledDeactivationTypes';
+import { useSupplementalPositionMutations } from '../../modules/supplementalPositionHooks';
 
 import s from './RequestFormActions.module.css';
 import { tr } from './RequestFormActions.i18n';
@@ -21,7 +22,7 @@ interface RequestFormActionsProps {
     onEdit?: () => void;
     onDecide?: () => void;
     onCancel?: () => void;
-    requestStatus?: UserCreationRequestStatus;
+    requestStatus?: UserCreationRequestStatus | null;
     requestType?: UserCreationRequestType | ScheduleDeactivateType;
     small?: boolean;
 }
@@ -53,6 +54,7 @@ export const RequestFormActions = ({
         confirmDraftRequest,
     } = useUserCreationRequestMutations();
     const { cancelScheduledDeactivation } = useScheduledDeactivation();
+    const { cancelSupplementalPositionRequest } = useSupplementalPositionMutations();
 
     const commentRef = useLatest(comment);
 
@@ -71,6 +73,11 @@ export const RequestFormActions = ({
 
         if (requestType === UserCreationRequestType.transferInside) {
             cancelTransferInsideRequest({ id: requestId, comment: commentRef.current });
+            return cancelWarningVisible.setFalse();
+        }
+
+        if (requestType === UserCreationRequestType.createSuppementalPosition) {
+            cancelSupplementalPositionRequest({ id: requestId, comment: commentRef.current });
             return cancelWarningVisible.setFalse();
         }
 
