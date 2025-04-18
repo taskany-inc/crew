@@ -22,6 +22,7 @@ import {
     createSupplementalPositionRequestSchema,
 } from '../../modules/supplementalPositionSchema';
 import { useSupplementalPositionMutations } from '../../modules/supplementalPositionHooks';
+import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 
 import s from './SupplementalPositionRequest.module.css';
 import { tr } from './SupplementalPositionRequest.i18n';
@@ -43,7 +44,7 @@ export const SupplementalPositionRequest = ({
     workEmail,
     personalEmail,
 }: SupplementalPositionRequestProps) => {
-    const { createSupplementalPositionRequest } = useSupplementalPositionMutations();
+    const { createSupplementalPositionRequest, updateSupplementalPositionRequest } = useSupplementalPositionMutations();
 
     const orgMembership = user?.memberships.find((m) => m.group.organizational);
 
@@ -69,7 +70,11 @@ export const SupplementalPositionRequest = ({
         unitId: mainPosition?.unitId || undefined,
         supervisorId: request?.supervisorId || user.supervisorId || undefined,
         organizationUnitId: mainPosition?.organizationUnitId || undefined,
-        supplementalPositions: request?.supplementalPositions.map((s) => ({ ...s, unitId: s.unitId || undefined })) || [
+        supplementalPositions: request?.supplementalPositions.map((s) => ({
+            ...s,
+            unitId: s.unitId || undefined,
+            percentage: s.percentage / percentageMultiply,
+        })) || [
             {
                 organizationUnitId: '',
                 percentage: 0.01,
@@ -85,7 +90,6 @@ export const SupplementalPositionRequest = ({
         workSpace: request?.workSpace || undefined,
         buddyId: request?.buddyId || undefined,
         lineManagerIds: request?.lineManagers?.map(({ id }) => id) || [],
-        coordinatorIds: request?.coordinators?.map(({ id }) => id) || [],
     };
 
     const router = useRouter();
@@ -106,6 +110,10 @@ export const SupplementalPositionRequest = ({
     useEffect(() => reset(defaultValues), []);
 
     const onFormSubmit = handleSubmit(async (data) => {
+        if (type === 'edit' && request) {
+            updateSupplementalPositionRequest({ id: request.id, ...data });
+            return router.userRequests();
+        }
         await createSupplementalPositionRequest(data);
 
         reset(defaultValues);
@@ -125,13 +133,25 @@ export const SupplementalPositionRequest = ({
                                     ? tr('Create a supplemental position for employee')
                                     : tr('Request supplemental position for employee')}
                             </Text>
-                            {nullable(type === 'new', () => (
+                            {nullable(
+                                type === 'readOnly' && request,
+                                (request) => {
+                                    return (
+                                        <RequestFormActions
+                                            requestStatus={request.status}
+                                            requestType={UserCreationRequestType.createSuppementalPosition}
+                                            requestId={request.id}
+                                            onCancel={() => router.userRequests()}
+                                            onEdit={() => router.updateSupplementalPositionRequest(request.id)}
+                                        />
+                                    );
+                                },
                                 <UserFormFormActions
                                     submitDisabled={isSubmitting || isSubmitSuccessful}
                                     onCancel={() => (type === 'new' ? router.user(user.id) : router.userRequests)}
                                     onReset={type === 'new' ? () => reset(defaultValues) : undefined}
-                                />
-                            ))}
+                                />,
+                            )}
                         </div>
                         <div className={s.Body} onScroll={onScroll}>
                             <div className={s.Form} ref={rootRef}>

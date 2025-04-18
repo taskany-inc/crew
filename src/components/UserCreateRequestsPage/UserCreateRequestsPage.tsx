@@ -47,10 +47,11 @@ const RequestActions = ({
         if (type === UserCreationRequestType.transferInside) {
             return router.editTransferInside(id);
         }
+        if (type === UserCreationRequestType.createSuppementalPosition) {
+            return router.updateSupplementalPositionRequest(id);
+        }
         return router.internalUserRequestEdit(id);
     }, [type, router, id]);
-
-    if (type === UserCreationRequestType.createSuppementalPosition) return null; // TODO request actions for supplement position request
 
     return (
         <div onClick={(e) => e.preventDefault()}>

@@ -5,6 +5,7 @@ import {
     AddSupplementalPositionToUser,
     CreateSupplementalPositionRequest,
     RemoveSupplementalPositionFromUser,
+    UpdateSupplementalPositionRequest,
 } from './supplementalPositionSchema';
 
 export const useSupplementalPositionMutations = () => {
@@ -28,6 +29,18 @@ export const useSupplementalPositionMutations = () => {
         },
     });
 
+    const cancelSupplementalPositionRequest = trpc.supplementalPosition.cancelRequest.useMutation({
+        onSuccess: () => {
+            utils.user.getById.invalidate();
+        },
+    });
+
+    const updateSupplementalPositionRequest = trpc.supplementalPosition.updateRequest.useMutation({
+        onSuccess: () => {
+            utils.user.getById.invalidate();
+        },
+    });
+
     return {
         addSupplementalPositionToUser: (data: AddSupplementalPositionToUser) =>
             notifyPromise(addSupplementalPositionToUser.mutateAsync(data), 'supplementalPositionAdd'),
@@ -37,5 +50,11 @@ export const useSupplementalPositionMutations = () => {
 
         createSupplementalPositionRequest: (data: CreateSupplementalPositionRequest) =>
             notifyPromise(createSupplementalPositionRequest.mutateAsync(data), 'supplementalPositionCreateRequest'),
+
+        cancelSupplementalPositionRequest: (data: { id: string; comment?: string }) =>
+            notifyPromise(cancelSupplementalPositionRequest.mutateAsync(data), 'supplementalPositionCancelRequest'),
+
+        updateSupplementalPositionRequest: (data: UpdateSupplementalPositionRequest) =>
+            notifyPromise(updateSupplementalPositionRequest.mutateAsync(data), 'supplementalPositionUpdateRequest'),
     };
 };

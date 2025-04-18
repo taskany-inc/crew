@@ -2924,6 +2924,7 @@ export const userCreationRequestsMethods = {
                 percentage: restData?.percentage || 1,
                 unitId: restData.unitId,
             },
+            userCreationRequestKey: 'userCreationRequestId',
         });
 
         if (!mainPosition) {
@@ -2949,6 +2950,7 @@ export const userCreationRequestsMethods = {
             jobKind: 'scheduledFiringFromSupplementalPosition',
             requestId: request.id,
             updateValues: supplementalPositionTransferFrom,
+            userCreationRequestKey: 'userCreationRequestId',
         });
 
         supplementalPosition && positions.push(supplementalPosition);
@@ -3490,6 +3492,7 @@ export const userCreationRequestsMethods = {
                 percentage: restData?.transferToPercentage || 1,
                 unitId: restData.transferToUnitId,
             },
+            userCreationRequestKey: 'userTransferToRequestId',
         });
         if (!updatedMainTransferPosition) {
             throw new TRPCError({
@@ -3510,6 +3513,7 @@ export const userCreationRequestsMethods = {
             jobKind: 'activateUserSupplementalPosition',
             requestId: request.id,
             updateValues: transferToSupplementalPosition,
+            userCreationRequestKey: 'userTransferToRequestId',
         });
 
         updatedSupplementalTransferPosition && positionsTo.push(updatedSupplementalTransferPosition);
@@ -3599,6 +3603,7 @@ export const userCreationRequestsMethods = {
                 percentage: restData?.percentage || 1,
                 unitId: restData.unitId,
             },
+            userCreationRequestKey: 'userCreationRequestId',
         });
 
         if (!updatedMainPosition) {
@@ -3622,6 +3627,7 @@ export const userCreationRequestsMethods = {
             jobKind: 'scheduledFiringFromSupplementalPosition',
             requestId: request.id,
             updateValues: supplementalPosition,
+            userCreationRequestKey: 'userTransferToRequestId',
         });
 
         updatedSupplementalPosition && positions.push(updatedSupplementalPosition);
