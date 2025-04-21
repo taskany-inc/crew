@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.121.1](https://github.com/taskany-inc/crew/compare/v0.121.0...v0.121.1) (2025-04-21)
+
+
+### Bug Fixes
+
+* scheduled deactivation fixes ([745ca53](https://github.com/taskany-inc/crew/commit/745ca532ea46b28b63d529d53b5082ae8a2aca7f))
+
 ## [0.121.0](https://github.com/taskany-inc/crew/compare/v0.120.0...v0.121.0) (2025-04-18)
 
 
