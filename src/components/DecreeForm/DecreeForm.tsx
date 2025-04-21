@@ -67,7 +67,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({
         formState: { isSubmitting, isSubmitSuccessful },
     } = methods;
 
-    const requestId = watch('id');
+    const requestId = defaultValues.id;
 
     const organizationUnits = useMemo(
         () =>
@@ -94,6 +94,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                 : undefined,
         [supplementalPositions],
     );
+
     const organizationUnitId = watch('organizationUnitId');
     const firedOrganizationUnitId = watch('firedOrganizationUnitId');
     const supplementalPositionsOrganizationUnitId = watch('supplementalPositions.0.organizationUnitId');
@@ -106,14 +107,10 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                     (type === 'toDecree' ? item.status === 'ACTIVE' : item.status !== 'ACTIVE'),
             );
 
-            if (!position) {
-                return;
-            }
-
             const key = target === 'main' ? '' : 'supplementalPositions.0.';
 
-            setValue(`${key}unitId`, position.unitId ?? '');
-            setValue(`${key}percentage`, position.percentage / percentageMultiply || 0);
+            setValue(`${key}unitId`, position?.unitId ?? '');
+            setValue(`${key}percentage`, position ? position.percentage / percentageMultiply : 0.01);
 
             trigger(`${key}unitId`);
             trigger(`${key}percentage`);
@@ -197,10 +194,10 @@ export const DecreeForm: FC<DecreeFormProps> = ({
 
                         <UserFormRegistrationBlock
                             className={s.FormBlock}
-                            organizationUnits={organizationUnits}
                             onOrganistaionUnitChange={onOrganistaionUnitChange}
                             onFiredOrganizationUnitChange={onFiredOrganizationUnitChange}
                             onSupplementalOrganistaionUnitChange={onSuplementalPositionUnitChange}
+                            organizationUnits={organizationUnits}
                             id="registration"
                             readOnly={mode === 'read'}
                             edit={mode === 'edit'}

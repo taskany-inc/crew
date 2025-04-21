@@ -217,6 +217,7 @@ export const UserFormRegistrationBlock = ({
                             onChange={onFiredOrganizationChange}
                             error={errors.firedOrganizationUnitId}
                             items={organizationUnits}
+                            readOnly={readOnly}
                         />
                     </FormControl>
                 ))}
@@ -226,6 +227,7 @@ export const UserFormRegistrationBlock = ({
             <AddSupplementalPosition
                 readOnly={readOnly}
                 hasStartDate={type !== 'transferInternToStaff' && type !== UserCreationRequestType.transferInside}
+                organizationUnits={organizationUnits}
             />
         </div>
     );

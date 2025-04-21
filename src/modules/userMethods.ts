@@ -985,7 +985,10 @@ export const userMethods = {
             }
 
             if (request.groupId) {
-                userData.memberships.create = { groupId: request.groupId };
+                userData.memberships.create = {
+                    groupId: request.groupId,
+                    roles: request.title ? { connect: { name: request.title } } : undefined,
+                };
             }
         }
 
