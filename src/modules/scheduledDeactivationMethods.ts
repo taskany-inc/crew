@@ -830,6 +830,9 @@ export const scheduledDeactivationMethods = {
                 newOrganizationRole: restData.newOrganizationRole,
                 organizationalGroup: restData.groupId,
                 coordinatorIds: restData.coordinatorIds,
+                ...(restData.attachIds?.length && {
+                    attaches: { connect: restData.attachIds.map((id) => ({ id })) },
+                }),
                 ...(supplementalPositionConnect.length && {
                     supplementalPositions: { connect: supplementalPositionConnect },
                 }),
@@ -976,7 +979,7 @@ export const scheduledDeactivationMethods = {
                 creator: true,
                 organizationUnit: true,
                 newOrganizationUnit: true,
-                attaches: true,
+                attaches: { where: { deletedAt: null } },
                 supplementalPositions: { include: { organizationUnit: true } },
             },
         });

@@ -56,6 +56,8 @@ export const UserFormAttaches = ({ type, requestId, requestType }: UserFormAttac
         [errors.attachIds, setValue, trigger],
     );
 
+    const attachIds = getValues('attachIds');
+
     return (
         <FormControl label={tr('Photo report')} error={errors.attachIds}>
             {nullable(type !== 'readOnly', () => (
@@ -86,7 +88,7 @@ export const UserFormAttaches = ({ type, requestId, requestType }: UserFormAttac
                             ? (attachId) =>
                                   setValue(
                                       'attachIds',
-                                      getValues('attachIds').filter((id) => id !== attachId),
+                                      attachIds?.filter((id) => id !== attachId),
                                   )
                             : undefined
                     }
