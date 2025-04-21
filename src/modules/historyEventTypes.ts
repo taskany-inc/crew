@@ -745,6 +745,56 @@ interface HistoryEventsData {
             organizationUnitId?: string;
         };
     };
+    createSupplementalPositionRequest: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: {
+            id: string;
+            supervisorId?: string;
+            groupId?: string;
+            comment?: string;
+            location?: string;
+            workSpace?: string;
+            workMode?: string;
+            lineManagerIds?: string;
+            supplementalPositionWorkStartDate?: string;
+            supplementalPositionOrganizationUnitId?: string;
+            supplementalPositionPercentage?: number;
+            supplementalPositionUnitId?: string;
+            equipment?: string;
+            extraEquipment?: string;
+            title?: string;
+        };
+    };
+    cancelSupplementalPositionRequest: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: false;
+        data: { id: string; comment?: string };
+    };
+    editSupplementalPositionRequest: {
+        requireGroupId: false;
+        requireUserId: true;
+        requireBefore: true;
+        data: {
+            id: string;
+            supervisorId?: string;
+            groupId?: string;
+            comment?: string;
+            location?: string;
+            workSpace?: string;
+            workMode?: string;
+            lineManagerIds?: string;
+            supplementalPositionWorkStartDate?: string;
+            supplementalPositionOrganizationUnitId?: string;
+            supplementalPositionPercentage?: number;
+            supplementalPositionUnitId?: string;
+            equipment?: string;
+            extraEquipment?: string;
+            title?: string;
+        };
+    };
 }
 
 export type HistoryAction = keyof HistoryEventsData;

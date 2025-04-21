@@ -197,5 +197,11 @@
     "successfully updated external user": "успешно обновил(а) внешнего пользователя",
     "failed to update external user": "не смог(ла) обновить внешнего пользователя",
     "Active": "Активный",
-    "Method": "Метод"
+    "Method": "Метод",
+    "for new supplemental position for": "на новую дополнительую позицию для",
+    "Supplemental position organization unit id": "ID организации дополнительной позиции",
+    "Supplemental position unitId": "UnitId дополнительной позиции",
+    "Supplemental position work start date": "Дата начала работы дополнительной позиции",
+    "Supplemental position percentage": "Доля дополнительной позиции",
+    "canceled request for new supplemental position for": " отменил(а) заявку на новую дополнительую позицию для"
 }
