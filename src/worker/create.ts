@@ -92,14 +92,18 @@ export async function createJob<K extends keyof JobDataMap>(
         const { scheduledDeactivationId, userCreationRequestId } = data as JobDataMap['scheduledDeactivation'];
 
         scheduledDeactivationId &&
-            (await db.updateTable('ScheduledDeactivation').set({ jobId: job.id }))
+            (await db
+                .updateTable('ScheduledDeactivation')
+                .set({ jobId: job.id })
                 .where('id', '=', scheduledDeactivationId)
-                .execute();
+                .execute());
 
         userCreationRequestId &&
-            (await db.updateTable('UserCreationRequest').set({ disableAccountJobId: job.id }))
+            (await db
+                .updateTable('UserCreationRequest')
+                .set({ disableAccountJobId: job.id })
                 .where('id', '=', userCreationRequestId)
-                .execute();
+                .execute());
     }
 
     return job;
