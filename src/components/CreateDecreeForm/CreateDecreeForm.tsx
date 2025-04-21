@@ -20,6 +20,7 @@ import { getLastSupplementalPositions } from '../../utils/supplementalPositions'
 import { trpc } from '../../trpc/trpcClient';
 import { useRouter } from '../../hooks/useRouter';
 import { ExternalServiceName } from '../../utils/externalServices';
+import { percentageMultiply } from '../../utils/suplementPosition';
 
 interface CreateDecreeFormProps {
     user: NonNullable<
@@ -76,7 +77,11 @@ export const CreateDecreeForm: FC<CreateDecreeFormProps> = ({ user, type, onSubm
             },
         );
 
-        const group = user?.memberships.find((m) => m.group.organizational)?.group;
+        const orgMembership = user?.memberships.find((m) => m.group.organizational);
+        const role = orgMembership?.roles[0]?.name || positions[0]?.role || undefined;
+        const group = orgMembership?.group;
+        const mainPosition = positions.find((p) => p.main);
+        const supplementalPositions = positions.filter((p) => !p.main);
 
         return {
             type,
@@ -88,13 +93,20 @@ export const CreateDecreeForm: FC<CreateDecreeFormProps> = ({ user, type, onSubm
             phone,
             personalEmail,
             groupId: group?.id,
-            percentage: 1,
+            organizationUnitId: mainPosition?.organizationUnitId,
+            percentage: mainPosition?.percentage ? mainPosition.percentage / percentageMultiply : 1,
+            supplementalPositions: supplementalPositions.map(({ unitId, percentage, ...rest }) => ({
+                ...rest,
+                percentage: percentage ? percentage / percentageMultiply : 1,
+                unitId: unitId ?? undefined,
+            })),
+            unitId: mainPosition?.unitId ?? undefined,
             login: user.login ?? '',
             title: role,
             workEmail: user.email ?? '',
             equipment: devices.reduce((a, d) => (d.active ? `${a}${a.length > 0 ? ', ' : ''}${d.deviceName}` : a), ''),
             email: user.email,
-            date: new Date(),
+            date: null,
             location: user.location?.name,
         };
     }, [user, role, type, devices, positions]);

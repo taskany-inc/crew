@@ -2,6 +2,7 @@ import { nullable } from '@taskany/bricks';
 import { FormControlInput, Text } from '@taskany/bricks/harmony';
 import { IconBinOutline, IconPlusCircleOutline } from '@taskany/icons';
 import { useFieldArray, useFormContext } from 'react-hook-form';
+import { OrganizationUnit } from 'prisma/prisma-client';
 
 import { OrganizationUnitComboBox } from '../OrganizationUnitComboBox/OrganizationUnitComboBox';
 import { AddInlineTrigger } from '../AddInlineTrigger/AddInlineTrigger';
@@ -27,9 +28,15 @@ interface AddSupplementalPositionProps {
     readOnly?: boolean;
     hasStartDate?: boolean;
     transfer?: boolean;
+    organizationUnits?: OrganizationUnit[];
 }
 
-export const AddSupplementalPosition = ({ readOnly, hasStartDate = true, transfer }: AddSupplementalPositionProps) => {
+export const AddSupplementalPosition = ({
+    readOnly,
+    hasStartDate = true,
+    transfer,
+    organizationUnits,
+}: AddSupplementalPositionProps) => {
     const {
         register,
         setValue,
@@ -75,6 +82,7 @@ export const AddSupplementalPosition = ({ readOnly, hasStartDate = true, transfe
                                     }
                                     organizationUnitId={watch(`${fieldName}.${index}.organizationUnitId`)}
                                     error={errorPicker<Position>(errors[fieldName], index, 'organizationUnitId')}
+                                    items={organizationUnits}
                                 />
                             </FormControl>
                             <FormControl

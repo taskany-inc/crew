@@ -1932,9 +1932,9 @@ export const userCreationRequestsMethods = {
             ...restRequest
         } = request;
 
-        if (type !== UserCreationRequestType.toDecree && type !== UserCreationRequestType.toDecree) {
+        if (type !== UserCreationRequestType.toDecree && type !== UserCreationRequestType.fromDecree) {
             throw new TRPCError({
-                message: `Wrong request type ${request.type} instead of InternalEmployee for request with id ${id}`,
+                message: `Wrong request type ${request.type} instead of fromDecree or toDecree for request with id ${id}`,
                 code: 'BAD_REQUEST',
             });
         }
