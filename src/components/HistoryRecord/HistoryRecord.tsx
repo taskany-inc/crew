@@ -1821,6 +1821,162 @@ const componentMap: {
             </>
         );
     },
+
+    CreateSupplementalPositionRequest: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('created request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('for new supplemental position for')} <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} />
+                        <ChangeListItem
+                            title={tr('Supplemental position organization unit id')}
+                            after={event.after.supplementalPositionOrganizationUnitId}
+                        />
+                        <ChangeListItem
+                            title={tr('Supplemental position unitId')}
+                            after={event.after.supplementalPositionUnitId}
+                        />
+                        <ChangeListItem
+                            title={tr('Supplemental position work start date')}
+                            after={event.after.supplementalPositionWorkStartDate}
+                        />
+                        <ChangeListItem
+                            title={tr('Supplemental position percentage')}
+                            after={event.after.supplementalPositionPercentage}
+                        />
+                        <ChangeListItem title={tr('Equipment')} after={event.after.equipment} />
+                        <ChangeListItem title={tr('Extra equipment')} after={event.after.extraEquipment} />
+                        <ChangeListItem title={tr('Supervisor id')} after={event.after.supervisorId} />
+                        <ChangeListItem title={tr('Group id')} after={event.after.groupId} />
+                        <ChangeListItem title={tr('Title')} after={event.after.title} />
+                        <ChangeListItem title={tr('Comment')} after={event.after.comment} />
+                        <ChangeListItem title={tr('Location')} after={event.after.location} />
+                        <ChangeListItem title={tr('Work space application')} after={event.after.workSpace} />
+                        <ChangeListItem title={tr('Work mode')} after={event.after.workMode} />
+                        <ChangeListItem title={tr('Line manager ids')} after={event.after.lineManagerIds} />
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    EditSupplementalPositionRequest: ({ event }) => {
+        const visible = useBoolean(false);
+        const [, copy] = useCopyToClipboard();
+
+        const handleCopyId = useCallback(() => {
+            notifyPromise(copy(event.after.id), 'copy');
+        }, [copy, event.after.id]);
+
+        return (
+            <>
+                <div className={s.Row}>
+                    {tr('edited request')} <Tag onClick={handleCopyId}>{event.after.id}</Tag>{' '}
+                    {tr('for new supplemental position for')} <UserListItem user={event.user} />
+                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                </div>
+                {nullable(visible.value, () => (
+                    <>
+                        <ChangeListItem title={tr('Team')} after={event.after.groupId} />
+                        <ChangeListItem
+                            title={tr('Supplemental position organization unit id')}
+                            after={event.after.supplementalPositionOrganizationUnitId}
+                            before={event.before.supplementalPositionOrganizationUnitId}
+                        />
+                        <ChangeListItem
+                            title={tr('Supplemental position unitId')}
+                            after={event.after.supplementalPositionUnitId}
+                            before={event.before.supplementalPositionUnitId}
+                        />
+                        <ChangeListItem
+                            title={tr('Supplemental position work start date')}
+                            after={event.after.supplementalPositionWorkStartDate}
+                            before={event.before.supplementalPositionWorkStartDate}
+                        />
+                        <ChangeListItem
+                            title={tr('Supplemental position percentage')}
+                            after={event.after.supplementalPositionPercentage}
+                            before={event.before.supplementalPositionPercentage}
+                        />
+                        <ChangeListItem
+                            title={tr('Equipment')}
+                            after={event.after.equipment}
+                            before={event.before.equipment}
+                        />
+                        <ChangeListItem
+                            title={tr('Extra equipment')}
+                            after={event.after.extraEquipment}
+                            before={event.before.extraEquipment}
+                        />
+                        <ChangeListItem
+                            title={tr('Supervisor id')}
+                            after={event.after.supervisorId}
+                            before={event.before.supervisorId}
+                        />
+                        <ChangeListItem
+                            title={tr('Group id')}
+                            after={event.after.groupId}
+                            before={event.before.groupId}
+                        />
+                        <ChangeListItem title={tr('Title')} after={event.after.title} before={event.before.title} />
+                        <ChangeListItem
+                            title={tr('Comment')}
+                            after={event.after.comment}
+                            before={event.before.comment}
+                        />
+                        <ChangeListItem
+                            title={tr('Location')}
+                            after={event.after.location}
+                            before={event.before.location}
+                        />
+                        <ChangeListItem
+                            title={tr('Work space application')}
+                            after={event.after.workSpace}
+                            before={event.before.workSpace}
+                        />
+                        <ChangeListItem
+                            title={tr('Work mode')}
+                            after={event.after.workMode}
+                            before={event.before.workMode}
+                        />
+                        <ChangeListItem
+                            title={tr('Line manager ids')}
+                            after={event.after.lineManagerIds}
+                            before={event.before.lineManagerIds}
+                        />
+                    </>
+                ))}
+            </>
+        );
+    },
+
+    CancelSupplementalPositionRequest: ({ event }) => {
+        const visible = useBoolean(false);
+
+        return (
+            <div className={s.Row}>
+                {tr('canceled request for new supplemental position for')}
+                <UserListItem user={event.user} />
+                <Text>{tr('with comment: ')}</Text>
+                <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
+                {nullable(visible.value, () => (
+                    <Text>{event.after.comment}</Text>
+                ))}
+            </div>
+        );
+    },
 };
 
 interface HistoryRecordProps {

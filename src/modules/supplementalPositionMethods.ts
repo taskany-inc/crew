@@ -310,6 +310,8 @@ export const supplementalPositionMethods = {
             date: startSupplementalPositionDate,
             data: { userCreationRequestId: request.id },
         });
+
+        return { ...request, supplementalPositions: [supplementalPosition] };
     },
 
     cancelRequest: async ({ id, comment }: { id: string; comment?: string }) => {
@@ -332,6 +334,13 @@ export const supplementalPositionMethods = {
             throw new TRPCError({ code: 'NOT_FOUND', message: `No new supplemental position with id ${id} found` });
         }
 
+        if (!request.userTargetId) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `No userTargetId in new supplemental position request with id ${id}`,
+            });
+        }
+
         await db
             .updateTable('UserCreationRequest')
             .where('id', '=', id)
@@ -345,6 +354,8 @@ export const supplementalPositionMethods = {
         if (request.supplementalPositions[0] && request.supplementalPositions[0].jobId) {
             await jobDelete(request.supplementalPositions[0].jobId);
         }
+
+        return request.userTargetId;
     },
 
     updateRequest: async (data: UpdateSupplementalPositionRequest) => {
@@ -475,5 +486,7 @@ export const supplementalPositionMethods = {
         if (request.jobId && position.workStartDate && position.workStartDate !== date) {
             await db.updateTable('Job').where('id', '=', request.jobId).set({ date }).execute();
         }
+
+        return { ...request, supplementalPositions: [position] };
     },
 };

@@ -129,3 +129,47 @@ export const transferInsideHistoryEvent = (request: TransferInsideHistoryEvent) 
     title: request.title || undefined,
     disableAccount: !!request.disableAccount,
 });
+
+interface SupplementalPositionRequest {
+    id: string;
+    supervisorId?: string | null;
+    groupId?: string | null;
+    comment?: string | null;
+    location?: string | null;
+    workSpace?: string | null;
+    workMode?: string | null;
+    lineManagerIds?: string[] | null;
+    supplementalPositions: {
+        organizationUnitId: string;
+        percentage: number;
+        unitId?: string | null;
+        workStartDate?: Date | null;
+    }[];
+    equipment?: string | null;
+    extraEquipment?: string | null;
+    title?: string | null;
+}
+
+export const newSupplementalPositionHistoryEvent = (request: SupplementalPositionRequest) => {
+    const { supplementalPositions } = request;
+    const position = supplementalPositions[0];
+
+    return {
+        id: request.id,
+        groupId: request.groupId || undefined,
+        supervisorId: request.supervisorId || undefined,
+        comment: request.comment || undefined,
+        workMode: request.workMode || undefined,
+        workSpace: request.workSpace || undefined,
+        location: request.location || undefined,
+        equipment: request.equipment || undefined,
+        extraEquipment: request.extraEquipment || undefined,
+        title: request.title || undefined,
+        lineManagerIds: request.lineManagerIds?.join(', ') || undefined,
+        supplementalPositionWorkStartDate:
+            (position?.workStartDate && new Date(position?.workStartDate).toISOString()) || undefined,
+        supplementalPositionOrganizationUnitId: position?.organizationUnitId,
+        supplementalPositionPercentage: position?.percentage,
+        supplementalPositionUnitId: position?.unitId || undefined,
+    };
+};
