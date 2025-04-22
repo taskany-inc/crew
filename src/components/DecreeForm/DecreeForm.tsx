@@ -218,7 +218,13 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                             type={mode === 'read' ? 'readOnly' : 'edit'}
                         />
 
-                        <UserFormCommentsBlock id="comments" className={s.FormBlock} readOnly={mode === 'read'} />
+                        <UserFormCommentsBlock
+                            id="comments"
+                            requestType={type}
+                            requestId={requestId}
+                            className={s.FormBlock}
+                            readOnly={mode === 'read'}
+                        />
                     </div>
 
                     <NavMenu
