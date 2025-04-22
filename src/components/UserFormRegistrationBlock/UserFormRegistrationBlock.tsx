@@ -227,7 +227,12 @@ export const UserFormRegistrationBlock = ({
             <div className={s.AddSupplementalPosition}></div>
             <AddSupplementalPosition
                 readOnly={readOnly}
-                hasStartDate={type !== 'transferInternToStaff' && type !== UserCreationRequestType.transferInside}
+                hasStartDate={
+                    type !== 'transferInternToStaff' &&
+                    type !== UserCreationRequestType.transferInside &&
+                    type !== 'toDecree' &&
+                    type !== 'fromDecree'
+                }
                 organizationUnits={organizationUnits}
             />
         </div>

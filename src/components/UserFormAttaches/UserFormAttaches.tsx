@@ -16,7 +16,12 @@ import { tr } from './UserFormAttaches.i18n';
 interface UserFormAttachesProps {
     type?: 'new' | 'readOnly' | 'edit';
     requestId?: string;
-    requestType: 'dismiss' | 'transfer' | 'transferInternToStaff' | UserCreationRequestType.transferInside;
+    requestType:
+        | 'dismiss'
+        | 'transfer'
+        | 'transferInternToStaff'
+        | UserCreationRequestType.transferInside
+        | UserCreationRequestType.toDecree;
 }
 const Attaches = ({
     id,
@@ -59,7 +64,10 @@ export const UserFormAttaches = ({ type, requestId, requestType }: UserFormAttac
     const attachIds = getValues('attachIds');
 
     return (
-        <FormControl label={tr('Photo report')} error={errors.attachIds}>
+        <FormControl
+            label={requestType !== UserCreationRequestType.toDecree ? tr('Photo report') : undefined}
+            error={errors.attachIds}
+        >
             {nullable(type !== 'readOnly', () => (
                 <FormControlFileUpload
                     accept={{
