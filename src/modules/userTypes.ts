@@ -113,7 +113,12 @@ export interface UserRoleData {
     role: Nullish<UserRole>;
 }
 
-export const mailingSettingType = ['createUserRequest', 'createScheduledUserRequest', 'scheduledDeactivation'] as const;
+export const mailingSettingType = [
+    'createUserRequest',
+    'createScheduledUserRequest',
+    'scheduledDeactivation',
+    'decree',
+] as const;
 
 export type MailingSettingType = (typeof mailingSettingType)[number];
 

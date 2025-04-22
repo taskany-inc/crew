@@ -1,18 +1,11 @@
-import {
-    User,
-    UserCreationRequest,
-    Group,
-    OrganizationUnit,
-    ScheduledDeactivation,
-    SupplementalPosition,
-} from '@prisma/client';
+import { UserCreationRequest, OrganizationUnit, ScheduledDeactivation, SupplementalPosition } from '@prisma/client';
 import { ICalCalendarMethod } from 'ical-generator';
 
 import { AdditionalDevice } from '../modules/scheduledDeactivationTypes';
 import { userMethods } from '../modules/userMethods';
 import { groupMethods } from '../modules/groupMethods';
 import { UserCreationRequestType, UserCreationRequestWithRelations } from '../modules/userCreationRequestTypes';
-import { calendarEvents, createIcalEventData, sendMail } from '../modules/nodemailer';
+import { calendarEvents, createIcalEventData, sendMail, nodemailerAttachments } from '../modules/nodemailer';
 import { config } from '../config';
 
 import { defaultLocale } from './getLang';
@@ -463,59 +456,59 @@ export const transferNewcomerFromMainEmailHtml = async (data: {
     });
 };
 
-export const htmlToDecreeRequest = (
-    data: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
-        buddy: User | null;
-    } & {
-        recruiter: User | null;
-    } & {
-        coordinators: User[] | null;
-    } & {
-        organization: OrganizationUnit;
-    } & {
-        lineManagers: User[] | null;
-    },
-) =>
+export const htmlToDecreeRequest = (data: {
+    userCreationRequest: UserCreationRequestWithRelations;
+    corporateAppName: string;
+    sigmaMail?: string;
+}) =>
     tableTemplate({
         tableArray: [
-            { title: tr('Date'), content: data.date ? formatDate(data.date, defaultLocale) : '' },
-            { title: tr('Name'), content: data.name || '' },
-            { title: tr('Location'), content: data.location || '' },
-            { title: tr('Unit'), content: data.unitId || '' },
-            { title: tr('Role'), content: data.title || '' },
-            { title: tr('Corporate Email'), content: data.corporateEmail || '' },
-            { title: tr('Teamlead'), content: data.supervisor?.name ?? '' },
-            { title: tr('Work mode'), content: data.workMode || '' },
-            { title: tr('Equipment'), content: data.equipment || '' },
-            { title: tr('Extra equipment'), content: data.extraEquipment || '' },
+            {
+                title: tr('Date'),
+                content: data.userCreationRequest.date ? formatDate(data.userCreationRequest.date, defaultLocale) : '',
+            },
+            { title: tr('Name'), content: data.userCreationRequest.name || '' },
+            { title: tr('Location'), content: data.userCreationRequest.location || '' },
+            { title: tr('Unit'), content: data.userCreationRequest.unitId || '' },
+            { title: tr('Role'), content: data.userCreationRequest.title || '' },
+            { title: tr('SIGMA email'), content: data.sigmaMail || '' },
+            { title: tr('Teamlead'), content: data.userCreationRequest.supervisor?.name ?? '' },
+            { title: tr('Work mode and workplace'), content: data.userCreationRequest.workMode || '' },
+            {
+                title: tr('Testing devices'),
+                content: data.userCreationRequest.extraEquipment
+                    ? data.userCreationRequest.extraEquipment.replace(/\n/g, '<br/>')
+                    : tr('Did not take any'),
+            },
+            {
+                title: tr('Devices from personal account {corpAppName} in text format', {
+                    corpAppName: data.corporateAppName || '',
+                }),
+                content: data.userCreationRequest.equipment
+                    ? data.userCreationRequest.equipment.replace(/\n/g, '<br/>')
+                    : tr('Did not take any'),
+            },
             { title: tr('Screenshot'), content: tr('In attachment') },
-            { title: tr('Comments'), content: data.comment ? data.comment.replace(/\n/g, '<br/>') : '' },
+            {
+                title: tr('Comments'),
+                content: data.userCreationRequest.comment
+                    ? data.userCreationRequest.comment.replace(/\n/g, '<br/>')
+                    : '',
+            },
         ],
     });
 
-export const htmlFromDecreeRequest = (
-    data: UserCreationRequest & { group: Group | null } & { supervisor: User | null } & {
-        buddy: User | null;
-    } & {
-        recruiter: User | null;
-    } & {
-        coordinators: User[] | null;
-    } & {
-        organization: OrganizationUnit;
-    } & {
-        lineManagers: User[] | null;
-    },
-) =>
+export const htmlFromDecreeRequest = (data: UserCreationRequestWithRelations) =>
     tableTemplate({
         tableArray: [
             { title: tr('Date'), content: data.date ? formatDate(data.date, defaultLocale) : '' },
             { title: tr('Name'), content: data.name || '' },
+            { title: tr('Role'), content: data.title || '' },
             { title: tr('Location'), content: data.location || '' },
             { title: tr('Unit'), content: data.unitId || '' },
-            { title: tr('Role'), content: data.title || '' },
             { title: tr('Teamlead'), content: data.supervisor?.name ?? '' },
             { title: tr('Coordinator'), content: data.coordinators?.map(({ name }) => name).join(', ') || '' },
-            { title: tr('Work mode'), content: data.workMode || '' },
+            { title: tr('Work mode and workplace'), content: data.workMode || '' },
             { title: tr('Equipment'), content: data.equipment || '' },
             { title: tr('Extra equipment'), content: data.extraEquipment || '' },
             { title: tr('Comments'), content: data.comment ? data.comment.replace(/\n/g, '<br/>') : '' },
@@ -740,6 +733,91 @@ export const sendNewCommerEmails = async ({
                 to,
                 subject,
                 html,
+                icalEvent: calendarEvents({
+                    method,
+                    events: [icalEvent],
+                }),
+            });
+        }),
+    );
+};
+
+export const sendDecreeEmails = async ({
+    request,
+    sessionUserId,
+    method,
+    newOrganizationIds,
+}: {
+    request: UserCreationRequestWithRelations;
+    sessionUserId: string;
+    method: ICalCalendarMethod.REQUEST | ICalCalendarMethod.CANCEL;
+    newOrganizationIds?: string[];
+}) => {
+    const appConfig = await db.selectFrom('AppConfig').select('corporateAppName').executeTakeFirstOrThrow();
+    const { corporateAppName } = appConfig;
+
+    const sigmaMail = await findSigmaMail([request.email, request.workEmail, request.personalEmail]);
+    const phone = userCreationRequestPhone(request);
+
+    if (!request.date) return;
+
+    const date = new Date(request.date);
+    date.setUTCHours(config.employmentUtcHour);
+
+    return Promise.all(
+        request.supplementalPositions.map(async ({ organizationUnitId, main }) => {
+            if (
+                method === ICalCalendarMethod.CANCEL &&
+                newOrganizationIds &&
+                newOrganizationIds.includes(organizationUnitId)
+            ) {
+                return;
+            }
+
+            const additionalEmails = [sessionUserId];
+
+            if (request.creatorId && request.creatorId !== sessionUserId) additionalEmails.push(request.creatorId);
+            if (request.supervisorId && main) additionalEmails.push(request.supervisorId);
+
+            const { users, to } = await userMethods.getMailingList('decree', [organizationUnitId], additionalEmails);
+
+            const orgUnit = await db
+                .selectFrom('OrganizationUnit')
+                .select('name')
+                .where('id', '=', organizationUnitId)
+                .executeTakeFirst();
+
+            const subjectCase =
+                request.type === UserCreationRequestType.fromDecree ? tr('From decree') : tr('To decree');
+            const subject = `${subjectCase} ${orgUnit?.name} ${request.name} ${phone}`;
+
+            const icalEventId = `${request.id + config.nodemailer.authUser + organizationUnitId}decreeMail`;
+
+            const icalEvent = createIcalEventData({
+                id: icalEventId,
+                start: date,
+                duration: 30,
+                users,
+                summary: subject,
+                description: subject,
+            });
+
+            const html =
+                request.type === UserCreationRequestType.fromDecree
+                    ? htmlFromDecreeRequest(request)
+                    : htmlToDecreeRequest({
+                          userCreationRequest: request,
+                          corporateAppName: corporateAppName ?? '',
+                          sigmaMail,
+                      });
+
+            const attachments = await nodemailerAttachments(request.attaches ?? []);
+
+            sendMail({
+                to,
+                subject,
+                html,
+                attachments,
                 icalEvent: calendarEvents({
                     method,
                     events: [icalEvent],

@@ -71,6 +71,7 @@ export const MailingList = ({ mailingType, organizationUnitId }: MailingListProp
             createUserRequest: tr('Create user request'),
             createScheduledUserRequest: tr('Scheduled new user'),
             scheduledDeactivation: tr('Scheduled profile deactivation'),
+            decree: tr('Decree'),
         }),
         [],
     );

@@ -1,4 +1,4 @@
-import { Group, OrganizationUnit, SupplementalPosition, User, UserCreationRequest } from 'prisma/prisma-client';
+import { Attach, Group, OrganizationUnit, SupplementalPosition, User, UserCreationRequest } from 'prisma/prisma-client';
 
 export type SupplementalPositionWithUnit = SupplementalPosition & { organizationUnit: OrganizationUnit };
 
@@ -39,6 +39,7 @@ export interface UserCreationRequestWithRelations extends UserCreationRequest {
     organization: OrganizationUnit;
     lineManagers?: Array<Omit<User, 'roleDeprecated'>> | null;
     supplementalPositions: Array<SupplementalPosition & { organizationUnit: OrganizationUnit }>;
+    attaches?: Attach[];
 }
 
 export enum UserCreationRequestType {
