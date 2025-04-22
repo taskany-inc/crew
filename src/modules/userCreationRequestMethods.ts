@@ -3,7 +3,6 @@ import {
     Prisma,
     User,
     PermissionService,
-    SupplementalPosition,
     OrganizationUnit,
     Attach,
     UserService,
@@ -19,13 +18,11 @@ import { supplementalPositionsDate } from '../utils/dateTime';
 import { trimAndJoin } from '../utils/trimAndJoin';
 import { config } from '../config';
 import {
-    htmlFromDecreeRequest,
-    htmlToDecreeRequest,
     sendNewCommerEmails,
     userCreationMailText,
     transferInternToStaffEmailHtml,
+    sendDecreeEmails,
 } from '../utils/emailTemplates';
-import { getOrgUnitTitle } from '../utils/organizationUnit';
 import { createJob } from '../worker/create';
 import { jobUpdate, jobDelete } from '../worker/jobOperations';
 import { percentageMultiply } from '../utils/suplementPosition';
@@ -45,7 +42,7 @@ import { ExtractTypeFromGenerated } from '../utils/extractTypeFromGenerated';
 import { getCorporateEmail } from '../utils/getCorporateEmail';
 
 import { userMethods } from './userMethods';
-import { calendarEvents, createIcalEventData, nodemailerAttachments, sendMail } from './nodemailer';
+import { calendarEvents, createIcalEventData, sendMail } from './nodemailer';
 import { tr } from './modules.i18n';
 import {
     CreateTransferInside,
@@ -841,25 +838,10 @@ export const userCreationRequestsMethods = {
             });
         }
 
-        const html = data.type === 'fromDecree' ? htmlFromDecreeRequest(request) : htmlToDecreeRequest(request);
-
-        const { to: mailTo } = await userMethods.getMailingList(
-            'createScheduledUserRequest',
-            [data.organizationUnitId],
-            [sessionUserId],
-        );
-
-        const attachments = await nodemailerAttachments(request.attaches);
-
-        const subject = `${data.type === 'fromDecree' ? tr('From decree') : tr('To decree')} ${
-            request.name
-        } ${getOrgUnitTitle(request.organization)} ${data.phone}`;
-
-        sendMail({
-            to: mailTo,
-            subject,
-            html,
-            attachments,
+        await sendDecreeEmails({
+            request,
+            sessionUserId,
+            method: ICalCalendarMethod.REQUEST,
         });
 
         return request;
@@ -1350,7 +1332,7 @@ export const userCreationRequestsMethods = {
 
     editDecree: async (
         data: UserDecreeEditSchema,
-        requestBeforeUpdate: UserCreationRequest & { supplementalPositions: SupplementalPosition[] },
+        requestBeforeUpdate: UserCreationRequestWithRelations,
         sessionUserId: string,
     ) => {
         const { id, ...editData } = data;
@@ -1614,25 +1596,19 @@ export const userCreationRequestsMethods = {
         });
 
         if (editData.date && requestBeforeUpdate.date !== editData.date) {
-            const { to } = await userMethods.getMailingList(
-                'createScheduledUserRequest',
-                [updatedRequest.organizationUnitId],
-                [sessionUserId],
-            );
+            await sendDecreeEmails({
+                request: requestBeforeUpdate,
+                sessionUserId,
+                method: ICalCalendarMethod.CANCEL,
+                newOrganizationIds: updatedRequest.supplementalPositions.map(
+                    ({ organizationUnitId }) => organizationUnitId,
+                ),
+            });
 
-            const html =
-                data.type === 'fromDecree'
-                    ? htmlFromDecreeRequest(updatedRequest)
-                    : htmlToDecreeRequest(updatedRequest);
-
-            const subject = `${data.type === 'fromDecree' ? tr('From decree') : tr('To decree')} ${
-                updatedRequest.name
-            } ${getOrgUnitTitle(updatedRequest.organization)} ${data.phone}`;
-
-            sendMail({
-                to,
-                subject,
-                html,
+            await sendDecreeEmails({
+                request: updatedRequest,
+                sessionUserId,
+                method: ICalCalendarMethod.REQUEST,
             });
 
             if (requestBeforeUpdate.jobId) await jobUpdate(requestBeforeUpdate.jobId, { date: editData.date });
@@ -1758,12 +1734,21 @@ export const userCreationRequestsMethods = {
                 supplementalPositions: { include: { organizationUnit: true } },
                 curators: true,
                 permissionServices: true,
+                attaches: true,
             },
         });
         if (canceledRequest.jobId) await jobDelete(canceledRequest.jobId);
 
         if (canceledRequest.type === 'internalEmployee') {
             await sendNewCommerEmails({
+                request: canceledRequest,
+                sessionUserId,
+                method: ICalCalendarMethod.CANCEL,
+            });
+        }
+
+        if (canceledRequest.type === 'toDecree' || canceledRequest.type === 'fromDecree') {
+            await sendDecreeEmails({
                 request: canceledRequest,
                 sessionUserId,
                 method: ICalCalendarMethod.CANCEL,

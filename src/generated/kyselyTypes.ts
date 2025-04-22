@@ -198,6 +198,7 @@ export type MailingSettings = {
     createUserRequest: Generated<boolean>;
     createScheduledUserRequest: Generated<boolean>;
     scheduledDeactivation: Generated<boolean>;
+    decree: Generated<boolean>;
 };
 export type Membership = {
     id: Generated<string>;
