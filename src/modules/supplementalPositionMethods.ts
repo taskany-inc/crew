@@ -3,6 +3,8 @@ import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 import { OrganizationUnit, PositionStatus, SupplementalPosition } from 'prisma/prisma-client';
 import { InsertExpression } from 'kysely/dist/cjs/parser/insert-values-parser';
 import { UpdateObjectExpression } from 'kysely/dist/cjs/parser/update-set-parser';
+import { ExpressionBuilder } from 'kysely';
+import { ICalCalendarMethod } from 'ical-generator';
 
 import { prisma } from '../utils/prisma';
 import { percentageMultiply } from '../utils/suplementPosition';
@@ -11,7 +13,9 @@ import { createJob, JobKind } from '../worker/create';
 import { jobDelete } from '../worker/jobOperations';
 import { config } from '../config';
 import { trimAndJoin } from '../utils/trimAndJoin';
-import { DB } from '../generated/kyselyTypes';
+import { DB, UserCreationRequest } from '../generated/kyselyTypes';
+import { JsonValue } from '../utils/jsonValue';
+import { sendNewCommerEmails } from '../utils/emailTemplates';
 
 import {
     AddSupplementalPositionToUser,
@@ -24,6 +28,40 @@ import {
 import { userMethods } from './userMethods';
 import { tr } from './modules.i18n';
 import { serviceMethods } from './serviceMethods';
+
+const selectForRequest = (eb: ExpressionBuilder<DB & { u: UserCreationRequest }, 'u'>) => [
+    jsonArrayFrom(
+        eb
+            .selectFrom('SupplementalPosition as s')
+            .selectAll()
+            .select((eb) => [
+                's.id',
+                jsonObjectFrom(
+                    eb
+                        .selectFrom('OrganizationUnit as o')
+                        .select(['o.country', 'o.description', 'o.external', 'o.id', 'o.main', 'o.name'])
+                        .whereRef('o.id', '=', 's.organizationUnitId')
+                        .where('o.id', 'is not', null),
+                ).as('organizationUnit'),
+            ])
+            .whereRef('u.id', '=', 's.userCreationRequestId')
+            .$narrowType<{
+                percentage: number;
+                status: PositionStatus;
+                organizationUnit: OrganizationUnit;
+            }>(),
+    ).as('supplementalPositions'),
+    jsonArrayFrom(eb.selectFrom('_userLineManagers').select('A').whereRef('B', '=', 'u.id')).as('lineManagers'),
+    jsonObjectFrom(
+        eb
+            .selectFrom('OrganizationUnit as o')
+            .select(['o.country', 'o.description', 'o.external', 'o.id', 'o.main', 'o.name'])
+            .where('o.id', 'is not', null)
+            .whereRef('o.id', '=', 'u.organizationUnitId'),
+    ).as('organization'),
+    jsonObjectFrom(eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'u.supervisorId')).as('supervisor'),
+    jsonObjectFrom(eb.selectFrom('Group as g').selectAll().whereRef('g.id', '=', 'u.groupId')).as('group'),
+];
 
 export const supplementalPositionMethods = {
     addToUser: async (data: AddSupplementalPositionToUser) => {
@@ -270,6 +308,30 @@ export const supplementalPositionMethods = {
                 .insertInto('UserCreationRequest')
                 .values(requestValues)
                 .returningAll()
+                .returning((eb) => [
+                    jsonObjectFrom(
+                        eb
+                            .selectFrom('OrganizationUnit as o')
+                            .select(['o.country', 'o.description', 'o.external', 'o.id', 'o.main', 'o.name'])
+                            .where('o.id', 'is not', null)
+                            .whereRef('o.id', '=', 'UserCreationRequest.organizationUnitId'),
+                    ).as('organization'),
+                    jsonObjectFrom(
+                        eb
+                            .selectFrom('User as u')
+                            .selectAll()
+                            .whereRef('u.id', '=', 'UserCreationRequest.supervisorId'),
+                    ).as('supervisor'),
+                    jsonObjectFrom(
+                        eb.selectFrom('Group as g').selectAll().whereRef('g.id', '=', 'UserCreationRequest.groupId'),
+                    ).as('group'),
+                ])
+                .$narrowType<{
+                    organization: OrganizationUnit;
+                    services: JsonValue;
+                    testingDevices: JsonValue;
+                    devices: JsonValue;
+                }>()
                 .executeTakeFirst();
 
             if (!request) {
@@ -311,23 +373,34 @@ export const supplementalPositionMethods = {
             data: { userCreationRequestId: request.id },
         });
 
+        await sendNewCommerEmails({
+            request: { ...request, supplementalPositions: [supplementalPosition] },
+            sessionUserId,
+            method: ICalCalendarMethod.REQUEST,
+        });
+
         return { ...request, supplementalPositions: [supplementalPosition] };
     },
 
-    cancelRequest: async ({ id, comment }: { id: string; comment?: string }) => {
+    cancelRequest: async ({
+        data,
+        sessionUserId,
+    }: {
+        data: { id: string; comment?: string };
+        sessionUserId: string;
+    }) => {
+        const { id, comment } = data;
         const request = await db
             .selectFrom('UserCreationRequest as u')
             .selectAll()
-            .select((eb) => [
-                'u.id',
-                jsonArrayFrom(
-                    eb
-                        .selectFrom('SupplementalPosition as s')
-                        .selectAll()
-                        .whereRef('u.id', '=', 's.userCreationRequestId'),
-                ).as('supplementalPositions'),
-            ])
+            .select((eb) => selectForRequest(eb))
             .where('id', '=', id)
+            .$narrowType<{
+                organization: OrganizationUnit;
+                services: JsonValue;
+                testingDevices: JsonValue;
+                devices: JsonValue;
+            }>()
             .executeTakeFirst();
 
         if (!request) {
@@ -355,10 +428,16 @@ export const supplementalPositionMethods = {
             await jobDelete(request.supplementalPositions[0].jobId);
         }
 
+        await sendNewCommerEmails({
+            request: { ...request, lineManagers: undefined },
+            sessionUserId,
+            method: ICalCalendarMethod.CANCEL,
+        });
+
         return request.userTargetId;
     },
 
-    updateRequest: async (data: UpdateSupplementalPositionRequest) => {
+    updateRequest: async (data: UpdateSupplementalPositionRequest, sessionUserId: string) => {
         const { id, ...restData } = data;
 
         const date = restData.supplementalPositions[0].workStartDate;
@@ -371,25 +450,16 @@ export const supplementalPositionMethods = {
         }
 
         const request = await db
-            .selectFrom('UserCreationRequest')
+            .selectFrom('UserCreationRequest as u')
             .where('id', '=', id)
             .selectAll()
-            .select((eb) => [
-                'UserCreationRequest.id',
-                jsonArrayFrom(
-                    eb
-                        .selectFrom('SupplementalPosition as s')
-                        .selectAll()
-                        .whereRef('UserCreationRequest.id', '=', 's.userCreationRequestId')
-                        .$narrowType<{
-                            percentage: number;
-                            status: PositionStatus;
-                        }>(),
-                ).as('supplementalPositions'),
-                jsonArrayFrom(
-                    eb.selectFrom('_userLineManagers').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
-                ).as('lineManagers'),
-            ])
+            .select((eb) => selectForRequest(eb))
+            .$narrowType<{
+                organization: OrganizationUnit;
+                services: JsonValue;
+                testingDevices: JsonValue;
+                devices: JsonValue;
+            }>()
             .executeTakeFirst();
 
         if (!request) {
@@ -420,7 +490,7 @@ export const supplementalPositionMethods = {
 
         const name = trimAndJoin([data.surname, data.firstName, data.middleName]);
 
-        const setValues: UpdateObjectExpression<DB, 'UserCreationRequest'> = {
+        const setValues: UpdateObjectExpression<DB & { u: UserCreationRequest }, 'u'> = {
             type: restData.type,
             userTargetId: restData.userTargetId,
             supervisorId: restData.supervisorId,
@@ -441,8 +511,8 @@ export const supplementalPositionMethods = {
             percentage: restData.percentage ? restData.percentage * percentageMultiply : undefined,
         };
 
-        await db.transaction().execute(async (trx) => {
-            await supplementalPositionMethods.updateRequestPosition(
+        const { updatedPosition, updatedRequest } = await db.transaction().execute(async (trx) => {
+            const updatedPosition = await supplementalPositionMethods.updateRequestPosition(
                 {
                     userId: userTargetId,
                     jobKind: 'activateUserSupplementalPosition',
@@ -456,12 +526,33 @@ export const supplementalPositionMethods = {
                 trx,
             );
 
-            await trx
-                .updateTable('UserCreationRequest')
+            if (!updatedPosition) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: `Failed updating supplemental position in request with id ${id}`,
+                });
+            }
+
+            const updatedRequest = await trx
+                .updateTable('UserCreationRequest as u')
                 .set(setValues)
                 .where('id', '=', id)
                 .returningAll()
+                .returning((eb) => selectForRequest(eb))
+                .$narrowType<{
+                    organization: OrganizationUnit;
+                    services: JsonValue;
+                    testingDevices: JsonValue;
+                    devices: JsonValue;
+                }>()
                 .executeTakeFirst();
+
+            if (!updatedRequest) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: `Failed updating request with id ${id}`,
+                });
+            }
 
             if (request.lineManagers.length) {
                 await trx
@@ -481,12 +572,27 @@ export const supplementalPositionMethods = {
                     .values(restData.lineManagerIds.map((id) => ({ A: id, B: request.id })))
                     .execute();
             }
+
+            return { updatedPosition, updatedRequest };
         });
 
         if (request.jobId && position.workStartDate && position.workStartDate !== date) {
             await db.updateTable('Job').where('id', '=', request.jobId).set({ date }).execute();
         }
 
+        await sendNewCommerEmails({
+            request: { ...updatedRequest, supplementalPositions: [updatedPosition], lineManagers: undefined },
+            sessionUserId,
+            method: ICalCalendarMethod.REQUEST,
+        });
+
+        if (updatedPosition.organizationUnitId !== position.organizationUnitId) {
+            await sendNewCommerEmails({
+                request: { ...request, lineManagers: undefined },
+                sessionUserId,
+                method: ICalCalendarMethod.CANCEL,
+            });
+        }
         return { ...request, supplementalPositions: [position] };
     },
 };
