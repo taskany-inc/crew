@@ -6,16 +6,22 @@ import {
     ScheduledDeactivation,
     SupplementalPosition,
 } from '@prisma/client';
+import { ICalCalendarMethod } from 'ical-generator';
 
 import { AdditionalDevice } from '../modules/scheduledDeactivationTypes';
-import { UserCreationRequestWithRelations } from '../modules/userCreationRequestTypes';
+import { userMethods } from '../modules/userMethods';
+import { groupMethods } from '../modules/groupMethods';
+import { UserCreationRequestType, UserCreationRequestWithRelations } from '../modules/userCreationRequestTypes';
+import { calendarEvents, createIcalEventData, sendMail } from '../modules/nodemailer';
+import { config } from '../config';
 
 import { defaultLocale } from './getLang';
 import { formatDate } from './dateTime';
 import { tr } from './utils.i18n';
 import { db } from './db';
 import { Links } from './links';
-import { corporateDomain } from './organizationalDomains';
+import { corporateDomain, findSigmaMail } from './organizationalDomains';
+import { userCreationRequestPhone } from './createUserCreationRequest';
 
 export const userCreationMailText = (name: string, link: string) => `${tr('Hello colleagues!')}
 
@@ -619,4 +625,126 @@ export const transferInternToStaffEmailHtml = (data: {
             },
         ],
     });
+};
+
+interface SendNewcomerEmails {
+    request: UserCreationRequestWithRelations;
+    sessionUserId: string;
+    method: ICalCalendarMethod.REQUEST | ICalCalendarMethod.CANCEL;
+    newOrganizationIds?: string[];
+}
+
+export const sendNewCommerEmails = async ({
+    request,
+    sessionUserId,
+    method,
+    newOrganizationIds,
+}: SendNewcomerEmails) => {
+    const mainOrganization = await db
+        .selectFrom('OrganizationUnit')
+        .select('name')
+        .where('main', '=', true)
+        .executeTakeFirstOrThrow();
+
+    const groups =
+        request.creationCause === 'transfer' && request.groupId
+            ? `> ${(await groupMethods.getBreadcrumbs(request.groupId)).map(({ name }) => name).join('>')}`
+            : '';
+
+    return Promise.all(
+        request.supplementalPositions.map(async ({ organizationUnitId, workStartDate, main }) => {
+            if (!workStartDate) return;
+
+            if (
+                method === ICalCalendarMethod.CANCEL &&
+                newOrganizationIds &&
+                newOrganizationIds.includes(organizationUnitId)
+            ) {
+                return;
+            }
+
+            const additionalEmails = [sessionUserId];
+
+            if (request.creatorId && request.creatorId !== sessionUserId) additionalEmails.push(request.creatorId);
+
+            if (request.supervisorId && main) additionalEmails.push(request.supervisorId);
+
+            if (request.buddyId && main) additionalEmails.push(request.buddyId);
+
+            const { users, to } = await userMethods.getMailingList(
+                'createScheduledUserRequest',
+                [organizationUnitId],
+                additionalEmails,
+                !!request.workSpace,
+            );
+
+            const transferFrom = `${mainOrganization.name} (${request.transferFromGroup || ''})`;
+
+            const subject = newcomerSubject({
+                userCreationRequest: request,
+                phone: userCreationRequestPhone(request),
+                name: request.name,
+                intern: !!request.supplementalPositions.find(({ intern }) => intern),
+                transferFrom,
+            });
+
+            const date = new Date(workStartDate);
+
+            request.creationCause === 'transfer'
+                ? date.setUTCHours(config.employmentUtcHour + 1)
+                : date.setUTCHours(config.employmentUtcHour);
+
+            let icalEventId = request.id + config.nodemailer.authUser + organizationUnitId;
+
+            if (request.type === UserCreationRequestType.transferInside) icalEventId += 'newcomerMail';
+
+            const icalEvent = createIcalEventData({
+                id: icalEventId,
+                start: date,
+                duration: 30,
+                users,
+                summary: subject,
+                description: subject,
+            });
+
+            let html = await newComerInMainEmailHtml({
+                userCreationRequest: request,
+                date,
+            });
+
+            if (!request.organization.main) {
+                html = await newComerNotInMainEmailHtml({
+                    userCreationRequest: request,
+                    date,
+                });
+            }
+
+            if (request.creationCause === 'transfer') {
+                const transferFrom = `${mainOrganization.name} ${
+                    request.transferFromGroup ? `> ${request.transferFromGroup}` : ''
+                }`;
+
+                const transferTo = `${request.organization.name} ${groups}`;
+                const sigmaMail = await findSigmaMail([request.workEmail, request.email, request.personalEmail]);
+
+                html = await transferNewcomerFromMainEmailHtml({
+                    userCreationRequest: request,
+                    date,
+                    transferFrom,
+                    transferTo,
+                    sigmaMail,
+                });
+            }
+
+            sendMail({
+                to,
+                subject,
+                html,
+                icalEvent: calendarEvents({
+                    method,
+                    events: [icalEvent],
+                }),
+            });
+        }),
+    );
 };

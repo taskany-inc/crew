@@ -60,7 +60,10 @@ export const supplementalPositionRouter = router({
 
     cancelRequest: protectedProcedure.input(handleUserCreationRequest).mutation(async ({ input, ctx }) => {
         accessCheck(checkRoleForAccess(ctx.session.user.role, 'editUserActiveState'));
-        const canceledRequestTargetUserId = await supplementalPositionMethods.cancelRequest(input);
+        const canceledRequestTargetUserId = await supplementalPositionMethods.cancelRequest({
+            data: input,
+            sessionUserId: ctx.session.user.id,
+        });
 
         await historyEventMethods.create({ user: ctx.session.user.id }, 'cancelSupplementalPositionRequest', {
             userId: canceledRequestTargetUserId,
@@ -77,7 +80,7 @@ export const supplementalPositionRouter = router({
 
             const requestBefore = await userCreationRequestsMethods.getSupplementalPositionRequestById(input.id);
 
-            const request = await supplementalPositionMethods.updateRequest(input);
+            const request = await supplementalPositionMethods.updateRequest(input, ctx.session.user.id);
 
             const { before, after } = dropUnchangedValuesFromEvent(
                 newSupplementalPositionHistoryEvent(requestBefore),
