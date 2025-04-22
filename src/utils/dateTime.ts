@@ -81,3 +81,19 @@ export const supplementalPositionsDate = (
 
     return foundedDate;
 };
+
+export const isSameDay = (date1: Date, date2: Date) => {
+    return (
+        date1.getUTCFullYear() === date2.getUTCFullYear() &&
+        date1.getUTCMonth() === date2.getUTCMonth() &&
+        date1.getUTCDate() === date2.getUTCDate()
+    );
+};
+
+export const isPast = (date: Date) => {
+    return new Date().getTime() - date.getTime() > 0;
+};
+
+export const isFuture = (date: Date) => {
+    return new Date().getTime() - date.getTime() < 0;
+};

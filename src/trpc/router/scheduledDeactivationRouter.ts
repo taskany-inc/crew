@@ -13,6 +13,8 @@ import { historyEventMethods } from '../../modules/historyEventMethods';
 import { scheduledDeactivationHistoryEvent } from '../../utils/scheduledDeactivationHistoryEvent';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
 import { getOrgUnitTitle } from '../../utils/organizationUnit';
+import { isFuture, isPast, isSameDay, supplementalPositionsDate } from '../../utils/dateTime';
+import { userMethods } from '../../modules/userMethods';
 
 export const scheduledDeactivationRouter = router({
     create: protectedProcedure.input(createScheduledDeactivationSchema()).mutation(async ({ input, ctx }) => {
@@ -50,6 +52,19 @@ export const scheduledDeactivationRouter = router({
 
         const scheduledDeactivationBefore = await scheduledDeactivationMethods.getById(input.id);
         const historyEventsBefore = scheduledDeactivationHistoryEvent(scheduledDeactivationBefore);
+
+        const deactivateDateBefore = supplementalPositionsDate(
+            scheduledDeactivationBefore.supplementalPositions,
+            'workEndDate',
+        );
+        const deactivateDateAfter = supplementalPositionsDate(input.supplementalPositions, 'workEndDate');
+        if (
+            !isSameDay(deactivateDateBefore, deactivateDateAfter) &&
+            isPast(deactivateDateBefore) &&
+            isFuture(deactivateDateAfter)
+        ) {
+            await userMethods.editActiveState({ id: input.userId, active: true });
+        }
 
         const result = await scheduledDeactivationMethods.edit({ ...input }, ctx.session.user.id);
         const historyEventsAfter = scheduledDeactivationHistoryEvent(result);
