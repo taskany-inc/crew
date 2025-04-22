@@ -784,6 +784,7 @@ model MailingSettings {
   createUserRequest          Boolean @default(false)
   createScheduledUserRequest Boolean @default(false)
   scheduledDeactivation      Boolean @default(false)
+  decree                     Boolean @default(false)
 }
 
 model Job {
