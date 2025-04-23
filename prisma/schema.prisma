@@ -611,12 +611,12 @@ model UserDevice {
   deviceName String
 
   deviceId String
-  active   Boolean @default(true)
+
+  archived   Boolean   @default(false)
+  archivedAt DateTime?
 
   createdAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamp()
   updatedAt DateTime @default(dbgenerated("timezone('utc'::text, now())")) @updatedAt
-
-  @@unique([deviceName, deviceId])
 }
 
 model Vacancy {

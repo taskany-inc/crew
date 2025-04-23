@@ -1,6 +1,9 @@
 import { TRPCError } from '@trpc/server';
+import { jsonObjectFrom } from 'kysely/helpers/postgres';
 
-import { prisma } from '../utils/prisma';
+import { db } from '../utils/db';
+import { getSearchRegex } from '../utils/regex';
+import { defaultTake } from '../utils';
 
 import { CreateDevice, DeleteUserDevice, GetDeviceList } from './deviceSchemas';
 import { UserDeviceInfo } from './deviceTypes';
@@ -8,12 +11,18 @@ import { tr } from './modules.i18n';
 
 export const deviceMethods = {
     addToUser: async (data: CreateDevice) => {
-        const userDevice = await prisma.userDevice.findUnique({
-            where: {
-                deviceName_deviceId: { deviceName: data.deviceName, deviceId: data.deviceId },
-            },
-            include: { user: true },
-        });
+        const userDevice = await db
+            .selectFrom('UserDevice')
+            .where('UserDevice.deviceName', '=', data.deviceName)
+            .where('UserDevice.deviceId', '=', data.deviceId)
+            .where('UserDevice.archived', 'is', false)
+            .selectAll('UserDevice')
+            .select((eb) => [
+                jsonObjectFrom(eb.selectFrom('User').selectAll().whereRef('User.id', '=', 'UserDevice.userId'))
+                    .$notNull()
+                    .as('user'),
+            ])
+            .executeTakeFirst();
         if (userDevice) {
             throw new TRPCError({
                 code: 'BAD_REQUEST',
@@ -22,26 +31,45 @@ export const deviceMethods = {
                 }),
             });
         }
-        return prisma.userDevice.create({ data });
+        return db.insertInto('UserDevice').values(data).returningAll().executeTakeFirstOrThrow();
     },
 
     getList: (data: GetDeviceList) => {
-        return prisma.device.findMany({
-            where: { name: { contains: data.search, mode: 'insensitive' } },
-            take: data.take,
-        });
+        let query = db
+            .selectFrom('Device')
+            .selectAll()
+            .limit(data.take || defaultTake);
+        if (data.search) {
+            const regex = getSearchRegex(data.search);
+            query = query.where('name', '~*', regex);
+        }
+        return query.execute();
     },
 
     getUserDevices: (id: string): Promise<UserDeviceInfo[]> => {
-        return prisma.userDevice.findMany({ where: { userId: id }, include: { device: true } });
+        return db
+            .selectFrom('UserDevice')
+            .where('UserDevice.userId', '=', id)
+            .where('UserDevice.archived', 'is', false)
+            .selectAll('UserDevice')
+            .select((eb) => [
+                jsonObjectFrom(
+                    eb.selectFrom('Device').selectAll().whereRef('Device.name', '=', 'UserDevice.deviceName'),
+                )
+                    .$notNull()
+                    .as('device'),
+            ])
+            .execute();
     },
 
     deleteUserDevice: (data: DeleteUserDevice) => {
-        return prisma.userDevice.delete({
-            where: {
-                userId: data.userId,
-                deviceName_deviceId: { deviceName: data.deviceName, deviceId: data.deviceId },
-            },
-        });
+        return db
+            .updateTable('UserDevice')
+            .where('UserDevice.userId', '=', data.userId)
+            .where('UserDevice.deviceName', '=', data.deviceName)
+            .where('UserDevice.deviceId', '=', data.deviceId)
+            .set({ archived: true, archivedAt: new Date() })
+            .returningAll()
+            .executeTakeFirstOrThrow();
     },
 };

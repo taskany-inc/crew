@@ -104,7 +104,10 @@ export const CreateDecreeForm: FC<CreateDecreeFormProps> = ({ user, type, onSubm
             login: user.login ?? '',
             title: role,
             workEmail: user.email ?? '',
-            equipment: devices.reduce((a, d) => (d.active ? `${a}${a.length > 0 ? ', ' : ''}${d.deviceName}` : a), ''),
+            equipment: devices.reduce(
+                (a, d) => (d.archived ? a : `${a}${a.length > 0 ? ', ' : ''}${d.deviceName}`),
+                '',
+            ),
             email: user.email,
             date: null,
             location: user.location?.name,

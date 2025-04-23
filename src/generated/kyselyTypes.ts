@@ -418,7 +418,8 @@ export type UserDevice = {
     userId: string;
     deviceName: string;
     deviceId: string;
-    active: Generated<boolean>;
+    archived: Generated<boolean>;
+    archivedAt: Timestamp | null;
     createdAt: Generated<Timestamp>;
     updatedAt: Generated<Timestamp>;
 };
