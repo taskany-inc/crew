@@ -24,6 +24,8 @@ import {
     transferInternToStaffHistoryEvent,
     transferInsideHistoryEvent,
 } from '../../utils/userCreationRequestHistoryEvents';
+import { userMethods } from '../../modules/userMethods';
+import { isSameDay } from '../../utils/dateTime';
 
 import { tr } from './router.i18n';
 
@@ -397,6 +399,27 @@ export const userCreationRequestRouter = router({
             },
         );
 
+        // if req is approved and in these has changes income date then needs block external account
+        // and create new job to update external account and send meetings email
+        const { date: previousDate, status: previousStatus, login } = userCreationRequestBefore;
+        const { date: nextDate, status: nextStatus } = userCreationRequestAfter;
+
+        const existingUserByLogin = await userMethods.getByLogin(login).catch((_err) => {
+            /* do nothing */
+        });
+
+        // check what status doesnt changes and equals `Approved`
+        if (existingUserByLogin != null && previousStatus === 'Approved' && previousStatus === nextStatus) {
+            // check what date changed
+            if (nextDate != null && previousDate != null && !isSameDay(previousDate, nextDate)) {
+                await userMethods.editActiveState({
+                    id: existingUserByLogin.id,
+                    method: 'cloud-no-move',
+                    active: false,
+                });
+            }
+        }
+
         await historyEventMethods.create({ user: ctx.session.user.id }, 'editUserCreationRequest', {
             groupId: undefined,
             userId: undefined,
@@ -675,6 +698,19 @@ export const userCreationRequestRouter = router({
                     !ctx.session.user.role?.editExternalFromMainUserRequest,
             },
         ]);
+
+        const exstingUserByLogin = await userMethods.getByLogin(requestBeforeCancelling.login).catch((_err) => {
+            /* do nothing */
+        });
+
+        // only for approved requests
+        if (exstingUserByLogin != null && requestBeforeCancelling.status === 'Approved') {
+            await userMethods.editActiveState({
+                id: exstingUserByLogin.id,
+                active: false,
+                method: 'sp',
+            });
+        }
 
         const cancelledUserRequest = await userCreationRequestsMethods.cancel(input, ctx.session.user.id);
 
