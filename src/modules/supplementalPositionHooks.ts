@@ -32,6 +32,7 @@ export const useSupplementalPositionMutations = () => {
     const cancelSupplementalPositionRequest = trpc.supplementalPosition.cancelRequest.useMutation({
         onSuccess: () => {
             utils.user.getById.invalidate();
+            utils.userCreationRequest.getList.invalidate();
         },
     });
 
