@@ -414,6 +414,7 @@ export type userCurators = {
     B: string;
 };
 export type UserDevice = {
+    id: Generated<string>;
     userId: string;
     deviceName: string;
     deviceId: string;
