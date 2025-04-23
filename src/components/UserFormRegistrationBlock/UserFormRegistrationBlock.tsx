@@ -190,6 +190,7 @@ export const UserFormRegistrationBlock = ({
                 {nullable(creationCause === 'transfer' && type === 'internal', () => (
                     <FormControl label={tr('Transfer from subdivision')} error={errors.transferFromGroup} required>
                         <FormControlInput
+                            readOnly={readOnly}
                             autoComplete="off"
                             size="m"
                             placeholder={tr('Enter subdivision name')}
