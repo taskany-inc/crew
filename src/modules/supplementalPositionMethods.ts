@@ -374,7 +374,11 @@ export const supplementalPositionMethods = {
         });
 
         await sendNewCommerEmails({
-            request: { ...request, supplementalPositions: [supplementalPosition] },
+            request: {
+                ...request,
+                supplementalPositions: [supplementalPosition],
+                services: user.services.map(({ serviceName, serviceId }) => ({ serviceName, serviceId })),
+            },
             sessionUserId,
             method: ICalCalendarMethod.REQUEST,
         });
@@ -414,6 +418,12 @@ export const supplementalPositionMethods = {
             });
         }
 
+        const user = await userMethods.getById(request.userTargetId);
+
+        if (!user) {
+            throw new TRPCError({ code: 'NOT_FOUND', message: `No user with id ${request.userTargetId} found` });
+        }
+
         await db
             .updateTable('UserCreationRequest')
             .where('id', '=', id)
@@ -429,7 +439,11 @@ export const supplementalPositionMethods = {
         }
 
         await sendNewCommerEmails({
-            request: { ...request, lineManagers: undefined },
+            request: {
+                ...request,
+                lineManagers: undefined,
+                services: user.services.map(({ serviceName, serviceId }) => ({ serviceName, serviceId })),
+            },
             sessionUserId,
             method: ICalCalendarMethod.CANCEL,
         });
@@ -581,14 +595,23 @@ export const supplementalPositionMethods = {
         }
 
         await sendNewCommerEmails({
-            request: { ...updatedRequest, supplementalPositions: [updatedPosition], lineManagers: undefined },
+            request: {
+                ...updatedRequest,
+                supplementalPositions: [updatedPosition],
+                lineManagers: undefined,
+                services: user.services.map(({ serviceName, serviceId }) => ({ serviceName, serviceId })),
+            },
             sessionUserId,
             method: ICalCalendarMethod.REQUEST,
         });
 
         if (updatedPosition.organizationUnitId !== position.organizationUnitId) {
             await sendNewCommerEmails({
-                request: { ...request, lineManagers: undefined },
+                request: {
+                    ...request,
+                    lineManagers: undefined,
+                    services: user.services.map(({ serviceName, serviceId }) => ({ serviceName, serviceId })),
+                },
                 sessionUserId,
                 method: ICalCalendarMethod.CANCEL,
             });

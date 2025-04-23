@@ -13,6 +13,7 @@ import { DB } from '../generated/kyselyTypes';
 import { groupRoleMethods } from '../modules/groupRoleMethods';
 import { dropUnchangedValuesFromEvent } from '../utils/dropUnchangedValuesFromEvents';
 import { percentageMultiply } from '../utils/suplementPosition';
+import { UserCreationRequestType } from '../modules/userCreationRequestTypes';
 
 import { JobDataMap } from './create';
 
@@ -268,11 +269,24 @@ export const editUserOnTransfer = async ({ userCreationRequestId }: JobDataMap['
         userUpdateValues.locationId = location.id;
     }
 
+    let newSupervisorId;
+
     if (
+        userCreationRequest.type === UserCreationRequestType.transferInside &&
         userCreationRequest.transferToSupervisorId &&
         user.supervisorId !== userCreationRequest.transferToSupervisorId
     ) {
         userUpdateValues.supervisorId = userCreationRequest.transferToSupervisorId;
+        newSupervisorId = userCreationRequest.transferToSupervisorId;
+    }
+
+    if (
+        userCreationRequest.type === UserCreationRequestType.createSuppementalPosition &&
+        userCreationRequest.supervisorId &&
+        user.supervisorId !== userCreationRequest.supervisorId
+    ) {
+        userUpdateValues.supervisorId = userCreationRequest.supervisorId;
+        newSupervisorId = userCreationRequest.supervisorId;
     }
 
     if (Object.values(userUpdateValues).length) {
@@ -315,13 +329,13 @@ export const editUserOnTransfer = async ({ userCreationRequestId }: JobDataMap['
             groupId: orgMembership?.groupId,
             role: orgMembership?.roles.map(({ name }) => name).join(', '),
             location: location?.name,
-            supervisorId: user.supervisorId,
+            supervisorId: user.supervisorId || undefined,
         },
         {
             groupId: userCreationRequest.groupId || undefined,
             role: userCreationRequest.title || undefined,
             location: userCreationRequest.location || undefined,
-            supervisorId: userCreationRequest.supervisorId || undefined,
+            supervisorId: newSupervisorId,
         },
     );
 

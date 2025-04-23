@@ -60,6 +60,7 @@ export const RequestFormActions = ({
 
     const handleCancelSubmit = useCallback(() => {
         onCancel && onCancel();
+
         if (requestType === 'retirement' || requestType === 'transfer') {
             // TODO change all requests types to enums
             cancelScheduledDeactivation({ id: requestId, comment: commentRef.current });
