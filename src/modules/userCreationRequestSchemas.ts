@@ -37,7 +37,8 @@ export const getCreateUserCreationRequestBaseSchema = () =>
             .string({ required_error: tr('Required field') })
             .min(1, { message: tr('Required field') })
             .min(5, { message: tr('Minimum {min} symbols', { min: 5 }) })
-            .email(tr('Not a valid email')),
+            .email(tr('Not a valid email'))
+            .toLowerCase(),
         phone: getPhoneSchema(),
         login: z
             .string({ required_error: tr('Required field') })
@@ -54,14 +55,24 @@ export const getCreateUserCreationRequestBaseSchema = () =>
         title: z
             .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
             .min(1, { message: tr('Required field') }),
-        corporateEmail: z.string().optional(),
+        corporateEmail: z.string().toLowerCase().optional(),
         osPreference: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         createExternalAccount: z.boolean().optional(),
         date: dateSchema,
         comment: z.string().optional(),
         attachIds: z.string().array().optional(),
-        workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
-        personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        workEmail: z
+            .string()
+            .email(tr('Not a valid email'))
+            .transform((email) => email.toLowerCase())
+            .optional()
+            .or(z.literal('')),
+        personalEmail: z
+            .string()
+            .email(tr('Not a valid email'))
+            .transform((email) => email.toLowerCase())
+            .optional()
+            .or(z.literal('')),
         percentage: percentageSchema.optional(),
         unitId: z.string().optional(),
         supplementalPositions: z
@@ -82,22 +93,22 @@ export const createUserRequestDraftSchema = z.object({
     name: z.string(),
     login: z.string(),
     phone: z.string(),
-    registrationEmail: z.string().email(),
-    workEmail: z.string().email().optional(),
+    registrationEmail: z.string().email().toLowerCase(),
+    workEmail: z.string().email().toLowerCase().optional(),
     position: z.string(),
-    supervisorEmail: z.string().email(),
+    supervisorEmail: z.string().email().toLowerCase(),
     externalGroupId: z.string().optional(),
     coordinators: z
         .array(
             z.object({
-                email: z.string().email(),
+                email: z.string().email().toLowerCase(),
             }),
         )
         .optional(),
     lineManagers: z
         .array(
             z.object({
-                email: z.string().email(),
+                email: z.string().email().toLowerCase(),
             }),
         )
         .optional(),
@@ -122,7 +133,7 @@ export type CreateUserCreationRequestBase = z.infer<ReturnType<typeof getCreateU
 const optionalEmailSchema = z
     .string()
     .email(tr('Not a valid email'))
-    .refine((email) => email.toLowerCase())
+    .transform((email) => email.toLowerCase())
     .optional()
     .or(z.literal(''));
 
@@ -165,7 +176,8 @@ export const getCreateUserCreationRequestExternalEmployeeSchema = () =>
         personalEmail: z
             .string({ required_error: tr('Required field') })
             .min(1, { message: tr('Required field') })
-            .email(tr('Not a valid email')),
+            .email(tr('Not a valid email'))
+            .toLowerCase(),
         osPreference: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         date: dateSchema,
         lineManagerIds: z.array(z.string()).optional(),
@@ -189,7 +201,8 @@ export const getCreateUserCreationRequestExternalFromMainOrgEmployeeSchema = () 
         workEmail: z
             .string({ required_error: tr('Required field') })
             .min(1, { message: tr('Required field') })
-            .email(tr('Not a valid email')),
+            .email(tr('Not a valid email'))
+            .toLowerCase(),
         reason: z
             .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
             .min(1, { message: tr('Required field') }),
@@ -315,7 +328,8 @@ export const transferInternToStaffSchema = () =>
             .string({ required_error: tr('Required field') })
             .min(1, { message: tr('Required field') })
             .min(5, { message: tr('Minimum {min} symbols', { min: 5 }) })
-            .email(tr('Not a valid email')),
+            .email(tr('Not a valid email'))
+            .toLowerCase(),
         phone: getPhoneSchema(),
         login: z
             .string({ required_error: tr('Required field') })
@@ -330,12 +344,12 @@ export const transferInternToStaffSchema = () =>
         title: z
             .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
             .min(1, { message: tr('Required field') }),
-        corporateEmail: z.string().optional(),
+        corporateEmail: z.string().toLowerCase().optional(),
         date: dateSchema,
         comment: z.string().optional(),
         attachIds: z.string().array().optional(),
-        workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
-        personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        workEmail: optionalEmailSchema,
+        personalEmail: optionalEmailSchema,
         percentage: percentageSchema.optional(),
         unitId: z.string().optional(),
         supplementalPositions: z
@@ -406,7 +420,8 @@ export const createTransferInsideSchema = () =>
             .string({ required_error: tr('Required field') })
             .min(1, { message: tr('Required field') })
             .min(5, { message: tr('Minimum {min} symbols', { min: 5 }) })
-            .email(tr('Not a valid email')),
+            .email(tr('Not a valid email'))
+            .toLowerCase(),
         phone: getPhoneSchema(),
         login: z
             .string({ required_error: tr('Required field') })
@@ -430,12 +445,12 @@ export const createTransferInsideSchema = () =>
             .string({ required_error: tr('Required field') })
             .min(1, { message: tr('Required field') }),
         supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
-        corporateEmail: z.string().optional(),
+        corporateEmail: z.string().toLowerCase().optional(),
         date: dateSchema,
         transferToDate: dateSchema,
         attachIds: z.string().array().optional(),
-        workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
-        personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        workEmail: optionalEmailSchema,
+        personalEmail: optionalEmailSchema,
         percentage: percentageSchema.optional(),
         unitId: z.string().optional(),
         transferToPercentage: percentageSchema.optional(),
