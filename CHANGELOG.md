@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.123.0](https://github.com/taskany-inc/crew/compare/v0.122.0...v0.123.0) (2025-04-23)
+
+
+### Features
+
+* **INTERNAL-1565:** add id to user device model ([e23928a](https://github.com/taskany-inc/crew/commit/e23928a586ee1736a935e591d3d5312b7f43c0cb))
+* **INTERNAL-1635,INTERNAL-1794:** deactivate external account for approved requests ([ee7850f](https://github.com/taskany-inc/crew/commit/ee7850f17b4421d962f9fb927a10f13e24409833))
+
+
+### Bug Fixes
+
+* **INTERNAL-1836:** fixes for supplemental position request ([2c5390f](https://github.com/taskany-inc/crew/commit/2c5390f31da033d6ffe556abb08ed9474fc73426))
+
 ## [0.122.0](https://github.com/taskany-inc/crew/compare/v0.121.1...v0.122.0) (2025-04-23)
 
 
