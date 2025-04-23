@@ -579,6 +579,11 @@ export const userMethods = {
                 where: { userId: data.id, archived: false },
                 data: { archived: true },
             });
+
+            await prisma.userDevice.updateMany({
+                where: { userId: data.id, archived: false },
+                data: { archived: true, archivedAt: workEndDate },
+            });
         }
 
         return prisma.user.update({
