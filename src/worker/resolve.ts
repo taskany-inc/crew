@@ -14,6 +14,7 @@ import { groupRoleMethods } from '../modules/groupRoleMethods';
 import { dropUnchangedValuesFromEvent } from '../utils/dropUnchangedValuesFromEvents';
 import { percentageMultiply } from '../utils/suplementPosition';
 import { UserCreationRequestType } from '../modules/userCreationRequestTypes';
+import { HistoryEventsData } from '../modules/historyEventTypes';
 
 import { JobDataMap } from './create';
 
@@ -94,7 +95,9 @@ export const scheduledFiringFromSupplementalPosition = async ({
     );
 };
 
-export const transferInternToStaff = async ({ userCreationRequestId }: JobDataMap['transferInternToStaff']) => {
+export const editUserOnScheduledRequest = async ({
+    userCreationRequestId,
+}: JobDataMap['editUserOnScheduledRequest']) => {
     const userCreationRequest = await userCreationRequestsMethods.getById(userCreationRequestId);
 
     if (!userCreationRequest.userTargetId) {
@@ -104,8 +107,8 @@ export const transferInternToStaff = async ({ userCreationRequestId }: JobDataMa
         });
     }
 
-    const user = await userMethods.getById(userCreationRequest.userTargetId);
-    if (!user) {
+    const userBefore = await userMethods.getById(userCreationRequest.userTargetId);
+    if (!userBefore) {
         throw new TRPCError({
             code: 'NOT_FOUND',
             message: `No user with id ${userCreationRequest.userTargetId}`,
@@ -115,28 +118,38 @@ export const transferInternToStaff = async ({ userCreationRequestId }: JobDataMa
 
     let location: Location | undefined;
 
-    if (userCreationRequest.location && user.location?.name !== userCreationRequest.location) {
+    if (userCreationRequest.location && userBefore.location?.name !== userCreationRequest.location) {
         location = await locationMethods.findOrCreate(userCreationRequest.location);
         userUpdateValues.locationId = location.id;
     }
 
-    if (userCreationRequest.supervisorId && user.supervisorId !== userCreationRequest.supervisorId) {
-        userUpdateValues.supervisorId = userCreationRequest.supervisorId;
+    const newSupervisorId =
+        userCreationRequest.type === UserCreationRequestType.transferInside
+            ? userCreationRequest.transferToSupervisorId
+            : userCreationRequest.supervisorId;
+
+    if (newSupervisorId && userBefore.supervisorId !== newSupervisorId) {
+        userUpdateValues.supervisorId = newSupervisorId;
     }
 
     if (Object.values(userUpdateValues).length) {
         await db.updateTable('User').set(userUpdateValues).execute();
     }
 
-    const memberships = await userMethods.getMemberships(user.id);
+    const newGroupId =
+        userCreationRequest.type === UserCreationRequestType.transferInside
+            ? userCreationRequest.transferToGroupId
+            : userCreationRequest.groupId;
+
+    const memberships = await userMethods.getMemberships(userBefore.id);
     const orgMembership = memberships.find((m) => m.group.organizational);
-    if (userCreationRequest.groupId && userCreationRequest.groupId !== orgMembership?.groupId) {
+    if (newGroupId && newGroupId !== orgMembership?.groupId) {
         orgMembership?.groupId &&
-            (await userMethods.removeFromGroup({ userId: user.id, groupId: orgMembership.groupId }));
+            (await userMethods.removeFromGroup({ userId: userBefore.id, groupId: orgMembership.groupId }));
 
         const newMembership = await userMethods.addToGroup({
-            userId: user.id,
-            groupId: userCreationRequest.groupId,
+            userId: userBefore.id,
+            groupId: newGroupId,
             percentage: orgMembership?.percentage || undefined,
         });
 
@@ -169,42 +182,46 @@ export const transferInternToStaff = async ({ userCreationRequestId }: JobDataMa
         .set({ userId: userCreationRequest.userTargetId, status: 'ACTIVE' })
         .execute();
 
-    const { before, after } = dropUnchangedValuesFromEvent(
-        {
-            groupId: orgMembership?.groupId,
-            role: orgMembership?.roles.map(({ name }) => name).join(', '),
-            location: location?.name,
-            supervisorId: user.supervisorId,
-            supplementalPositions: user.supplementalPositions.map(
-                ({ organizationUnitId, percentage, unitId, main }) => ({
-                    organizationUnitId,
-                    percentage: percentage / percentageMultiply,
-                    unitId: unitId || undefined,
-                    main,
-                }),
-            ),
-        },
-        {
-            groupId: userCreationRequest.groupId || undefined,
-            role: userCreationRequest.title || undefined,
-            location: userCreationRequest.location || undefined,
-            supervisorId: userCreationRequest.supervisorId || undefined,
-            supplementalPositions: userCreationRequest.supplementalPositions.map(
-                ({ organizationUnitId, percentage, unitId, main }) => ({
-                    organizationUnitId,
-                    percentage: percentage / percentageMultiply,
-                    unitId: unitId || undefined,
-                    main,
-                }),
-            ),
-        },
-    );
+    const valuesEventBefore: Omit<HistoryEventsData['editUserOnScheduledRequest']['data'], 'id'> = {
+        requestType: userCreationRequest.type || undefined,
+        groupId: orgMembership?.groupId || undefined,
+        role: orgMembership?.roles.map(({ name }) => name).join(', '),
+        location: location?.name || undefined,
+        supervisorId: userBefore.supervisorId || undefined,
+    };
+
+    const valuesEventAfter: Omit<HistoryEventsData['editUserOnScheduledRequest']['data'], 'id'> = {
+        groupId: newGroupId || undefined,
+        role: userCreationRequest.title || undefined,
+        location: userCreationRequest.location || undefined,
+        supervisorId: newSupervisorId || undefined,
+    };
+
+    if (userCreationRequest.type === UserCreationRequestType.transferInternToStaff) {
+        valuesEventBefore.supplementalPositions = userBefore.supplementalPositions.map(
+            ({ organizationUnitId, percentage, unitId, main }) => ({
+                organizationUnitId,
+                percentage: percentage / percentageMultiply,
+                unitId: unitId || undefined,
+                main,
+            }),
+        );
+        valuesEventAfter.supplementalPositions = userCreationRequest.supplementalPositions.map(
+            ({ organizationUnitId, percentage, unitId, main }) => ({
+                organizationUnitId,
+                percentage: percentage / percentageMultiply,
+                unitId: unitId || undefined,
+                main,
+            }),
+        );
+    }
+    const { before, after } = dropUnchangedValuesFromEvent(valuesEventBefore, valuesEventAfter);
 
     await historyEventMethods.create(
-        { subsystem: 'Scheduled transfer intern to staff' },
-        'scheduledTransferInternToStaff',
+        { subsystem: 'Scheduled transfer edit user on request' },
+        'editUserOnScheduledRequest',
         {
-            userId: user.id,
+            userId: userBefore.id,
             groupId: undefined,
             before: { ...before, id: userCreationRequest.id },
             after: { ...after, id: userCreationRequest.id },
@@ -236,113 +253,4 @@ export const activateUserSupplementalPosition = async ({
             },
         },
     );
-};
-
-export const editUserOnTransfer = async ({ userCreationRequestId }: JobDataMap['editUserOnTransfer']) => {
-    const userCreationRequest = await userCreationRequestsMethods.getById(userCreationRequestId);
-
-    if (!userCreationRequest.userTargetId) {
-        throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: `No user with id ${userCreationRequest.userTargetId} in transferInternToStaff with id ${userCreationRequest.id}`,
-        });
-    }
-
-    const user = await userMethods.getById(userCreationRequest.userTargetId);
-    if (!user) {
-        throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: `No user with id ${userCreationRequest.userTargetId}`,
-        });
-    }
-
-    if (!user.active) {
-        await userMethods.editActiveState({ active: true, id: user.id });
-    }
-
-    const userUpdateValues: UpdateObjectExpression<DB, 'User'> = {};
-
-    let location: Location | undefined;
-
-    if (userCreationRequest.location && user.location?.name !== userCreationRequest.location) {
-        location = await locationMethods.findOrCreate(userCreationRequest.location);
-        userUpdateValues.locationId = location.id;
-    }
-
-    let newSupervisorId;
-
-    if (
-        userCreationRequest.type === UserCreationRequestType.transferInside &&
-        userCreationRequest.transferToSupervisorId &&
-        user.supervisorId !== userCreationRequest.transferToSupervisorId
-    ) {
-        userUpdateValues.supervisorId = userCreationRequest.transferToSupervisorId;
-        newSupervisorId = userCreationRequest.transferToSupervisorId;
-    }
-
-    if (
-        userCreationRequest.type === UserCreationRequestType.createSuppementalPosition &&
-        userCreationRequest.supervisorId &&
-        user.supervisorId !== userCreationRequest.supervisorId
-    ) {
-        userUpdateValues.supervisorId = userCreationRequest.supervisorId;
-        newSupervisorId = userCreationRequest.supervisorId;
-    }
-
-    if (Object.values(userUpdateValues).length) {
-        await db.updateTable('User').set(userUpdateValues).execute();
-    }
-
-    const memberships = await userMethods.getMemberships(user.id);
-    const orgMembership = memberships.find((m) => m.group.organizational);
-    if (userCreationRequest.transferToGroupId && userCreationRequest.transferToGroupId !== orgMembership?.groupId) {
-        orgMembership?.groupId &&
-            (await userMethods.removeFromGroup({ userId: user.id, groupId: orgMembership.groupId }));
-
-        const newMembership = await userMethods.addToGroup({
-            userId: user.id,
-            groupId: userCreationRequest.transferToGroupId,
-            percentage: orgMembership?.percentage || undefined,
-        });
-
-        if (userCreationRequest.transferToTitle) {
-            const role = await groupRoleMethods.getByName(userCreationRequest.transferToTitle);
-
-            role &&
-                (await groupRoleMethods.addToMembership({
-                    membershipId: newMembership.id,
-                    type: 'existing',
-                    id: role.id,
-                }));
-
-            !role &&
-                (await groupRoleMethods.addToMembership({
-                    membershipId: newMembership.id,
-                    type: 'new',
-                    name: userCreationRequest.transferToTitle,
-                }));
-        }
-    }
-
-    const { before, after } = dropUnchangedValuesFromEvent(
-        {
-            groupId: orgMembership?.groupId,
-            role: orgMembership?.roles.map(({ name }) => name).join(', '),
-            location: location?.name,
-            supervisorId: user.supervisorId || undefined,
-        },
-        {
-            groupId: userCreationRequest.groupId || undefined,
-            role: userCreationRequest.title || undefined,
-            location: userCreationRequest.location || undefined,
-            supervisorId: newSupervisorId,
-        },
-    );
-
-    await historyEventMethods.create({ subsystem: 'Scheduled transfer inside' }, 'scheduledTransferInside', {
-        userId: user.id,
-        groupId: undefined,
-        before: { ...before, id: userCreationRequest.id },
-        after: { ...after, id: userCreationRequest.id },
-    });
 };
