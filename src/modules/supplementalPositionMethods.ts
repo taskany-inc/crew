@@ -368,7 +368,7 @@ export const supplementalPositionMethods = {
             },
         });
 
-        await createJob('editUserOnTransfer', {
+        await createJob('editUserOnScheduledRequest', {
             date: startSupplementalPositionDate,
             data: { userCreationRequestId: request.id },
         });

@@ -1541,7 +1541,7 @@ const componentMap: {
         );
     },
 
-    ScheduledTransferInternToStaff: ({ event }) => {
+    EditUserOnScheduledRequest: ({ event }) => {
         const visible = useBoolean(false);
         const [, copy] = useCopyToClipboard();
 
@@ -1552,7 +1552,8 @@ const componentMap: {
         return (
             <>
                 <div className={s.Row}>
-                    {tr('changed user data by the transfer intern to staff request')}
+                    {tr('changed user data on schedule by request')}{' '}
+                    {event.before.requestType ? event.before.requestType : ''}
                     <Tag onClick={handleCopyId}>{event.after.id}</Tag> <UserListItem user={event.user} />
                     <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
                 </div>
@@ -1564,41 +1565,6 @@ const componentMap: {
                             after={formatSupplementalPositions(event.after.supplementalPositions ?? [])}
                             before={formatSupplementalPositions(event.before.supplementalPositions ?? [])}
                         />
-                        <ChangeListItem
-                            title={tr('Supervisor id')}
-                            after={event.after.supervisorId}
-                            before={event.before.supervisorId}
-                        />
-                        <ChangeListItem
-                            title={tr('Location')}
-                            after={event.after.location}
-                            before={event.before.location}
-                        />
-                        <ChangeListItem title={tr('Title')} after={event.after.role} before={event.before.role} />
-                    </>
-                ))}
-            </>
-        );
-    },
-
-    ScheduledTransferInside: ({ event }) => {
-        const visible = useBoolean(false);
-        const [, copy] = useCopyToClipboard();
-
-        const handleCopyId = useCallback(() => {
-            notifyPromise(copy(event.after.id), 'copy');
-        }, [copy, event.after.id]);
-
-        return (
-            <>
-                <div className={s.Row}>
-                    {tr('changed user data by the transfer employee inside request')}
-                    <Tag onClick={handleCopyId}>{event.after.id}</Tag> <UserListItem user={event.user} />
-                    <ToggleShowMore visible={visible.value} setVisible={visible.toggle} />
-                </div>
-                {nullable(visible.value, () => (
-                    <>
-                        <ChangeListItem title={tr('Team')} after={event.after.groupId} before={event.before.groupId} />
                         <ChangeListItem
                             title={tr('Supervisor id')}
                             after={event.after.supervisorId}

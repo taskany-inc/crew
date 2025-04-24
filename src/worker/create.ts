@@ -25,15 +25,12 @@ export interface JobDataMap {
         supplementalPositionId: string;
         userId: string;
     };
-    transferInternToStaff: {
+    editUserOnScheduledRequest: {
         userCreationRequestId: string;
     };
     activateUserSupplementalPosition: {
         supplementalPositionId: string;
         userId: string;
-    };
-    editUserOnTransfer: {
-        userCreationRequestId: string;
     };
 }
 
@@ -65,12 +62,7 @@ export async function createJob<K extends keyof JobDataMap>(
         .returningAll()
         .executeTakeFirstOrThrow();
 
-    if (
-        kind === 'createProfile' ||
-        kind === 'resolveDecree' ||
-        kind === 'transferInternToStaff' ||
-        kind === 'editUserOnTransfer'
-    ) {
+    if (kind === 'createProfile' || kind === 'resolveDecree' || kind === 'editUserOnScheduledRequest') {
         const { userCreationRequestId } = data as JobDataMap['createProfile'];
         await db
             .updateTable('UserCreationRequest')

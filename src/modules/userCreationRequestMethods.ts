@@ -2148,7 +2148,7 @@ export const userCreationRequestsMethods = {
         );
 
         if (request.date) {
-            await createJob('transferInternToStaff', {
+            await createJob('editUserOnScheduledRequest', {
                 data: { userCreationRequestId: request.id },
                 date: request.date,
             });
@@ -2889,7 +2889,7 @@ export const userCreationRequestsMethods = {
             }),
         ]);
 
-        await createJob('editUserOnTransfer', {
+        await createJob('editUserOnScheduledRequest', {
             date: transferDate,
             data: { userCreationRequestId: request.id },
         });
@@ -3452,7 +3452,7 @@ export const userCreationRequestsMethods = {
         }
 
         if (!request.date || !request.jobId) {
-            await createJob('editUserOnTransfer', {
+            await createJob('editUserOnScheduledRequest', {
                 date: transferDate,
                 data: { userCreationRequestId: request.id },
             });

@@ -1,4 +1,4 @@
-interface HistoryEventsData {
+export interface HistoryEventsData {
     createUser: {
         requireGroupId: false;
         requireUserId: true;
@@ -622,12 +622,13 @@ interface HistoryEventsData {
         requireBefore: false;
         data: { id: string; comment?: string };
     };
-    scheduledTransferInternToStaff: {
+    editUserOnScheduledRequest: {
         requireGroupId: false;
         requireUserId: true;
         requireBefore: true;
         data: {
             id: string;
+            requestType?: string;
             groupId?: string;
             role?: string;
             location?: string;
@@ -723,18 +724,6 @@ interface HistoryEventsData {
         requireUserId: true;
         requireBefore: false;
         data: { id: string; comment?: string };
-    };
-    scheduledTransferInside: {
-        requireGroupId: false;
-        requireUserId: true;
-        requireBefore: true;
-        data: {
-            id: string;
-            groupId?: string;
-            role?: string;
-            location?: string;
-            supervisorId?: string;
-        };
     };
     scheduledActivatingUserSupplementalPosition: {
         requireGroupId: false;
