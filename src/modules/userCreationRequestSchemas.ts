@@ -119,6 +119,13 @@ export type CreateUserCreationRequestDraft = z.infer<typeof createUserRequestDra
 
 export type CreateUserCreationRequestBase = z.infer<ReturnType<typeof getCreateUserCreationRequestBaseSchema>>;
 
+const optionalEmailSchema = z
+    .string()
+    .email(tr('Not a valid email'))
+    .refine((email) => email.toLowerCase())
+    .optional()
+    .or(z.literal(''));
+
 export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
     getCreateUserCreationRequestBaseSchema().extend({
         type: z.literal('internalEmployee'),
@@ -129,12 +136,12 @@ export const getCreateUserCreationRequestInternalEmployeeSchema = () =>
         workModeComment: z.string().optional(),
         extraEquipment: z.string().optional(),
         workSpace: z.string().optional(),
-        personalEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        personalEmail: optionalEmailSchema,
         buddyId: z.string().optional(),
         recruiterId: z.string().optional(),
         coordinatorIds: z.array(z.string()).optional(),
         lineManagerIds: z.array(z.string()).optional(),
-        workEmail: z.string().email(tr('Not a valid email')).optional().or(z.literal('')),
+        workEmail: optionalEmailSchema,
         location: z.string().min(1, { message: tr('Required field') }),
         creationCause: z.string(),
         unitId: z.string().optional(),
