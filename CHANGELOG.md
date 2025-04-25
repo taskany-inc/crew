@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.123.1](https://github.com/taskany-inc/crew/compare/v0.123.0...v0.123.1) (2025-04-25)
+
+
+### Bug Fixes
+
+* **INTERNAL-1837:** one function for scheduled updating user ([43987ec](https://github.com/taskany-inc/crew/commit/43987ec66cdd56319f6103c06021a4922ecb152c))
+* **INTERNAL-1838:** correct access check for new supplemental position button ([7b6fcaa](https://github.com/taskany-inc/crew/commit/7b6fcaa20a6921c22cb7fe097806f9da742adac1))
+
 ## [0.123.0](https://github.com/taskany-inc/crew/compare/v0.122.0...v0.123.0) (2025-04-23)
 
 
