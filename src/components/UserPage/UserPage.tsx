@@ -312,7 +312,7 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                             size="s"
                         />
                     </Restricted>
-                    <Restricted visible={!activeScheduledDeactivation && !!sessionUser.role?.editUserRole}>
+                    <Restricted visible={!activeScheduledDeactivation && !!sessionUser.role?.editUserActiveState}>
                         <Button
                             onClick={() => router.createSupplementalPositionRequest(user.id)}
                             text={tr('Add supplemental position')}
