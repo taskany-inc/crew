@@ -72,7 +72,7 @@ export const externalUserMethods = {
         }
         const user = await prisma.user.findFirstOrThrow({
             // try to find user by user id or login
-            where: { OR: [{ id: userIdOrLogin, login: userIdOrLogin }] },
+            where: { OR: [{ id: userIdOrLogin }, { login: userIdOrLogin }] },
         });
         const fullData: ExternalUserUpdate = { email: user.email, login: user.login || undefined, ...data };
         const response = await fetch(config.externalUserService.apiUrlUpdate, {
