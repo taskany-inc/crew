@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.123.2](https://github.com/taskany-inc/crew/compare/v0.123.1...v0.123.2) (2025-04-25)
+
+
+### Bug Fixes
+
+* **INTERNAL-1839:** fix user no found ([1eabdab](https://github.com/taskany-inc/crew/commit/1eabdabec933b02195ec782cf41387d8b74648b5))
+
 ## [0.123.1](https://github.com/taskany-inc/crew/compare/v0.123.0...v0.123.1) (2025-04-25)
 
 
