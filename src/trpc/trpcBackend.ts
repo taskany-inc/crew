@@ -42,10 +42,13 @@ const sessionCheck = t.middleware(({ next, ctx }) => {
 const apiTokenCheck = t.middleware(async ({ next, ctx }) => {
     if (!ctx.apiToken) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
-    const token = await prisma.apiToken.findUnique({ where: { value: ctx.apiToken } });
+    const token = await prisma.apiToken.findUnique({
+        where: { value: ctx.apiToken },
+        include: { role: true },
+    });
     if (!token) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
-    return next({ ctx: { apiToken: ctx.apiToken, apiTokenId: token.id } });
+    return next({ ctx: { apiToken: ctx.apiToken, apiTokenId: token.id, tokenRole: token.role } });
 });
 
 export const publicProcedure = t.procedure;

@@ -30,6 +30,7 @@ import { userCreationRequestsMethods } from '../../modules/userCreationRequestMe
 import { PositionStatus, UserCreationRequestStatus } from '../../generated/kyselyTypes';
 import { createJob } from '../../worker/create';
 import { jobDelete } from '../../worker/jobOperations';
+import { accessCheck, accessCheckAnyOf, checkRoleForAccess } from '../../utils/access';
 
 import { tr } from './router.i18n';
 
@@ -87,6 +88,8 @@ export const restRouter = router({
         )
         .output(userRestApiDataSchema)
         .query(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.tokenRole, 'editUser'));
+
             const user = await userMethods.getByLogin(input.login);
 
             let newSupervisor: Awaited<ReturnType<typeof userMethods.getUserByField>> | null = null;
@@ -239,6 +242,8 @@ export const restRouter = router({
             }),
         )
         .query(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.tokenRole, 'editUserActiveState'));
+
             const user = await userMethods.getByLogin(input.login);
 
             let updatedUser: Awaited<ReturnType<typeof userMethods.editActiveState>> = user;
@@ -302,6 +307,8 @@ export const restRouter = router({
         )
         .output(userSchema)
         .mutation(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.tokenRole, 'editUserActiveState'));
+
             const userBefore = await userMethods.getUserByField({ email: input.email });
             const result = await userMethods.editActiveState({
                 id: userBefore.id,
@@ -336,6 +343,8 @@ export const restRouter = router({
         )
         .output(userSchema)
         .mutation(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.tokenRole, 'editUserBonuses'));
+
             const { actingUserEmail, targetUserEmail, ...restInput } = input;
             const targetUser = await userMethods.getUserByField({ email: targetUserEmail });
             const actingUser = await userMethods.getUserByField({ email: actingUserEmail });
@@ -529,6 +538,8 @@ export const restRouter = router({
             }),
         )
         .query(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.tokenRole, 'editFullGroupTree'));
+
             const vacancyBefore = await vacancyMethods.getByIdOrThrow(input.id);
             const result = await vacancyMethods.edit(input);
             const { before, after } = dropUnchangedValuesFromEvent(
@@ -598,6 +609,8 @@ export const restRouter = router({
         )
         .output(z.string())
         .query(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.tokenRole, 'editUserAchievements'));
+
             const { actingUserEmail, targetUserEmail, sectionsNumber } = input;
 
             if (!config.sectionAchiementId || !config.sectionAmountForAchievement) {
@@ -667,6 +680,8 @@ export const restRouter = router({
             }),
         )
         .query(async ({ input, ctx }) => {
+            accessCheck(checkRoleForAccess(ctx.tokenRole, 'editUserAchievements'));
+
             const { actingUserEmail, targetUserEmail, achievementId, amount } = input;
             const [targetUser, actingUser, achievement] = await Promise.all([
                 userMethods.getUserByField({ email: targetUserEmail }),
@@ -832,6 +847,12 @@ export const restRouter = router({
         )
         .mutation(async ({ input, ctx }) => {
             try {
+                accessCheckAnyOf(
+                    checkRoleForAccess(ctx.tokenRole, 'createExternalFromMainUserRequest'),
+                    checkRoleForAccess(ctx.tokenRole, 'createExternalUserRequest'),
+                    checkRoleForAccess(ctx.tokenRole, 'createInternalUserRequest'),
+                );
+
                 const { organizations, ...rest } = input;
                 const request = await userCreationRequestsMethods.createUserRequestDraft({
                     ...rest,
@@ -911,6 +932,8 @@ export const restRouter = router({
         )
         .mutation(async ({ input, ctx }) => {
             try {
+                accessCheck(checkRoleForAccess(ctx.tokenRole, 'decideOnUserCreationRequest'));
+
                 const { personId, status, startDate: startDateStr } = input;
 
                 const request = await db
@@ -1035,6 +1058,12 @@ export const restRouter = router({
         )
         .mutation(async ({ input, ctx }) => {
             try {
+                accessCheckAnyOf(
+                    checkRoleForAccess(ctx.tokenRole, 'editExternalFromMainUserRequest'),
+                    checkRoleForAccess(ctx.tokenRole, 'editExternalUserRequest'),
+                    checkRoleForAccess(ctx.tokenRole, 'editInternalUserRequest'),
+                );
+
                 const existingRequest = await userCreationRequestsMethods.getByExternalPersonId(input.externalPersonId);
                 const updatedRequest = await userCreationRequestsMethods.editUserRequestDraft(input, ctx.apiTokenId);
 
