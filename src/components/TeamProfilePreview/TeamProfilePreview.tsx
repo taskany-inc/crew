@@ -27,6 +27,13 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
     const childrenQuery = trpc.group.getChildren.useQuery(groupId);
     const { data: counter } = trpc.group.getTreeMembershipsCount.useQuery(groupId);
 
+    const redirectActions = {
+        goals: {
+            id: groupId,
+            text: tr('Goals redirect'),
+        },
+    };
+
     const { team } = useRouter();
 
     const onShowTeam = () => {
@@ -43,6 +50,7 @@ export const TeamProfilePreview = ({ groupId }: UserProps): JSX.Element => {
                     <TeamPageTitle
                         counter={counter}
                         size="m"
+                        redirectActions={redirectActions}
                         action={
                             <Link onClick={onShowTeam} href={pages.team(group.id)}>
                                 <Button
