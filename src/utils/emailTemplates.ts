@@ -265,9 +265,11 @@ export const newComerNotInMainEmailHtml = async (data: {
             .execute()
     ).map((d) => d.A);
 
-    const domains = (
-        await db.selectFrom('OrganizationDomain').select('domain').where('id', 'in', domainIds).execute()
-    ).map((d) => d.domain);
+    const domains = domainIds.length
+        ? (await db.selectFrom('OrganizationDomain').select('domain').where('id', 'in', domainIds).execute()).map(
+              (d) => d.domain,
+          )
+        : [];
 
     const links = await db
         .selectFrom('Link')
