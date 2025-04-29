@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.124.0](https://github.com/taskany-inc/crew/compare/v0.123.2...v0.124.0) (2025-04-29)
+
+
+### Features
+
+* **INTERNAL-1565:** archive user devices ([79e6fdd](https://github.com/taskany-inc/crew/commit/79e6fdd887d8f2e3a97aab3db483df06dd19a248))
+* **INTERNAL-1800:** add api roles ([3eeca21](https://github.com/taskany-inc/crew/commit/3eeca212109398459f6b165e287e59f0b89f2f24))
+
+
+### Bug Fixes
+
+* **INTERNAL-1375:** convert email to lowercase when creating users ([c266769](https://github.com/taskany-inc/crew/commit/c2667697429d606a370b898bab6580acf6e45852))
+* **INTERNAL-1479:** decree emails ([4d48da3](https://github.com/taskany-inc/crew/commit/4d48da361806f961bfff70db727a33224ce17fde))
+
 ## [0.123.2](https://github.com/taskany-inc/crew/compare/v0.123.1...v0.123.2) (2025-04-25)
 
 
