@@ -24,6 +24,10 @@ export const config = {
         url: process.env.NEXT_PUBLIC_HIRE_INTEGRATION_URL,
         apiToken: process.env.HIRE_INTEGRATION_API_TOKEN,
     },
+    goals: {
+        url: process.env.NEXT_PUBLIC_GOALS_URL,
+        icon: process.env.NEXT_PUBLIC_GOALS_ICON,
+    },
     nodemailer: {
         host: process.env.MAIL_HOST,
         port: process.env.MAIL_PORT,

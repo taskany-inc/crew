@@ -1,6 +1,6 @@
 .TeamPageTitle {
-    display: inline-flex;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
     gap: var(--gap-sm);
     width: 100%;
 }
@@ -10,4 +10,9 @@
     flex: 1;
     align-items: center;
     gap: var(--gap-sm);
+}
+
+.TeamPageSubtitleWrapper {
+    display: flex;
+    justify-content: space-between;
 }

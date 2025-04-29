@@ -30,6 +30,13 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
     const childrenQuery = trpc.group.getChildren.useQuery(teamId);
     const { data: counter } = trpc.group.getTreeMembershipsCount.useQuery(teamId);
 
+    const redirectActions = {
+        goals: {
+            id: teamId,
+            text: tr('Goals Redirect'),
+        },
+    };
+
     if (!group) return null;
 
     return (
@@ -47,6 +54,7 @@ export const TeamPage = ({ teamId }: TeamPageProps) => {
                 <TeamBreadcrumbs groupId={group.id} orgGroup="link" />
                 <TeamPageTitle
                     counter={counter}
+                    redirectActions={redirectActions}
                     action={nullable(group.meta.isEditable, () => (
                         <Button
                             iconLeft={<IconEdit1Outline size="s" />}
