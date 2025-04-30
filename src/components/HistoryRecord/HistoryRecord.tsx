@@ -1977,7 +1977,7 @@ export const HistoryRecord = ({ event }: HistoryRecordProps) => {
     return (
         <HistoryRecordBricks
             authors={[author]}
-            date={dateAgo(event.createdAt, locale)}
+            date={<span title={event.createdAt.toString()}>{dateAgo(event.createdAt, locale)}</span>}
             title={author.name || event.action}
         >
             <Text size="xs" weight="thin">

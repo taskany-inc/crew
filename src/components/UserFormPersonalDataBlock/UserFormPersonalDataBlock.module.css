@@ -13,6 +13,10 @@
     margin-bottom: var(--gap-m);
 }
 
+.Alert {
+    margin-bottom: var(--gap-m);
+}
+
 .SectionHeader {
     display: inline-block;
     margin-top: var(--gap-s);

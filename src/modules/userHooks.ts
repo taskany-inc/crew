@@ -1,3 +1,5 @@
+import { useDebounce } from 'use-debounce';
+
 import { trpc } from '../trpc/trpcClient';
 import { notifyPromise } from '../utils/notifications/notifyPromise';
 
@@ -10,7 +12,25 @@ import {
     RemoveUserFromGroup,
     EditUserMailingSettings,
     UpdateMembershipPercentage,
+    SameNameCheck,
 } from './userSchemas';
+
+const equalityFn = (left: Record<string, unknown>, right: Record<string, unknown>) => {
+    const leftKeys = Object.keys(left);
+    const rightKeys = Object.keys(right);
+    return leftKeys.length === rightKeys.length && leftKeys.map((k) => left[k] === right[k]).every((v) => v);
+};
+
+export const useSameNameCheck = (data: SameNameCheck) => {
+    const [debouncedData] = useDebounce(data, 300, { equalityFn });
+
+    const sameNameQuery = trpc.user.sameNameCheck.useQuery(debouncedData, {
+        keepPreviousData: true,
+        enabled: Boolean(data.surname && data.firstName),
+    });
+
+    return sameNameQuery;
+};
 
 export const useUserMutations = () => {
     const utils = trpc.useContext();

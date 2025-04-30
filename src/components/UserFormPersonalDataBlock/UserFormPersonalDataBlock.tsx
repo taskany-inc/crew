@@ -7,11 +7,12 @@ import { nullable } from '@taskany/bricks';
 
 import { FormControl } from '../FormControl/FormControl';
 import { RoleSelect } from '../RoleSelect/RoleSelect';
-import { loginAuto } from '../../utils/createUserCreationRequest';
+import { loginAuto } from '../../utils/userCreationRequests';
 import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { Nullish } from '../../utils/types';
 import { config } from '../../config';
 import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
+import { SameNameAlert } from '../SameNameAlert/SameNameAlert';
 
 import s from './UserFormPersonalDataBlock.module.css';
 import { tr } from './UserFormPersonalDataBlock.i18n';
@@ -80,6 +81,9 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
     const onDisableAccountClick = (e: ChangeEvent<HTMLInputElement>) => {
         setValue('disableAccount', e.target.checked);
     };
+
+    const [firstName, middleName, surname] = watch(['firstName', 'middleName', 'surname']);
+
     const onNameChange = () => {
         const login = loginAuto({
             firstName: getValues('firstName'),
@@ -212,6 +216,11 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         })}
                     />
                 </FormControl>
+            </div>
+            {nullable(!getReadOnly('surname'), () => (
+                <SameNameAlert surname={surname} firstName={firstName} middleName={middleName} className={s.Alert} />
+            ))}
+            <div className={s.ThreeInputsRow}>
                 <FormControl label={tr('Role')} required>
                     <RoleSelect
                         readOnly={getReadOnly('title')}

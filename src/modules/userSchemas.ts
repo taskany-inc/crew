@@ -162,3 +162,10 @@ export const editUserRoleSchema = z.object({
     roleCode: z.string(),
 });
 export type EditUserRoleData = z.infer<typeof editUserRoleSchema>;
+
+export const sameNameCheckSchema = z.object({
+    surname: z.string().optional(),
+    firstName: z.string().optional(),
+    middleName: z.string().optional(),
+});
+export type SameNameCheck = z.infer<typeof sameNameCheckSchema>;

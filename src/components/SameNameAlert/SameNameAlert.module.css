@@ -1,0 +1,35 @@
+.SameNameAlert {
+    color: var(--warn-300);
+    background: var(--warn-900);
+    border-radius: var(--radius-m);
+    padding: var(--gap-sm) var(--gap-sm);
+}
+
+.Title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.Icon {
+    margin-right: var(--gap-s);
+}
+
+.Content {
+    display: flex;
+    gap: var(--gap-m);
+    flex-direction: column;
+}
+
+.List {
+    display: flex;
+    gap: var(--gap-xs);
+    flex-direction: column;
+}
+
+.List .ListItem {
+    display: flex;
+    gap: var(--gap-s);
+    align-items: center;
+    width: max-content;
+    text-decoration: underline;
+}

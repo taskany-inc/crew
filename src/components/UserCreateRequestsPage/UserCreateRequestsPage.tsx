@@ -4,12 +4,13 @@ import cn from 'classnames';
 import { UserCreationRequestStatus } from 'prisma/prisma-client';
 
 import { trpc } from '../../trpc/trpcClient';
-import { pages, useRouter } from '../../hooks/useRouter';
+import { useRouter } from '../../hooks/useRouter';
 import { RequestFormActions } from '../RequestFormActions/RequestFormActions';
 import { ProfilesManagementLayout } from '../ProfilesManagementLayout/ProfilesManagementLayout';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
 import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
+import { getRequestPageLinkByType } from '../../utils/userCreationRequests';
 
 import { tr } from './UserCreateRequestsPage.i18n';
 import s from './UserCreateRequestsPage.module.css';
@@ -67,17 +68,7 @@ const RequestActions = ({
 };
 
 const ClickableRow = forwardRef<HTMLDivElement, React.ComponentProps<any>>((props, ref) => {
-    let href = pages.internalUserRequest(props.item.id);
-
-    if (props.item.type === UserCreationRequestType.transferInternToStaff) {
-        href = pages.transferInternToStaff(props.item.id);
-    }
-
-    if (props.item.type === UserCreationRequestType.transferInside) href = pages.transferInside(props.item.id);
-
-    if (props.item.type === UserCreationRequestType.createSuppementalPosition) {
-        href = pages.supplementalPositionRequest(props.item.id);
-    }
+    const href = getRequestPageLinkByType(props.item.id, props.item.type);
 
     return (
         <a href={href} className={s.TableRowLink}>
