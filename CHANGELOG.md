@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.124.2](https://github.com/taskany-inc/crew/compare/v0.124.1...v0.124.2) (2025-04-30)
+
+
+### Bug Fixes
+
+* **INTERNAL-1831:** support attaches ([c098155](https://github.com/taskany-inc/crew/commit/c098155c0a92259ea8f9323dc09ab93ba1e1a112))
+* **INTERNAL-1848:** remove extra notification ([ab86229](https://github.com/taskany-inc/crew/commit/ab86229ad96ddf843bafa18cca9c1c5a8759e8dd))
+
 ## [0.124.1](https://github.com/taskany-inc/crew/compare/v0.124.0...v0.124.1) (2025-04-30)
 
 
