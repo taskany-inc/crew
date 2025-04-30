@@ -15,6 +15,7 @@ import {
     editUserRoleSchema,
     editUserMailingSettingsSchema,
     updateMembershipPercentageSchema,
+    sameNameCheckSchema,
 } from '../../modules/userSchemas';
 import { historyEventMethods } from '../../modules/historyEventMethods';
 import { dropUnchangedValuesFromEvent } from '../../utils/dropUnchangedValuesFromEvents';
@@ -201,5 +202,9 @@ export const userRouter = router({
 
     isLoginUnique: protectedProcedure.input(z.string()).query(({ input }) => {
         return userMethods.isLoginUnique(input);
+    }),
+
+    sameNameCheck: protectedProcedure.input(sameNameCheckSchema).query(({ input }) => {
+        return userMethods.sameNameCheck(input);
     }),
 });

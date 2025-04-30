@@ -11,8 +11,9 @@ import { calculateDiffBetweenArrays } from '../utils/calculateDiffBetweenArrays'
 import { ExternalServiceName, findService } from '../utils/externalServices';
 import { getLastSupplementalPositions } from '../utils/supplementalPositions';
 import { db } from '../utils/db';
-import { getSearchRegex } from '../utils/regex';
+import { getSearchRegex, regexEscape, regexReplaceYo } from '../utils/regex';
 import { getUnitGroup } from '../utils/getUnitGroup';
+import { trimAndJoin } from '../utils/trimAndJoin';
 
 import {
     MembershipInfo,
@@ -47,6 +48,7 @@ import {
     EditUserRoleData,
     EditUserMailingSettings,
     UpdateMembershipPercentage,
+    SameNameCheck,
 } from './userSchemas';
 import { Location } from './locationTypes';
 import { tr } from './modules.i18n';
@@ -56,6 +58,7 @@ import { externalUserMethods } from './externalUserMethods';
 import { mailSettingsMethods } from './mailSettingsMethods';
 import { locationMethods } from './locationMethods';
 import { serviceMethods } from './serviceMethods';
+import { UserCreationRequestType } from './userCreationRequestTypes';
 
 export const addCalculatedUserFields = <T extends User>(user: T, sessionUser?: SessionUser): T & UserMeta => {
     if (!sessionUser) {
@@ -760,6 +763,30 @@ export const userMethods = {
         });
 
         return countUserLogins + countUserRequestLogins === 0;
+    },
+
+    sameNameCheck: async ({ surname, firstName, middleName }: SameNameCheck) => {
+        const fullName = trimAndJoin([surname, firstName, middleName]);
+        if (!surname || !firstName || fullName.length < 6) return { users: [], requests: [] };
+        const search = regexReplaceYo(regexEscape(fullName));
+        const [users, requests] = await Promise.all([
+            // false positive in eslint rule
+            // eslint-disable-next-line newline-per-chained-call
+            db.selectFrom('User').where('name', '~*', search).select(['id', 'name']).limit(5).execute(),
+            db
+                .selectFrom('UserCreationRequest')
+                .where('name', '~*', search)
+                .where('type', 'in', [
+                    UserCreationRequestType.internalEmployee,
+                    UserCreationRequestType.transferInternToStaff,
+                    UserCreationRequestType.transferInside,
+                    UserCreationRequestType.createSuppementalPosition,
+                ])
+                .select(['id', 'name', 'type'])
+                .limit(5)
+                .execute(),
+        ]);
+        return { users, requests };
     },
 
     createUserFromRequest: async (userCreationRequestId: string) => {

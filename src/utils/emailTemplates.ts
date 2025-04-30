@@ -14,7 +14,7 @@ import { tr } from './utils.i18n';
 import { db } from './db';
 import { Links } from './links';
 import { corporateDomain, findSigmaMail } from './organizationalDomains';
-import { userCreationRequestPhone } from './createUserCreationRequest';
+import { userCreationRequestPhone } from './userCreationRequests';
 
 export const userCreationMailText = (name: string, link: string) => `${tr('Hello colleagues!')}
 
