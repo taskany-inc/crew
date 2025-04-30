@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit guidelines.
 
+## [0.124.1](https://github.com/taskany-inc/crew/compare/v0.124.0...v0.124.1) (2025-04-30)
+
+
+### Bug Fixes
+
+* **INTERNAL-1846:** check if domainIds not empty ([154336e](https://github.com/taskany-inc/crew/commit/154336ef13dca1b693f68bfe2384698d2e24ab69))
+
 ## [0.124.0](https://github.com/taskany-inc/crew/compare/v0.123.2...v0.124.0) (2025-04-29)
 
 
