@@ -239,15 +239,6 @@ export const UserPageInner = ({ user }: UserPageInnerProps) => {
                         </Text>
                     ))}
 
-                    {nullable(decreeRequest, (request) => (
-                        <Text size="s" color={gray8} weight="bold">
-                            {request.type === UserCreationRequestType.toDecree
-                                ? tr('Decree leave planned for')
-                                : tr('Return from decree leave planned for')}{' '}
-                            {formatDate(request.date as Date, locale)}
-                        </Text>
-                    ))}
-
                     <Text size="xxl" weight="bold" color={user.active ? textColor : gray8}>
                         {user.name}
                         {!user.active && tr(' [inactive]')}
