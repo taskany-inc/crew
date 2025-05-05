@@ -891,8 +891,10 @@ export const restRouter = router({
                         services: request.services
                             ? (request.services as Record<'serviceName' | 'serviceId', string>[])
                             : undefined,
-                        coordinatorLogins: request.coordinators?.map((c) => c.login).join(', ') || undefined,
-                        lineManagerLogins: request.lineManagers?.map((lm) => lm.login).join(', ') || undefined,
+
+                        // TODO: add coordinators and line managers
+                        // coordinatorLogins: request.coordinators?.map((c) => c.login).join(', ') || undefined,
+                        // lineManagerLogins: request.lineManagers?.map((lm) => lm.login).join(', ') || undefined,
                     },
                 });
 
