@@ -48,7 +48,8 @@ export const getCreateUserCreationRequestBaseSchema = () =>
             required_error: tr('Required field'),
             invalid_type_error: tr('Required field'),
         }),
-        externalGroupId: z.string().optional(),
+        externalGroupId: z.string().optional().nullable(),
+        externalPersonId: z.string().optional().nullable(),
         groupId: z.string().optional(),
         supervisorId: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
         title: z
@@ -71,13 +72,14 @@ export const getCreateUserCreationRequestBaseSchema = () =>
                     percentage: percentageSchema,
                     unitId: z.string().optional(),
                     workStartDate: dateSchema,
+                    main: z.boolean().optional(),
                 }),
             )
             .optional(),
         lineManagerIds: z.array(z.string()).optional(),
     });
 
-export const createUserRequestDraftSchema = z.object({
+export const createUserRequestRestSchema = z.object({
     externalPersonId: z.string(),
     name: z.string(),
     login: z.string(),
@@ -115,7 +117,7 @@ export const createUserRequestDraftSchema = z.object({
     ),
 });
 
-export type CreateUserCreationRequestDraft = z.infer<typeof createUserRequestDraftSchema>;
+export type CreateUserCreationRequestRest = z.infer<typeof createUserRequestRestSchema>;
 
 export type CreateUserCreationRequestBase = z.infer<ReturnType<typeof getCreateUserCreationRequestBaseSchema>>;
 
@@ -277,6 +279,10 @@ export const createUserCreationRequestSchema = z.discriminatedUnion('type', [
 ]);
 export type CreateUserCreationRequest = z.infer<typeof createUserCreationRequestSchema>;
 
+export const createInternalEmployeeRequestSchema = getCreateUserCreationRequestInternalEmployeeSchema();
+
+export type CreateInternalEmployeeRequest = z.infer<typeof createInternalEmployeeRequestSchema>;
+
 export const handleUserCreationRequest = z.object({
     id: z.string(),
     comment: z.string().optional(),
@@ -397,6 +403,7 @@ export type EditTransferInternToStaff = z.infer<ReturnType<typeof editTransferIn
 export const createTransferInsideSchema = () =>
     z.object({
         type: z.literal(UserCreationRequestType.transferInside),
+        status: z.nativeEnum(UserCreationRequestStatus).nullish().optional(),
         disableAccount: z.boolean().optional(),
         userId: z.string(),
         surname: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
@@ -463,16 +470,14 @@ export const createTransferInsideSchema = () =>
             .optional(),
         lineManagerIds: z.array(z.string()).optional(),
         coordinatorIds: z.array(z.string()).optional(),
-        workMode: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
         workSpace: z.string().optional(),
-        location: z.string().min(1, { message: tr('Required field') }),
-        equipment: z
-            .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
-            .min(1, { message: tr('Required field') }),
         extraEquipment: z.string().optional(),
         comment: z.string().optional(),
+        location: z.string().optional(),
+        workMode: z.string().optional(),
+        equipment: z.string().optional(),
+        externalPersonId: z.string().optional(),
+        externalGroupId: z.string().optional(),
     });
 
 export type CreateTransferInside = z.infer<ReturnType<typeof createTransferInsideSchema>>;

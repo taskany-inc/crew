@@ -624,7 +624,7 @@ export const transferInternToStaffEmailHtml = (data: {
 
 interface SendNewcomerEmails {
     request: UserCreationRequestWithRelations;
-    sessionUserId: string;
+    sessionUserId?: string;
     method: ICalCalendarMethod.REQUEST | ICalCalendarMethod.CANCEL;
     newOrganizationIds?: string[];
 }
@@ -658,7 +658,9 @@ export const sendNewCommerEmails = async ({
                 return;
             }
 
-            const additionalEmails = [sessionUserId];
+            const additionalEmails: string[] = [];
+
+            if (sessionUserId) additionalEmails.push(sessionUserId);
 
             if (request.creatorId && request.creatorId !== sessionUserId) additionalEmails.push(request.creatorId);
 

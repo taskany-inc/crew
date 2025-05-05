@@ -1,4 +1,5 @@
 import { useRef, useMemo, useEffect } from 'react';
+import { z } from 'zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Text } from '@taskany/bricks/harmony';
@@ -38,6 +39,26 @@ interface TransferUserInsidePageProps {
     requestStatus?: UserCreationRequestStatus;
 }
 
+const schema = createTransferInsideSchema().superRefine(({ status, equipment, workMode }, ctx) => {
+    if (status !== UserCreationRequestStatus.Draft) {
+        if (equipment === '') {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: tr('Required field'),
+                path: ['equipment'],
+            });
+        }
+
+        if (workMode === '') {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: tr('Required field'),
+                path: ['workMode'],
+            });
+        }
+    }
+});
+
 export const TransferUserInsidePage = ({
     requestId,
     user,
@@ -59,6 +80,7 @@ export const TransferUserInsidePage = ({
     const defaultValues: Partial<CreateTransferInside> = useMemo(
         () => ({
             type: UserCreationRequestType.transferInside,
+            status: request?.status,
             disableAccount: request?.disableAccount,
             userId: user.id,
             email: user.email,
@@ -112,7 +134,7 @@ export const TransferUserInsidePage = ({
     const rootRef = useRef<HTMLDivElement>(null);
 
     const methods = useForm<CreateTransferInside>({
-        resolver: zodResolver(createTransferInsideSchema()),
+        resolver: zodResolver(schema),
         defaultValues,
     });
 

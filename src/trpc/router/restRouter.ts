@@ -25,7 +25,7 @@ import { getCorporateEmail } from '../../utils/getCorporateEmail';
 import { config } from '../../config';
 import { ExternalServiceName } from '../../utils/externalServices';
 import { db } from '../../utils/db';
-import { createUserRequestDraftSchema } from '../../modules/userCreationRequestSchemas';
+import { createUserRequestRestSchema } from '../../modules/userCreationRequestSchemas';
 import { userCreationRequestsMethods } from '../../modules/userCreationRequestMethods';
 import { PositionStatus, UserCreationRequestStatus } from '../../generated/kyselyTypes';
 import { createJob } from '../../worker/create';
@@ -838,7 +838,7 @@ export const restRouter = router({
                 description: 'Creates a new user creation request with the provided data',
             },
         })
-        .input(createUserRequestDraftSchema)
+        .input(createUserRequestRestSchema)
         .output(
             z.object({
                 id: z.string(),
@@ -891,8 +891,10 @@ export const restRouter = router({
                         services: request.services
                             ? (request.services as Record<'serviceName' | 'serviceId', string>[])
                             : undefined,
-                        coordinatorLogins: request.coordinators?.map((c) => c.login).join(', ') || undefined,
-                        lineManagerLogins: request.lineManagers?.map((lm) => lm.login).join(', ') || undefined,
+
+                        // TODO: add coordinators and line managers
+                        // coordinatorLogins: request.coordinators?.map((c) => c.login).join(', ') || undefined,
+                        // lineManagerLogins: request.lineManagers?.map((lm) => lm.login).join(', ') || undefined,
                     },
                 });
 
@@ -1049,7 +1051,7 @@ export const restRouter = router({
                 description: 'Updates an existing user creation request (only internalEmployee type)',
             },
         })
-        .input(createUserRequestDraftSchema)
+        .input(createUserRequestRestSchema)
         .output(
             z.object({
                 id: z.string(),
@@ -1064,8 +1066,18 @@ export const restRouter = router({
                     checkRoleForAccess(ctx.tokenRole, 'editInternalUserRequest'),
                 );
 
+                const { organizations, ...rest } = input;
+
                 const existingRequest = await userCreationRequestsMethods.getByExternalPersonId(input.externalPersonId);
-                const updatedRequest = await userCreationRequestsMethods.editUserRequestDraft(input, ctx.apiTokenId);
+                const updatedRequest = await userCreationRequestsMethods.editUserRequestDraft({
+                    ...rest,
+                    organizations: [
+                        {
+                            ...organizations[0],
+                            main: true,
+                        },
+                    ],
+                });
 
                 await historyEventMethods.create({ token: ctx.apiTokenId }, 'editUserCreationRequest', {
                     groupId: undefined,

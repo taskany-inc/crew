@@ -52,7 +52,7 @@ interface UserDissmissMailing {
     organization: OrganizationUnit;
     teamlead: string;
     role: string;
-    sessionUserId: string;
+    sessionUserId?: string;
     attaches?: Attach[];
     phone: string;
     sigmaMail?: string;
@@ -177,7 +177,9 @@ export const sendDismissalEmails = async ({
                 return;
             }
 
-            const additionalEmails = [sessionUserId];
+            const additionalEmails: string[] = [];
+
+            if (sessionUserId) additionalEmails.push(sessionUserId);
 
             if (request.creatorId) additionalEmails.push(request.creatorId);
 
