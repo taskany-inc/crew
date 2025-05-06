@@ -394,9 +394,10 @@ export const editTransferInternToStaffSchema = () =>
 
 export type EditTransferInternToStaff = z.infer<ReturnType<typeof editTransferInternToStaffSchema>>;
 
-export const createTransferInsideSchema = () =>
+export const createTransferInsideDraftSchema = () =>
     z.object({
         type: z.literal(UserCreationRequestType.transferInside),
+        status: z.literal(UserCreationRequestStatus.Draft).nullish().optional(),
         disableAccount: z.boolean().optional(),
         userId: z.string(),
         surname: z.string({ required_error: tr('Required field') }).min(1, { message: tr('Required field') }),
@@ -463,19 +464,37 @@ export const createTransferInsideSchema = () =>
             .optional(),
         lineManagerIds: z.array(z.string()).optional(),
         coordinatorIds: z.array(z.string()).optional(),
+        workSpace: z.string().optional(),
+        extraEquipment: z.string().optional(),
+        comment: z.string().optional(),
+        location: z.string().optional(),
+        workMode: z.string().optional(),
+        equipment: z.string().optional(),
+        externalPersonId: z.string().optional(),
+        externalGroupId: z.string().optional(),
+    });
+
+export type CreateTransferInsideDraft = z.infer<ReturnType<typeof createTransferInsideDraftSchema>>;
+
+export const createTransferInsideSchema = () =>
+    createTransferInsideDraftSchema().extend({
+        location: z.string().min(1, { message: tr('Required field') }),
         workMode: z
             .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
             .min(1, { message: tr('Required field') }),
-        workSpace: z.string().optional(),
-        location: z.string().min(1, { message: tr('Required field') }),
         equipment: z
             .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
             .min(1, { message: tr('Required field') }),
-        extraEquipment: z.string().optional(),
-        comment: z.string().optional(),
     });
 
 export type CreateTransferInside = z.infer<ReturnType<typeof createTransferInsideSchema>>;
+
+export const editTransferInsideDraftSchema = () =>
+    createTransferInsideDraftSchema().extend({
+        id: z.string(),
+    });
+
+export type EditTransferInsideDraft = z.infer<ReturnType<typeof editTransferInsideDraftSchema>>;
 
 export const editTransferInsideSchema = () =>
     createTransferInsideSchema().extend({

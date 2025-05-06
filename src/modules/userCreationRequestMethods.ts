@@ -60,6 +60,7 @@ import {
     UserDecreeSchema,
     CreateUserCreationRequestDraft,
     EditTransferInside,
+    CreateTransferInsideDraft,
 } from './userCreationRequestSchemas';
 import {
     CompleteUserCreationRequest,
@@ -425,7 +426,7 @@ export const findUsersByEmails = async (
 };
 
 const createTransferInsideRequest = async (
-    data: CreateTransferInside,
+    data: CreateTransferInsideDraft | CreateTransferInside,
     user: Awaited<ReturnType<typeof userMethods.getById>>,
     sessionUserId?: string,
 ) => {
@@ -517,6 +518,7 @@ const createTransferInsideRequest = async (
         .insertInto('UserCreationRequest')
         .values({
             type: restData.type,
+            status: restData.status,
             userTargetId: userId,
             email: restData.email,
             login: restData.login,
@@ -680,6 +682,283 @@ const createTransferInsideRequest = async (
         date,
         supplementalPositions,
         transferToSupplementalPositions,
+        lineManagers,
+        coordinators,
+        attaches,
+    };
+};
+
+const updateTransferInsideRequest = async (
+    request: EditTransferInside,
+    requestBefore: Awaited<ReturnType<typeof userCreationRequestsMethods.getTransferInsideByIdWithRelations>>,
+    user: Awaited<ReturnType<typeof userMethods.getById>>,
+    sessionUserId?: string,
+) => {
+    const { date, id, ...restData } = request;
+
+    if (!date) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date transfer from specified' });
+
+    if (!restData.transferToDate) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date transfer to specified' });
+    }
+    const transferToSupplementalPosition =
+        restData.transferToSupplementalPositions && restData.transferToSupplementalPositions[0];
+
+    const transferDate =
+        transferToSupplementalPosition?.workStartDate &&
+        restData.transferToDate > transferToSupplementalPosition.workStartDate
+            ? transferToSupplementalPosition.workStartDate
+            : restData.transferToDate;
+
+    await serviceMethods.updateUserServicesInRequest({
+        services: user.services,
+        userId: user.id,
+        phone: request.phone,
+        workEmail: request.workEmail,
+        personalEmail: request.personalEmail,
+    });
+
+    const transferToSupplementalPositionMainBefore = requestBefore.supplementalPositionsTransferTo.find(
+        ({ main }) => main,
+    );
+
+    const updatedMainTransferPosition = await supplementalPositionMethods.updateRequestPosition({
+        position: transferToSupplementalPositionMainBefore,
+        userId: user.id,
+        date: restData.transferToDate,
+        main: true,
+        jobKind: 'activateUserSupplementalPosition',
+        requestId: requestBefore.id,
+        updateValues: {
+            organizationUnitId: restData.transferToOrganizationUnitId,
+            percentage: restData?.transferToPercentage || 1,
+            unitId: restData.transferToUnitId,
+        },
+        userCreationRequestKey: 'userTransferToRequestId',
+    });
+
+    if (!updatedMainTransferPosition) {
+        throw new TRPCError({
+            message: `no transfer to main supplemental position in transfer inside request with id ${requestBefore.id}}`,
+            code: 'NOT_FOUND',
+        });
+    }
+
+    const updatedTransferToSupplementalPositions = [updatedMainTransferPosition];
+
+    const transferToSupplementalPositionBefore = requestBefore.supplementalPositionsTransferTo.find(
+        ({ main }) => !main,
+    );
+
+    const updatedSupplementalTransferPosition = await supplementalPositionMethods.updateRequestPosition({
+        position: transferToSupplementalPositionBefore,
+        userId: user.id,
+        date: transferToSupplementalPosition?.workStartDate || transferDate,
+        main: false,
+        jobKind: 'activateUserSupplementalPosition',
+        requestId: requestBefore.id,
+        updateValues: transferToSupplementalPosition,
+        userCreationRequestKey: 'userTransferToRequestId',
+    });
+
+    updatedSupplementalTransferPosition &&
+        updatedTransferToSupplementalPositions.push(updatedSupplementalTransferPosition);
+
+    let { disableAccount } = restData;
+
+    if (
+        transferDate.getUTCDate() - date.getUTCDate() <= 1 &&
+        transferDate.getUTCFullYear() === date.getUTCFullYear() &&
+        transferDate.getUTCMonth() === date.getUTCMonth()
+    ) {
+        disableAccount = false;
+    } else disableAccount = true;
+
+    if (!disableAccount && requestBefore.disableAccountJobId) {
+        await jobDelete(requestBefore.disableAccountJobId);
+    }
+
+    if (requestBefore.disableAccountJobId && disableAccount) {
+        await db.updateTable('Job').where('id', '=', requestBefore.disableAccountJobId).set({ date }).execute();
+    }
+
+    const setUpdate: UpdateObjectExpression<DB, 'UserCreationRequest'> = {
+        type: restData.type,
+        email: restData.email,
+        login: restData.login,
+        name: user.name ?? trimAndJoin([restData.surname, restData.firstName, restData.middleName]),
+        creatorId: sessionUserId,
+        organizationUnitId: restData.organizationUnitId,
+        percentage: (restData.percentage ?? 1) * percentageMultiply,
+        unitId: restData.unitId,
+        groupId: restData.groupId || undefined,
+        supervisorId: restData.supervisorId,
+        title: restData.title || undefined,
+        corporateEmail: restData.corporateEmail || undefined,
+        createExternalAccount: false,
+        workMode: restData.workMode,
+        workSpace: restData.workSpace,
+        location: restData.location,
+        date,
+        comment: restData.comment || undefined,
+        workEmail: restData.workEmail || undefined,
+        personalEmail: restData.personalEmail || undefined,
+        equipment: restData.equipment,
+        extraEquipment: restData.extraEquipment,
+        services: [],
+        disableAccount,
+        transferToGroupId: restData.transferToGroupId,
+        transferToSupervisorId: restData.transferToSupervisorId,
+        transferToTitle: restData.transferToTitle,
+    };
+
+    if (date !== requestBefore.date && requestBefore.jobId) {
+        await db.updateTable('Job').where('id', '=', requestBefore.jobId).set({ date: transferDate }).execute();
+    }
+
+    if (!requestBefore.date || !requestBefore.jobId) {
+        await createJob('editUserOnScheduledRequest', {
+            date: transferDate,
+            data: { userCreationRequestId: requestBefore.id },
+        });
+    }
+
+    if (!requestBefore.disableAccountJobId && disableAccount) {
+        await createJob('scheduledDeactivation', {
+            date,
+            data: { userId: user.id, userCreationRequestId: requestBefore.id, method: 'cloud-no-move' },
+        });
+    }
+
+    date.setUTCHours(config.deactivateUtcHour);
+
+    const oldMainPosition = requestBefore.supplementalPositions.find(({ main }) => main);
+
+    const updatedMainPosition = await supplementalPositionMethods.updateRequestPosition({
+        position: oldMainPosition,
+        userId: user.id,
+        date,
+        main: true,
+        jobKind: 'scheduledFiringFromSupplementalPosition',
+        requestId: requestBefore.id,
+        connectToUser: true,
+        updateValues: {
+            organizationUnitId: restData.organizationUnitId,
+            percentage: restData?.percentage || 1,
+            unitId: restData.unitId,
+        },
+        userCreationRequestKey: 'userCreationRequestId',
+    });
+
+    if (!updatedMainPosition) {
+        throw new TRPCError({
+            message: `no main supplemental position in transfer inside request with id ${requestBefore.id}}`,
+            code: 'NOT_FOUND',
+        });
+    }
+
+    const updatedSupplementalPositions = [updatedMainPosition];
+
+    const oldSupplementalPosition = requestBefore.supplementalPositions.find(({ main }) => !main);
+    const supplementalPosition = restData.supplementalPositions && restData.supplementalPositions[0];
+
+    const updatedSupplementalPosition = await supplementalPositionMethods.updateRequestPosition({
+        position: oldSupplementalPosition,
+        userId: user.id,
+        date,
+        main: false,
+        connectToUser: true,
+        jobKind: 'scheduledFiringFromSupplementalPosition',
+        requestId: requestBefore.id,
+        updateValues: supplementalPosition,
+        userCreationRequestKey: 'userTransferToRequestId',
+    });
+
+    updatedSupplementalPosition && updatedSupplementalPositions.push(updatedSupplementalPosition);
+
+    const updatedRequest = await db
+        .updateTable('UserCreationRequest')
+        .where('id', '=', requestBefore.id)
+        .set(setUpdate)
+        .returningAll()
+        .returning((eb) => [
+            jsonArrayFrom(
+                eb
+                    .selectFrom('Attach as a')
+                    .selectAll()
+                    .whereRef('a.userCreationRequestId', '=', 'UserCreationRequest.id'),
+            ).as('attaches'),
+            jsonArrayFrom(
+                eb.selectFrom('_userLineManagers').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
+            ).as('lineManagerIds'),
+            jsonArrayFrom(
+                eb.selectFrom('_userCoordinators').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
+            ).as('coordinatorIds'),
+            eb.cast<JsonValue>('services', 'jsonb').as('services'),
+            eb.cast<JsonValue>('devices', 'jsonb').as('devices'),
+            eb.cast<JsonValue>('testingDevices', 'jsonb').as('testingDevices'),
+        ])
+        .executeTakeFirst();
+
+    if (!updatedRequest) {
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `Can not update request with id ${id}` });
+    }
+
+    const attachIdsToAdd =
+        request.attachIds?.filter((attachId) => !requestBefore.attaches.map(({ id }) => id).includes(attachId)) || [];
+
+    const attaches = attachIdsToAdd.length
+        ? await db
+              .updateTable('Attach')
+              .where('id', 'in', attachIdsToAdd)
+              .set({ userCreationRequestId: requestBefore.id })
+              .returningAll()
+              .execute()
+        : [];
+
+    if (requestBefore.lineManagerIds.length) {
+        await db
+            .deleteFrom('_userLineManagers')
+            .where('B', '=', requestBefore.id)
+            .where('A', 'in', requestBefore.lineManagerIds)
+            .execute();
+    }
+
+    if (request.lineManagerIds?.length) {
+        await db
+            .insertInto('_userLineManagers')
+            .values(request.lineManagerIds.map((id) => ({ A: id, B: requestBefore.id })))
+            .execute();
+    }
+
+    if (requestBefore.coordinatorIds.length) {
+        await db
+            .deleteFrom('_userCoordinators')
+            .where('B', '=', requestBefore.id)
+            .where('A', 'in', requestBefore.coordinatorIds)
+            .execute();
+    }
+
+    if (request.coordinatorIds?.length) {
+        await db
+            .insertInto('_userCoordinators')
+            .values(request.coordinatorIds.map((id) => ({ A: id, B: requestBefore.id })))
+            .execute();
+    }
+
+    const lineManagers = restData.lineManagerIds?.length
+        ? await db.selectFrom('User').selectAll().where('id', 'in', restData.lineManagerIds).execute()
+        : [];
+
+    const coordinators = restData.coordinatorIds?.length
+        ? await db.selectFrom('User').selectAll().where('id', 'in', restData.coordinatorIds).execute()
+        : [];
+
+    return {
+        ...updatedRequest,
+        date,
+        supplementalPositions: updatedSupplementalPositions,
+        transferToSupplementalPositions: updatedTransferToSupplementalPositions,
         lineManagers,
         coordinators,
         attaches,
@@ -3337,13 +3616,12 @@ export const userCreationRequestsMethods = {
     },
 
     editTransferInside: async (data: EditTransferInside, sessionUserId: string) => {
-        const { date, id, ...restData } = data;
+        const request = await userCreationRequestsMethods.getTransferInsideByIdWithRelations(data.id);
 
-        const request = await userCreationRequestsMethods.getTransferInsideByIdWithRelations(id);
         if (!request.userTargetId) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: `No userTargetId in user transfer inside SD request with id ${id}`,
+                message: `No userTargetId in user transfer inside SD request with id ${data.id}`,
             });
         }
 
@@ -3352,278 +3630,41 @@ export const userCreationRequestsMethods = {
         if (!user) {
             throw new TRPCError({
                 code: 'NOT_FOUND',
-                message: `No user found with id ${id}`,
+                message: `No user found with id ${request.userTargetId}`,
             });
         }
 
-        if (!restData.transferToDate) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date transfer to specified' });
+        if (!data.date) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date transfer from specified' });
         }
 
-        await serviceMethods.updateUserServicesInRequest({
-            services: user.services,
-            userId: user.id,
-            phone: data.phone,
-            workEmail: data.workEmail,
-            personalEmail: data.personalEmail,
-        });
+        const updatedRequest = await updateTransferInsideRequest(data, request, user, sessionUserId);
 
-        const transferToSupplementalPosition =
-            restData.transferToSupplementalPositions && restData.transferToSupplementalPositions[0];
-
-        const transferDate =
-            transferToSupplementalPosition?.workStartDate &&
-            restData.transferToDate > transferToSupplementalPosition.workStartDate
-                ? transferToSupplementalPosition.workStartDate
-                : restData.transferToDate;
-
-        const transferToSupplementalPositionMainBefore = request.supplementalPositionsTransferTo.find(
-            ({ main }) => main,
-        );
-
-        const updatedMainTransferPosition = await supplementalPositionMethods.updateRequestPosition({
-            position: transferToSupplementalPositionMainBefore,
-            userId: request.userTargetId,
-            date: restData.transferToDate,
-            main: true,
-            jobKind: 'activateUserSupplementalPosition',
-            requestId: request.id,
-            updateValues: {
-                organizationUnitId: restData.transferToOrganizationUnitId,
-                percentage: restData?.transferToPercentage || 1,
-                unitId: restData.transferToUnitId,
-            },
-            userCreationRequestKey: 'userTransferToRequestId',
-        });
-        if (!updatedMainTransferPosition) {
-            throw new TRPCError({
-                message: `no transfer to main supplemental position in transfer inside request with id ${request.id}}`,
-                code: 'NOT_FOUND',
-            });
-        }
-
-        const positionsTo = [updatedMainTransferPosition];
-
-        const transferToSupplementalPositionBefore = request.supplementalPositionsTransferTo.find(({ main }) => !main);
-
-        const updatedSupplementalTransferPosition = await supplementalPositionMethods.updateRequestPosition({
-            position: transferToSupplementalPositionBefore,
-            userId: request.userTargetId,
-            date: transferToSupplementalPosition?.workStartDate || transferDate,
-            main: false,
-            jobKind: 'activateUserSupplementalPosition',
-            requestId: request.id,
-            updateValues: transferToSupplementalPosition,
-            userCreationRequestKey: 'userTransferToRequestId',
-        });
-
-        updatedSupplementalTransferPosition && positionsTo.push(updatedSupplementalTransferPosition);
-
-        if (!date) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No date transfer from specified' });
-
-        let { disableAccount } = restData;
-
-        if (
-            transferDate.getUTCDate() - date.getUTCDate() <= 1 &&
-            transferDate.getUTCFullYear() === date.getUTCFullYear() &&
-            transferDate.getUTCMonth() === date.getUTCMonth()
-        ) {
-            disableAccount = false;
-        } else disableAccount = true;
-
-        if (!disableAccount && request.disableAccountJobId) {
-            await jobDelete(request.disableAccountJobId);
-        }
-
-        if (request.disableAccountJobId && disableAccount) {
-            await db.updateTable('Job').where('id', '=', request.disableAccountJobId).set({ date }).execute();
-        }
-
-        const setUpdate: UpdateObjectExpression<DB, 'UserCreationRequest'> = {
-            type: restData.type,
-            email: restData.email,
-            login: restData.login,
-            name: user.name ?? trimAndJoin([restData.surname, restData.firstName, restData.middleName]),
-            creatorId: sessionUserId,
-            organizationUnitId: restData.organizationUnitId,
-            percentage: (restData.percentage ?? 1) * percentageMultiply,
-            unitId: restData.unitId,
-            groupId: restData.groupId || undefined,
-            supervisorId: restData.supervisorId,
-            title: restData.title || undefined,
-            corporateEmail: restData.corporateEmail || undefined,
-            createExternalAccount: false,
-            workMode: restData.workMode,
-            workSpace: restData.workSpace,
-            location: restData.location,
-            date,
-            comment: restData.comment || undefined,
-            workEmail: restData.workEmail || undefined,
-            personalEmail: restData.personalEmail || undefined,
-            equipment: restData.equipment,
-            extraEquipment: restData.extraEquipment,
-            services: [],
-            disableAccount,
-            transferToGroupId: restData.transferToGroupId,
-            transferToSupervisorId: restData.transferToSupervisorId,
-            transferToTitle: restData.transferToTitle,
-        };
-
-        if (date !== request.date && request.jobId) {
-            await db.updateTable('Job').where('id', '=', request.jobId).set({ date: transferDate }).execute();
-        }
-
-        if (!request.date || !request.jobId) {
-            await createJob('editUserOnScheduledRequest', {
-                date: transferDate,
-                data: { userCreationRequestId: request.id },
-            });
-        }
-
-        if (!request.disableAccountJobId && disableAccount) {
-            await createJob('scheduledDeactivation', {
-                date,
-                data: { userId: request.userTargetId, userCreationRequestId: request.id, method: 'cloud-no-move' },
-            });
-        }
-
-        date.setUTCHours(config.deactivateUtcHour);
-
+        const mainPosition = updatedRequest.supplementalPositions.find(({ main }) => main);
         const oldMainPosition = request.supplementalPositions.find(({ main }) => main);
 
-        const updatedMainPosition = await supplementalPositionMethods.updateRequestPosition({
-            position: oldMainPosition,
-            userId: request.userTargetId,
-            date,
-            main: true,
-            jobKind: 'scheduledFiringFromSupplementalPosition',
-            requestId: request.id,
-            connectToUser: true,
-            updateValues: {
-                organizationUnitId: restData.organizationUnitId,
-                percentage: restData?.percentage || 1,
-                unitId: restData.unitId,
-            },
-            userCreationRequestKey: 'userCreationRequestId',
-        });
-
-        if (!updatedMainPosition) {
+        if (!mainPosition) {
             throw new TRPCError({
-                message: `no main supplemental position in transfer inside request with id ${request.id}}`,
                 code: 'NOT_FOUND',
+                message: `No main supplemental position in transfer inside request with id ${request.id}`,
             });
         }
 
-        const positions = [updatedMainPosition];
-
-        const oldSupplementalPosition = request.supplementalPositions.find(({ main }) => !main);
-        const supplementalPosition = restData.supplementalPositions && restData.supplementalPositions[0];
-
-        const updatedSupplementalPosition = await supplementalPositionMethods.updateRequestPosition({
-            position: oldSupplementalPosition,
-            userId: request.userTargetId,
-            date,
-            main: false,
-            connectToUser: true,
-            jobKind: 'scheduledFiringFromSupplementalPosition',
-            requestId: request.id,
-            updateValues: supplementalPosition,
-            userCreationRequestKey: 'userTransferToRequestId',
-        });
-
-        updatedSupplementalPosition && positions.push(updatedSupplementalPosition);
-
-        const updatedRequest = await db
-            .updateTable('UserCreationRequest')
-            .where('id', '=', request.id)
-            .set(setUpdate)
-            .returningAll()
-            .returning((eb) => [
-                jsonArrayFrom(
-                    eb
-                        .selectFrom('Attach as a')
-                        .selectAll()
-                        .whereRef('a.userCreationRequestId', '=', 'UserCreationRequest.id'),
-                ).as('attaches'),
-                jsonArrayFrom(
-                    eb.selectFrom('_userLineManagers').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
-                ).as('lineManagerIds'),
-                jsonArrayFrom(
-                    eb.selectFrom('_userCoordinators').select('A').whereRef('B', '=', 'UserCreationRequest.id'),
-                ).as('coordinatorIds'),
-                eb.cast<JsonValue>('services', 'jsonb').as('services'),
-                eb.cast<JsonValue>('devices', 'jsonb').as('devices'),
-                eb.cast<JsonValue>('testingDevices', 'jsonb').as('testingDevices'),
-            ])
-            .executeTakeFirst();
-
-        if (!updatedRequest) {
-            throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: `Can not update request with id ${id}` });
-        }
-
-        const attachIdsToAdd =
-            data.attachIds?.filter((attachId) => !request.attaches.map(({ id }) => id).includes(attachId)) || [];
-
-        const attaches = attachIdsToAdd.length
-            ? await db
-                  .updateTable('Attach')
-                  .where('id', 'in', attachIdsToAdd)
-                  .set({ userCreationRequestId: request.id })
-                  .returningAll()
-                  .execute()
-            : [];
-
-        if (request.lineManagerIds.length) {
-            await db
-                .deleteFrom('_userLineManagers')
-                .where('B', '=', request.id)
-                .where('A', 'in', request.lineManagerIds)
-                .execute();
-        }
-
-        if (data.lineManagerIds?.length) {
-            await db
-                .insertInto('_userLineManagers')
-                .values(data.lineManagerIds.map((id) => ({ A: id, B: request.id })))
-                .execute();
-        }
-
-        if (request.coordinatorIds.length) {
-            await db
-                .deleteFrom('_userCoordinators')
-                .where('B', '=', request.id)
-                .where('A', 'in', request.coordinatorIds)
-                .execute();
-        }
-
-        if (data.coordinatorIds?.length) {
-            await db
-                .insertInto('_userCoordinators')
-                .values(data.coordinatorIds.map((id) => ({ A: id, B: request.id })))
-                .execute();
-        }
+        const transferDate = supplementalPositionsDate(updatedRequest.transferToSupplementalPositions, 'workStartDate');
 
         await sendDismissalEmailsOnTransferInside({
             request: updatedRequest,
-            mainPosition: updatedMainPosition,
+            mainPosition,
             user,
-            supplementalPositions: positions,
+            supplementalPositions: updatedRequest.supplementalPositions,
             sessionUserId,
-            attaches,
-            phone: restData.phone,
-            date,
-            lineManagerIds: restData.lineManagerIds || [],
-            coordinatorIds: restData.coordinatorIds || [],
+            attaches: updatedRequest.attaches,
+            phone: data.phone,
+            date: data.date,
+            lineManagerIds: data.lineManagerIds || [],
+            coordinatorIds: data.coordinatorIds || [],
             method: ICalCalendarMethod.REQUEST,
         });
-
-        const lineManagers = restData.lineManagerIds?.length
-            ? await db.selectFrom('User').selectAll().where('id', 'in', restData.lineManagerIds).execute()
-            : [];
-
-        const coordinators = restData.coordinatorIds?.length
-            ? await db.selectFrom('User').selectAll().where('id', 'in', restData.coordinatorIds).execute()
-            : [];
 
         await sendNewCommerEmailsOnTransferInside({
             request: updatedRequest,
@@ -3631,15 +3672,15 @@ export const userCreationRequestsMethods = {
             method: ICalCalendarMethod.REQUEST,
             transferToSupervisorId: updatedRequest.transferToSupervisorId,
             services: user.services,
-            transferToSupplementalPositions: positionsTo,
+            transferToSupplementalPositions: updatedRequest.transferToSupplementalPositions,
             transferToGroupId: updatedRequest.transferToGroupId,
-            organization: updatedMainTransferPosition.organizationUnit,
+            organization: mainPosition.organizationUnit,
             transferDate,
-            lineManagers,
-            coordinators,
+            lineManagers: updatedRequest.lineManagers,
+            coordinators: updatedRequest.coordinators,
         });
 
-        const positionIds = positions.map(({ id }) => id);
+        const positionIds = updatedRequest.supplementalPositions.map(({ id }) => id);
 
         const positionsToCancelDismissalEvents = request.supplementalPositions.filter(
             ({ id }) => !positionIds.includes(id),
@@ -3648,20 +3689,20 @@ export const userCreationRequestsMethods = {
         if (positionsToCancelDismissalEvents.length) {
             await sendDismissalEmailsOnTransferInside({
                 request,
-                mainPosition: oldMainPosition || updatedMainPosition,
+                mainPosition: oldMainPosition || mainPosition,
                 user,
                 supplementalPositions: positionsToCancelDismissalEvents,
                 sessionUserId,
                 attaches: request.attaches,
                 phone: findService(ExternalServiceName.Phone, user.services) || '',
-                date: request.date || date,
+                date: request.date || data.date,
                 lineManagerIds: request.lineManagerIds,
                 coordinatorIds: request.coordinatorIds,
                 method: ICalCalendarMethod.CANCEL,
             });
         }
 
-        const positionToIds = positionsTo.map(({ id }) => id);
+        const positionToIds = updatedRequest.transferToSupplementalPositions.map(({ id }) => id);
 
         const positionToCancelEvents = request.supplementalPositionsTransferTo.filter(
             ({ id }) => !positionToIds.includes(id),
@@ -3694,7 +3735,7 @@ export const userCreationRequestsMethods = {
             });
         }
 
-        return { ...updatedRequest, supplementalPositions: positions, transferToSupplementalPositions: positionsTo };
+        return updatedRequest;
     },
 
     createUserRequestDraft: async (input: CreateUserCreationRequestDraft) => {
@@ -3730,6 +3771,7 @@ export const userCreationRequestsMethods = {
 
                 // Получаем основную новую организацию из input
                 const transferToOrganization = input.organizations.find((o) => o.main);
+
                 if (!transferToOrganization) {
                     throw new TRPCError({
                         code: 'BAD_REQUEST',
@@ -3767,8 +3809,11 @@ export const userCreationRequestsMethods = {
                 const corporateEmail = getCorporateEmail(input.login);
 
                 // Формируем данные для создания перевода
-                const transferRequestData: CreateTransferInside = {
+                const transferRequestData: CreateTransferInsideDraft = {
                     type: UserCreationRequestType.transferInside,
+                    status: UserCreationRequestStatus.Draft,
+                    externalPersonId: input.externalPersonId,
+                    externalGroupId: input.externalGroupId,
                     userId: existingUser.id,
 
                     // Данные текущего состояния (откуда переводим)
@@ -3780,9 +3825,9 @@ export const userCreationRequestsMethods = {
                     organizationUnitId: currentPosition.organizationUnitId,
                     percentage: currentPosition.percentage / percentageMultiply,
                     unitId: currentPosition.unitId || undefined,
-                    phone: input.phone || '',
+                    phone: input.phone,
                     workEmail: input.workEmail || corporateEmail,
-                    personalEmail: input.registrationEmail || '',
+                    personalEmail: input.registrationEmail,
                     corporateEmail,
 
                     // Добавляем все неосновные активные позиции
@@ -3823,29 +3868,12 @@ export const userCreationRequestsMethods = {
                         main: false,
                     })),
 
-                    location: input.location || '',
+                    location: input.location,
                     disableAccount: false,
-                    workMode: 'office', // TODO: add optional fields to draft request
-                    equipment: '',
                     groupId: orgMembership?.groupId,
-                    attachIds: [],
                 };
 
-                return await db.transaction().execute(async (trx) => {
-                    const request = await createTransferInsideRequest(transferRequestData, existingUser);
-
-                    await trx
-                        .updateTable('UserCreationRequest')
-                        .set({
-                            status: UserCreationRequestStatus.Draft,
-                            externalPersonId: input.externalPersonId,
-                            externalGroupId: input.externalGroupId,
-                        })
-                        .where('id', '=', request.id)
-                        .execute();
-
-                    return request;
-                });
+                return createTransferInsideRequest(transferRequestData, existingUser);
             }
 
             // Стандартная логика для создания нового пользователя
