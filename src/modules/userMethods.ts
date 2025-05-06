@@ -1,4 +1,4 @@
-import { Prisma, SupplementalPosition, User, PositionStatus } from '@prisma/client';
+import { Prisma, SupplementalPosition, User, PositionStatus, UserCreationRequestStatus } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { sql } from 'kysely';
 
@@ -1032,6 +1032,11 @@ export const userMethods = {
                 data: userData,
             });
         }
+
+        await prisma.userCreationRequest.update({
+            where: { id: userCreationRequestId },
+            data: { status: UserCreationRequestStatus.Completed },
+        });
 
         return userMethods.getById(request.userTargetId);
     },

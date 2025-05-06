@@ -313,14 +313,10 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         >
                             <FormControlInput
                                 readOnly={getReadOnly('personalEmail')}
-                                value={
-                                    getReadOnly('personalEmail') && !watch('personalEmail')
-                                        ? tr('Not specified')
-                                        : undefined
-                                }
+                                value={watch('personalEmail')}
                                 autoComplete="off"
                                 size="m"
-                                placeholder="name@mail.com"
+                                placeholder={getReadOnly('personalEmail') ? tr('Not specified') : 'name@mail.com'}
                                 outline
                                 {...register('personalEmail', { onChange: onEmailChange })}
                             />
@@ -345,12 +341,10 @@ export const UserFormPersonalDataBlock = ({ className, id, type, readOnly = true
                         >
                             <FormControlInput
                                 readOnly={getReadOnly('workEmail')}
-                                value={
-                                    getReadOnly('workEmail') && !watch('workEmail') ? tr('Not specified') : undefined
-                                }
+                                value={watch('workEmail')}
                                 autoComplete="off"
                                 size="m"
-                                placeholder="email@example.com"
+                                placeholder={getReadOnly('workEmail') ? tr('Not specified') : 'email@example.com'}
                                 outline
                                 {...register('workEmail', { onChange: onEmailChange })}
                             />

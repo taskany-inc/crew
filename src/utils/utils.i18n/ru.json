@@ -118,5 +118,7 @@
     "Don't worry, be happy": "",
     "Intern": "Стажер",
     "From decree": "Выход из декрета",
-    "To decree": "Декрет"
+    "To decree": "Декрет",
+    "Date of decree start": "Дата выхода в декрет",
+    "Date of decree end": "Дата выхода из декрета"
 }

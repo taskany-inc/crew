@@ -16,7 +16,7 @@ interface UserFormWorkSpaceBlockProps {
     className: string;
     id: string;
     type: 'new' | 'edit' | 'readOnly';
-    requestType?: 'dismissal' | 'employment' | UserCreationRequestType;
+    requestType?: UserCreationRequestType;
     requestId?: string;
     status?: string;
 }
@@ -28,13 +28,14 @@ interface UserFormWorkSpaceBlockType {
     workSpace?: string;
     location: string;
     workModeComment?: string;
+    applicationForReturnOfEquipment?: string;
 }
 
 export const UserFormWorkSpaceBlock = ({
     className,
     id,
     type,
-    requestType = 'employment',
+    requestType = UserCreationRequestType.internalEmployee,
     requestId,
     status,
 }: UserFormWorkSpaceBlockProps) => {
@@ -58,6 +59,13 @@ export const UserFormWorkSpaceBlock = ({
     const equipment = watch('equipment');
     const [, copy] = useCopyToClipboard();
 
+    const isEmploymentRequest =
+        requestType === UserCreationRequestType.existing ||
+        requestType === UserCreationRequestType.internalEmployee ||
+        requestType === UserCreationRequestType.externalEmployee ||
+        requestType === UserCreationRequestType.externalFromMainOrgEmployee ||
+        requestType === UserCreationRequestType.fromDecree;
+
     let workSpaceLabel = tr('Work space application');
 
     if (requestType === UserCreationRequestType.transferInside) workSpaceLabel = tr('Work space');
@@ -79,7 +87,7 @@ export const UserFormWorkSpaceBlock = ({
                     control={control}
                     render={({ field }) => (
                         <FormControl
-                            label={requestType === 'employment' ? tr('Required euipment') : tr('Equipment')}
+                            label={isEmploymentRequest ? tr('Required euipment') : tr('Equipment')}
                             required={isRequiredField}
                             error={errors.equipment}
                         >
@@ -103,7 +111,7 @@ export const UserFormWorkSpaceBlock = ({
                     control={control}
                     render={({ field }) => (
                         <FormControl
-                            label={requestType === 'employment' ? tr('Extra equipment') : tr('Test devices')}
+                            label={isEmploymentRequest ? tr('Extra equipment') : tr('Test devices')}
                             error={errors.extraEquipment}
                         >
                             <FormControlEditor
@@ -120,22 +128,35 @@ export const UserFormWorkSpaceBlock = ({
                 />
             </div>
             <div className={requestType === UserCreationRequestType.transferInside ? s.ThreeInputsRow : s.TwoInputsRow}>
-                {nullable(
-                    requestType === 'employment' || requestType === UserCreationRequestType.transferInside,
-                    () => (
-                        <FormControl label={workSpaceLabel} error={errors.workSpace}>
-                            <FormControlInput
-                                readOnly={type === 'readOnly'}
-                                autoComplete="off"
-                                size="m"
-                                placeholder={workSpacePlaceholder}
-                                value={type === 'readOnly' && !watch('workSpace') ? tr('Not specified') : undefined}
-                                outline
-                                {...register('workSpace')}
-                            />
-                        </FormControl>
-                    ),
-                )}
+                {nullable(isEmploymentRequest || requestType === UserCreationRequestType.transferInside, () => (
+                    <FormControl label={workSpaceLabel} error={errors.workSpace}>
+                        <FormControlInput
+                            readOnly={type === 'readOnly'}
+                            autoComplete="off"
+                            size="m"
+                            placeholder={workSpacePlaceholder}
+                            value={type === 'readOnly' && !watch('workSpace') ? tr('Not specified') : undefined}
+                            outline
+                            {...register('workSpace')}
+                        />
+                    </FormControl>
+                ))}
+
+                {nullable(UserCreationRequestType.toDecree, () => (
+                    <FormControl
+                        label={tr('Application for return of equipment')}
+                        error={errors.applicationForReturnOfEquipment}
+                    >
+                        <FormControlInput
+                            readOnly={type === 'readOnly'}
+                            autoComplete="off"
+                            size="m"
+                            outline
+                            placeholder={tr('Application №')}
+                            {...register('applicationForReturnOfEquipment')}
+                        />
+                    </FormControl>
+                ))}
 
                 <FormControl label={tr('Location')} required error={errors.location}>
                     <FormControlInput
@@ -156,7 +177,7 @@ export const UserFormWorkSpaceBlock = ({
                     />
                 </FormControl>
 
-                {nullable(requestType === 'employment', () => (
+                {nullable(isEmploymentRequest, () => (
                     <FormControl label={tr('Work mode comment')} error={errors.workModeComment}>
                         <FormControlInput
                             readOnly={type === 'readOnly'}

@@ -796,6 +796,7 @@ export const userCreationRequestsMethods = {
                 corporateEmail: data.corporateEmail || undefined,
                 createExternalAccount: Boolean(data.createExternalAccount),
                 disableAccount: data.type === 'toDecree' ? data.disableAccount : false,
+                applicationForReturnOfEquipment: data.applicationForReturnOfEquipment || undefined,
                 services: [],
                 workMode: data.workMode,
                 workModeComment: data.workModeComment,
