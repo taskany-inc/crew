@@ -219,6 +219,7 @@ const getBaseDecreeSchema = () =>
                 .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
                 .min(1, { message: tr('Required field') }),
             workModeComment: z.string().optional(),
+            applicationForReturnOfEquipment: z.string().optional(),
             equipment: z
                 .string({ invalid_type_error: tr('Required field'), required_error: tr('Required field') })
                 .min(1, { message: tr('Required field') }),
@@ -243,7 +244,16 @@ export const getUserFromDecreeSchema = () =>
 
 export type UserFromDecreeSchema = z.infer<ReturnType<typeof getUserFromDecreeSchema>>;
 
-export const userDecreeSchema = z.discriminatedUnion('type', [getUserToDecreeSchema(), getUserFromDecreeSchema()]);
+export const userDecreeSchema = z
+    .discriminatedUnion('type', [getUserToDecreeSchema(), getUserFromDecreeSchema()])
+    .refine(({ workEmail, personalEmail }) => workEmail !== '' || personalEmail !== '', {
+        message: tr('Enter Email'),
+        path: ['workEmail'],
+    })
+    .refine(({ workEmail, personalEmail }) => workEmail !== '' || personalEmail !== '', {
+        message: tr('Enter Email'),
+        path: ['personalEmail'],
+    });
 
 export type UserDecreeSchema = z.infer<typeof userDecreeSchema>;
 

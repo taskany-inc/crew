@@ -9,6 +9,7 @@ export const UserCreationRequestStatus = {
     Approved: 'Approved',
     Denied: 'Denied',
     Canceled: 'Canceled',
+    Completed: 'Completed',
 } as const;
 export type UserCreationRequestStatus = (typeof UserCreationRequestStatus)[keyof typeof UserCreationRequestStatus];
 export const UserRoleDeprecated = {

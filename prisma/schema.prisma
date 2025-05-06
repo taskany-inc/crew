@@ -167,6 +167,7 @@ enum UserCreationRequestStatus {
   Approved
   Denied
   Canceled
+  Completed
 }
 
 model UserCreationRequest {

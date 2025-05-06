@@ -33,7 +33,9 @@ const Attaches = ({
     requestType: string;
 }) => {
     const requestQuery =
-        requestType === 'transferInternToStaff' || requestType === UserCreationRequestType.transferInside
+        requestType === 'transferInternToStaff' ||
+        requestType === UserCreationRequestType.transferInside ||
+        requestType === UserCreationRequestType.toDecree
             ? trpc.userCreationRequest.getById.useQuery(id, { enabled: !!id })
             : trpc.scheduledDeactivation.getById.useQuery(id, { enabled: !!id });
 

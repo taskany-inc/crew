@@ -153,6 +153,8 @@ export const RequestFormActions = ({
             requestType === UserCreationRequestType.externalFromMainOrgEmployee ||
             requestType === UserCreationRequestType.internalEmployee);
 
+    const isCompletedDecreeRequest = requestStatus === 'Completed' && requestType === UserCreationRequestType.toDecree;
+
     return (
         <div className={s.FormActions}>
             {nullable(canEditRequest, () => (
@@ -172,7 +174,7 @@ export const RequestFormActions = ({
                         </div>
                     ))}
 
-                    {nullable(requestStatus !== 'Canceled', () => (
+                    {nullable(requestStatus !== 'Canceled' && !isCompletedDecreeRequest, () => (
                         <Button
                             ref={cancelRef}
                             iconLeft={small && <IconDeniedOutline size="s" />}

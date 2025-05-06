@@ -57,7 +57,6 @@ export const DecreeForm: FC<DecreeFormProps> = ({
         resolver: zodResolver(userDecreeSchema),
         defaultValues,
     });
-
     const {
         handleSubmit,
         setValue,
@@ -214,7 +213,7 @@ export const DecreeForm: FC<DecreeFormProps> = ({
                         <UserFormWorkSpaceBlock
                             id="work-space"
                             className={s.FormBlock}
-                            requestType={type === 'toDecree' ? 'dismissal' : 'employment'}
+                            requestType={type}
                             type={mode === 'read' ? 'readOnly' : 'edit'}
                         />
 

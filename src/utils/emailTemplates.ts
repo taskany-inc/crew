@@ -466,12 +466,12 @@ export const htmlToDecreeRequest = (data: {
     tableTemplate({
         tableArray: [
             {
-                title: tr('Date'),
+                title: tr('Date of decree start'),
                 content: data.userCreationRequest.date ? formatDate(data.userCreationRequest.date, defaultLocale) : '',
             },
-            { title: tr('Name'), content: data.userCreationRequest.name || '' },
+            { title: tr('Employee full name'), content: data.userCreationRequest.name || '' },
             { title: tr('Location'), content: data.userCreationRequest.location || '' },
-            { title: tr('Unit'), content: data.userCreationRequest.unitId || '' },
+            { title: tr('Unit Id'), content: data.userCreationRequest.unitId || '' },
             { title: tr('Role'), content: data.userCreationRequest.title || '' },
             { title: tr('SIGMA email'), content: data.sigmaMail || '' },
             { title: tr('Teamlead'), content: data.userCreationRequest.supervisor?.name ?? '' },
@@ -490,7 +490,16 @@ export const htmlToDecreeRequest = (data: {
                     ? data.userCreationRequest.equipment.replace(/\n/g, '<br/>')
                     : tr('Did not take any'),
             },
-            { title: tr('Screenshot'), content: tr('In attachment') },
+            {
+                title: tr('Application for return of equipment'),
+                content: data.userCreationRequest.applicationForReturnOfEquipment || '',
+            },
+            {
+                title: tr('Screenshot or photo from personal account {corpAppName}', {
+                    corpAppName: data.corporateAppName || '',
+                }),
+                content: tr('In attachment'),
+            },
             {
                 title: tr('Comments'),
                 content: data.userCreationRequest.comment
@@ -503,16 +512,26 @@ export const htmlToDecreeRequest = (data: {
 export const htmlFromDecreeRequest = (data: UserCreationRequestWithRelations) =>
     tableTemplate({
         tableArray: [
-            { title: tr('Date'), content: data.date ? formatDate(data.date, defaultLocale) : '' },
-            { title: tr('Name'), content: data.name || '' },
+            { title: tr('Date of decree end'), content: data.date ? formatDate(data.date, defaultLocale) : '' },
+            { title: tr('Employee full name'), content: data.name || '' },
             { title: tr('Role'), content: data.title || '' },
             { title: tr('Location'), content: data.location || '' },
-            { title: tr('Unit'), content: data.unitId || '' },
+            { title: tr('Unit Id'), content: data.unitId || '' },
             { title: tr('Teamlead'), content: data.supervisor?.name ?? '' },
             { title: tr('Coordinator'), content: data.coordinators?.map(({ name }) => name).join(', ') || '' },
             { title: tr('Work mode and workplace'), content: data.workMode || '' },
-            { title: tr('Equipment'), content: data.equipment || '' },
-            { title: tr('Extra equipment'), content: data.extraEquipment || '' },
+            {
+                title: tr('Equipment'),
+                content: data.equipment ? data.equipment.replace(/\n/g, '<br/>') : tr('Did not take any'),
+            },
+            {
+                title: tr('Testing devices'),
+                content: data.extraEquipment ? data.extraEquipment.replace(/\n/g, '<br/>') : tr('Did not take any'),
+            },
+            {
+                title: tr('Application for organizing a workplace and ordering equipment'),
+                content: data.workSpace || '',
+            },
             { title: tr('Comments'), content: data.comment ? data.comment.replace(/\n/g, '<br/>') : '' },
         ],
     });
@@ -764,7 +783,12 @@ export const sendDecreeEmails = async ({
     if (!request.date) return;
 
     const date = new Date(request.date);
-    date.setUTCHours(config.employmentUtcHour);
+
+    if (request.type === UserCreationRequestType.toDecree) {
+        date.setUTCHours(config.decreeUtcHour);
+    } else {
+        date.setUTCHours(config.employmentUtcHour);
+    }
 
     return Promise.all(
         request.supplementalPositions.map(async ({ organizationUnitId, main }) => {

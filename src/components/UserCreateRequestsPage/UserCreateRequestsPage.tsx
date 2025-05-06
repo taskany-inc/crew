@@ -146,11 +146,12 @@ export const UserCreateRequestsPage = () => {
         id: request.id,
     }));
 
-    const statusText = (status: 'Approved' | 'Denied' | 'Canceled' | 'Draft' | null) => {
+    const statusText = (status: 'Approved' | 'Denied' | 'Canceled' | 'Draft' | 'Completed' | null) => {
         if (status === 'Approved') return tr('Approved');
         if (status === 'Denied') return tr('Denied');
         if (status === 'Canceled') return tr('Canceled');
         if (status === 'Draft') return tr('Draft');
+        if (status === 'Completed') return tr('Completed');
         return tr('Under concideration');
     };
 

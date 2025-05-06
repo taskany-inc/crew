@@ -61,6 +61,7 @@ export const config = {
     deactivateJobUtcHour: !Number.isNaN(Number(process.env.DEACTIVATE_JOB_UTC_HOUR))
         ? Number(process.env.DEACTIVATE_JOB_UTC_HOUR)
         : 20,
+    decreeUtcHour: !Number.isNaN(Number(process.env.DECREE_UTC_HOUR)) ? Number(process.env.DECREE__UTC_HOUR) : 6,
     employmentUtcHour: !Number.isNaN(Number(process.env.EMPLOYMENT_UTC_HOUR))
         ? Number(process.env.EMPLOYMENT_UTC_HOUR)
         : 4,

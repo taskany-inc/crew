@@ -14,5 +14,7 @@
     "Not specified": "Не указано",
     "Required euipment": "Требуемое оборудование",
     "Test devices": "Устройства для тестирования",
-    "Workspace № in format 6.01.195": "№ рабочего места в формате 6.01.195"
+    "Workspace № in format 6.01.195": "№ рабочего места в формате 6.01.195",
+    "Application №": "№ заявки",
+    "Application for return of equipment": "Заявка на сдачу техники"
 }
