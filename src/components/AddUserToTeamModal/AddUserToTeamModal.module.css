@@ -1,0 +1,9 @@
+.Form {
+    display: grid;
+    grid-template-columns: 3fr;
+    gap: var(--gap-m);
+}
+
+.ModalHeader {
+    background-color: var(--gray-900);
+}

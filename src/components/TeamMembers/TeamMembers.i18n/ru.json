@@ -3,5 +3,6 @@
     "Add": "Добавить",
     "Edit": "Редактировать",
     "Delete": "Удалить",
-    "No members": "Нет участников"
+    "No members": "Нет участников",
+    "Do you really want to remove a member {user} from the team {team}": "Вы действительно хотите удалить участника {user} из команды {team}"
 }
