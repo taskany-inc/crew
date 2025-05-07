@@ -13,3 +13,13 @@
 .ModalContent {
     flex: 1;
 }
+
+.ModalHeader {
+    background-color: var(--danger-800);
+    color: var(--danger-400);
+}
+
+.ConfirmButton {
+    background-color: var(--danger-400);
+    color: var(--base-white);
+}
