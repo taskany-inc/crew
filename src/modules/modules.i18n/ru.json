@@ -92,5 +92,6 @@
     "Enter date for at least one organization": "Укажите дату хотя бы для одной организации",
     "Transfer intern to staff": "Перевод стажера в штат",
     "Select a date no earlier than 2000": "Выберите дату не ранее 2000 года",
-    "Enter Email": "Введите почту"
+    "Enter Email": "Введите почту",
+    "Role is required": "Укажите роль"
 }

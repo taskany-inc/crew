@@ -1,4 +1,5 @@
 {
     "Edit": "Редактировать",
-    "Remove": "Удалить"
+    "Remove": "Удалить",
+    "Do you really want to remove a member {user} from the team {team}": "Вы действительно хотите удалить участника {user} из команды {team}"
 }
