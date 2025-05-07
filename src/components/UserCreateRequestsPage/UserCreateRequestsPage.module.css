@@ -23,30 +23,10 @@
     color: var(--status-draft);
 }
 
-.StatusDot {
-    background-color: var(--status-in-progress);
-}
-
-.StatusDotApproved {
-    background-color: var(--status-finished);
-}
-
-.StatusDotDenied {
-    background-color: var(--status-failed);
-}
-
-.StatusDotDraft {
-    background-color: var(--status-draft);
-}
-
 .StartDate {
     white-space: nowrap;
 }
 
 .StatusTextCanceled {
     color: var(--status-at-risk);
-}
-
-.StatusDotCanceled {
-    background-color: var(--status-at-risk);
 }

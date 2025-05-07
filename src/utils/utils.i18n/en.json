@@ -120,5 +120,11 @@
     "From decree": "",
     "To decree": "",
     "Date of decree start": "",
-    "Date of decree end": ""
+    "Date of decree end": "",
+    "Under concideration": "",
+    "Approved": "",
+    "Denied": "",
+    "Canceled": "",
+    "Draft": "",
+    "Completed": ""
 }

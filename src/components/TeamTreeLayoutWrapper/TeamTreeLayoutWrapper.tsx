@@ -7,7 +7,7 @@ import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { StructTreeView } from '../StructTreeView/StructTreeView';
 import { PageWrapper } from '../PageWrapper/PageWrapper';
 import { AddFilterDropdown } from '../AddFilterDropdown/AddFilterDropdown';
-import { AppliedSupervisorFilter } from '../AppliedSupervisorFilter/AppliedSupervisorFilter';
+import { AppliedUserFilter } from '../AppliedUserFilter/AppliedUserFilter';
 import { useGroupTreeFilter } from '../../hooks/useGroupTreeFilter';
 
 import s from './TeamTreeLayoutWrapper.module.css';
@@ -121,7 +121,7 @@ export const TeamTreeLayoutWrapper: React.FC<React.PropsWithChildren<TeamTreeLay
                 {nullable(!isFiltersEmpty, () => (
                     <div className={s.TeamTreeLayoutWrapperFilters}>
                         {nullable(Boolean(filtersState?.supervisor), () => (
-                            <AppliedSupervisorFilter
+                            <AppliedUserFilter
                                 label={tr('Supervisor')}
                                 selectedUsers={filtersState?.supervisor}
                                 onChange={handleChange('supervisor')}

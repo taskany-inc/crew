@@ -120,5 +120,11 @@
     "From decree": "Выход из декрета",
     "To decree": "Декрет",
     "Date of decree start": "Дата выхода в декрет",
-    "Date of decree end": "Дата выхода из декрета"
+    "Date of decree end": "Дата выхода из декрета",
+    "Under concideration": "На согласовании",
+    "Approved": "Одобрено",
+    "Denied": "Отколнено",
+    "Canceled": "Отменена",
+    "Draft": "Черновик",
+    "Completed": "Выполнена"
 }
