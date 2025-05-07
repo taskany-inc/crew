@@ -14,9 +14,9 @@ import { nullable } from '@taskany/bricks';
 import { trpc } from '../../trpc/trpcClient';
 import { suggestionsTake } from '../../utils/suggestions';
 
-import { tr } from './AppliedSupervisorFilter.i18n';
+import { tr } from './AppliedUserFilter.i18n';
 
-interface AppliedSupervisorFilterProps {
+interface AppliedUserFilterProps {
     label: string;
     onCleanFilter: () => void;
     selectedUsers: string[] | undefined;
@@ -24,7 +24,7 @@ interface AppliedSupervisorFilterProps {
     onClose: () => void;
 }
 
-export const AppliedSupervisorFilter: FC<AppliedSupervisorFilterProps> = ({
+export const AppliedUserFilter: FC<AppliedUserFilterProps> = ({
     label,
     onCleanFilter,
     selectedUsers,

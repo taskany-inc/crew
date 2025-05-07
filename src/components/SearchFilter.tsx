@@ -7,7 +7,8 @@ export const SearchFilter: FC<{
     defaultValue?: string;
     onChange: (search: string) => void;
     iconLeft?: ComponentProps<typeof Input>['iconLeft'];
-}> = ({ placeholder, defaultValue, onChange, iconLeft }) => {
+    className?: string;
+}> = ({ placeholder, defaultValue, onChange, iconLeft, className }) => {
     const debouncedSearchHandler = debounce(200, onChange);
 
     const onSearchInputChange = useCallback(
@@ -20,6 +21,7 @@ export const SearchFilter: FC<{
             placeholder={placeholder}
             defaultValue={defaultValue}
             onChange={onSearchInputChange}
+            className={className}
         />
     );
 };
