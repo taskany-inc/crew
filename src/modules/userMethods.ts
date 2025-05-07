@@ -160,7 +160,15 @@ export const userMethods = {
                 message: tr('Maximum available percentage is {max}', { max: availablePercentage }),
             });
         }
-        return prisma.membership.create({ data });
+
+        return prisma.membership.create({
+            data: {
+                groupId: data.groupId,
+                userId: data.userId,
+                percentage: data.percentage,
+                roles: { connect: data.roles ? data.roles.map(({ id }) => ({ id })) : [] },
+            },
+        });
     },
 
     updatePercentage: async ({ membershipId, percentage }: UpdateMembershipPercentage) => {

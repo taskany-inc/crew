@@ -11,17 +11,18 @@ import {
     MenuItem,
     Text,
 } from '@taskany/bricks/harmony';
-import { IconEdit1Outline, IconMoreVerticalOutline, IconXCircleOutline } from '@taskany/icons';
+import { IconEdit1Outline, IconMoreVerticalOutline, IconXCircleOutline, IconPlusCircleOutline } from '@taskany/icons';
 
 import { trpc } from '../../trpc/trpcClient';
 import { TeamPageSubtitle } from '../TeamPageSubtitle/TeamPageSubtitle';
-import { AddUserToTeamForm } from '../AddUserToTeamForm/AddUserToTeamForm';
+import { AddUserToTeamModal } from '../AddUserToTeamModal/AddUserToTeamModal';
 import { UserItem } from '../UserItem/UserItem';
 import { List, ListItem } from '../List/List';
 import { Restricted } from '../Restricted';
-import { EditRolesModal } from '../EditRolesModal/EditRolesModal';
-import { RemoveUserFromGroupModal } from '../RemoveUserFromGroupModal/RemoveUserFromGroupModal';
 import { MembershipInfo } from '../../modules/userTypes';
+import { useBoolean } from '../../hooks/useBoolean';
+import { WarningModal } from '../WarningModal/WarningModal';
+import { useUserMutations } from '../../modules/userHooks';
 
 import s from './TeamMembers.module.css';
 import { tr } from './TeamMembers.i18n';
@@ -46,6 +47,15 @@ export const TeamMembers: FC<TeamMembersProps> = ({
     const [editMembership, setEditMembership] = useState<MembershipInfo | null>(null);
     const [removeMembership, setRemoveMembership] = useState<MembershipInfo | null>(null);
     const [dropdownId, setDropdownId] = useState<string | null>(null);
+
+    const modalAddUserToTeamVisibility = useBoolean(false);
+
+    const { removeUserFromGroup } = useUserMutations();
+
+    const onRemoveClick = async (membership: MembershipInfo) => {
+        await removeUserFromGroup({ userId: membership.userId, groupId: membership.groupId });
+        setRemoveMembership(null);
+    };
 
     const items = useMemo(
         () => [
@@ -78,7 +88,20 @@ export const TeamMembers: FC<TeamMembersProps> = ({
                     counter={memberships.length}
                     action={
                         <Restricted visible={editable}>
-                            <AddUserToTeamForm triggerText={tr('Add')} groupId={groupId} />
+                            <Button
+                                text={tr('Add')}
+                                className={s.AddButton}
+                                view="clear"
+                                brick="right"
+                                iconLeft={<IconPlusCircleOutline size="s" />}
+                                onClick={modalAddUserToTeamVisibility.setTrue}
+                            />
+                            <AddUserToTeamModal
+                                visible={modalAddUserToTeamVisibility.value}
+                                onClose={modalAddUserToTeamVisibility.setFalse}
+                                groupId={groupId}
+                                type="user-to-team"
+                            />
                         </Restricted>
                     }
                 >
@@ -152,11 +175,26 @@ export const TeamMembers: FC<TeamMembersProps> = ({
                 </List>
             </div>
             {nullable(editMembership, (membership) => (
-                <EditRolesModal visible membership={membership} onClose={() => setEditMembership(null)} />
+                <AddUserToTeamModal
+                    membership={membership}
+                    visible={!!editMembership}
+                    onClose={() => setEditMembership(null)}
+                    groupId={groupId}
+                    type="edit"
+                />
             ))}
 
             {nullable(removeMembership, (membership) => (
-                <RemoveUserFromGroupModal visible membership={membership} onClose={() => setRemoveMembership(null)} />
+                <WarningModal
+                    view="danger"
+                    warningText={tr('Do you really want to remove a member {user} from the team {team}', {
+                        user: membership.user.name || 'user',
+                        team: membership.group.name,
+                    })}
+                    visible
+                    onCancel={() => setRemoveMembership(null)}
+                    onConfirm={() => onRemoveClick(membership)}
+                />
             ))}
         </>
     );

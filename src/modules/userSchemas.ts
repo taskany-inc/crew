@@ -33,6 +33,7 @@ const percentageSchema = z
 export const addUserToGroupSchema = z.object({
     userId: z.string({ required_error: tr('User is required') }),
     groupId: z.string(),
+    roles: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
     percentage: z.optional(percentageSchema),
 });
 export type AddUserToGroup = z.infer<typeof addUserToGroupSchema>;

@@ -1,14 +1,16 @@
-import { useMemo } from 'react';
-import { Group, User } from 'prisma/prisma-client';
+import { User } from 'prisma/prisma-client';
 import styled from 'styled-components';
 import { gapM, gapS } from '@taskany/colors';
+import { Button } from '@taskany/bricks/harmony';
+import { IconPlusCircleSolid } from '@taskany/icons';
 
 import { NarrowSection } from '../NarrowSection';
 import { UserMemberships } from '../../modules/userTypes';
 import { MembershipGroupListItemEditable } from '../MembershipGroupListItemEditable';
-import { InlineGroupSelectForm } from '../InlineGroupSelectForm';
-import { useUserMutations } from '../../modules/userHooks';
+import { useBoolean } from '../../hooks/useBoolean';
+import { AddUserToTeamModal } from '../AddUserToTeamModal/AddUserToTeamModal';
 
+import s from './UserMembershipsList.module.css';
 import { tr } from './UserMembershipsList.i18n';
 
 const StyledMembershipList = styled.div`
@@ -24,14 +26,7 @@ interface UserMembershipsProps {
 }
 
 export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
-    const { addUserToGroup } = useUserMutations();
-
-    const onAddUserToTeam = async (group: Group) => {
-        await addUserToGroup({ userId: user.id, groupId: group.id });
-    };
-    const groupFilter = useMemo(() => {
-        return user.memberships.map(({ groupId }) => groupId);
-    }, [user.memberships]);
+    const modalAddUserToTeamVisibility = useBoolean(false);
 
     return (
         <NarrowSection title={tr('Teams with participation')}>
@@ -41,11 +36,19 @@ export const UserMembershipsList = ({ user }: UserMembershipsProps) => {
                 ))}
             </StyledMembershipList>
 
-            <InlineGroupSelectForm
-                triggerText={tr('Add team')}
-                actionText={tr('Add')}
-                filter={groupFilter}
-                onSubmit={onAddUserToTeam}
+            <Button
+                text={tr('Add team')}
+                className={s.AddButton}
+                view="clear"
+                brick="right"
+                iconLeft={<IconPlusCircleSolid size="s" />}
+                onClick={modalAddUserToTeamVisibility.setTrue}
+            />
+            <AddUserToTeamModal
+                visible={modalAddUserToTeamVisibility.value}
+                onClose={modalAddUserToTeamVisibility.setFalse}
+                userId={user.id}
+                type="team-to-user"
             />
         </NarrowSection>
     );

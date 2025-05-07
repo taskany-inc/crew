@@ -48,3 +48,7 @@
 .Empty_L {
     margin-top: var(--gap-s);
 }
+
+.AddButton {
+    color: var(--gray-500);
+}

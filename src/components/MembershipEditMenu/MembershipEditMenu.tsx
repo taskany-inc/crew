@@ -3,8 +3,9 @@ import { Dropdown, MenuItem } from '@taskany/bricks';
 import { IconMoreVerticalOutline } from '@taskany/icons';
 
 import { MembershipInfo } from '../../modules/userTypes';
-import { EditRolesModal } from '../EditRolesModal/EditRolesModal';
-import { RemoveUserFromGroupModal } from '../RemoveUserFromGroupModal/RemoveUserFromGroupModal';
+import { AddUserToTeamModal } from '../AddUserToTeamModal/AddUserToTeamModal';
+import { WarningModal } from '../WarningModal/WarningModal';
+import { useUserMutations } from '../../modules/userHooks';
 
 import { tr } from './MembershipEditMenu.i18n';
 
@@ -16,6 +17,8 @@ export const MembershipEditMenu = ({ membership }: MembershipEditMenuProps) => {
     const [editRolesModalVisible, setEditRolesModalVisible] = useState(false);
     const [removeModalVisible, setRemoveModalVisible] = useState(false);
 
+    const { removeUserFromGroup } = useUserMutations();
+
     const items = useMemo(
         () => [
             { name: tr('Edit'), action: () => setEditRolesModalVisible(true) },
@@ -23,6 +26,11 @@ export const MembershipEditMenu = ({ membership }: MembershipEditMenuProps) => {
         ],
         [],
     );
+
+    const onRemoveClick = async (membership: MembershipInfo) => {
+        await removeUserFromGroup({ userId: membership.userId, groupId: membership.groupId });
+        setRemoveModalVisible(false);
+    };
 
     return (
         <>
@@ -37,16 +45,23 @@ export const MembershipEditMenu = ({ membership }: MembershipEditMenuProps) => {
                 )}
             />
 
-            <EditRolesModal
-                visible={editRolesModalVisible}
+            <AddUserToTeamModal
                 membership={membership}
+                visible={editRolesModalVisible}
                 onClose={() => setEditRolesModalVisible(false)}
+                groupId={membership.groupId}
+                type="edit"
             />
 
-            <RemoveUserFromGroupModal
+            <WarningModal
+                view="danger"
+                warningText={tr('Do you really want to remove a member {user} from the team {team}', {
+                    user: membership.user.name || membership.user.email,
+                    team: membership.group.name,
+                })}
                 visible={removeModalVisible}
-                membership={membership}
-                onClose={() => setRemoveModalVisible(false)}
+                onCancel={() => setRemoveModalVisible(false)}
+                onConfirm={() => onRemoveClick(membership)}
             />
         </>
     );
