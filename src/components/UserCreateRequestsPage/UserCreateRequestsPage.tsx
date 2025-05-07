@@ -1,4 +1,4 @@
-import { Badge, Dot, getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
+import { Badge, getTableComponents, TableRow, Tooltip } from '@taskany/bricks/harmony';
 import { forwardRef, useCallback, useRef, useState } from 'react';
 import cn from 'classnames';
 import { UserCreationRequestStatus } from 'prisma/prisma-client';
@@ -11,6 +11,8 @@ import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
 import { UserCreationRequestType } from '../../modules/userCreationRequestTypes';
 import { getRequestPageLinkByType } from '../../utils/userCreationRequests';
+import { StatusDot } from '../StatusDot/StatusDot';
+import { getStatusText } from '../../utils/getStatusText';
 
 import { tr } from './UserCreateRequestsPage.i18n';
 import s from './UserCreateRequestsPage.module.css';
@@ -137,15 +139,6 @@ export const UserCreateRequestsPage = () => {
         id: request.id,
     }));
 
-    const statusText = (status: 'Approved' | 'Denied' | 'Canceled' | 'Draft' | 'Completed' | null) => {
-        if (status === 'Approved') return tr('Approved');
-        if (status === 'Denied') return tr('Denied');
-        if (status === 'Canceled') return tr('Canceled');
-        if (status === 'Draft') return tr('Draft');
-        if (status === 'Completed') return tr('Completed');
-        return tr('Under concideration');
-    };
-
     const canEditRequest =
         sessionUser.role?.editInternalUserRequest ||
         sessionUser.role?.editExternalUserRequest ||
@@ -172,18 +165,8 @@ export const UserCreateRequestsPage = () => {
                                 { [s.StatusTextCanceled]: status === 'Canceled' },
                                 { [s.StatusTextDraft]: status === 'Draft' },
                             )}
-                            text={statusText(status)}
-                            iconLeft={
-                                <Dot
-                                    className={cn(
-                                        s.StatusDot,
-                                        { [s.StatusDotApproved]: status === 'Approved' },
-                                        { [s.StatusDotDenied]: status === 'Denied' },
-                                        { [s.StatusDotCanceled]: status === 'Canceled' },
-                                        { [s.StatusDotDraft]: status === 'Draft' },
-                                    )}
-                                />
-                            }
+                            text={getStatusText(status)}
+                            iconLeft={<StatusDot status={status} />}
                         />
                     )}
                     title={tr('Status')}

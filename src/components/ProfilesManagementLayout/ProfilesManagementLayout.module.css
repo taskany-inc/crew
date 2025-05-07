@@ -8,3 +8,20 @@
     justify-content: space-between;
     margin: var(--gap-m) 0px;
 }
+
+.FilterActions {
+    display: flex;
+    gap: var(--gap-s);
+}
+
+.Search {
+    background-color: var(--input-fill) !important;
+}
+
+.LayoutWrapperFilters {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--gap-s);
+    margin-bottom: 20px;
+}

@@ -1,9 +1,19 @@
 {
     "Planned newcomers": "Выходы новичков",
-    "Scheduled deactivations": "Запланированные деактивации",
+    "Scheduled deactivations": "Запланированные увольнения",
     "Access coordination": "Согласование доступов",
     "Requests": "Заявки",
     "To decrees": "Выходы в декрет",
     "From decrees": "Выходы из декрета",
-    "Search in the table": "Поиск в таблице"
+    "Search in the table": "Искать в заявках",
+    "Filters": "Фильтры",
+    "Reset filters": "Сбросить фильтры",
+    "Organization": "Организация",
+    "Manager": "Руководитель",
+    "Author": "Автор заявки",
+    "Date": "Дата",
+    "Status": "Статус",
+    "Team": "Команда",
+    "From": "C",
+    "To": "По"
 }

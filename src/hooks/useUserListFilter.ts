@@ -17,6 +17,7 @@ export const useUserListFilter = () => {
             includeChildrenGroups: 'boolean',
             roles: 'stringArray',
             supervisors: 'stringArray',
+            author: 'stringArray',
         },
         router.query,
         pushUrl,
