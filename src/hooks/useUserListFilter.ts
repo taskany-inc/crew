@@ -18,7 +18,6 @@ export const useUserListFilter = () => {
             roles: 'stringArray',
             supervisors: 'stringArray',
             author: 'stringArray',
-            dateFrom: 'string',
         },
         router.query,
         pushUrl,

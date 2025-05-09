@@ -1,0 +1,19 @@
+.StatusDot {
+    background-color: var(--status-in-progress);
+}
+
+.StatusDotApproved {
+    background-color: var(--status-finished);
+}
+
+.StatusDotDenied {
+    background-color: var(--status-failed);
+}
+
+.StatusDotDraft {
+    background-color: var(--status-draft);
+}
+
+.StatusDotCanceled {
+    background-color: var(--status-at-risk);
+}

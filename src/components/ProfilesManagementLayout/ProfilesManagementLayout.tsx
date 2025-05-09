@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Text } from '@taskany/bricks/harmony';
-import { IconAddOutline, IconFilterOutline, IconSearchOutline } from '@taskany/icons';
+import { IconSearchOutline } from '@taskany/icons';
+import { Button, nullable } from '@taskany/bricks';
 
 import { TabsSwitch } from '../TabsSwitch/TabsSwitch';
 import { pages } from '../../hooks/useRouter';
@@ -8,10 +9,6 @@ import { LayoutMain } from '../LayoutMain/LayoutMain';
 import { useSessionUser } from '../../hooks/useSessionUser';
 import { useUserListFilter } from '../../hooks/useUserListFilter';
 import { SearchFilter } from '../SearchFilter';
-
-import { tr } from './ProfilesManagementLayout.i18n';
-import s from './ProfilesManagementLayout.module.css';
-import { Button, nullable } from '@taskany/bricks';
 import { AddFilterDropdown } from '../AddFilterDropdown/AddFilterDropdown';
 import { useRequestFilters } from '../../hooks/useRequestFilters';
 import { AppliedUserFilter } from '../AppliedUserFilter/AppliedUserFilter';
@@ -19,11 +16,14 @@ import { AppliedGroupFilter } from '../AppliedGroupFilter/AppliedGroupFilter';
 import { AppliedOrganizationFilter } from '../AppliedOrganizationFilter/AppliedOrganizationFilter';
 import { AppliedStatusFilter } from '../AppliedStatusFilter/AppliedStatusFilter';
 
+import s from './ProfilesManagementLayout.module.css';
+import { tr } from './ProfilesManagementLayout.i18n';
+
 export const ProfilesManagementLayout = ({ children }: { children: React.ReactNode }) => {
     const sessionUser = useSessionUser();
     const userListFilter = useUserListFilter();
 
-    const { currentValues, setter, clearParams, filterValues, isEmpty: isFilterValuesEmpty } = useRequestFilters();
+    const { currentValues, setter, clearParams, filterValues } = useRequestFilters();
     const [filtersState, setFiltersState] = useState(currentValues);
 
     const restFilterItems = useMemo(() => {
@@ -43,7 +43,6 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
 
     const handleChange = useCallback(
         (key: keyof typeof currentValues) => (users?: { id: string; name: string; email?: string }[]) => {
-            debugger;
             setPartialQueryByKey(key)(users?.map(({ id }) => id));
         },
         [setPartialQueryByKey],
@@ -62,7 +61,7 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
         },
         [setPartialQueryByKey, setter],
     );
-    
+
     const onResetFilters = () => {
         clearParams();
         setFiltersState({});
@@ -118,10 +117,12 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
                                 <AddFilterDropdown
                                     title={tr('Filters')}
                                     items={restFilterItems}
-                                    onChange={([item]) => setPartialQueryByKey(item.id as keyof typeof currentValues)([])}
+                                    onChange={([item]) =>
+                                        setPartialQueryByKey(item.id as keyof typeof currentValues)([])
+                                    }
                                 />
                             ),
-                            <Button text={tr('Reset filters')} onClick={onResetFilters} />
+                            <Button text={tr('Reset filters')} onClick={onResetFilters} />,
                         )}
                         <SearchFilter
                             iconLeft={<IconSearchOutline size="s" />}
@@ -146,7 +147,7 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
                         {nullable(Boolean(filtersState?.organization), () => (
                             <AppliedOrganizationFilter
                                 label={tr('Organization')}
-                                selectedGroups={filtersState?.organization}
+                                selectedOrganizations={filtersState?.organization}
                                 onChange={handleChange('organization')}
                                 onClose={onApply}
                                 onCleanFilter={onCleanFilter('organization')}

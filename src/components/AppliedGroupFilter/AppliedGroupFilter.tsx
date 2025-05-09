@@ -1,17 +1,34 @@
-import { AppliedFilter, Badge, Input, Select, SelectPanel, SelectTrigger, TagCleanButton, Text } from "@taskany/bricks/harmony";
-import { trpc } from "../../trpc/trpcClient";
-import { useState } from "react";
-import { nullable } from "@taskany/bricks";
+import {
+    AppliedFilter,
+    Badge,
+    Counter,
+    Input,
+    Select,
+    SelectPanel,
+    SelectTrigger,
+    TagCleanButton,
+    Text,
+} from '@taskany/bricks/harmony';
+import { useState } from 'react';
+import { nullable } from '@taskany/bricks';
+
+import { trpc } from '../../trpc/trpcClient';
 
 interface AppliedGroupFilterProps {
     label: string;
     onCleanFilter: () => void;
     selectedGroups: string[] | undefined;
-    onChange: (group: {id: string; name: string}[]) => void;
+    onChange: (group: { id: string; name: string }[]) => void;
     onClose: () => void;
 }
 
-export const AppliedGroupFilter = ({ label, onCleanFilter, selectedGroups, onChange, onClose }: AppliedGroupFilterProps) => {
+export const AppliedGroupFilter = ({
+    label,
+    onCleanFilter,
+    selectedGroups,
+    onChange,
+    onClose,
+}: AppliedGroupFilterProps) => {
     const [groupQuery, setGroupQuery] = useState('');
 
     const { data: groups = [] } = trpc.group.suggestions.useQuery(
@@ -19,14 +36,14 @@ export const AppliedGroupFilter = ({ label, onCleanFilter, selectedGroups, onCha
             query: groupQuery,
             take: 5,
             include: selectedGroups,
-        }, 
+        },
         {
-            keepPreviousData: true
-        }
+            keepPreviousData: true,
+        },
     );
 
     const groupValue = groups.filter((group) => selectedGroups?.includes(group.id));
-    
+
     return (
         <AppliedFilter label={label} action={<TagCleanButton size="s" onClick={onCleanFilter} />}>
             <Select
@@ -41,16 +58,18 @@ export const AppliedGroupFilter = ({ label, onCleanFilter, selectedGroups, onCha
                 selectable
                 mode="multiple"
                 renderItem={({ item }) => (
-                    <Text key={item.id} size="s" ellipsis>{item.name}</Text>
+                    <Text key={item.id} size="s" ellipsis>
+                        {item.name}
+                    </Text>
                 )}
             >
                 <SelectTrigger>
                     {nullable(
                         selectedGroups && selectedGroups?.length > 1,
-                        () => groupValue?.map((group) => (
-                            <Badge weight="regular" text={group.name} />
-                        )),
-                        nullable(groupValue[0], (group) => <Badge weight="regular" text={group.name} />)
+                        () => (
+                            <Counter count={groupValue.length} />
+                        ),
+                        nullable(groupValue[0], (group) => <Badge weight="regular" text={group.name} />),
                     )}
                 </SelectTrigger>
                 <SelectPanel placement="bottom">
