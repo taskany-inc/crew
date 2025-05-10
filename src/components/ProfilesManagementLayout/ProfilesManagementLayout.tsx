@@ -15,6 +15,7 @@ import { AppliedUserFilter } from '../AppliedUserFilter/AppliedUserFilter';
 import { AppliedGroupFilter } from '../AppliedGroupFilter/AppliedGroupFilter';
 import { AppliedOrganizationFilter } from '../AppliedOrganizationFilter/AppliedOrganizationFilter';
 import { AppliedStatusFilter } from '../AppliedStatusFilter/AppliedStatusFilter';
+import { AppliedDateFilter } from '../AppliedDateFilter/AppliedDateFilter';
 
 import s from './ProfilesManagementLayout.module.css';
 import { tr } from './ProfilesManagementLayout.i18n';
@@ -42,9 +43,14 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
     }, []);
 
     const handleChange = useCallback(
-        (key: keyof typeof currentValues) => (users?: { id: string; name: string; email?: string }[]) => {
-            setPartialQueryByKey(key)(users?.map(({ id }) => id));
+        (key: keyof typeof currentValues) => (values?: { id: string; name: string; email?: string }[]) => {
+            setPartialQueryByKey(key)(values?.map(({ id }) => id));
         },
+        [setPartialQueryByKey],
+    );
+
+    const handleDateChange = useCallback(
+        (key: keyof typeof currentValues) => (date: string[]) => setPartialQueryByKey(key)(date),
         [setPartialQueryByKey],
     );
 
@@ -181,10 +187,22 @@ export const ProfilesManagementLayout = ({ children }: { children: React.ReactNo
                             />
                         ))}
                         {nullable(Boolean(filtersState?.dateFrom), () => (
-                            <div></div>
+                            <AppliedDateFilter
+                                label={tr('From')}
+                                selectedDate={filtersState?.dateFrom}
+                                onChange={handleDateChange('dateFrom')}
+                                onClose={onApply}
+                                onCleanFilter={onCleanFilter('dateFrom')}
+                            />
                         ))}
                         {nullable(Boolean(filtersState?.dateTo), () => (
-                            <div></div>
+                            <AppliedDateFilter
+                                label={tr('To')}
+                                selectedDate={filtersState?.dateTo}
+                                onChange={handleDateChange('dateTo')}
+                                onClose={onApply}
+                                onCleanFilter={onCleanFilter('dateTo')}
+                            />
                         ))}
                         <AddFilterDropdown
                             title={tr('Filters')}

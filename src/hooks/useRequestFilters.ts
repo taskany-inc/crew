@@ -1,7 +1,8 @@
-import { useRouter } from "next/router";
-import { tr } from "../components/ProfilesManagementLayout/ProfilesManagementLayout.i18n";
-import { useCallback, useMemo } from "react";
-import { useUrlParams } from "@taskany/bricks";
+import { useRouter } from 'next/router';
+import { useCallback, useMemo } from 'react';
+import { useUrlParams } from '@taskany/bricks';
+
+import { tr } from '../components/ProfilesManagementLayout/ProfilesManagementLayout.i18n';
 
 const getFilterValues = (path: string) => {
     switch (path) {
@@ -10,7 +11,8 @@ const getFilterValues = (path: string) => {
                 { id: 'organization', title: tr('Organization') },
                 { id: 'manager', title: tr('Manager') },
                 { id: 'author', title: tr('Author') },
-                { id: 'date', title: tr('Date') }
+                { id: 'dateFrom', title: tr('From') },
+                { id: 'dateTo', title: tr('To') },
             ];
         case 'users/newcomers':
             return [
@@ -18,14 +20,15 @@ const getFilterValues = (path: string) => {
                 { id: 'team', title: tr('Team') },
                 { id: 'manager', title: tr('Manager') },
                 { id: 'author', title: tr('Author') },
-                { id: 'date', title: tr('Date') }
+                { id: 'dateFrom', title: tr('From') },
+                { id: 'dateTo', title: tr('To') },
             ];
         default:
             return [
                 { id: 'organization', title: tr('Organization') },
-                { id: 'group', title: tr('Group') },
                 { id: 'team', title: tr('Team') },
-                { id: 'date', title: tr('Date') }
+                { id: 'dateFrom', title: tr('From') },
+                { id: 'dateTo', title: tr('To') },
             ];
     }
 };
@@ -37,7 +40,11 @@ export const useRequestFilters = () => {
 
     const filterValues = getFilterValues(path);
 
-    const { values: currentValues, setter, clearParams } = useUrlParams(
+    const {
+        values: currentValues,
+        setter,
+        clearParams,
+    } = useUrlParams(
         {
             status: 'stringArray',
             organization: 'stringArray',
@@ -45,8 +52,8 @@ export const useRequestFilters = () => {
             author: 'stringArray',
             team: 'stringArray',
             group: 'stringArray',
-            dateFrom: 'string',
-            dateTo: 'string',
+            dateFrom: 'stringArray',
+            dateTo: 'stringArray',
         },
         query,
         pushUrl,
