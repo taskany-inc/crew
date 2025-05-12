@@ -1,6 +1,6 @@
 {
   "name": "@taskany/crew",
-  "version": "0.124.2",
+  "version": "0.125.0",
   "private": true,
   "scripts": {
     "dev": "npm run build:css && concurrently --prefix none -k \"npm run dev:worker\" \"next dev\" | pino-pretty",
