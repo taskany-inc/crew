@@ -15,5 +15,6 @@
     "Old organizational group": "Подразделение откуда переводится ",
     "Write old organizational group name": "Введите название подразделения",
     "Old supervisor": "Прошлый руководитель",
-    "Write old supervisor full name": "Введите ФИО руководителя"
+    "Write old supervisor full name": "Введите ФИО руководителя",
+    "Required field": "Обязательное поле"
 }
